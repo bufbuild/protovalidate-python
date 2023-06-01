@@ -8,3 +8,5 @@ managed:
 plugins:
     - plugin: buf.build/protocolbuffers/python:v23.2
       out: gen
+    - plugin: buf.build/protocolbuffers/pyi:v23.2
+      out: gen
