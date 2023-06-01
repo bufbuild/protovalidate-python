@@ -6,5 +6,5 @@ managed:
     except:
       - buf.build/envoyproxy/protoc-gen-validate
 plugins:
-    - plugin: buf.build/protocolbuffers/python:v21.9
+    - plugin: buf.build/protocolbuffers/python:v23.2
       out: gen
