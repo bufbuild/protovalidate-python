@@ -4,8 +4,7 @@ from google.protobuf import message
 
 
 class Validator:
-    def validate(self, message: message.Message) -> expression_pb2.Violations:
-        result = expression_pb2.Violations()
+    def validate(self, message: message.Message, result: expression_pb2.Violations):
         result.violations.append(
             expression_pb2.Violation(
                 constraint_id="unimplemented",
