@@ -1,7 +1,7 @@
 import sys
 import celpy
 
-from buf import validate
+from buf.validate import validator
 from buf.validate.conformance.harness import harness_pb2
 from google.protobuf import descriptor_pool
 from google.protobuf import descriptor
@@ -11,7 +11,7 @@ from google.protobuf import message_factory
 def RunTestCase(tc: any, result: harness_pb2.TestResult):
     # Run the validator
     try:
-        validate.validate(tc, result.validation_error)
+        validator.validate(tc, result.validation_error)
     except celpy.CELEvalError as e:
         result.unexpected_error = str(e)
     else:

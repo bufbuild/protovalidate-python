@@ -1,15 +1,10 @@
-from buf import validate
+from buf.validate import validator
 import unittest
 
 
 # Test basic validation
 class TestValidate(unittest.TestCase):
-    def test_basic(self):
-        actual = validate.Violations()
-        validate.validate(None, actual)
-        self.assertEqual(len(actual.violations), 1)
-        self.assertEqual(actual.violations[0].constraint_id, "unimplemented")
-        self.assertEqual(actual.violations[0].message, "Unimplemented")
+    pass
 
 
 if __name__ == "__main__":
