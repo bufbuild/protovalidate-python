@@ -2,7 +2,6 @@ import sys
 
 from buf import validate
 from buf.validate.conformance.harness import harness_pb2
-from google.protobuf import any_pb2
 from google.protobuf import descriptor_pool
 from google.protobuf import descriptor
 from google.protobuf import message_factory
