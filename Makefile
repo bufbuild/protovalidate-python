@@ -38,7 +38,7 @@ test: generate ## Run all unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance
-	$(BIN)/protovalidate-conformance python3 -- -m buf.validate.conformance.runner $(ARGS)
+	$(BIN)/protovalidate-conformance $(ARGS) python3 -- -m buf.validate.conformance.runner
 
 .PHONY: generate-license
 generate-license: $(BIN)/license-header ## Generate license headers for files

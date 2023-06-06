@@ -1,4 +1,5 @@
 import celpy
+from celpy import celtypes
 
 from google.protobuf import message
 from google.protobuf import descriptor
@@ -74,12 +75,54 @@ class Constraints:
                 return
 
 
-def _MsgToCel(msg: message.Message) -> dict[str, any]:
+def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
     # convert the protobuf rules into json
     json = json_format.MessageToDict(
-        msg, preserving_proto_field_name=True, use_integers_for_enums=True
+        msg,
+        preserving_proto_field_name=True,
+        use_integers_for_enums=True,
+        including_default_value_fields=True,
     )
     return celpy.json_to_cel(json)
+
+
+def _FieldToCel(
+    msg: message.Message, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
+    if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+        return None
+    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
+        return _MsgToCel(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
+        return celtypes.BoolType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
+        return celtypes.BytesType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
+        return celtypes.StringType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
+        return celtypes.DoubleType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
+        return celtypes.DoubleType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
+        return celtypes.IntType(getattr(msg, field.name))
 
 
 class CelConstraintRules(ConstraintRules):
@@ -93,34 +136,42 @@ class CelConstraintRules(ConstraintRules):
     def validate_cel(
         self, ctx: ConstraintContext, field_path: str, activation: dict[str, any]
     ):
-        # convert the protobuf rules into json
         json = json_format.MessageToDict(
             self._rules, preserving_proto_field_name=True, use_integers_for_enums=True
         )
         activation["rules"] = self._rules_cel
         for runner in self._runners:
             result = runner.evaluate(activation)
-            # TODO(afuller): Handle result
+            if isinstance(result, celtypes.BoolType):
+                if not result:
+                    ctx.add(field_path, "cel", "CEL constraint failed")
+            elif isinstance(result, celtypes.StringType):
+                if result:
+                    ctx.add(field_path, "cel", result)
+            elif isinstance(result, Exception):
+                raise result
 
     def add_rule(
         self,
         env: celpy.Environment,
+        funcs: dict[str, celpy.CELFunction],
         rules: expression_pb2.Constraint | private_pb2.Constraint,
     ):
         ast = env.compile(rules.expression)
-        prog = env.program(ast)
+        prog = env.program(ast, functions=funcs)
         self._runners.append(prog)
 
     def add_rules(
         self,
         env: celpy.Environment,
+        funcs: dict[str, celpy.CELFunction],
         rules: message.Message,
     ):
         # For each set field in the message, look for the private constraint extension.
         for field, _ in rules.ListFields():
             if private_pb2.field in field.GetOptions().Extensions:
                 for cel in field.GetOptions().Extensions[private_pb2.field].cel:
-                    self.add_rule(env, cel)
+                    self.add_rule(env, funcs, cel)
 
 
 class MessageConstraintRules(CelConstraintRules):
@@ -169,8 +220,9 @@ class FieldConstraintRules(CelConstraintRules):
 
         field_path = self._make_field_path(field_path)
         activation = {}
+        activation["this"] = _FieldToCel(message, self._field)
         value = getattr(message, self._field.name)
-        # TODO(afuller): Bind the field to 'this' in the activation.
+
         self.validate_cel(ctx, field_path, activation)
 
     def _make_field_path(self, field_path: str) -> str:
@@ -299,16 +351,19 @@ class OneofConstraintRules(ConstraintRules):
 
 
 def NewMessageConstraint(
-    env: celpy.Environment, rules: validate_pb2.message
+    env: celpy.Environment,
+    funcs: dict[str, celpy.CELFunction],
+    rules: validate_pb2.message,
 ) -> MessageConstraintRules:
     result = MessageConstraintRules(rules)
     for cel in rules.cel:
-        result.add_rule(env, cel)
+        result.add_rule(env, funcs, cel)
     return result
 
 
 def NewScalarFieldConstraint(
     env: celpy.Environment,
+    funcs: dict[str, celpy.CELFunction],
     field: descriptor.FieldDescriptor,
     fieldLvl: validate_pb2.field,
 ):
@@ -316,78 +371,83 @@ def NewScalarFieldConstraint(
         return EnumConstraintRules(field, fieldLvl)
     elif field.type == descriptor.FieldDescriptor.TYPE_BOOL:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.bool)
-        result.add_rules(env, fieldLvl.bool)
+        result.add_rules(env, funcs, fieldLvl.bool)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_BYTES:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.bytes)
-        result.add_rules(env, fieldLvl.bytes)
+        result.add_rules(env, funcs, fieldLvl.bytes)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed32)
-        result.add_rules(env, fieldLvl.fixed32)
+        result.add_rules(env, funcs, fieldLvl.fixed32)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed64)
-        result.add_rules(env, fieldLvl.fixed64)
+        result.add_rules(env, funcs, fieldLvl.fixed64)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.float)
-        result.add_rules(env, fieldLvl.float)
+        result.add_rules(env, funcs, fieldLvl.float)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_INT32:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.int32)
-        result.add_rules(env, fieldLvl.int32)
+        result.add_rules(env, funcs, fieldLvl.int32)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_INT64:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.int64)
-        result.add_rules(env, fieldLvl.int64)
+        result.add_rules(env, funcs, fieldLvl.int64)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed32)
-        result.add_rules(env, fieldLvl.sfixed32)
+        result.add_rules(env, funcs, fieldLvl.sfixed32)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed64)
-        result.add_rules(env, fieldLvl.sfixed64)
+        result.add_rules(env, funcs, fieldLvl.sfixed64)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_SINT32:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint32)
-        result.add_rules(env, fieldLvl.sint32)
+        result.add_rules(env, funcs, fieldLvl.sint32)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_SINT64:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint64)
-        result.add_rules(env, fieldLvl.sint64)
+        result.add_rules(env, funcs, fieldLvl.sint64)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_UINT32:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint32)
-        result.add_rules(env, fieldLvl.uint32)
+        result.add_rules(env, funcs, fieldLvl.uint32)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_UINT64:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint64)
-        result.add_rules(env, fieldLvl.uint64)
+        result.add_rules(env, funcs, fieldLvl.uint64)
         return result
     elif field.type == descriptor.FieldDescriptor.TYPE_STRING:
         result = FieldConstraintRules(field, fieldLvl, fieldLvl.string)
-        result.add_rules(env, fieldLvl.string)
+        result.add_rules(env, funcs, fieldLvl.string)
         return result
 
 
 def NewFieldConstraint(
-    env: celpy.Environment, field: descriptor.FieldDescriptor, rules: validate_pb2.field
+    env: celpy.Environment,
+    funcs: dict[str, celpy.CELFunction],
+    field: descriptor.FieldDescriptor,
+    rules: validate_pb2.field,
 ) -> FieldConstraintRules:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return None
     else:
-        return NewScalarFieldConstraint(env, field, rules)
+        return NewScalarFieldConstraint(env, funcs, field, rules)
 
 
 def NewConstraints(
-    env: celpy.Environment, descriptor: descriptor.Descriptor
+    env: celpy.Environment,
+    funcs: dict[str, celpy.CELFunction],
+    descriptor: descriptor.Descriptor,
 ) -> Constraints:
     result = Constraints()
     if validate_pb2.message in descriptor.GetOptions().Extensions:
         if constraint := NewMessageConstraint(
-            env, descriptor.GetOptions().Extensions[validate_pb2.message]
+            env, funcs, descriptor.GetOptions().Extensions[validate_pb2.message]
         ):
             result.add(constraint)
 
@@ -401,7 +461,7 @@ def NewConstraints(
     for field in descriptor.fields:
         if validate_pb2.field in field.GetOptions().Extensions:
             if constraint := NewFieldConstraint(
-                env, field, field.GetOptions().Extensions[validate_pb2.field]
+                env, funcs, field, field.GetOptions().Extensions[validate_pb2.field]
             ):
                 result.add(constraint)
 

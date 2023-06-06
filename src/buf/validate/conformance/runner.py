@@ -8,15 +8,19 @@ from google.protobuf import descriptor
 from google.protobuf import message_factory
 
 
-def RunTestCase(tc: any, result: harness_pb2.TestResult):
+def RunTestCase(
+    tc: any, result: harness_pb2.TestResult | None = None
+) -> harness_pb2.TestResult:
+    if result is None:
+        result = harness_pb2.TestResult()
     # Run the validator
     try:
-        validator.validate(tc, result.validation_error)
-    except celpy.CELEvalError as e:
-        result.unexpected_error = str(e)
-    else:
+        validator.validate(tc, False, result.validation_error)
         if len(result.validation_error.violations) == 0:
             result.success = True
+    except celpy.CELEvalError as e:
+        result.unexpected_error = str(e)
+    return result
 
 
 def RunConformanceTest(
