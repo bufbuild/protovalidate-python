@@ -30,7 +30,8 @@ clean: ## Delete intermediate build artifacts
 
 .PHONY: generate
 generate: generate-license ## Regenerate code and license headers
-	buf generate proto/protovalidate && buf generate proto/protovalidate-testing
+	buf generate buf.build/bufbuild/protovalidate
+	buf generate buf.build/bufbuild/protovalidate-testing
 
 .PHONY: test
 test: generate ## Run all unit tests
