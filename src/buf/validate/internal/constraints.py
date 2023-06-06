@@ -128,6 +128,8 @@ def _FieldToCel(
 
 
 class ConstraintContext:
+    """The state associated with a single constraint evaluation."""
+
     def __init__(
         self, fail_fast: bool = False, violations: expression_pb2.Violations = None
     ):
@@ -159,45 +161,21 @@ class ConstraintContext:
 
 
 class ConstraintRules:
-    def __init__(self, rules: message.Message):
-        self._rules = rules
-
-    @property
-    def rules(self) -> message.Message:
-        return self._rules
+    """The constrains associated with a single 'rules' message."""
 
     def validate(
         self, ctx: ConstraintContext, field_path: str, message: message.Message
     ):
+        """Validate the message against the rules in this constraint."""
         ctx.add(field_path, "unimplemented", "Unimplemented")
 
 
-class Constraints:
-    _err: Exception | None = None
-    _constraints: list[ConstraintRules]
-
-    def __init__(self):
-        self._constraints = []
-
-    def add(self, constraint: ConstraintRules):
-        self._constraints.append(constraint)
-
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
-        if self._err is not None:
-            raise self._err
-        for constraint in self._constraints:
-            constraint.validate(ctx, field_path, message)
-            if ctx.done:
-                return
-
-
 class CelConstraintRules(ConstraintRules):
+    """A constraint that has rules written in CEL."""
+
     _runners: list[celpy.Runner]
 
     def __init__(self, rules: message.Message):
-        super().__init__(rules)
         self._runners = []
         self._rules_cel = _MsgToCel(rules)
 
@@ -207,6 +185,7 @@ class CelConstraintRules(ConstraintRules):
         activation["rules"] = self._rules_cel
         for runner in self._runners:
             result = runner.evaluate(activation)
+
             if isinstance(result, celtypes.BoolType):
                 if not result:
                     ctx.add(field_path, "cel", "CEL constraint failed")
@@ -240,15 +219,20 @@ class CelConstraintRules(ConstraintRules):
 
 
 class MessageConstraintRules(CelConstraintRules):
+    """Message-level rules."""
+
     def validate(
         self, ctx: ConstraintContext, field_path: str, message: message.Message
     ):
         activation = {}
+        # TODO: Support binding recursive messages.
         # activation["this"] = _MsgToCel(message)
         self.validate_cel(ctx, field_path, activation)
 
 
 class FieldConstraintRules(CelConstraintRules):
+    """Field-level rules."""
+
     _ignore_empty = False
     _required = False
     _any_rules = None
@@ -297,6 +281,8 @@ class FieldConstraintRules(CelConstraintRules):
 
 
 class EnumConstraintRules(FieldConstraintRules):
+    """Rules for an enum field."""
+
     _defined_only = False
 
     def __init__(
@@ -323,6 +309,8 @@ class EnumConstraintRules(FieldConstraintRules):
 
 
 class RepeatedConstraintRules(FieldConstraintRules):
+    """Rules for a repeated field."""
+
     _min_items = 0
     _max_items = 0
 
@@ -357,6 +345,8 @@ class RepeatedConstraintRules(FieldConstraintRules):
 
 
 class MapConstraintRules(FieldConstraintRules):
+    """Rules for a map field."""
+
     _key_rules = None
     _value_rules = None
 
@@ -389,12 +379,13 @@ class MapConstraintRules(FieldConstraintRules):
 
 
 class OneofConstraintRules(ConstraintRules):
+    """Rules for a oneof definition."""
+
     required = True
 
     def __init__(
         self, oneof: descriptor.OneofDescriptor, rules: validate_pb2.OneofConstraints
     ):
-        super().__init__(rules)
         self._oneof = oneof
         if not rules.required:
             self.required = False
@@ -409,19 +400,27 @@ class OneofConstraintRules(ConstraintRules):
 
 
 class ConstraintFactory:
+    """Factory for creating and caching constraints."""
+
     _env: celpy.Environment
     _funcs: dict[str, celpy.CELFunction]
-    _cache: dict[descriptor.Descriptor, Constraints]
+    _cache: dict[descriptor.Descriptor, list[ConstraintRules] | Exception]
 
     def __init__(self, funcs: dict[str, celpy.CELFunction]):
         self._env = celpy.Environment()
         self._funcs = funcs
         self._cache = {}
 
-    def get(self, descriptor: descriptor.Descriptor) -> Constraints:
+    def get(self, descriptor: descriptor.Descriptor) -> list[ConstraintRules]:
         if descriptor not in self._cache:
-            self._cache[descriptor] = self._new_constraints(descriptor)
-        return self._cache[descriptor]
+            try:
+                self._cache[descriptor] = self._new_constraints(descriptor)
+            except Exception as e:
+                self._cache[descriptor] = e
+        result = self._cache[descriptor]
+        if isinstance(result, Exception):
+            raise result
+        return result
 
     def _new_message_constraint(
         self, rules: validate_pb2.message
@@ -505,27 +504,25 @@ class ConstraintFactory:
         else:
             return self._new_scalar_field_constraint(field, rules)
 
-    def _new_constraints(self, descriptor: descriptor.Descriptor) -> Constraints:
-        result = Constraints()
-        if validate_pb2.message in descriptor.GetOptions().Extensions:
+    def _new_constraints(self, desc: descriptor.Descriptor) -> list[ConstraintRules]:
+        result = []
+        if validate_pb2.message in desc.GetOptions().Extensions:
             if constraint := self._new_message_constraint(
-                descriptor.GetOptions().Extensions[validate_pb2.message]
+                desc.GetOptions().Extensions[validate_pb2.message]
             ):
-                result.add(constraint)
+                result.append(constraint)
 
-        for oneof in descriptor.oneofs:
+        for oneof in desc.oneofs:
             if validate_pb2.oneof in oneof.GetOptions().Extensions:
                 if constraint := OneofConstraintRules(
                     oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]
                 ):
-                    result.add(constraint)
+                    result.append(constraint)
 
-        for field in descriptor.fields:
+        for field in desc.fields:
             if validate_pb2.field in field.GetOptions().Extensions:
-                if constraint := self._new_field_constraint(
-                    field, field.GetOptions().Extensions[validate_pb2.field]
-                ):
-                    result.add(constraint)
-            # TODO(afuller): Add check nested messages.
+                fieldLvl = field.GetOptions().Extensions[validate_pb2.field]
+                if constraint := self._new_field_constraint(field, fieldLvl):
+                    result.append(constraint)
 
         return result

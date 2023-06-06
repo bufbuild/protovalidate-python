@@ -15,6 +15,7 @@
 from buf.validate import validator
 from buf.validate.conformance import runner
 from buf.validate.conformance.cases import numbers_pb2
+from buf.validate.conformance.cases import oneofs_pb2
 import unittest
 
 
@@ -24,6 +25,17 @@ class TestValidate(unittest.TestCase):
         msg = numbers_pb2.SFixed64ExLTGT(val=11)
         violations = validator.validate(msg)
         self.assertEqual(len(violations.violations), 0)
+
+    def test_Oneofs(self):
+        msg1 = oneofs_pb2.Oneof()
+        msg1.y = 123
+        violations = validator.validate(msg1)
+        self.assertEqual(len(violations.violations), 1)
+
+        msg2 = oneofs_pb2.Oneof()
+        msg2.z.val = True
+        violations = validator.validate(msg2)
+        self.assertEqual(len(violations.violations), 2)
 
 
 if __name__ == "__main__":

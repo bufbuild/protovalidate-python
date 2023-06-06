@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import celpy
-
 from buf.validate.internal import constraints as _constraints
 from buf.validate.internal import extra_func
 from buf.validate import expression_pb2
@@ -36,8 +34,36 @@ class Validator:
         result: Violations = None,
     ) -> Violations:
         ctx = _constraints.ConstraintContext(fail_fast=fail_fast, violations=result)
-        self._factory.get(message.DESCRIPTOR).validate(ctx, "", message)
+        self._validate_message(ctx, "", message)
         return ctx.violations
+
+    def _validate_message(
+        self,
+        ctx: _constraints.ConstraintContext,
+        field_path: str,
+        msg: message.Message,
+    ) -> None:
+        for constraint in self._factory.get(msg.DESCRIPTOR):
+            constraint.validate(ctx, field_path, msg)
+            if ctx.done:
+                return
+
+        for field in msg.DESCRIPTOR.fields:
+            if field.type != descriptor.FieldDescriptor.TYPE_MESSAGE:
+                continue
+
+            # TODO(afuller): Figure out why this segfault in a dynamic environment.
+            # sub_path = field.name if field_path == "" else f"{field_path}.{field.name}"
+            # value = getattr(msg, field.name)
+            # if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+            #     for i, sub_msg in enumerate(value):
+            #         self._validate_message(ctx, f"{sub_path}[{i}]", sub_msg)
+            #         if ctx.done:
+            #             return
+            # elif msg.HasField(field.name):
+            #     self._validate_message(ctx, sub_path, value)
+            #     if ctx.done:
+            #         return
 
 
 _validator = Validator()
