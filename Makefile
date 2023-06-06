@@ -29,8 +29,8 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: generate-license ## Regenerate code and license headers
-	buf generate proto/protovalidate && buf generate proto/protovalidate-testing
+generate: $(BIN)/buf	generate-license ## Regenerate code and license headers
+	$(BIN)/buf generate proto/protovalidate && $(BIN)/buf generate proto/protovalidate-testing
 
 .PHONY: test
 test: generate install ## Run all unit tests
@@ -44,7 +44,7 @@ conformance: $(BIN)/protovalidate-conformance install
 install:
 	python3 -m pip install --upgrade pip
 	pip install pipenv ruff
-	pipenv install
+	pipenv --python python3 install
 
 .PHONY: generate-license
 generate-license: $(BIN)/license-header ## Generate license headers for files
