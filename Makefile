@@ -29,7 +29,7 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: generate-license $(BIN)/buf ## Regenerate code and license headers
+generate: $(BIN)/buf	generate-license ## Regenerate code and license headers
 	$(BIN)/buf generate proto/protovalidate && $(BIN)/buf generate proto/protovalidate-testing
 
 .PHONY: test
