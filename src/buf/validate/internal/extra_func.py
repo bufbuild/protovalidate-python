@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.buf.validate import validator
-from src.buf import numbers_pb2
-import unittest
+import celpy
+
+from src.buf.validate.internal import string_format
 
 
-# Test basic validation
-class TestValidate(unittest.TestCase):
-    def test_SFixed64ExLTGT(self):
-        msg = numbers_pb2.SFixed64ExLTGT(val=11)
-        violations = validator.validate(msg)
-        self.assertEqual(len(violations.violations), 0)
+def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
+    string_fmt = string_format.StringFormat(locale)
+    return {
+        "format": string_fmt.format,
+    }
 
 
-if __name__ == "__main__":
-    unittest.main()
+EXTRA_FUNCS = make_extra_funcs("en_US")

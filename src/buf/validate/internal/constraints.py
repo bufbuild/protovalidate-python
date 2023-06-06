@@ -17,10 +17,9 @@ from celpy import celtypes
 
 from google.protobuf import message
 from google.protobuf import descriptor
-from google.protobuf import json_format
-from buf.validate import expression_pb2
-from buf.validate import validate_pb2
-from buf.validate.priv import private_pb2
+from src.buf import expression_pb2
+from src.buf import validate_pb2
+from src.buf import private_pb2
 
 
 def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
