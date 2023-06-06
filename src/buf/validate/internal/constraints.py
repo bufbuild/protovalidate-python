@@ -19,43 +19,99 @@ def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
     return result
 
 
+def _FieldValToCel(val: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
+        return _MsgToCel(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
+        return celtypes.BoolType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
+        return celtypes.BytesType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
+        return celtypes.StringType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
+        return celtypes.DoubleType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
+        return celtypes.DoubleType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
+        return celtypes.IntType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
+        return celtypes.IntType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
+        return celtypes.UintType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
+        return celtypes.UintType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
+        return celtypes.IntType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
+        return celtypes.IntType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
+        return celtypes.UintType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
+        return celtypes.UintType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
+        return celtypes.IntType(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
+        return celtypes.IntType(val)
+
+
+def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
+    if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+        return len(getattr(msg, field.name)) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
+        return not msg.HasField(field.name)
+    if field.containing_oneof is not None:
+        return not msg.HasField(field.name)
+    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
+        return not getattr(msg, field.name)
+    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
+        return len(getattr(msg, field.name)) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
+        return len(getattr(msg, field.name)) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
+        return getattr(msg, field.name) == 0.0
+    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
+        return getattr(msg, field.name) == 0.0
+    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
+        return getattr(msg, field.name) == 0
+    if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
+        return getattr(msg, field.name) == 0
+    raise ValueError("unknown field type")
+
+
+def _RepeatedFieldToCel(
+    msg: message.Message, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
+    result = celtypes.ListType()
+    for val in getattr(msg, field.name):
+        result.append(_FieldValToCel(val, field))
+    return result
+
+
 def _FieldToCel(
     msg: message.Message, field: descriptor.FieldDescriptor
 ) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-        return None
-    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
-        return _MsgToCel(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
-        return celtypes.BoolType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-        return celtypes.BytesType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
-        return celtypes.StringType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
-        return celtypes.DoubleType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
-        return celtypes.DoubleType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
-        return celtypes.IntType(getattr(msg, field.name))
+        return _RepeatedFieldToCel(msg, field)
+    else:
+        return _FieldValToCel(getattr(msg, field.name), field)
 
 
 class ConstraintContext:
@@ -203,7 +259,7 @@ class FieldConstraintRules(CelConstraintRules):
     def validate(
         self, ctx: ConstraintContext, field_path: str, message: message.Message
     ):
-        if not self._has_field(message):
+        if _IsEmptyField(message, self._field):
             if self._required:
                 ctx.add(
                     self._make_field_path(field_path),
@@ -225,13 +281,6 @@ class FieldConstraintRules(CelConstraintRules):
         if len(field_path) == 0:
             return self._field.name
         return field_path + "." + self._field.name
-
-    def _has_field(self, message: message.Message) -> bool:
-        if self._field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-            return len(getattr(message, self._field.name)) > 0
-        elif self._field.cpp_type == descriptor.FieldDescriptor.CPPTYPE_MESSAGE:
-            return getattr(message, self._field.name) is not None
-        return True
 
 
 class EnumConstraintRules(FieldConstraintRules):
