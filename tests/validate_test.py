@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from buf.validate import validator
-from buf import numbers_pb2
+from buf.validate.conformance import runner
+from buf.validate.conformance.cases import numbers_pb2
 import unittest
 
 
