@@ -14,8 +14,9 @@
 
 import celpy
 
-from src.buf.validate.internal import extra_func, constraints as _constraints
-from src.buf import expression_pb2
+from buf.validate.internal import constraints as _constraints
+from buf.validate.internal import extra_func
+from buf.validate import expression_pb2
 from google.protobuf import descriptor
 from google.protobuf import message
 

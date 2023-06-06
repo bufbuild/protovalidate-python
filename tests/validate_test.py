@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from src.buf.validate import validator
-from src.buf import numbers_pb2
+from buf.validate import validator
+from buf import numbers_pb2
 import unittest
 
 

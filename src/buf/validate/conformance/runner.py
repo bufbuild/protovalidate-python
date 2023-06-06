@@ -15,8 +15,8 @@
 import sys
 import celpy
 
-from src.buf.validate import validator
-from src.buf import harness_pb2
+from buf.validate import validator
+from buf.validate.conformance.harness import harness_pb2
 from google.protobuf import descriptor_pool
 from google.protobuf import descriptor
 from google.protobuf import message_factory
