@@ -24,12 +24,10 @@ Violations = expression_pb2.Violations
 
 
 class Validator:
-    _constraints: dict[descriptor.Descriptor, _constraints.Constraints]
-    _env: celpy.Environment
+    _factory: _constraints.ConstraintFactory
 
     def __init__(self):
-        self._constraints = {}
-        self._env = celpy.Environment()
+        self._factory = _constraints.ConstraintFactory(extra_func.EXTRA_FUNCS)
 
     def validate(
         self,
@@ -37,14 +35,8 @@ class Validator:
         fail_fast: bool = False,
         result: Violations = None,
     ) -> Violations:
-        constraints = self._constraints.get(message.DESCRIPTOR)
-        if constraints is None:
-            constraints = _constraints.NewConstraints(
-                self._env, extra_func.EXTRA_FUNCS, message.DESCRIPTOR
-            )
-            self._constraints[message.DESCRIPTOR] = constraints
         ctx = _constraints.ConstraintContext(fail_fast=fail_fast, violations=result)
-        constraints.validate(ctx, "", message)
+        self._factory.get(message.DESCRIPTOR).validate(ctx, "", message)
         return ctx.violations
 
 
