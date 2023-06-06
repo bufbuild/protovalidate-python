@@ -29,7 +29,7 @@ clean: ## Delete intermediate build artifacts
 
 .PHONY: generate
 generate: $(BIN)/buf generate-license ## Regenerate code and license headers
-	rm -rf buf/validate
+	find . -name "*_pb2*" -exec rm {} +
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 
