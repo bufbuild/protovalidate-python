@@ -14,7 +14,7 @@
 
 import celpy
 
-from src.buf.validate.internal import string_format
+from buf.validate.internal import string_format
 
 
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
