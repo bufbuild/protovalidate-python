@@ -8,9 +8,8 @@ MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
 COPYRIGHT_YEARS := 2023
-LICENSE_IGNORE := -e internal/testdata/
-LICENSE_HEADER_VERSION := 6eba05bc619fbfa5ff052ddcd91c6a6a41d8984e
-
+LICENSE_IGNORE := -e buf/validate
+LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
 ARGS ?= --suite standard_constraints
@@ -29,8 +28,10 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: $(BIN)/buf	generate-license ## Regenerate code and license headers
-	$(BIN)/buf generate proto/protovalidate && $(BIN)/buf generate proto/protovalidate-testing
+generate: $(BIN)/buf generate-license ## Regenerate code and license headers
+	find . -name "*_pb2.py*" -exec rm {} +
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 
 .PHONY: test
 test: generate install ## Run all unit tests
