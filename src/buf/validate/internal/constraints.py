@@ -9,6 +9,55 @@ from buf.validate import validate_pb2
 from buf.validate.priv import private_pb2
 
 
+def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
+    result = celtypes.MapType()
+    field: descriptor.FieldDescriptor
+    for field in msg.DESCRIPTOR.fields:
+        if field.containing_oneof is not None and not msg.HasField(field.name):
+            continue
+        result[field.name] = _FieldToCel(msg, field)
+    return result
+
+
+def _FieldToCel(
+    msg: message.Message, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
+    if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+        return None
+    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
+        return _MsgToCel(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
+        return celtypes.BoolType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
+        return celtypes.BytesType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
+        return celtypes.StringType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
+        return celtypes.DoubleType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
+        return celtypes.DoubleType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
+        return celtypes.UintType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
+        return celtypes.IntType(getattr(msg, field.name))
+    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
+        return celtypes.IntType(getattr(msg, field.name))
+
+
 class ConstraintContext:
     def __init__(
         self, fail_fast: bool = False, violations: expression_pb2.Violations = None
@@ -75,56 +124,6 @@ class Constraints:
                 return
 
 
-def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
-    # convert the protobuf rules into json
-    json = json_format.MessageToDict(
-        msg,
-        preserving_proto_field_name=True,
-        use_integers_for_enums=True,
-        including_default_value_fields=True,
-    )
-    return celpy.json_to_cel(json)
-
-
-def _FieldToCel(
-    msg: message.Message, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
-    if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-        return None
-    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
-        return _MsgToCel(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
-        return celtypes.BoolType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-        return celtypes.BytesType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
-        return celtypes.StringType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
-        return celtypes.DoubleType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
-        return celtypes.DoubleType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
-        return celtypes.UintType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
-        return celtypes.IntType(getattr(msg, field.name))
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
-        return celtypes.IntType(getattr(msg, field.name))
-
-
 class CelConstraintRules(ConstraintRules):
     _runners: list[celpy.Runner]
 
@@ -136,9 +135,6 @@ class CelConstraintRules(ConstraintRules):
     def validate_cel(
         self, ctx: ConstraintContext, field_path: str, activation: dict[str, any]
     ):
-        json = json_format.MessageToDict(
-            self._rules, preserving_proto_field_name=True, use_integers_for_enums=True
-        )
         activation["rules"] = self._rules_cel
         for runner in self._runners:
             result = runner.evaluate(activation)
