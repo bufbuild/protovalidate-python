@@ -29,17 +29,17 @@ clean: ## Delete intermediate build artifacts
 
 .PHONY: generate
 generate: $(BIN)/buf generate-license ## Regenerate code and license headers
-	find . -name "*_pb2*" -exec rm {} +
+	find . -name "*_pb2.py*" -exec rm {} +
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 
 .PHONY: test
 test: generate ## Run all unit tests
-	pytest
+	pipenv run pytest
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance
-	$(BIN)/protovalidate-conformance $(ARGS) python3 -- -m buf.protovalidate.conformance.runner
+	$(BIN)/protovalidate-conformance $(ARGS) python3 -- -m buf.validate.conformance.runner
 
 .PHONY: generate-license
 generate-license: $(BIN)/license-header ## Generate license headers for files
