@@ -408,119 +408,123 @@ class OneofConstraintRules(ConstraintRules):
             return
 
 
-def NewMessageConstraint(
-    env: celpy.Environment,
-    funcs: dict[str, celpy.CELFunction],
-    rules: validate_pb2.message,
-) -> MessageConstraintRules:
-    result = MessageConstraintRules(rules)
-    for cel in rules.cel:
-        result.add_rule(env, funcs, cel)
-    return result
+class ConstraintFactory:
+    _env: celpy.Environment
+    _funcs: dict[str, celpy.CELFunction]
+    _cache: dict[descriptor.Descriptor, Constraints]
 
+    def __init__(self, funcs: dict[str, celpy.CELFunction]):
+        self._env = celpy.Environment()
+        self._funcs = funcs
+        self._cache = {}
 
-def NewScalarFieldConstraint(
-    env: celpy.Environment,
-    funcs: dict[str, celpy.CELFunction],
-    field: descriptor.FieldDescriptor,
-    fieldLvl: validate_pb2.field,
-):
-    if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
-        return EnumConstraintRules(field, fieldLvl)
-    elif field.type == descriptor.FieldDescriptor.TYPE_BOOL:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.bool)
-        result.add_rules(env, funcs, fieldLvl.bool)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.bytes)
-        result.add_rules(env, funcs, fieldLvl.bytes)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed32)
-        result.add_rules(env, funcs, fieldLvl.fixed32)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed64)
-        result.add_rules(env, funcs, fieldLvl.fixed64)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.float)
-        result.add_rules(env, funcs, fieldLvl.float)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_INT32:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.int32)
-        result.add_rules(env, funcs, fieldLvl.int32)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_INT64:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.int64)
-        result.add_rules(env, funcs, fieldLvl.int64)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed32)
-        result.add_rules(env, funcs, fieldLvl.sfixed32)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed64)
-        result.add_rules(env, funcs, fieldLvl.sfixed64)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_SINT32:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint32)
-        result.add_rules(env, funcs, fieldLvl.sint32)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_SINT64:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint64)
-        result.add_rules(env, funcs, fieldLvl.sint64)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_UINT32:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint32)
-        result.add_rules(env, funcs, fieldLvl.uint32)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_UINT64:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint64)
-        result.add_rules(env, funcs, fieldLvl.uint64)
-        return result
-    elif field.type == descriptor.FieldDescriptor.TYPE_STRING:
-        result = FieldConstraintRules(field, fieldLvl, fieldLvl.string)
-        result.add_rules(env, funcs, fieldLvl.string)
+    def get(self, descriptor: descriptor.Descriptor) -> Constraints:
+        if descriptor not in self._cache:
+            self._cache[descriptor] = self._new_constraints(descriptor)
+        return self._cache[descriptor]
+
+    def _new_message_constraint(
+        self, rules: validate_pb2.message
+    ) -> MessageConstraintRules:
+        result = MessageConstraintRules(rules)
+        for cel in rules.cel:
+            result.add_rule(self._env, self._funcs, cel)
         return result
 
+    def _new_scalar_field_constraint(
+        self,
+        field: descriptor.FieldDescriptor,
+        fieldLvl: validate_pb2.field,
+    ):
+        if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
+            return EnumConstraintRules(field, fieldLvl)
+        elif field.type == descriptor.FieldDescriptor.TYPE_BOOL:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bool)
+            result.add_rules(self._env, self._funcs, fieldLvl.bool)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_BYTES:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bytes)
+            result.add_rules(self._env, self._funcs, fieldLvl.bytes)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed32)
+            result.add_rules(self._env, self._funcs, fieldLvl.fixed32)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed64)
+            result.add_rules(self._env, self._funcs, fieldLvl.fixed64)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.float)
+            result.add_rules(self._env, self._funcs, fieldLvl.float)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_INT32:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int32)
+            result.add_rules(self._env, self._funcs, fieldLvl.int32)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_INT64:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int64)
+            result.add_rules(self._env, self._funcs, fieldLvl.int64)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed32)
+            result.add_rules(self._env, self._funcs, fieldLvl.sfixed32)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed64)
+            result.add_rules(self._env, self._funcs, fieldLvl.sfixed64)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_SINT32:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint32)
+            result.add_rules(self._env, self._funcs, fieldLvl.sint32)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_SINT64:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint64)
+            result.add_rules(self._env, self._funcs, fieldLvl.sint64)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_UINT32:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint32)
+            result.add_rules(self._env, self._funcs, fieldLvl.uint32)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_UINT64:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint64)
+            result.add_rules(self._env, self._funcs, fieldLvl.uint64)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_STRING:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.string)
+            result.add_rules(self._env, self._funcs, fieldLvl.string)
+            return result
 
-def NewFieldConstraint(
-    env: celpy.Environment,
-    funcs: dict[str, celpy.CELFunction],
-    field: descriptor.FieldDescriptor,
-    rules: validate_pb2.field,
-) -> FieldConstraintRules:
-    if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-        return None
-    else:
-        return NewScalarFieldConstraint(env, funcs, field, rules)
+    def _new_field_constraint(
+        self,
+        field: descriptor.FieldDescriptor,
+        rules: validate_pb2.field,
+    ) -> FieldConstraintRules:
+        if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+            return None
+        else:
+            return self._new_scalar_field_constraint(field, rules)
 
-
-def NewConstraints(
-    env: celpy.Environment,
-    funcs: dict[str, celpy.CELFunction],
-    descriptor: descriptor.Descriptor,
-) -> Constraints:
-    result = Constraints()
-    if validate_pb2.message in descriptor.GetOptions().Extensions:
-        if constraint := NewMessageConstraint(
-            env, funcs, descriptor.GetOptions().Extensions[validate_pb2.message]
-        ):
-            result.add(constraint)
-
-    for oneof in descriptor.oneofs:
-        if validate_pb2.oneof in oneof.GetOptions().Extensions:
-            if constraint := OneofConstraintRules(
-                oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]
+    def _new_constraints(self, descriptor: descriptor.Descriptor) -> Constraints:
+        result = Constraints()
+        if validate_pb2.message in descriptor.GetOptions().Extensions:
+            if constraint := self._new_message_constraint(
+                descriptor.GetOptions().Extensions[validate_pb2.message]
             ):
                 result.add(constraint)
 
-    for field in descriptor.fields:
-        if validate_pb2.field in field.GetOptions().Extensions:
-            if constraint := NewFieldConstraint(
-                env, funcs, field, field.GetOptions().Extensions[validate_pb2.field]
-            ):
-                result.add(constraint)
+        for oneof in descriptor.oneofs:
+            if validate_pb2.oneof in oneof.GetOptions().Extensions:
+                if constraint := OneofConstraintRules(
+                    oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]
+                ):
+                    result.add(constraint)
 
-    return result
+        for field in descriptor.fields:
+            if validate_pb2.field in field.GetOptions().Extensions:
+                if constraint := self._new_field_constraint(
+                    field, field.GetOptions().Extensions[validate_pb2.field]
+                ):
+                    result.add(constraint)
+
+        return result
