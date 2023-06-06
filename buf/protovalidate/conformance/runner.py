@@ -22,7 +22,7 @@ from google.protobuf import descriptor
 from google.protobuf import message_factory
 
 
-def RunTestCase(
+def run_test_case(
     tc: any, result: harness_pb2.TestResult | None = None
 ) -> harness_pb2.TestResult:
     if result is None:
@@ -37,7 +37,7 @@ def RunTestCase(
     return result
 
 
-def RunConformanceTest(
+def run_conformance_test(
     request: harness_pb2.TestConformanceRequest,
 ) -> harness_pb2.TestConformanceResponse:
     pool = descriptor_pool.DescriptorPool()
@@ -50,7 +50,7 @@ def RunConformanceTest(
         # Create a message from the protobuf descriptor
         msg = message_factory.GetMessageClass(desc)()
         tc.Unpack(msg)
-        RunTestCase(msg, result.results[name])
+        run_test_case(msg, result.results[name])
     return result
 
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     request = harness_pb2.TestConformanceRequest()
     request.ParseFromString(sys.stdin.buffer.read())
     # Run the test
-    result = RunConformanceTest(request)
+    result = run_conformance_test(request)
     # Write a serialized TestConformanceResponse to stdout
     sys.stdout.buffer.write(result.SerializeToString())
     sys.stdout.flush()
