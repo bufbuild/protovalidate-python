@@ -34,12 +34,18 @@ generate: $(BIN)/buf generate-license ## Regenerate code and license headers
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 
 .PHONY: test
-test: generate ## Run all unit tests
-	  pipenv run pytest
+test: generate install ## Run all unit tests
+	pipenv run pytest
 
 .PHONY: conformance
-conformance: $(BIN)/protovalidate-conformance
+conformance: $(BIN)/protovalidate-conformance install
 	$(BIN)/protovalidate-conformance $(ARGS) pipenv -- run python3 -m buf.validate.conformance.runner
+
+.PHONY: install
+install:
+	python3 -m pip install --upgrade pip
+	pip install pipenv ruff
+	pipenv --python python3 install
 
 .PHONY: generate-license
 generate-license: $(BIN)/license-header ## Generate license headers for files
