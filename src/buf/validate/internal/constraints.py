@@ -501,7 +501,7 @@ class ConstraintFactory:
         rules: validate_pb2.field,
     ) -> FieldConstraintRules:
         if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-            return None
+            return None  # TODO(afuller): Support lists and maps.
         else:
             return self._new_scalar_field_constraint(field, rules)
 
@@ -526,5 +526,6 @@ class ConstraintFactory:
                     field, field.GetOptions().Extensions[validate_pb2.field]
                 ):
                     result.add(constraint)
+            # TODO(afuller): Add check nested messages.
 
         return result
