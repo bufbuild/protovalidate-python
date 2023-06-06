@@ -15,18 +15,14 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-latest
     steps:
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/bazel
-          key: ${{ runner.os }}-build-cache
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: Install go
-        uses: actions/setup-go@v4
+      - name: Install python
+        uses: actions/setup-python@v4
         with:
-          cache: true
+          python-version: '3.10'
+          cache: 'pip'
       - name: Execute tests
         run: make test
