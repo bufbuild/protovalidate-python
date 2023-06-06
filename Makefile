@@ -8,9 +8,8 @@ MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
 COPYRIGHT_YEARS := 2023
-LICENSE_IGNORE := -e internal/testdata/
+LICENSE_IGNORE := -e buf/validate
 LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
-PYTHONPATH?=src
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
 ARGS ?= --suite standard_constraints
@@ -30,7 +29,7 @@ clean: ## Delete intermediate build artifacts
 
 .PHONY: generate
 generate: $(BIN)/buf generate-license ## Regenerate code and license headers
-	rm -rf src/gen
+	rm -rf buf/validate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 
@@ -40,7 +39,7 @@ test: generate ## Run all unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance
-	$(BIN)/protovalidate-conformance $(ARGS) python3 -- -m buf.validate.conformance.runner
+	$(BIN)/protovalidate-conformance $(ARGS) python3 -- -m buf.protovalidate.conformance.runner
 
 .PHONY: generate-license
 generate-license: $(BIN)/license-header ## Generate license headers for files

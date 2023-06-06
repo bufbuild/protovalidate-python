@@ -12,19 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.protovalidate import validator
-from buf.protovalidate.conformance import runner
-from buf.validate.conformance.cases import numbers_pb2
-import unittest
-
-
-# Test basic validation
-class TestValidate(unittest.TestCase):
-    def test_SFixed64ExLTGT(self):
-        msg = numbers_pb2.SFixed64ExLTGT(val=11)
-        violations = validator.validate(msg)
-        self.assertEqual(len(violations.violations), 0)
-
-
-if __name__ == "__main__":
-    unittest.main()
