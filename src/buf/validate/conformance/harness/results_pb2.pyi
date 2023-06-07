@@ -1,5 +1,6 @@
 from buf.validate.conformance.harness import harness_pb2 as _harness_pb2
 from google.protobuf import any_pb2 as _any_pb2
+from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -26,16 +27,18 @@ class ResultSet(_message.Message):
     def __init__(self, successes: _Optional[int] = ..., failures: _Optional[int] = ..., suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ..., suite_filter: _Optional[str] = ..., case_filter: _Optional[str] = ..., verbose: bool = ..., strict: bool = ...) -> None: ...
 
 class SuiteResults(_message.Message):
-    __slots__ = ["name", "successes", "failures", "cases"]
+    __slots__ = ["name", "successes", "failures", "cases", "fdset"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     SUCCESSES_FIELD_NUMBER: _ClassVar[int]
     FAILURES_FIELD_NUMBER: _ClassVar[int]
     CASES_FIELD_NUMBER: _ClassVar[int]
+    FDSET_FIELD_NUMBER: _ClassVar[int]
     name: str
     successes: int
     failures: int
     cases: _containers.RepeatedCompositeFieldContainer[CaseResult]
-    def __init__(self, name: _Optional[str] = ..., successes: _Optional[int] = ..., failures: _Optional[int] = ..., cases: _Optional[_Iterable[_Union[CaseResult, _Mapping]]] = ...) -> None: ...
+    fdset: _descriptor_pb2.FileDescriptorSet
+    def __init__(self, name: _Optional[str] = ..., successes: _Optional[int] = ..., failures: _Optional[int] = ..., cases: _Optional[_Iterable[_Union[CaseResult, _Mapping]]] = ..., fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ...) -> None: ...
 
 class CaseResult(_message.Message):
     __slots__ = ["name", "success", "wanted", "got", "input"]

@@ -17,6 +17,7 @@ import celpy
 
 from buf.validate import validator
 from buf.validate.conformance.harness import harness_pb2
+from google.protobuf import any_pb2
 from google.protobuf import descriptor_pool
 from google.protobuf import descriptor
 from google.protobuf import message_factory
@@ -37,6 +38,19 @@ def run_test_case(
     return result
 
 
+def run_any_test_case(
+    pool: descriptor_pool.DescriptorPool,
+    tc: any_pb2.Any,
+    result: harness_pb2.TestResult | None = None,
+) -> harness_pb2.TestResult:
+    type_name = tc.type_url.split("/")[-1]
+    desc: descriptor.Descriptor = pool.FindMessageTypeByName(type_name)
+    # Create a message from the protobuf descriptor
+    msg = message_factory.GetMessageClass(desc)()
+    tc.Unpack(msg)
+    return run_test_case(msg, result)
+
+
 def run_conformance_test(
     request: harness_pb2.TestConformanceRequest,
 ) -> harness_pb2.TestConformanceResponse:
@@ -45,12 +59,7 @@ def run_conformance_test(
         pool.Add(fd)
     result = harness_pb2.TestConformanceResponse()
     for name, tc in request.cases.items():
-        type_name = tc.type_url.split("/")[-1]
-        desc: descriptor.Descriptor = pool.FindMessageTypeByName(type_name)
-        # Create a message from the protobuf descriptor
-        msg = message_factory.GetMessageClass(desc)()
-        tc.Unpack(msg)
-        run_test_case(msg, result.results[name])
+        run_any_test_case(pool, tc, result.results[name])
     return result
 
 
