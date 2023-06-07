@@ -18,6 +18,7 @@ from buf.validate import expression_pb2
 from google.protobuf import descriptor
 from google.protobuf import message
 
+CompilationError = _constraints.CompilationError
 Violations = expression_pb2.Violations
 
 

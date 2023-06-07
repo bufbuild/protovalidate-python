@@ -13,14 +13,19 @@
 # limitations under the License.
 
 import celpy
-
+from celpy import celtypes
 from buf.validate.internal import string_format
+
+
+def is_ip(string: celtypes.Value) -> celpy.Result:
+    return celpy.Bool(False)
 
 
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     string_fmt = string_format.StringFormat(locale)
     return {
         "format": string_fmt.format,
+        "isIp": is_ip,
     }
 
 

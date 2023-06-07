@@ -57,7 +57,9 @@ def run_test_case(
         if len(result.validation_error.violations) == 0:
             result.success = True
     except celpy.CELEvalError as e:
-        result.unexpected_error = str(e)
+        result.runtime_error = str(e)
+    except validator.CompilationError as e:
+        result.compilation_error = str(e)
     return result
 
 

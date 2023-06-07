@@ -22,6 +22,10 @@ from buf.validate import validate_pb2
 from buf.validate.priv import private_pb2
 
 
+class CompilationError(Exception):
+    pass
+
+
 def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
     result = celtypes.MapType()
     field: descriptor.FieldDescriptor
@@ -68,11 +72,11 @@ def _FieldValToCel(val: any, field: descriptor.FieldDescriptor) -> celtypes.Valu
 
 
 def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
+    if field.containing_oneof is not None and not msg.HasField(field.name):
+        return True
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return len(getattr(msg, field.name)) == 0
     if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
-        return not msg.HasField(field.name)
-    if field.containing_oneof is not None:
         return not msg.HasField(field.name)
     if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
         return not getattr(msg, field.name)
@@ -255,8 +259,13 @@ class FieldConstraintRules(CelConstraintRules):
         field: descriptor.FieldDescriptor,
         fieldLvl: validate_pb2.FieldConstraints,
         rules: message.Message,
+        name: str,
         any_rules: ConstraintRules | None = None,
     ):
+        if fieldLvl.WhichOneof("type") != name:
+            raise CompilationError(
+                f"field-level {fieldLvl.WhichOneof('type')} constraint set on {name}"
+            )
         super().__init__(rules)
         self._field = field
         if any_rules is not None:
@@ -281,11 +290,7 @@ class FieldConstraintRules(CelConstraintRules):
                 return
 
         field_path = self._make_field_path(field_path)
-        activation = {}
-        activation["this"] = _FieldToCel(message, self._field)
-        value = getattr(message, self._field.name)
-
-        self.validate_cel(ctx, field_path, activation)
+        self.validate_cel(ctx, field_path, {"this": _FieldToCel(message, self._field)})
 
     def _make_field_path(self, field_path: str) -> str:
         if len(field_path) == 0:
@@ -301,7 +306,7 @@ class EnumConstraintRules(FieldConstraintRules):
     def __init__(
         self, field: descriptor.FieldDescriptor, fieldLvl: validate_pb2.FieldConstraints
     ):
-        super().__init__(field, fieldLvl, fieldLvl.enum)
+        super().__init__(field, fieldLvl, fieldLvl.enum, "enum")
         if fieldLvl.enum.defined_only:
             self._defined_only = True
 
@@ -334,9 +339,9 @@ class RepeatedConstraintRules(FieldConstraintRules):
         fieldLvl: validate_pb2.FieldConstraints,
         item_rules: ConstraintRules | None,
     ):
-        super().__init__(field, fieldLvl, fieldLvl.repeated)
+        super().__init__(field, fieldLvl, fieldLvl.repeated, "repeated")
         if item_rules is not None:
-            self._item_rules = item
+            self._item_rules = item_rules
         if fieldLvl.repeated.min_items > 0:
             self._min_items = fieldLvl.repeated.min_items
         if fieldLvl.repeated.max_items > 0:
@@ -349,15 +354,26 @@ class RepeatedConstraintRules(FieldConstraintRules):
         if ctx.done:
             return
         value = getattr(message, self._field.name)
+        sub_path = self._make_field_path(field_path)
+        if self._item_rules is not None:
+            for i, item in enumerate(value):
+                self._item_rules.validate_cel(
+                    ctx,
+                    "{}[{}]".format(sub_path, i),
+                    {"this": _FieldValToCel(item, self._field)},
+                )
+                if ctx.done:
+                    return
+
         if len(value) < self._min_items:
             ctx.add(
-                self._make_field_path(field_path),
+                sub_path,
                 "repeated.min_items",
                 "value must have at least {} items".format(self._min_items),
             )
         if self._max_items > 0 and len(value) > self._max_items:
             ctx.add(
-                self._make_field_path(field_path),
+                sub_path,
                 "repeated.max_items",
                 "value can have at most {} items".format(self._max_items),
             )
@@ -376,7 +392,7 @@ class MapConstraintRules(FieldConstraintRules):
         key_rules: ConstraintRules | None,
         value_rules: ConstraintRules | None,
     ):
-        super().__init__(field, fieldLvl, fieldLvl.map)
+        super().__init__(field, fieldLvl, fieldLvl.map, "map")
         if key_rules is not None:
             self._key_rules = key_rules
         if value_rules is not None:
@@ -457,59 +473,63 @@ class ConstraintFactory:
         if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
             return EnumConstraintRules(field, fieldLvl)
         elif field.type == descriptor.FieldDescriptor.TYPE_BOOL:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bool)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bool, "bool")
             result.add_rules(self._env, self._funcs, fieldLvl.bool)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bytes)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bytes, "bytes")
             result.add_rules(self._env, self._funcs, fieldLvl.bytes)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed32)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed32, "fixed32")
             result.add_rules(self._env, self._funcs, fieldLvl.fixed32)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed64)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed64, "fixed64")
             result.add_rules(self._env, self._funcs, fieldLvl.fixed64)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.float)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.float, "float")
             result.add_rules(self._env, self._funcs, fieldLvl.float)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_INT32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int32)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int32, "int32")
             result.add_rules(self._env, self._funcs, fieldLvl.int32)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_INT64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int64)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int64, "int64")
             result.add_rules(self._env, self._funcs, fieldLvl.int64)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed32)
+            result = FieldConstraintRules(
+                field, fieldLvl, fieldLvl.sfixed32, "sfixed32"
+            )
             result.add_rules(self._env, self._funcs, fieldLvl.sfixed32)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sfixed64)
+            result = FieldConstraintRules(
+                field, fieldLvl, fieldLvl.sfixed64, "sfixed64"
+            )
             result.add_rules(self._env, self._funcs, fieldLvl.sfixed64)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_SINT32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint32)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint32, "sint32")
             result.add_rules(self._env, self._funcs, fieldLvl.sint32)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_SINT64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint64)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint64, "sint64")
             result.add_rules(self._env, self._funcs, fieldLvl.sint64)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_UINT32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint32)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint32, "uint32")
             result.add_rules(self._env, self._funcs, fieldLvl.uint32)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_UINT64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint64)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint64, "uint64")
             result.add_rules(self._env, self._funcs, fieldLvl.uint64)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_STRING:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.string)
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.string, "string")
             result.add_rules(self._env, self._funcs, fieldLvl.string)
             return result
 
@@ -521,8 +541,19 @@ class ConstraintFactory:
         if field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
             return self._new_scalar_field_constraint(field, rules)
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
-            return MapConstraintRules(field, rules, None, None)
-        return RepeatedConstraintRules(field, rules, None)
+            key_rules = None
+            if rules.map.HasField("keys"):
+                key_field = field.message_type.fields_by_name["key"]
+                key_rules = self._new_scalar_field_constraint(field, rules.map.keys)
+            value_rules = None
+            if rules.map.HasField("values"):
+                value_field = field.message_type.fields_by_name["value"]
+                value_rules = self._new_scalar_field_constraint(field, rules.map.values)
+            return MapConstraintRules(field, rules, key_rules, value_rules)
+        item_rule = None
+        if rules.repeated.HasField("items"):
+            item_rule = self._new_scalar_field_constraint(field, rules.repeated.items)
+        return RepeatedConstraintRules(field, rules, item_rule)
 
     def _new_constraints(self, desc: descriptor.Descriptor) -> list[ConstraintRules]:
         result = []
