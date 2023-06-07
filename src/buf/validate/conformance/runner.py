@@ -43,6 +43,7 @@ from buf.validate.conformance.cases import (
     wkt_timestamp_pb2,
     wkt_wrappers_pb2,
 )
+from buf.validate.conformance.cases.custom_constraints import custom_constraints_pb2
 
 
 def run_test_case(

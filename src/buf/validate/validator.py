@@ -47,19 +47,19 @@ class Validator:
             constraint.validate(ctx, field_path, msg)
             if ctx.done:
                 return
-
         for field in msg.DESCRIPTOR.fields:
             if field.type != descriptor.FieldDescriptor.TYPE_MESSAGE:
                 continue
 
             # TODO(afuller): Figure out why this segfault in a dynamic environment.
             sub_path = field.name if field_path == "" else f"{field_path}.{field.name}"
-            if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-                value = getattr(msg, field.name)
-                # for i, sub_msg in enumerate(value):
-                #     self._validate_message(ctx, f"{sub_path}[{i}]", sub_msg)
-                #     if ctx.done:
-                #         return
+            if field.message_type.GetOptions().map_entry:
+                pass
+            elif field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+                for i, sub_msg in enumerate(getattr(msg, field.name)):
+                    self._validate_message(ctx, f"{sub_path}[{i}]", sub_msg)
+                    if ctx.done:
+                        return
             elif msg.HasField(field.name):
                 value = getattr(msg, field.name)
                 self._validate_message(ctx, sub_path, value)

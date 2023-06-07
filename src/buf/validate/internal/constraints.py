@@ -118,9 +118,22 @@ def _RepeatedFieldToCel(
     return result
 
 
+def _MapFieldToCel(
+    msg: message.Message, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
+    result = celtypes.MapType()
+    key_field = field.message_type.fields[0]
+    val_field = field.message_type.fields[1]
+    for key, val in getattr(msg, field.name).items():
+        result[_FieldValToCel(key, key_field)] = _FieldValToCel(val, val_field)
+    return result
+
+
 def _FieldToCel(
     msg: message.Message, field: descriptor.FieldDescriptor
 ) -> celtypes.Value:
+    if field.message_type is not None and field.message_type.GetOptions().map_entry:
+        return _MapFieldToCel(msg, field)
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return _RepeatedFieldToCel(msg, field)
     else:
@@ -313,11 +326,17 @@ class RepeatedConstraintRules(FieldConstraintRules):
 
     _min_items = 0
     _max_items = 0
+    _item_rules: ConstraintRules | None = None
 
     def __init__(
-        self, field: descriptor.FieldDescriptor, fieldLvl: validate_pb2.FieldConstraints
+        self,
+        field: descriptor.FieldDescriptor,
+        fieldLvl: validate_pb2.FieldConstraints,
+        item_rules: ConstraintRules | None,
     ):
         super().__init__(field, fieldLvl, fieldLvl.repeated)
+        if item_rules is not None:
+            self._item_rules = item
         if fieldLvl.repeated.min_items > 0:
             self._min_items = fieldLvl.repeated.min_items
         if fieldLvl.repeated.max_items > 0:
@@ -499,10 +518,11 @@ class ConstraintFactory:
         field: descriptor.FieldDescriptor,
         rules: validate_pb2.field,
     ) -> FieldConstraintRules:
-        if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-            return None  # TODO(afuller): Support lists and maps.
-        else:
+        if field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
             return self._new_scalar_field_constraint(field, rules)
+        if field.message_type is not None and field.message_type.GetOptions().map_entry:
+            return MapConstraintRules(field, rules, None, None)
+        return RepeatedConstraintRules(field, rules, None)
 
     def _new_constraints(self, desc: descriptor.Descriptor) -> list[ConstraintRules]:
         result = []
