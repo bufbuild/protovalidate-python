@@ -22,6 +22,28 @@ from google.protobuf import descriptor_pool
 from google.protobuf import descriptor
 from google.protobuf import message_factory
 
+# TODO(afuller): Use dynamic descriptor pool based on the FileDescriptorSet
+# in the TestConformanceRequest, once the Python protobuf library no longer
+# segfaults when using a dynamic descriptor pool.
+from buf.validate.conformance.cases import (
+    bool_pb2,
+    bytes_pb2,
+    enums_pb2,
+    filename_with_dash_pb2,
+    kitchen_sink_pb2,
+    maps_pb2,
+    messages_pb2,
+    numbers_pb2,
+    oneofs_pb2,
+    repeated_pb2,
+    strings_pb2,
+    wkt_any_pb2,
+    wkt_duration_pb2,
+    wkt_nested_pb2,
+    wkt_timestamp_pb2,
+    wkt_wrappers_pb2,
+)
+
 
 def run_test_case(
     tc: any, result: harness_pb2.TestResult | None = None
@@ -54,9 +76,10 @@ def run_any_test_case(
 def run_conformance_test(
     request: harness_pb2.TestConformanceRequest,
 ) -> harness_pb2.TestConformanceResponse:
-    pool = descriptor_pool.DescriptorPool()
-    for fd in request.fdset.file:
-        pool.Add(fd)
+    # pool = descriptor_pool.DescriptorPool()
+    # for fd in request.fdset.file:
+    #     pool.Add(fd)
+    pool = descriptor_pool.Default()
     result = harness_pb2.TestConformanceResponse()
     for name, tc in request.cases.items():
         run_any_test_case(pool, tc, result.results[name])

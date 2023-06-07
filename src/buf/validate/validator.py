@@ -53,18 +53,18 @@ class Validator:
                 continue
 
             # TODO(afuller): Figure out why this segfault in a dynamic environment.
-            # sub_path = field.name if field_path == "" else f"{field_path}.{field.name}"
-            # if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-            #     value = getattr(msg, field.name)
-            #     for i, sub_msg in enumerate(value):
-            #         self._validate_message(ctx, f"{sub_path}[{i}]", sub_msg)
-            #         if ctx.done:
-            #             return
-            # elif msg.HasField(field.name):
-            #     value = getattr(msg, field.name)
-            #     self._validate_message(ctx, sub_path, value)
-            #     if ctx.done:
-            #         return
+            sub_path = field.name if field_path == "" else f"{field_path}.{field.name}"
+            if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+                value = getattr(msg, field.name)
+                # for i, sub_msg in enumerate(value):
+                #     self._validate_message(ctx, f"{sub_path}[{i}]", sub_msg)
+                #     if ctx.done:
+                #         return
+            elif msg.HasField(field.name):
+                value = getattr(msg, field.name)
+                self._validate_message(ctx, sub_path, value)
+                if ctx.done:
+                    return
 
 
 _validator = Validator()

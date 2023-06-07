@@ -20,6 +20,8 @@ from buf.validate.conformance.harness import results_pb2
 from google.protobuf import descriptor_pool
 from google.protobuf import message_factory
 
+from buf.validate.conformance.cases import oneofs_pb2
+
 
 class RunnerTest(unittest.TestCase):
     def test_oneof(self):
@@ -28,9 +30,9 @@ class RunnerTest(unittest.TestCase):
         with open("tests/oneof.binproto", "rb") as f:
             results.ParseFromString(f.read())
         for suite in results.suites:
-            pool = descriptor_pool.DescriptorPool()
-            for fd in suite.fdset.file:
-                pool.Add(fd)
+            pool = descriptor_pool.Default()
+            # for fd in suite.fdset.file:
+            #     pool.Add(fd)
             for result in suite.cases:
                 actual = runner.run_any_test_case(pool, result.input)
                 print(actual)
