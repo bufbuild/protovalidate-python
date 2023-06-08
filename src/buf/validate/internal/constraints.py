@@ -327,7 +327,11 @@ class FieldConstraintRules(CelConstraintRules):
                     "Field is required but not set",
                 )
                 return
-            if self._ignore_empty or self._field.containing_oneof is not None:
+            if (
+                self._ignore_empty
+                or self._field.type == descriptor.FieldDescriptor.TYPE_MESSAGE
+                or self._field.containing_oneof is not None
+            ):
                 return
 
         field_path = self._make_field_path(field_path)

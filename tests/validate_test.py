@@ -18,6 +18,7 @@ from buf.validate.conformance.cases import numbers_pb2
 from buf.validate.conformance.cases import oneofs_pb2
 from buf.validate.conformance.cases import repeated_pb2
 from buf.validate.conformance.cases import maps_pb2
+from buf.validate.conformance.cases import wkt_timestamp_pb2
 import unittest
 
 
@@ -48,6 +49,11 @@ class TestValidate(unittest.TestCase):
         msg = maps_pb2.MapKeys(val={1: "a"})
         violations = validator.validate(msg)
         self.assertEqual(len(violations.violations), 1)
+
+    def test_Timestamp(self):
+        msg = wkt_timestamp_pb2.TimestampGTNow()
+        violations = validator.validate(msg)
+        self.assertEqual(len(violations.violations), 0)
 
 
 if __name__ == "__main__":
