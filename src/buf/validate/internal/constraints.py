@@ -26,7 +26,27 @@ class CompilationError(Exception):
     pass
 
 
+def make_duration(msg: message.Message) -> celtypes.DurationType:
+    return celtypes.DurationType(
+        seconds=msg.seconds,
+        nanos=msg.nanos,
+    )
+
+
+def make_timestamp(msg: message.Message) -> celtypes.TimestampType:
+    return make_duration(msg) + celtypes.TimestampType(1970, 1, 1)
+
+
+_MSG_TYPE_URL_TO_CTOR = {
+    "google.protobuf.Duration": make_duration,
+    "google.protobuf.Timestamp": make_timestamp,
+}
+
+
 def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
+    ctor = _MSG_TYPE_URL_TO_CTOR.get(msg.DESCRIPTOR.full_name)
+    if ctor is not None:
+        return ctor(msg)
     result = celtypes.MapType()
     field: descriptor.FieldDescriptor
     for field in msg.DESCRIPTOR.fields:
@@ -36,41 +56,32 @@ def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
     return result
 
 
+_TYPE_TO_CTOR = {
+    descriptor.FieldDescriptor.TYPE_MESSAGE: _MsgToCel,
+    descriptor.FieldDescriptor.TYPE_ENUM: celtypes.IntType,
+    descriptor.FieldDescriptor.TYPE_BOOL: celtypes.BoolType,
+    descriptor.FieldDescriptor.TYPE_BYTES: celtypes.BytesType,
+    descriptor.FieldDescriptor.TYPE_STRING: celtypes.StringType,
+    descriptor.FieldDescriptor.TYPE_FLOAT: celtypes.DoubleType,
+    descriptor.FieldDescriptor.TYPE_DOUBLE: celtypes.DoubleType,
+    descriptor.FieldDescriptor.TYPE_INT32: celtypes.IntType,
+    descriptor.FieldDescriptor.TYPE_INT64: celtypes.IntType,
+    descriptor.FieldDescriptor.TYPE_UINT32: celtypes.UintType,
+    descriptor.FieldDescriptor.TYPE_UINT64: celtypes.UintType,
+    descriptor.FieldDescriptor.TYPE_SINT32: celtypes.IntType,
+    descriptor.FieldDescriptor.TYPE_SINT64: celtypes.IntType,
+    descriptor.FieldDescriptor.TYPE_FIXED32: celtypes.UintType,
+    descriptor.FieldDescriptor.TYPE_FIXED64: celtypes.UintType,
+    descriptor.FieldDescriptor.TYPE_SFIXED32: celtypes.IntType,
+    descriptor.FieldDescriptor.TYPE_SFIXED64: celtypes.IntType,
+}
+
+
 def _FieldValToCel(val: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
-        return _MsgToCel(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
-        return celtypes.IntType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
-        return celtypes.BoolType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-        return celtypes.BytesType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
-        return celtypes.StringType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
-        return celtypes.DoubleType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
-        return celtypes.DoubleType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
-        return celtypes.IntType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
-        return celtypes.IntType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
-        return celtypes.UintType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
-        return celtypes.UintType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
-        return celtypes.IntType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
-        return celtypes.IntType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
-        return celtypes.UintType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
-        return celtypes.UintType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
-        return celtypes.IntType(val)
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
-        return celtypes.IntType(val)
+    ctor = _TYPE_TO_CTOR.get(field.type)
+    if ctor is None:
+        raise CompilationError("unknown field type")
+    return ctor(val)
 
 
 def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
@@ -142,6 +153,8 @@ def _FieldToCel(
         return _MapFieldToCel(msg, field)
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return _RepeatedFieldToCel(msg, field)
+    elif field.message_type is not None and not msg.HasField(field.name):
+        return None
     else:
         return _FieldValToCel(getattr(msg, field.name), field)
 
@@ -193,10 +206,12 @@ class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
     _runners: list[celpy.Runner]
+    _rules_cel: celtypes.Value = None
 
-    def __init__(self, rules: message.Message):
+    def __init__(self, rules: message.Message | None):
         self._runners = []
-        self._rules_cel = _MsgToCel(rules)
+        if rules is not None:
+            self._rules_cel = _MsgToCel(rules)
 
     def validate_cel(
         self, ctx: ConstraintContext, field_path: str, activation: dict[str, any]
@@ -260,8 +275,8 @@ class FieldConstraintRules(CelConstraintRules):
         self,
         field: descriptor.FieldDescriptor,
         fieldLvl: validate_pb2.FieldConstraints,
-        rules: message.Message,
-        name: str,
+        rules: message.Message | None,
+        name: str | None,
         any_rules: ConstraintRules | None = None,
     ):
         if fieldLvl.WhichOneof("type") != name:
@@ -496,7 +511,11 @@ class ConstraintFactory:
         field: descriptor.FieldDescriptor,
         fieldLvl: validate_pb2.field,
     ):
-        if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
+        type_case = fieldLvl.WhichOneof("type")
+        if type_case is None:
+            result = FieldConstraintRules(field, fieldLvl, None, None)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_ENUM:
             result = EnumConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.enum)
             return result
@@ -519,6 +538,10 @@ class ConstraintFactory:
         elif field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
             result = FieldConstraintRules(field, fieldLvl, fieldLvl.float, "float")
             result.add_rules(self._env, self._funcs, fieldLvl.float)
+            return result
+        elif field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
+            result = FieldConstraintRules(field, fieldLvl, fieldLvl.double, "double")
+            result.add_rules(self._env, self._funcs, fieldLvl.double)
             return result
         elif field.type == descriptor.FieldDescriptor.TYPE_INT32:
             result = FieldConstraintRules(field, fieldLvl, fieldLvl.int32, "int32")
