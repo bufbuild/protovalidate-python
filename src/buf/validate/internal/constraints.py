@@ -92,11 +92,21 @@ _TYPE_TO_CTOR = {
 }
 
 
-def _FieldValToCel(val: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _ScalarFieldValueToCel(
+    val: any, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
     ctor = _TYPE_TO_CTOR.get(field.type)
     if ctor is None:
         raise CompilationError("unknown field type")
     return ctor(val)
+
+
+def _FieldValueToCel(val: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+    if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+        if field.message_type is not None and field.message_type.GetOptions().map_entry:
+            return _MapFieldValueToCel(val, field)
+        return _RepeatedFieldValueToCel(val, field)
+    return _ScalarFieldValueToCel(val, field)
 
 
 def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
@@ -144,34 +154,44 @@ def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bo
 def _RepeatedFieldToCel(
     msg: message.Message, field: descriptor.FieldDescriptor
 ) -> celtypes.Value:
+    if field.message_type is not None and field.message_type.GetOptions().map_entry:
+        return _MapFieldToCel(msg, field)
+    return _RepeatedFieldValueToCel(getattr(msg, field.name), field)
+
+
+def _RepeatedFieldValueToCel(
+    val: any, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
     result = celtypes.ListType()
-    for val in getattr(msg, field.name):
-        result.append(_FieldValToCel(val, field))
+    for item in val:
+        result.append(_ScalarFieldValueToCel(item, field))
+    return result
+
+
+def _MapFieldValueToCel(map: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+    result = celtypes.MapType()
+    key_field = field.message_type.fields[0]
+    val_field = field.message_type.fields[1]
+    for key, val in map.items():
+        result[_FieldValueToCel(key, key_field)] = _FieldValueToCel(val, val_field)
     return result
 
 
 def _MapFieldToCel(
     msg: message.Message, field: descriptor.FieldDescriptor
 ) -> celtypes.Value:
-    result = celtypes.MapType()
-    key_field = field.message_type.fields[0]
-    val_field = field.message_type.fields[1]
-    for key, val in getattr(msg, field.name).items():
-        result[_FieldValToCel(key, key_field)] = _FieldValToCel(val, val_field)
-    return result
+    return _MapFieldValueToCel(getattr(msg, field.name), field)
 
 
 def _FieldToCel(
     msg: message.Message, field: descriptor.FieldDescriptor
 ) -> celtypes.Value:
-    if field.message_type is not None and field.message_type.GetOptions().map_entry:
-        return _MapFieldToCel(msg, field)
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return _RepeatedFieldToCel(msg, field)
     elif field.message_type is not None and not msg.HasField(field.name):
         return None
     else:
-        return _FieldValToCel(getattr(msg, field.name), field)
+        return _ScalarFieldValueToCel(getattr(msg, field.name), field)
 
 
 class ConstraintContext:
@@ -228,7 +248,7 @@ class CelConstraintRules(ConstraintRules):
         if rules is not None:
             self._rules_cel = _MsgToCel(rules)
 
-    def validate_cel(
+    def _validate_cel(
         self, ctx: ConstraintContext, field_path: str, activation: dict[str, any]
     ):
         activation["rules"] = self._rules_cel
@@ -264,7 +284,7 @@ class MessageConstraintRules(CelConstraintRules):
     def validate(
         self, ctx: ConstraintContext, field_path: str, message: message.Message
     ):
-        self.validate_cel(ctx, field_path, {"this": _MsgToCel(message)})
+        self._validate_cel(ctx, field_path, {"this": _MsgToCel(message)})
 
 
 def check_field_type(
@@ -323,13 +343,29 @@ class FieldConstraintRules(CelConstraintRules):
                 return
             if (
                 self._ignore_empty
-                or self._field.type == descriptor.FieldDescriptor.TYPE_MESSAGE
+                or (
+                    self._field.label != descriptor.FieldDescriptor.LABEL_REPEATED
+                    and self._field.type == descriptor.FieldDescriptor.TYPE_MESSAGE
+                )
                 or self._field.containing_oneof is not None
             ):
                 return
 
         field_path = self._make_field_path(field_path)
-        self.validate_cel(ctx, field_path, {"this": _FieldToCel(message, self._field)})
+        val = getattr(message, self._field.name)
+        self._validate_value(ctx, field_path, val)
+        self._validate_cel(
+            ctx, field_path, {"this": _FieldValueToCel(val, self._field)}
+        )
+
+    def validate_item(self, ctx: ConstraintContext, field_path: str, val: any):
+        self._validate_value(ctx, field_path, val)
+        self._validate_cel(
+            ctx, field_path, {"this": _ScalarFieldValueToCel(val, self._field)}
+        )
+
+    def _validate_value(self, ctx: ConstraintContext, field_path: str, val: any):
+        pass
 
     def _make_field_path(self, field_path: str) -> str:
         if len(field_path) == 0:
@@ -356,13 +392,9 @@ class AnyConstraintRules(FieldConstraintRules):
         if fieldLvl.any.not_in:
             self._not_in = fieldLvl.any.not_in
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
+    def _validate_value(
+        self, ctx: ConstraintContext, field_path: str, value: any_pb2.Any
     ):
-        super().validate(ctx, field_path, message)
-        if ctx.done:
-            return
-        value: any_pb2.Any = getattr(message, self._field.name)
         if len(self._in) > 0:
             if value.type_url not in self._in:
                 ctx.add(
@@ -437,11 +469,8 @@ class RepeatedConstraintRules(FieldConstraintRules):
         if self._item_rules is not None:
             sub_path = self._make_field_path(field_path)
             for i, item in enumerate(value):
-                self._item_rules.validate_cel(
-                    ctx,
-                    "{}[{}]".format(sub_path, i),
-                    {"this": _FieldValToCel(item, self._field)},
-                )
+                item_path = "{}[{}]".format(sub_path, i)
+                self._item_rules.validate_item(ctx, item_path, item)
                 if ctx.done:
                     return
 
@@ -477,15 +506,9 @@ class MapConstraintRules(FieldConstraintRules):
         for key, value in value.items():
             key_field_path = field_path + "[{}]".format(key)
             if self._key_rules is not None:
-                key_field = self._field.message_type.fields_by_name["key"]
-                self._key_rules.validate_cel(
-                    ctx, key_field_path, {"this": _FieldValToCel(key, key_field)}
-                )
+                self._key_rules.validate_item(ctx, key_field_path, key)
             if self._value_rules is not None:
-                value_field = self._field.message_type.fields_by_name["value"]
-                self._value_rules.validate_cel(
-                    ctx, key_field_path, {"this": _FieldValToCel(value, value_field)}
-                )
+                self._value_rules.validate_item(ctx, key_field_path, value)
 
 
 class OneofConstraintRules(ConstraintRules):
@@ -545,6 +568,8 @@ class ConstraintFactory:
         field: descriptor.FieldDescriptor,
         fieldLvl: validate_pb2.field,
     ):
+        if fieldLvl.skipped:
+            return None
         type_case = fieldLvl.WhichOneof("type")
         if type_case is None:
             result = FieldConstraintRules(self._env, self._funcs, field, fieldLvl)

@@ -39,16 +39,16 @@ class TestValidate(unittest.TestCase):
     #     violations = validator.validate(msg2)
     #     self.assertEqual(len(violations.violations), 0)
 
-    def test_Repeated(self):
-        msg = repeated_pb2.RepeatedExact(val=[1, 2, 3])
-        violations = validator.validate(msg)
-        # TODO: This should be 0
-        self.assertEqual(len(violations.violations), 2)
-
-    # def test_Maps(self):
-    #     msg = maps_pb2.MapKeys(val={1: "a"})
+    # def test_Repeated(self):
+    #     msg = repeated_pb2.RepeatedEmbedSkip()
+    #     msg.val.add(val=-1)
     #     violations = validator.validate(msg)
-    #     self.assertEqual(len(violations.violations), 1)
+    #     self.assertEqual(len(violations.violations), 0)
+
+    def test_Maps(self):
+        msg = maps_pb2.MapMinMax()
+        violations = validator.validate(msg)
+        self.assertEqual(len(violations.violations), 1)
 
     # def test_Timestamp(self):
     #     msg = wkt_timestamp_pb2.TimestampGTNow()

@@ -53,9 +53,11 @@ class Validator:
         for field in msg.DESCRIPTOR.fields:
             if field.type != descriptor.FieldDescriptor.TYPE_MESSAGE:
                 continue
-            if (
-                field.GetOptions().HasExtension(validate_pb2.field)
-                and field.GetOptions().Extensions[validate_pb2.field].skipped
+            if field.GetOptions().HasExtension(validate_pb2.field) and (
+                field.GetOptions().Extensions[validate_pb2.field].skipped
+                or field.GetOptions()
+                .Extensions[validate_pb2.field]
+                .repeated.items.skipped
             ):
                 continue
             sub_path = field.name if field_path == "" else f"{field_path}.{field.name}"
