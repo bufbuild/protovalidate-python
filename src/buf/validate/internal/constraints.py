@@ -281,6 +281,18 @@ class MessageConstraintRules(CelConstraintRules):
         self.validate_cel(ctx, field_path, activation)
 
 
+def check_field_type(
+    field: descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None
+):
+    if field.type != expected and (
+        field.type != descriptor.FieldDescriptor.TYPE_MESSAGE
+        or field.message_type.full_name != wrapper_name
+    ):
+        raise CompilationError(
+            f"field {field.name} has type {field.type} but expected {expected}"
+        )
+
+
 class FieldConstraintRules(CelConstraintRules):
     """Field-level rules."""
 
@@ -292,15 +304,10 @@ class FieldConstraintRules(CelConstraintRules):
         self,
         field: descriptor.FieldDescriptor,
         fieldLvl: validate_pb2.FieldConstraints,
-        rules: message.Message | None,
-        name: str | None,
         any_rules: ConstraintRules | None = None,
     ):
-        if fieldLvl.WhichOneof("type") != name:
-            raise CompilationError(
-                f"field-level {fieldLvl.WhichOneof('type')} constraint set on {name}"
-            )
-        super().__init__(rules)
+        type_case = fieldLvl.WhichOneof("type")
+        super().__init__(None if type_case is None else getattr(fieldLvl, type_case))
         self._field = field
         if any_rules is not None:
             self._any_rules = any_rules
@@ -340,7 +347,7 @@ class EnumConstraintRules(FieldConstraintRules):
     def __init__(
         self, field: descriptor.FieldDescriptor, fieldLvl: validate_pb2.FieldConstraints
     ):
-        super().__init__(field, fieldLvl, fieldLvl.enum, "enum")
+        super().__init__(field, fieldLvl)
         if fieldLvl.enum.defined_only:
             self._defined_only = True
 
@@ -373,7 +380,7 @@ class RepeatedConstraintRules(FieldConstraintRules):
         fieldLvl: validate_pb2.FieldConstraints,
         item_rules: ConstraintRules | None,
     ):
-        super().__init__(field, fieldLvl, fieldLvl.repeated, "repeated")
+        super().__init__(field, fieldLvl)
         if item_rules is not None:
             self._item_rules = item_rules
         if fieldLvl.repeated.min_items > 0:
@@ -428,7 +435,7 @@ class MapConstraintRules(FieldConstraintRules):
         key_rules: ConstraintRules | None,
         value_rules: ConstraintRules | None,
     ):
-        super().__init__(field, fieldLvl, fieldLvl.map, "map")
+        super().__init__(field, fieldLvl)
         if fieldLvl.map.min_pairs > 0:
             self._min_pairs = fieldLvl.map.min_pairs
         if fieldLvl.map.max_pairs > 0:
@@ -445,6 +452,8 @@ class MapConstraintRules(FieldConstraintRules):
         if ctx.done:
             return
         value = getattr(message, self._field.name)
+        if self._ignore_empty and len(value) == 0:
+            return
         if len(value) < self._min_pairs:
             ctx.add(
                 field_path,
@@ -530,74 +539,130 @@ class ConstraintFactory:
     ):
         type_case = fieldLvl.WhichOneof("type")
         if type_case is None:
-            result = FieldConstraintRules(field, fieldLvl, None, None)
+            result = FieldConstraintRules(field, fieldLvl, None)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_ENUM:
+        elif type_case == "duration":
+            check_field_type(field, 0, "google.protobuf.Duration")
+            result = FieldConstraintRules(field, fieldLvl)
+            result.add_rules(self._env, self._funcs, fieldLvl.duration)
+            return result
+        elif type_case == "timestamp":
+            check_field_type(field, 0, "google.protobuf.Timestamp")
+            result = FieldConstraintRules(field, fieldLvl)
+            result.add_rules(self._env, self._funcs, fieldLvl.timestamp)
+            return result
+        elif type_case == "enum":
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_ENUM)
             result = EnumConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.enum)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_BOOL:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bool, "bool")
+        elif type_case == "bool":
+            check_field_type(
+                field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue"
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.bool)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.bytes, "bytes")
+        elif type_case == "bytes":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_BYTES,
+                "google.protobuf.BytesValue",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.bytes)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed32, "fixed32")
+        elif type_case == "fixed32":
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED32)
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.fixed32)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.fixed64, "fixed64")
+        elif type_case == "fixed64":
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED64)
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.fixed64)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.float, "float")
+        elif type_case == "float":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_FLOAT,
+                "google.protobuf.FloatValue",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.float)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.double, "double")
+        elif type_case == "double":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_DOUBLE,
+                "google.protobuf.DoubleValue",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.double)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_INT32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int32, "int32")
+        elif type_case == "int32":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_INT32,
+                "google.protobuf.Int32Value",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.int32)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_INT64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.int64, "int64")
+        elif type_case == "int64":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_INT64,
+                "google.protobuf.Int64Value",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.int64)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
-            result = FieldConstraintRules(
-                field, fieldLvl, fieldLvl.sfixed32, "sfixed32"
-            )
+        elif type_case == "sfixed32":
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED32)
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.sfixed32)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
-            result = FieldConstraintRules(
-                field, fieldLvl, fieldLvl.sfixed64, "sfixed64"
-            )
+        elif type_case == "sfixed64":
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED64)
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.sfixed64)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_SINT32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint32, "sint32")
+        elif type_case == "sint32":
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT32)
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.sint32)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_SINT64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.sint64, "sint64")
+        elif type_case == "sint64":
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT64)
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.sint64)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_UINT32:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint32, "uint32")
+        elif type_case == "uint32":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_UINT32,
+                "google.protobuf.UInt32Value",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.uint32)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_UINT64:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.uint64, "uint64")
+        elif type_case == "uint64":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_UINT64,
+                "google.protobuf.UInt64Value",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.uint64)
             return result
-        elif field.type == descriptor.FieldDescriptor.TYPE_STRING:
-            result = FieldConstraintRules(field, fieldLvl, fieldLvl.string, "string")
+        elif type_case == "string":
+            check_field_type(
+                field,
+                descriptor.FieldDescriptor.TYPE_STRING,
+                "google.protobuf.StringValue",
+            )
+            result = FieldConstraintRules(field, fieldLvl)
             result.add_rules(self._env, self._funcs, fieldLvl.string)
             return result
 
