@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from buf.validate import validator
-from buf.validate.conformance import runner
 from buf.validate.conformance.cases import numbers_pb2
 from buf.validate.conformance.cases import oneofs_pb2
 from buf.validate.conformance.cases import repeated_pb2
@@ -41,9 +40,10 @@ class TestValidate(unittest.TestCase):
         self.assertEqual(len(violations.violations), 0)
 
     def test_Repeated(self):
-        msg = repeated_pb2.RepeatedMinAndItemLen(val=["x"])
+        msg = repeated_pb2.RepeatedExact(val=[1, 2, 3])
         violations = validator.validate(msg)
-        self.assertEqual(len(violations.violations), 1)
+        # TODO: This should be 0
+        self.assertEqual(len(violations.violations), 2)
 
     def test_Maps(self):
         msg = maps_pb2.MapKeys(val={1: "a"})

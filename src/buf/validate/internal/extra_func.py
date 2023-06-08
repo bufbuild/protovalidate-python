@@ -107,6 +107,12 @@ def is_hostname(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(_validateHostName(string))
 
 
+def unique(val: celtypes.Value) -> celpy.Result:
+    if not isinstance(val, celtypes.ListType):
+        raise celpy.EvalError("invalid argument, expected list")
+    return celtypes.BoolType(len(val) == len(set(val)))
+
+
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     string_fmt = string_format.StringFormat(locale)
     return {
@@ -116,6 +122,7 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         "isUri": is_uri,
         "isUriRef": is_uri_ref,
         "isHostname": is_hostname,
+        "unique": unique,
     }
 
 
