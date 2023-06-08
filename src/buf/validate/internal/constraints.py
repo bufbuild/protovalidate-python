@@ -263,9 +263,7 @@ class MessageConstraintRules(CelConstraintRules):
     def validate(
         self, ctx: ConstraintContext, field_path: str, message: message.Message
     ):
-        activation = {}
-        activation["this"] = _MsgToCel(message)
-        self.validate_cel(ctx, field_path, activation)
+        self.validate_cel(ctx, field_path, {"this": _MsgToCel(message)})
 
 
 def check_field_type(
