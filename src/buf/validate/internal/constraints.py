@@ -39,6 +39,8 @@ def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
 def _FieldValToCel(val: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
         return _MsgToCel(val)
+    if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
+        return celtypes.IntType(val)
     if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
         return celtypes.BoolType(val)
     if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
@@ -382,6 +384,8 @@ class RepeatedConstraintRules(FieldConstraintRules):
 class MapConstraintRules(FieldConstraintRules):
     """Rules for a map field."""
 
+    _min_pairs = 0
+    _max_pairs = 0
     _key_rules = None
     _value_rules = None
 
@@ -393,6 +397,10 @@ class MapConstraintRules(FieldConstraintRules):
         value_rules: ConstraintRules | None,
     ):
         super().__init__(field, fieldLvl, fieldLvl.map, "map")
+        if fieldLvl.map.min_pairs > 0:
+            self._min_pairs = fieldLvl.map.min_pairs
+        if fieldLvl.map.max_pairs > 0:
+            self._max_pairs = fieldLvl.map.max_pairs
         if key_rules is not None:
             self._key_rules = key_rules
         if value_rules is not None:
@@ -402,15 +410,33 @@ class MapConstraintRules(FieldConstraintRules):
         self, ctx: ConstraintContext, field_path: str, message: message.Message
     ):
         super().validate(ctx, field_path, message)
-        if ctx.done or (self._key_rules is None and self._value_rules is None):
+        if ctx.done:
             return
         value = getattr(message, self._field.name)
+        if len(value) < self._min_pairs:
+            ctx.add(
+                field_path,
+                "map.min_pairs",
+                "value must have at least {} pairs".format(self._min_pairs),
+            )
+        if self._max_pairs > 0 and len(value) > self._max_pairs:
+            ctx.add(
+                field_path,
+                "map.max_pairs",
+                "value can have at most {} pairs".format(self._max_pairs),
+            )
         for key, value in value.items():
             key_field_path = field_path + "[{}]".format(key)
             if self._key_rules is not None:
-                self._key_rules.validate(ctx, key_field_path, message)
+                key_field = self._field.message_type.fields_by_name["key"]
+                self._key_rules.validate_cel(
+                    ctx, key_field_path, {"this": _FieldValToCel(key, key_field)}
+                )
             if self._value_rules is not None:
-                self._value_rules.validate(ctx, key_field_path, message)
+                value_field = self._field.message_type.fields_by_name["value"]
+                self._value_rules.validate_cel(
+                    ctx, key_field_path, {"this": _FieldValToCel(value, value_field)}
+                )
 
 
 class OneofConstraintRules(ConstraintRules):
@@ -471,7 +497,9 @@ class ConstraintFactory:
         fieldLvl: validate_pb2.field,
     ):
         if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
-            return EnumConstraintRules(field, fieldLvl)
+            result = EnumConstraintRules(field, fieldLvl)
+            result.add_rules(self._env, self._funcs, fieldLvl.enum)
+            return result
         elif field.type == descriptor.FieldDescriptor.TYPE_BOOL:
             result = FieldConstraintRules(field, fieldLvl, fieldLvl.bool, "bool")
             result.add_rules(self._env, self._funcs, fieldLvl.bool)
