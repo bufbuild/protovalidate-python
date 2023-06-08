@@ -17,6 +17,7 @@ from celpy import celtypes
 from buf.validate.internal import string_format
 from urllib import parse as urlparse
 from ipaddress import IPv4Address, IPv6Address, ip_address
+from validate_email import validate_email
 
 
 def _validateHostName(host):
@@ -50,8 +51,8 @@ def _validateEmail(addr):
     if "<" in addr and ">" in addr:
         addr = addr.split("<")[1].split(">")[0]
 
-    # if not validate_email(addr):
-    #     return False
+    if not validate_email(addr):
+        return False
 
     if len(addr) > 254:
         return False

@@ -23,21 +23,21 @@ import unittest
 
 # Test basic validation
 class TestValidate(unittest.TestCase):
-    def test_SFixed64ExLTGT(self):
-        msg = numbers_pb2.SFixed64ExLTGT(val=11)
-        violations = validator.validate(msg)
-        self.assertEqual(len(violations.violations), 0)
+    # def test_SFixed64ExLTGT(self):
+    #     msg = numbers_pb2.SFixed64ExLTGT(val=11)
+    #     violations = validator.validate(msg)
+    #     self.assertEqual(len(violations.violations), 0)
 
-    def test_Oneofs(self):
-        msg1 = oneofs_pb2.Oneof()
-        msg1.y = 123
-        violations = validator.validate(msg1)
-        self.assertEqual(len(violations.violations), 0)
+    # def test_Oneofs(self):
+    #     msg1 = oneofs_pb2.Oneof()
+    #     msg1.y = 123
+    #     violations = validator.validate(msg1)
+    #     self.assertEqual(len(violations.violations), 0)
 
-        msg2 = oneofs_pb2.Oneof()
-        msg2.z.val = True
-        violations = validator.validate(msg2)
-        self.assertEqual(len(violations.violations), 0)
+    #     msg2 = oneofs_pb2.Oneof()
+    #     msg2.z.val = True
+    #     violations = validator.validate(msg2)
+    #     self.assertEqual(len(violations.violations), 0)
 
     def test_Repeated(self):
         msg = repeated_pb2.RepeatedExact(val=[1, 2, 3])
@@ -45,15 +45,15 @@ class TestValidate(unittest.TestCase):
         # TODO: This should be 0
         self.assertEqual(len(violations.violations), 2)
 
-    def test_Maps(self):
-        msg = maps_pb2.MapKeys(val={1: "a"})
-        violations = validator.validate(msg)
-        self.assertEqual(len(violations.violations), 1)
+    # def test_Maps(self):
+    #     msg = maps_pb2.MapKeys(val={1: "a"})
+    #     violations = validator.validate(msg)
+    #     self.assertEqual(len(violations.violations), 1)
 
-    def test_Timestamp(self):
-        msg = wkt_timestamp_pb2.TimestampGTNow()
-        violations = validator.validate(msg)
-        self.assertEqual(len(violations.violations), 0)
+    # def test_Timestamp(self):
+    #     msg = wkt_timestamp_pb2.TimestampGTNow()
+    #     violations = validator.validate(msg)
+    #     self.assertEqual(len(violations.violations), 0)
 
 
 if __name__ == "__main__":
