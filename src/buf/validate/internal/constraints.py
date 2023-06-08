@@ -16,6 +16,7 @@
 import celpy
 from celpy import celtypes
 import datetime
+from google.protobuf import any_pb2
 from google.protobuf import message
 from google.protobuf import descriptor
 from buf.validate import expression_pb2
@@ -283,7 +284,6 @@ class FieldConstraintRules(CelConstraintRules):
 
     _ignore_empty = False
     _required = False
-    _any_rules = None
 
     def __init__(
         self,
@@ -335,6 +335,47 @@ class FieldConstraintRules(CelConstraintRules):
         if len(field_path) == 0:
             return self._field.name
         return field_path + "." + self._field.name
+
+
+class AnyConstraintRules(FieldConstraintRules):
+    """Rules for an Any field."""
+
+    _in = []
+    _not_in = []
+
+    def __init__(
+        self,
+        env: celpy.Environment,
+        funcs: dict[str, celpy.CELFunction],
+        field: descriptor.FieldDescriptor,
+        fieldLvl: validate_pb2.FieldConstraints,
+    ):
+        super().__init__(env, funcs, field, fieldLvl)
+        if getattr(fieldLvl.any, "in"):
+            self._in = getattr(fieldLvl.any, "in")
+        if fieldLvl.any.not_in:
+            self._not_in = fieldLvl.any.not_in
+
+    def validate(
+        self, ctx: ConstraintContext, field_path: str, message: message.Message
+    ):
+        super().validate(ctx, field_path, message)
+        if ctx.done:
+            return
+        value: any_pb2.Any = getattr(message, self._field.name)
+        if len(self._in) > 0:
+            if value.type_url not in self._in:
+                ctx.add(
+                    self._make_field_path(field_path),
+                    "any.in",
+                    f"Type {value.type_url} is not in {self._in}",
+                )
+        if value.type_url in self._not_in:
+            ctx.add(
+                self._make_field_path(field_path),
+                "any.not_in",
+                f"Type {value.type_url} is in {self._not_in}",
+            )
 
 
 class EnumConstraintRules(FieldConstraintRules):
@@ -618,6 +659,8 @@ class ConstraintFactory:
             check_field_type(
                 field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any"
             )
+            result = AnyConstraintRules(self._env, self._funcs, field, fieldLvl)
+            return result
 
     def _new_field_constraint(
         self,
