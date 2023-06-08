@@ -572,11 +572,13 @@ class ConstraintFactory:
             key_rules = None
             if rules.map.HasField("keys"):
                 key_field = field.message_type.fields_by_name["key"]
-                key_rules = self._new_scalar_field_constraint(field, rules.map.keys)
+                key_rules = self._new_scalar_field_constraint(key_field, rules.map.keys)
             value_rules = None
             if rules.map.HasField("values"):
                 value_field = field.message_type.fields_by_name["value"]
-                value_rules = self._new_scalar_field_constraint(field, rules.map.values)
+                value_rules = self._new_scalar_field_constraint(
+                    value_field, rules.map.values
+                )
             return MapConstraintRules(field, rules, key_rules, value_rules)
         item_rule = None
         if rules.repeated.HasField("items"):

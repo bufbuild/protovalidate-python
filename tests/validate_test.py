@@ -17,6 +17,7 @@ from buf.validate.conformance import runner
 from buf.validate.conformance.cases import numbers_pb2
 from buf.validate.conformance.cases import oneofs_pb2
 from buf.validate.conformance.cases import repeated_pb2
+from buf.validate.conformance.cases import maps_pb2
 import unittest
 
 
@@ -40,6 +41,11 @@ class TestValidate(unittest.TestCase):
 
     def test_Repeated(self):
         msg = repeated_pb2.RepeatedMinAndItemLen(val=["x"])
+        violations = validator.validate(msg)
+        self.assertEqual(len(violations.violations), 1)
+
+    def test_Maps(self):
+        msg = maps_pb2.MapKeys(val={1: "a"})
         violations = validator.validate(msg)
         self.assertEqual(len(violations.violations), 1)
 
