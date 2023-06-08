@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import celpy
 from celpy import celtypes
-
+import datetime
 from google.protobuf import message
 from google.protobuf import descriptor
 from buf.validate import expression_pb2
@@ -37,9 +38,22 @@ def make_timestamp(msg: message.Message) -> celtypes.TimestampType:
     return make_duration(msg) + celtypes.TimestampType(1970, 1, 1)
 
 
+def unwrap(msg: message.Message) -> celtypes.Value:
+    return _FieldToCel(msg, msg.DESCRIPTOR.fields_by_name["value"])
+
+
 _MSG_TYPE_URL_TO_CTOR = {
     "google.protobuf.Duration": make_duration,
     "google.protobuf.Timestamp": make_timestamp,
+    "google.protobuf.StringValue": unwrap,
+    "google.protobuf.BytesValue": unwrap,
+    "google.protobuf.Int32Value": unwrap,
+    "google.protobuf.Int64Value": unwrap,
+    "google.protobuf.UInt32Value": unwrap,
+    "google.protobuf.UInt64Value": unwrap,
+    "google.protobuf.FloatValue": unwrap,
+    "google.protobuf.DoubleValue": unwrap,
+    "google.protobuf.BoolValue": unwrap,
 }
 
 
@@ -217,6 +231,9 @@ class CelConstraintRules(ConstraintRules):
         self, ctx: ConstraintContext, field_path: str, activation: dict[str, any]
     ):
         activation["rules"] = self._rules_cel
+        activation["now"] = celtypes.TimestampType(
+            datetime.datetime.now(tz=datetime.timezone.utc)
+        )
         for runner in self._runners:
             result = runner.evaluate(activation)
 
@@ -303,7 +320,7 @@ class FieldConstraintRules(CelConstraintRules):
                     "Field is required but not set",
                 )
                 return
-            if self._ignore_empty:
+            if self._ignore_empty or self._field.containing_oneof is not None:
                 return
 
         field_path = self._make_field_path(field_path)

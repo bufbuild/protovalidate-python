@@ -32,12 +32,12 @@ class TestValidate(unittest.TestCase):
         msg1 = oneofs_pb2.Oneof()
         msg1.y = 123
         violations = validator.validate(msg1)
-        self.assertEqual(len(violations.violations), 1)
+        self.assertEqual(len(violations.violations), 0)
 
         msg2 = oneofs_pb2.Oneof()
         msg2.z.val = True
         violations = validator.validate(msg2)
-        self.assertEqual(len(violations.violations), 2)
+        self.assertEqual(len(violations.violations), 0)
 
     def test_Repeated(self):
         msg = repeated_pb2.RepeatedMinAndItemLen(val=["x"])
