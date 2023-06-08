@@ -264,8 +264,7 @@ class MessageConstraintRules(CelConstraintRules):
         self, ctx: ConstraintContext, field_path: str, message: message.Message
     ):
         activation = {}
-        # TODO: Support binding recursive messages.
-        # activation["this"] = _MsgToCel(message)
+        activation["this"] = _MsgToCel(message)
         self.validate_cel(ctx, field_path, activation)
 
 
