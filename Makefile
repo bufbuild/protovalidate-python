@@ -12,7 +12,7 @@ LICENSE_IGNORE := -e buf/validate
 LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
-ARGS ?=
+ARGS ?= --strict
 BAZEL ?= bazel
 
 .PHONY: help

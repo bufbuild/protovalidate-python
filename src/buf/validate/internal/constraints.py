@@ -28,6 +28,12 @@ class CompilationError(Exception):
     pass
 
 
+def join_field_path(field_path: str, field_name: str) -> str:
+    if field_path:
+        return field_path + "." + field_name
+    return field_name
+
+
 def make_duration(msg: message.Message) -> celtypes.DurationType:
     return celtypes.DurationType(
         seconds=msg.seconds,
@@ -368,9 +374,7 @@ class FieldConstraintRules(CelConstraintRules):
         pass
 
     def _make_field_path(self, field_path: str) -> str:
-        if len(field_path) == 0:
-            return self._field.name
-        return field_path + "." + self._field.name
+        return join_field_path(field_path, self._field.name)
 
 
 class AnyConstraintRules(FieldConstraintRules):
@@ -496,15 +500,13 @@ class MapConstraintRules(FieldConstraintRules):
         if value_rules is not None:
             self._value_rules = value_rules
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
-        super().validate(ctx, field_path, message)
+    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
+        super().validate(ctx, path, message)
         if ctx.done:
             return
         value = getattr(message, self._field.name)
         for key, value in value.items():
-            key_field_path = field_path + "[{}]".format(key)
+            key_field_path = f"{path}.{self._field.name}[{key}]"
             if self._key_rules is not None:
                 self._key_rules.validate_item(ctx, key_field_path, key)
             if self._value_rules is not None:
@@ -523,12 +525,14 @@ class OneofConstraintRules(ConstraintRules):
         if not rules.required:
             self.required = False
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
+    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
         if not message.WhichOneof(self._oneof.name):
             if self.required:
-                ctx.add(field_path, "oneof.required", "oneof is required")
+                ctx.add(
+                    join_field_path(path, self._oneof.name),
+                    "required",
+                    "oneof is required",
+                )
             return
 
 
@@ -760,17 +764,16 @@ class SubMsgConstraint:
         self._factory = factory
         self._field = field
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
+    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
         if not message.HasField(self._field.name):
             return
         constraints = self._factory.get(self._field.message_type)
         if constraints is None:
             return
         val = getattr(message, self._field.name)
+        item_path = join_field_path(path, self._field.name)
         for constraint in constraints:
-            constraint.validate(ctx, field_path, val)
+            constraint.validate(ctx, item_path, val)
 
 
 class MapValMsgConstraint:
@@ -784,9 +787,7 @@ class MapValMsgConstraint:
         self._field = field
         self._value_field = value_field
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
+    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
         val = getattr(message, self._field.name)
         if not val:
             return
@@ -794,7 +795,7 @@ class MapValMsgConstraint:
         if constraints is None:
             return
         for key, val in val.items():
-            item_path = f"{field_path}[{key}]"
+            item_path = join_field_path(path, f"{self._field.name}[{key}]")
             for constraint in constraints:
                 constraint.validate(ctx, item_path, val)
 
@@ -816,6 +817,6 @@ class RepeatedMsgConstraint:
         if constraints is None:
             return
         for idx, val in enumerate(val):
-            item_path = f"{path}[{idx}]"
+            item_path = join_field_path(path, f"{self._field.name}[{idx}]")
             for constraint in constraints:
                 constraint.validate(ctx, item_path, val)
