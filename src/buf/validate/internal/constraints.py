@@ -732,7 +732,90 @@ class ConstraintFactory:
         for field in desc.fields:
             if validate_pb2.field in field.GetOptions().Extensions:
                 fieldLvl = field.GetOptions().Extensions[validate_pb2.field]
-                if constraint := self._new_field_constraint(field, fieldLvl):
-                    result.append(constraint)
-
+                if fieldLvl.skipped:
+                    continue
+                result.append(self._new_field_constraint(field, fieldLvl))
+                if fieldLvl.repeated.items.skipped:
+                    continue
+            if field.message_type is None:
+                continue
+            if field.message_type.GetOptions().map_entry:
+                value_field = field.message_type.fields_by_name["value"]
+                if value_field.type != descriptor.FieldDescriptor.TYPE_MESSAGE:
+                    continue
+                result.append(MapValMsgConstraint(self, field, value_field))
+            elif field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
+                result.append(RepeatedMsgConstraint(self, field))
+            else:
+                result.append(SubMsgConstraint(self, field))
         return result
+
+
+class SubMsgConstraint:
+    def __init__(
+        self,
+        factory: ConstraintFactory,
+        field: descriptor.FieldDescriptor,
+    ):
+        self._factory = factory
+        self._field = field
+
+    def validate(
+        self, ctx: ConstraintContext, field_path: str, message: message.Message
+    ):
+        if not message.HasField(self._field.name):
+            return
+        constraints = self._factory.get(self._field.message_type)
+        if constraints is None:
+            return
+        val = getattr(message, self._field.name)
+        for constraint in constraints:
+            constraint.validate(ctx, field_path, val)
+
+
+class MapValMsgConstraint:
+    def __init__(
+        self,
+        factory: ConstraintFactory,
+        field: descriptor.FieldDescriptor,
+        value_field: descriptor.FieldDescriptor,
+    ):
+        self._factory = factory
+        self._field = field
+        self._value_field = value_field
+
+    def validate(
+        self, ctx: ConstraintContext, field_path: str, message: message.Message
+    ):
+        val = getattr(message, self._field.name)
+        if not val:
+            return
+        constraints = self._factory.get(self._value_field.message_type)
+        if constraints is None:
+            return
+        for key, val in val.items():
+            item_path = f"{field_path}[{key}]"
+            for constraint in constraints:
+                constraint.validate(ctx, item_path, val)
+
+
+class RepeatedMsgConstraint:
+    def __init__(
+        self,
+        factory: ConstraintFactory,
+        field: descriptor.FieldDescriptor,
+    ):
+        self._factory = factory
+        self._field = field
+
+    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
+        val = getattr(message, self._field.name)
+        if not val:
+            return
+        constraints = self._factory.get(self._field.message_type)
+        if constraints is None:
+            return
+        for idx, val in enumerate(val):
+            item_path = f"{path}[{idx}]"
+            for constraint in constraints:
+                constraint.validate(ctx, item_path, val)

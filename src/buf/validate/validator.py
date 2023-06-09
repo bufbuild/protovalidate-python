@@ -49,35 +49,6 @@ class Validator:
             constraint.validate(ctx, field_path, msg)
             if ctx.done:
                 return
-        field: descriptor.FieldDescriptor
-        for field in msg.DESCRIPTOR.fields:
-            if field.type != descriptor.FieldDescriptor.TYPE_MESSAGE:
-                continue
-            if field.GetOptions().HasExtension(validate_pb2.field) and (
-                field.GetOptions().Extensions[validate_pb2.field].skipped
-                or field.GetOptions()
-                .Extensions[validate_pb2.field]
-                .repeated.items.skipped
-            ):
-                continue
-            sub_path = field.name if field_path == "" else f"{field_path}.{field.name}"
-            if field.message_type.GetOptions().map_entry:
-                val_field = field.message_type.fields_by_name["value"]
-                if val_field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
-                    for key, val in getattr(msg, field.name).items():
-                        self._validate_message(ctx, f"{sub_path}[{key}]", val)
-                        if ctx.done:
-                            return
-            elif field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-                for i, sub_msg in enumerate(getattr(msg, field.name)):
-                    self._validate_message(ctx, f"{sub_path}[{i}]", sub_msg)
-                    if ctx.done:
-                        return
-            elif msg.HasField(field.name):
-                value = getattr(msg, field.name)
-                self._validate_message(ctx, sub_path, value)
-                if ctx.done:
-                    return
 
 
 _validator = Validator()
