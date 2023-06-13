@@ -8,23 +8,33 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class ResultSet(_message.Message):
-    __slots__ = ["successes", "failures", "suites", "suite_filter", "case_filter", "verbose", "strict"]
-    SUCCESSES_FIELD_NUMBER: _ClassVar[int]
-    FAILURES_FIELD_NUMBER: _ClassVar[int]
-    SUITES_FIELD_NUMBER: _ClassVar[int]
+class ResultOptions(_message.Message):
+    __slots__ = ["suite_filter", "case_filter", "verbose", "strict", "strict_message", "strict_error"]
     SUITE_FILTER_FIELD_NUMBER: _ClassVar[int]
     CASE_FILTER_FIELD_NUMBER: _ClassVar[int]
     VERBOSE_FIELD_NUMBER: _ClassVar[int]
     STRICT_FIELD_NUMBER: _ClassVar[int]
-    successes: int
-    failures: int
-    suites: _containers.RepeatedCompositeFieldContainer[SuiteResults]
+    STRICT_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    STRICT_ERROR_FIELD_NUMBER: _ClassVar[int]
     suite_filter: str
     case_filter: str
     verbose: bool
     strict: bool
-    def __init__(self, successes: _Optional[int] = ..., failures: _Optional[int] = ..., suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ..., suite_filter: _Optional[str] = ..., case_filter: _Optional[str] = ..., verbose: bool = ..., strict: bool = ...) -> None: ...
+    strict_message: bool
+    strict_error: bool
+    def __init__(self, suite_filter: _Optional[str] = ..., case_filter: _Optional[str] = ..., verbose: bool = ..., strict: bool = ..., strict_message: bool = ..., strict_error: bool = ...) -> None: ...
+
+class ResultSet(_message.Message):
+    __slots__ = ["successes", "failures", "suites", "options"]
+    SUCCESSES_FIELD_NUMBER: _ClassVar[int]
+    FAILURES_FIELD_NUMBER: _ClassVar[int]
+    SUITES_FIELD_NUMBER: _ClassVar[int]
+    OPTIONS_FIELD_NUMBER: _ClassVar[int]
+    successes: int
+    failures: int
+    suites: _containers.RepeatedCompositeFieldContainer[SuiteResults]
+    options: ResultOptions
+    def __init__(self, successes: _Optional[int] = ..., failures: _Optional[int] = ..., suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ..., options: _Optional[_Union[ResultOptions, _Mapping]] = ...) -> None: ...
 
 class SuiteResults(_message.Message):
     __slots__ = ["name", "successes", "failures", "cases", "fdset"]
