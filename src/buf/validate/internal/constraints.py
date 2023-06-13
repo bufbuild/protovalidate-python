@@ -402,13 +402,13 @@ class AnyConstraintRules(FieldConstraintRules):
         if len(self._in) > 0:
             if value.type_url not in self._in:
                 ctx.add(
-                    self._make_field_path(field_path),
+                    field_path,
                     "any.in",
                     f"Type {value.type_url} is not in {self._in}",
                 )
         if value.type_url in self._not_in:
             ctx.add(
-                self._make_field_path(field_path),
+                field_path,
                 "any.not_in",
                 f"Type {value.type_url} is in {self._not_in}",
             )
@@ -506,7 +506,7 @@ class MapConstraintRules(FieldConstraintRules):
             return
         value = getattr(message, self._field.name)
         for key, value in value.items():
-            key_field_path = f"{path}.{self._field.name}[{key}]"
+            key_field_path = join_field_path(path, f"{self._field.name}[{key}]")
             if self._key_rules is not None:
                 self._key_rules.validate_item(ctx, key_field_path, key)
             if self._value_rules is not None:
