@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 import celpy
 from celpy import celtypes
 import datetime
@@ -22,6 +21,7 @@ from google.protobuf import descriptor
 from buf.validate import expression_pb2
 from buf.validate import validate_pb2
 from buf.validate.priv import private_pb2
+from protovalidate.internal import string_format
 
 
 class CompilationError(Exception):
@@ -35,13 +35,9 @@ def join_field_path(field_path: str, field_name: str) -> str:
 
 
 def make_key_path(field_path: str, field_name: str, key: celtypes.Value) -> str:
-    if isinstance(key, (str, celtypes.StringType)):
-        return join_field_path(field_path, f"{field_name}[{re.escape(key)}]")
-    if isinstance(key, celtypes.BytesType):
-        return join_field_path(field_path, f"{field_name}[{key.hex()}]")
-    if isinstance(key, celtypes.UintType):
-        return join_field_path(field_path, f"{field_name}.[0x{hex(key)}]")
-    return join_field_path(field_path, f"{field_name}[{key}]")
+    return join_field_path(
+        field_path, f"{field_name}[{string_format.format_value(key)}]"
+    )
 
 
 def make_duration(msg: message.Message) -> celtypes.DurationType:
