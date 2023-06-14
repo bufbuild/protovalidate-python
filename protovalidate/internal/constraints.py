@@ -19,9 +19,9 @@ import datetime
 from google.protobuf import any_pb2
 from google.protobuf import message
 from google.protobuf import descriptor
-from buf.protovalidate import expression_pb2
-from buf.protovalidate import validate_pb2
-from buf.protovalidate.priv import private_pb2
+from buf.validate import expression_pb2
+from buf.validate import validate_pb2
+from buf.validate.priv import private_pb2
 
 
 class CompilationError(Exception):
