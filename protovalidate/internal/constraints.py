@@ -234,9 +234,25 @@ class ConstraintContext:
             )
         )
 
+    def add_errors(self, other_ctx):
+        self._violations.violations.extend(other_ctx.violations.violations)
+
+    def add_path_prefix(self, prefix: str, delim="."):
+        for violation in self._violations.violations:
+            if violation.field_path:
+                violation.field_path = prefix + delim + violation.field_path
+            else:
+                violation.field_path = prefix
+
     @property
     def done(self) -> bool:
-        return self._fail_fast and len(self._violations.violations) > 0
+        return self._fail_fast and self.has_errors
+
+    def has_errors(self) -> bool:
+        return len(self._violations.violations) > 0
+
+    def sub_context(self):
+        return ConstraintContext(self._fail_fast)
 
 
 class ConstraintRules:
@@ -269,7 +285,6 @@ class CelConstraintRules(ConstraintRules):
         )
         for runner, constraint in self._runners:
             result = runner.evaluate(activation)
-
             if isinstance(result, celtypes.BoolType):
                 if not result:
                     ctx.add(field_path, constraint.id, constraint.message)
@@ -348,9 +363,9 @@ class FieldConstraintRules(CelConstraintRules):
         if _IsEmptyField(message, self._field):
             if self._required:
                 ctx.add(
-                    self._make_field_path(field_path),
+                    self._field.name,
                     "required",
-                    "Field is required but not set",
+                    "value is required",
                 )
                 return
             if (
@@ -477,10 +492,12 @@ class RepeatedConstraintRules(FieldConstraintRules):
             return
         value = getattr(message, self._field.name)
         if self._item_rules is not None:
-            sub_path = self._make_field_path(field_path)
             for i, item in enumerate(value):
-                item_path = "{}[{}]".format(sub_path, i)
-                self._item_rules.validate_item(ctx, item_path, item)
+                sub_ctx = ctx.sub_context()
+                self._item_rules.validate_item(sub_ctx, "", item)
+                if sub_ctx.has_errors():
+                    sub_ctx.add_path_prefix(f"{self._field.name}[{i}]", "")
+                    ctx.add_errors(sub_ctx)
                 if ctx.done:
                     return
 
@@ -777,9 +794,12 @@ class SubMsgConstraint:
         if constraints is None:
             return
         val = getattr(message, self._field.name)
-        item_path = join_field_path(path, self._field.name)
+        sub_ctx = ctx.sub_context()
         for constraint in constraints:
-            constraint.validate(ctx, item_path, val)
+            constraint.validate(sub_ctx, "", val)
+        if sub_ctx.has_errors():
+            sub_ctx.add_path_prefix(self._field.name)
+            ctx.add_errors(sub_ctx)
 
 
 class MapValMsgConstraint:
@@ -801,9 +821,12 @@ class MapValMsgConstraint:
         if constraints is None:
             return
         for key, val in val.items():
-            item_path = join_field_path(path, f"{self._field.name}[{key}]")
+            sub_ctx = ctx.sub_context()
             for constraint in constraints:
-                constraint.validate(ctx, item_path, val)
+                constraint.validate(sub_ctx, "", val)
+            if sub_ctx.has_errors():
+                sub_ctx.add_path_prefix(f"{self._field.name}[{key}]")
+                ctx.add_errors(sub_ctx)
 
 
 class RepeatedMsgConstraint:
@@ -823,6 +846,9 @@ class RepeatedMsgConstraint:
         if constraints is None:
             return
         for idx, val in enumerate(val):
-            item_path = join_field_path(path, f"{self._field.name}[{idx}]")
+            sub_ctx = ctx.sub_context()
             for constraint in constraints:
-                constraint.validate(ctx, item_path, val)
+                constraint.validate(sub_ctx, "", val)
+            if sub_ctx.has_errors():
+                sub_ctx.add_path_prefix(f"{self._field.name}[{idx}]")
+                ctx.add_errors(sub_ctx)
