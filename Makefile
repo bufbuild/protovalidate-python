@@ -29,7 +29,7 @@ clean: ## Delete intermediate build artifacts
 
 .PHONY: generate
 generate: $(BIN)/buf generate-license ## Regenerate code and license headers
-	find . -name "*_pb2.py*" -exec rm {} +
+	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 

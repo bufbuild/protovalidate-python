@@ -1,4 +1,4 @@
-from buf.protovalidate import validate_pb2 as _validate_pb2
+from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -8,17 +8,14 @@ DESCRIPTOR: _descriptor.FileDescriptor
 
 class Embed(_message.Message):
     __slots__ = ["val"]
-
     class Enumerated(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = []
         ENUMERATED_UNSPECIFIED: _ClassVar[Embed.Enumerated]
         ENUMERATED_VALUE: _ClassVar[Embed.Enumerated]
     ENUMERATED_UNSPECIFIED: Embed.Enumerated
     ENUMERATED_VALUE: Embed.Enumerated
-
     class DoubleEmbed(_message.Message):
         __slots__ = []
-
         class DoubleEnumerated(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = []
             DOUBLE_ENUMERATED_UNSPECIFIED: _ClassVar[Embed.DoubleEmbed.DoubleEnumerated]
