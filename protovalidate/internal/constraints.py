@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import re
 import celpy
 from celpy import celtypes
 import datetime
@@ -32,6 +32,16 @@ def join_field_path(field_path: str, field_name: str) -> str:
     if field_path:
         return field_path + "." + field_name
     return field_name
+
+
+def make_key_path(field_path: str, field_name: str, key: celtypes.Value) -> str:
+    if isinstance(key, (str, celtypes.StringType)):
+        return join_field_path(field_path, f"{field_name}[{re.escape(key)}]")
+    if isinstance(key, celtypes.BytesType):
+        return join_field_path(field_path, f"{field_name}[{key.hex()}]")
+    if isinstance(key, celtypes.UintType):
+        return join_field_path(field_path, f"{field_name}.[0x{hex(key)}]")
+    return join_field_path(field_path, f"{field_name}[{key}]")
 
 
 def make_duration(msg: message.Message) -> celtypes.DurationType:
@@ -402,13 +412,13 @@ class AnyConstraintRules(FieldConstraintRules):
         if len(self._in) > 0:
             if value.type_url not in self._in:
                 ctx.add(
-                    self._make_field_path(field_path),
+                    field_path,
                     "any.in",
                     f"Type {value.type_url} is not in {self._in}",
                 )
         if value.type_url in self._not_in:
             ctx.add(
-                self._make_field_path(field_path),
+                field_path,
                 "any.not_in",
                 f"Type {value.type_url} is in {self._not_in}",
             )
@@ -506,7 +516,7 @@ class MapConstraintRules(FieldConstraintRules):
             return
         value = getattr(message, self._field.name)
         for key, value in value.items():
-            key_field_path = f"{path}.{self._field.name}[{key}]"
+            key_field_path = make_key_path(path, self._field.name, key)
             if self._key_rules is not None:
                 self._key_rules.validate_item(ctx, key_field_path, key)
             if self._value_rules is not None:

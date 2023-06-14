@@ -14,7 +14,7 @@
 
 import celpy
 from celpy import celtypes
-from buf.validate.internal import string_format
+from protovalidate.internal import string_format
 from urllib import parse as urlparse
 from ipaddress import IPv4Address, IPv6Address, ip_address
 from validate_email import validate_email

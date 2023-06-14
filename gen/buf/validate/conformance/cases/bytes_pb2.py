@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*buf/validate/conformance/cases/bytes.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1d\n\tBytesNone\x12\x10\n\x03val\x18\x01 \x01(\x0cR\x03val\"+\n\nBytesConst\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xfa\xf7\x18\x07z\x05\n\x03\x66ooR\x03val\"-\n\x07\x42ytesIn\x12\"\n\x03val\x18\x01 \x01(\x0c\x42\x10\xfa\xf7\x18\x0cz\nB\x03\x62\x61rB\x03\x62\x61zR\x03val\"2\n\nBytesNotIn\x12$\n\x03val\x18\x01 \x01(\x0c\x42\x12\xfa\xf7\x18\x0ez\x0cJ\x04\x66izzJ\x04\x62uzzR\x03val\"&\n\x08\x42ytesLen\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02h\x03R\x03val\")\n\x0b\x42ytesMinLen\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02\x10\x03R\x03val\")\n\x0b\x42ytesMaxLen\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02\x18\x05R\x03val\".\n\x0e\x42ytesMinMaxLen\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xfa\xf7\x18\x06z\x04\x10\x03\x18\x05R\x03val\"3\n\x13\x42ytesEqualMinMaxLen\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xfa\xf7\x18\x06z\x04\x10\x05\x18\x05R\x03val\"2\n\x0c\x42ytesPattern\x12\"\n\x03val\x18\x01 \x01(\x0c\x42\x10\xfa\xf7\x18\x0cz\n\"\x08^[\x00-\x7f]+$R\x03val\"*\n\x0b\x42ytesPrefix\x12\x1b\n\x03val\x18\x01 \x01(\x0c\x42\t\xfa\xf7\x18\x05z\x03*\x01\x99R\x03val\".\n\rBytesContains\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xfa\xf7\x18\x07z\x05:\x03\x62\x61rR\x03val\"-\n\x0b\x42ytesSuffix\x12\x1e\n\x03val\x18\x01 \x01(\x0c\x42\x0c\xfa\xf7\x18\x08z\x06\x32\x04\x62uzzR\x03val\"%\n\x07\x42ytesIP\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02P\x01R\x03val\"\'\n\tBytesIPv4\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02X\x01R\x03val\"\'\n\tBytesIPv6\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02`\x01R\x03val\"0\n\x0f\x42ytesIPv6Ignore\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xfa\xf7\x18\x07z\x02`\x01\xd0\x01\x01R\x03valb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*buf/validate/conformance/cases/bytes.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1d\n\tBytesNone\x12\x10\n\x03val\x18\x01 \x01(\x0cR\x03val\"+\n\nBytesConst\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xfa\xf7\x18\x07z\x05\n\x03\x66ooR\x03val\"-\n\x07\x42ytesIn\x12\"\n\x03val\x18\x01 \x01(\x0c\x42\x10\xfa\xf7\x18\x0cz\nB\x03\x62\x61rB\x03\x62\x61zR\x03val\"2\n\nBytesNotIn\x12$\n\x03val\x18\x01 \x01(\x0c\x42\x12\xfa\xf7\x18\x0ez\x0cJ\x04\x66izzJ\x04\x62uzzR\x03val\"&\n\x08\x42ytesLen\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02h\x03R\x03val\")\n\x0b\x42ytesMinLen\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02\x10\x03R\x03val\")\n\x0b\x42ytesMaxLen\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02\x18\x05R\x03val\".\n\x0e\x42ytesMinMaxLen\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xfa\xf7\x18\x06z\x04\x10\x03\x18\x05R\x03val\"3\n\x13\x42ytesEqualMinMaxLen\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xfa\xf7\x18\x06z\x04\x10\x05\x18\x05R\x03val\"8\n\x0c\x42ytesPattern\x12(\n\x03val\x18\x01 \x01(\x0c\x42\x16\xfa\xf7\x18\x12z\x10\"\x0e^[\\x00-\\x7F]+$R\x03val\"*\n\x0b\x42ytesPrefix\x12\x1b\n\x03val\x18\x01 \x01(\x0c\x42\t\xfa\xf7\x18\x05z\x03*\x01\x99R\x03val\".\n\rBytesContains\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xfa\xf7\x18\x07z\x05:\x03\x62\x61rR\x03val\"-\n\x0b\x42ytesSuffix\x12\x1e\n\x03val\x18\x01 \x01(\x0c\x42\x0c\xfa\xf7\x18\x08z\x06\x32\x04\x62uzzR\x03val\"%\n\x07\x42ytesIP\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02P\x01R\x03val\"\'\n\tBytesIPv4\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02X\x01R\x03val\"\'\n\tBytesIPv6\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xfa\xf7\x18\x04z\x02`\x01R\x03val\"0\n\x0f\x42ytesIPv6Ignore\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xfa\xf7\x18\x07z\x02`\x01\xd0\x01\x01R\x03valb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,7 +39,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _BYTESEQUALMINMAXLEN.fields_by_name['val']._options = None
   _BYTESEQUALMINMAXLEN.fields_by_name['val']._serialized_options = b'\372\367\030\006z\004\020\005\030\005'
   _BYTESPATTERN.fields_by_name['val']._options = None
-  _BYTESPATTERN.fields_by_name['val']._serialized_options = b'\372\367\030\014z\n\"\010^[\000-\177]+$'
+  _BYTESPATTERN.fields_by_name['val']._serialized_options = b'\372\367\030\022z\020\"\016^[\\x00-\\x7F]+$'
   _BYTESPREFIX.fields_by_name['val']._options = None
   _BYTESPREFIX.fields_by_name['val']._serialized_options = b'\372\367\030\005z\003*\001\231'
   _BYTESCONTAINS.fields_by_name['val']._options = None
@@ -73,19 +73,19 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_BYTESEQUALMINMAXLEN']._serialized_start=456
   _globals['_BYTESEQUALMINMAXLEN']._serialized_end=507
   _globals['_BYTESPATTERN']._serialized_start=509
-  _globals['_BYTESPATTERN']._serialized_end=559
-  _globals['_BYTESPREFIX']._serialized_start=561
-  _globals['_BYTESPREFIX']._serialized_end=603
-  _globals['_BYTESCONTAINS']._serialized_start=605
-  _globals['_BYTESCONTAINS']._serialized_end=651
-  _globals['_BYTESSUFFIX']._serialized_start=653
-  _globals['_BYTESSUFFIX']._serialized_end=698
-  _globals['_BYTESIP']._serialized_start=700
-  _globals['_BYTESIP']._serialized_end=737
-  _globals['_BYTESIPV4']._serialized_start=739
-  _globals['_BYTESIPV4']._serialized_end=778
-  _globals['_BYTESIPV6']._serialized_start=780
-  _globals['_BYTESIPV6']._serialized_end=819
-  _globals['_BYTESIPV6IGNORE']._serialized_start=821
-  _globals['_BYTESIPV6IGNORE']._serialized_end=869
+  _globals['_BYTESPATTERN']._serialized_end=565
+  _globals['_BYTESPREFIX']._serialized_start=567
+  _globals['_BYTESPREFIX']._serialized_end=609
+  _globals['_BYTESCONTAINS']._serialized_start=611
+  _globals['_BYTESCONTAINS']._serialized_end=657
+  _globals['_BYTESSUFFIX']._serialized_start=659
+  _globals['_BYTESSUFFIX']._serialized_end=704
+  _globals['_BYTESIP']._serialized_start=706
+  _globals['_BYTESIP']._serialized_end=743
+  _globals['_BYTESIPV4']._serialized_start=745
+  _globals['_BYTESIPV4']._serialized_end=784
+  _globals['_BYTESIPV6']._serialized_start=786
+  _globals['_BYTESIPV6']._serialized_end=825
+  _globals['_BYTESIPV6IGNORE']._serialized_start=827
+  _globals['_BYTESIPV6IGNORE']._serialized_end=875
 # @@protoc_insertion_point(module_scope)

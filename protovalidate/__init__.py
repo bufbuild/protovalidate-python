@@ -12,3 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from protovalidate import validator
+
+Validator = validator.Validator
+CompilationError = validator.CompilationError
+Violations = validator.Violations
+
+_validator = Validator()
+validate = _validator.validate
+
+__all__ = ["Validator", "CompilationError", "Violations", "validate"]

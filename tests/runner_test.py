@@ -14,13 +14,12 @@
 
 import unittest
 
-from buf.validate import validator
-from buf.validate.conformance import runner
+import protovalidate
+from tests.conformance import runner
+from buf.validate.conformance.cases import oneofs_pb2
 from buf.validate.conformance.harness import results_pb2
 from google.protobuf import descriptor_pool
 from google.protobuf import message_factory
-
-from buf.validate.conformance.cases import oneofs_pb2
 
 
 class RunnerTest(unittest.TestCase):
@@ -35,17 +34,6 @@ class RunnerTest(unittest.TestCase):
             #     pool.Add(fd)
             for result in suite.cases:
                 actual = runner.run_any_test_case(pool, result.input)
-
-    # def test_all(self):
-    #     results = results_pb2.ResultSet()
-    #     with open("tests/all_suites.binproto", "rb") as f:
-    #         results.ParseFromString(f.read())
-    #     for suite in results.suites:
-    #         pool = descriptor_pool.Default()
-    #         # for fd in suite.fdset.file:
-    #         #     pool.Add(fd)
-    #         for result in suite.cases:
-    #             actual = runner.run_any_test_case(pool, result.input)
 
 
 if __name__ == "__main__":

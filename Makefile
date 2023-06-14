@@ -29,7 +29,7 @@ clean: ## Delete intermediate build artifacts
 
 .PHONY: generate
 generate: $(BIN)/buf generate-license ## Regenerate code and license headers
-	find . -name "*_pb2.py*" -exec rm {} +
+	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 
@@ -39,7 +39,7 @@ test: generate install ## Run all unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance install
-	$(BIN)/protovalidate-conformance $(ARGS) pipenv -- run python3 -m buf.validate.conformance.runner
+	$(BIN)/protovalidate-conformance $(ARGS) pipenv -- run python3 -m tests.conformance.runner
 
 .PHONY: install
 install:
