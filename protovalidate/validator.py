@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate.internal import constraints as _constraints
-from buf.validate.internal import extra_func
 from buf.validate import expression_pb2
 from buf.validate import validate_pb2
 from google.protobuf import descriptor
 from google.protobuf import message
+from protovalidate.internal import constraints as _constraints
+from protovalidate.internal import extra_func
 
 CompilationError = _constraints.CompilationError
 Violations = expression_pb2.Violations
@@ -49,7 +49,3 @@ class Validator:
             constraint.validate(ctx, field_path, msg)
             if ctx.done:
                 return
-
-
-_validator = Validator()
-validate = _validator.validate

@@ -14,8 +14,8 @@
 
 import sys
 import celpy
+import protovalidate
 
-from buf.validate import validator
 from buf.validate.conformance.harness import harness_pb2
 from google.protobuf import any_pb2
 from google.protobuf import descriptor_pool
@@ -53,12 +53,12 @@ def run_test_case(
         result = harness_pb2.TestResult()
     # Run the validator
     try:
-        validator.validate(tc, False, result.validation_error)
+        protovalidate.validate(tc, False, result.validation_error)
         if len(result.validation_error.violations) == 0:
             result.success = True
     except celpy.CELEvalError as e:
         result.runtime_error = str(e)
-    except validator.CompilationError as e:
+    except protovalidate.CompilationError as e:
         result.compilation_error = str(e)
     return result
 
