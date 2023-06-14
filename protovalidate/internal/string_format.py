@@ -16,6 +16,25 @@ from celpy import celtypes
 import celpy
 
 
+QUOTE_TRANS = str.maketrans(
+    {
+        "\a": r"\a",
+        "\b": r"\b",
+        "\f": r"\f",
+        "\n": r"\n",
+        "\r": r"\r",
+        "\t": r"\t",
+        "\v": r"\v",
+        "\\": r"\\",
+        '"': r"\"",
+    }
+)
+
+
+def quote(s: str) -> str:
+    return '"' + s.translate(QUOTE_TRANS) + '"'
+
+
 class StringFormat:
     """An implementation of string.format() in CEL."""
 
@@ -139,4 +158,27 @@ class StringFormat:
             return arg
         if isinstance(arg, celtypes.BytesType):
             return celtypes.StringType(arg.hex())
+        if isinstance(arg, celtypes.ListType):
+            return self.format_list(arg)
         return celtypes.StringType(arg)
+
+    def format_value(self, arg: celtypes.Value) -> celpy.Result:
+        if isinstance(arg, (celtypes.StringType, str)):
+            return celtypes.StringType(quote(arg))
+        if isinstance(arg, celtypes.UintType):
+            return celtypes.StringType(arg)
+        return self.format_string(arg)
+
+    def format_list(self, arg: celtypes.ListType) -> celpy.Result:
+        result = "["
+        for i in range(len(arg)):
+            if i > 0:
+                result += ", "
+            result += self.format_value(arg[i])
+        result += "]"
+        return celtypes.StringType(result)
+
+
+_default_format = StringFormat("en_US")
+format = _default_format.format
+format_value = _default_format.format_value
