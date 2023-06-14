@@ -28,16 +28,8 @@ class CompilationError(Exception):
     pass
 
 
-def join_field_path(field_path: str, field_name: str) -> str:
-    if field_path:
-        return field_path + "." + field_name
-    return field_name
-
-
-def make_key_path(field_path: str, field_name: str, key: celtypes.Value) -> str:
-    return join_field_path(
-        field_path, f"{field_name}[{string_format.format_value(key)}]"
-    )
+def make_key_path(field_name: str, key: celtypes.Value) -> str:
+    return f"{field_name}[{string_format.format_value(key)}]"
 
 
 def make_duration(msg: message.Message) -> celtypes.DurationType:
@@ -225,10 +217,10 @@ class ConstraintContext:
     def violations(self) -> expression_pb2.Violations:
         return self._violations
 
-    def add(self, field_path: str, constraint_id: str, message: str):
+    def add(self, field_name: str, constraint_id: str, message: str):
         self._violations.violations.append(
             expression_pb2.Violation(
-                field_path=field_path,
+                field_path=field_name,
                 constraint_id=constraint_id,
                 message=message,
             )
@@ -258,11 +250,9 @@ class ConstraintContext:
 class ConstraintRules:
     """The constrains associated with a single 'rules' message."""
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
+    def validate(self, ctx: ConstraintContext, message: message.Message):
         """Validate the message against the rules in this constraint."""
-        ctx.add(field_path, "unimplemented", "Unimplemented")
+        ctx.add("", "unimplemented", "Unimplemented")
 
 
 class CelConstraintRules(ConstraintRules):
@@ -277,7 +267,7 @@ class CelConstraintRules(ConstraintRules):
             self._rules_cel = _MsgToCel(rules)
 
     def _validate_cel(
-        self, ctx: ConstraintContext, field_path: str, activation: dict[str, any]
+        self, ctx: ConstraintContext, field_name: str, activation: dict[str, any]
     ):
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(
@@ -287,10 +277,10 @@ class CelConstraintRules(ConstraintRules):
             result = runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
                 if not result:
-                    ctx.add(field_path, constraint.id, constraint.message)
+                    ctx.add(field_name, constraint.id, constraint.message)
             elif isinstance(result, celtypes.StringType):
                 if result:
-                    ctx.add(field_path, constraint.id, result)
+                    ctx.add(field_name, constraint.id, result)
             elif isinstance(result, Exception):
                 raise result
 
@@ -308,10 +298,8 @@ class CelConstraintRules(ConstraintRules):
 class MessageConstraintRules(CelConstraintRules):
     """Message-level rules."""
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
-        self._validate_cel(ctx, field_path, {"this": _MsgToCel(message)})
+    def validate(self, ctx: ConstraintContext, message: message.Message):
+        self._validate_cel(ctx, "", {"this": _MsgToCel(message)})
 
 
 def check_field_type(
@@ -357,9 +345,7 @@ class FieldConstraintRules(CelConstraintRules):
         for cel in fieldLvl.cel:
             self.add_rule(env, funcs, cel)
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
+    def validate(self, ctx: ConstraintContext, message: message.Message):
         if _IsEmptyField(message, self._field):
             if self._required:
                 ctx.add(
@@ -377,12 +363,10 @@ class FieldConstraintRules(CelConstraintRules):
                 or self._field.containing_oneof is not None
             ):
                 return
-
-        field_path = self._make_field_path(field_path)
         val = getattr(message, self._field.name)
-        self._validate_value(ctx, field_path, val)
+        self._validate_value(ctx, self._field.name, val)
         self._validate_cel(
-            ctx, field_path, {"this": _FieldValueToCel(val, self._field)}
+            ctx, self._field.name, {"this": _FieldValueToCel(val, self._field)}
         )
 
     def validate_item(self, ctx: ConstraintContext, field_path: str, val: any):
@@ -393,9 +377,6 @@ class FieldConstraintRules(CelConstraintRules):
 
     def _validate_value(self, ctx: ConstraintContext, field_path: str, val: any):
         pass
-
-    def _make_field_path(self, field_path: str) -> str:
-        return join_field_path(field_path, self._field.name)
 
 
 class AnyConstraintRules(FieldConstraintRules):
@@ -451,17 +432,15 @@ class EnumConstraintRules(FieldConstraintRules):
         if fieldLvl.enum.defined_only:
             self._defined_only = True
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
-        super().validate(ctx, field_path, message)
+    def validate(self, ctx: ConstraintContext, message: message.Message):
+        super().validate(ctx, message)
         if ctx.done:
             return
         if self._defined_only:
             value = getattr(message, self._field.name)
             if value not in self._field.enum_type.values_by_number:
                 ctx.add(
-                    self._make_field_path(field_path),
+                    self._field.name,
                     "enum.defined_only",
                     "value is not defined in enum",
                 )
@@ -484,10 +463,8 @@ class RepeatedConstraintRules(FieldConstraintRules):
         if item_rules is not None:
             self._item_rules = item_rules
 
-    def validate(
-        self, ctx: ConstraintContext, field_path: str, message: message.Message
-    ):
-        super().validate(ctx, field_path, message)
+    def validate(self, ctx: ConstraintContext, message: message.Message):
+        super().validate(ctx, message)
         if ctx.done:
             return
         value = getattr(message, self._field.name)
@@ -523,13 +500,13 @@ class MapConstraintRules(FieldConstraintRules):
         if value_rules is not None:
             self._value_rules = value_rules
 
-    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
-        super().validate(ctx, path, message)
+    def validate(self, ctx: ConstraintContext, message: message.Message):
+        super().validate(ctx, message)
         if ctx.done:
             return
         value = getattr(message, self._field.name)
         for key, value in value.items():
-            key_field_path = make_key_path(path, self._field.name, key)
+            key_field_path = make_key_path(self._field.name, key)
             if self._key_rules is not None:
                 self._key_rules.validate_item(ctx, key_field_path, key)
             if self._value_rules is not None:
@@ -548,11 +525,11 @@ class OneofConstraintRules(ConstraintRules):
         if not rules.required:
             self.required = False
 
-    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
+    def validate(self, ctx: ConstraintContext, message: message.Message):
         if not message.WhichOneof(self._oneof.name):
             if self.required:
                 ctx.add(
-                    join_field_path(path, self._oneof.name),
+                    self._oneof.name,
                     "required",
                     "oneof is required",
                 )
@@ -787,7 +764,7 @@ class SubMsgConstraint:
         self._factory = factory
         self._field = field
 
-    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
+    def validate(self, ctx: ConstraintContext, message: message.Message):
         if not message.HasField(self._field.name):
             return
         constraints = self._factory.get(self._field.message_type)
@@ -796,7 +773,7 @@ class SubMsgConstraint:
         val = getattr(message, self._field.name)
         sub_ctx = ctx.sub_context()
         for constraint in constraints:
-            constraint.validate(sub_ctx, "", val)
+            constraint.validate(sub_ctx, val)
         if sub_ctx.has_errors():
             sub_ctx.add_path_prefix(self._field.name)
             ctx.add_errors(sub_ctx)
@@ -813,7 +790,7 @@ class MapValMsgConstraint:
         self._field = field
         self._value_field = value_field
 
-    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
+    def validate(self, ctx: ConstraintContext, message: message.Message):
         val = getattr(message, self._field.name)
         if not val:
             return
@@ -823,7 +800,7 @@ class MapValMsgConstraint:
         for key, val in val.items():
             sub_ctx = ctx.sub_context()
             for constraint in constraints:
-                constraint.validate(sub_ctx, "", val)
+                constraint.validate(sub_ctx, val)
             if sub_ctx.has_errors():
                 sub_ctx.add_path_prefix(f"{self._field.name}[{key}]")
                 ctx.add_errors(sub_ctx)
@@ -838,7 +815,7 @@ class RepeatedMsgConstraint:
         self._factory = factory
         self._field = field
 
-    def validate(self, ctx: ConstraintContext, path: str, message: message.Message):
+    def validate(self, ctx: ConstraintContext, message: message.Message):
         val = getattr(message, self._field.name)
         if not val:
             return
@@ -848,7 +825,7 @@ class RepeatedMsgConstraint:
         for idx, val in enumerate(val):
             sub_ctx = ctx.sub_context()
             for constraint in constraints:
-                constraint.validate(sub_ctx, "", val)
+                constraint.validate(sub_ctx, val)
             if sub_ctx.has_errors():
                 sub_ctx.add_path_prefix(f"{self._field.name}[{idx}]")
                 ctx.add_errors(sub_ctx)
