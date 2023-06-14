@@ -35,7 +35,7 @@ class Validator:
     ) -> Violations:
         ctx = _constraints.ConstraintContext(fail_fast=fail_fast, violations=result)
         for constraint in self._factory.get(message.DESCRIPTOR):
-            constraint.validate(ctx, message)
+            constraint.validate(ctx, "", message)
             if ctx.done:
                 return
         return ctx.violations
