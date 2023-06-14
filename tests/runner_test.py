@@ -36,17 +36,6 @@ class RunnerTest(unittest.TestCase):
             for result in suite.cases:
                 actual = runner.run_any_test_case(pool, result.input)
 
-    # def test_all(self):
-    #     results = results_pb2.ResultSet()
-    #     with open("tests/all_suites.binproto", "rb") as f:
-    #         results.ParseFromString(f.read())
-    #     for suite in results.suites:
-    #         pool = descriptor_pool.Default()
-    #         # for fd in suite.fdset.file:
-    #         #     pool.Add(fd)
-    #         for result in suite.cases:
-    #             actual = runner.run_any_test_case(pool, result.input)
-
 
 if __name__ == "__main__":
     unittest.main()

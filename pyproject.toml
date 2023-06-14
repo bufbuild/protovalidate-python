@@ -13,7 +13,6 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
 ]
-dynamic = ["version"]
 dependencies = ["protobuf", "cel-python"]
 [tool.hatch.version]
 source = "vcs"
@@ -21,28 +20,3 @@ source = "vcs"
 [project.urls]
 "Homepage" = "https://github.com/bufbuild/protovalidate-python"
 "Bug Tracker" = "https://github.com/bufbuild/protovalidate-python/issues"
-
-[tool.isort]
-src_paths = ["src", "tests"]
-skip = [
-  ".bzr",
-  ".direnv",
-  ".eggs",
-  ".git",
-  ".hg",
-  ".mypy_cache",
-  ".nox",
-  ".pants.d",
-  ".svn",
-  ".tox",
-  ".venv",
-  "_build",
-  "buck-out",
-  "build",
-  "dist",
-  "node_modules",
-  "venv",
-  "*.feature",
-  "*.textproto",
-  "*.rst",
-]
