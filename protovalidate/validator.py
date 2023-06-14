@@ -13,8 +13,6 @@
 # limitations under the License.
 
 from buf.validate import expression_pb2
-from buf.validate import validate_pb2
-from google.protobuf import descriptor
 from google.protobuf import message
 from protovalidate.internal import constraints as _constraints
 from protovalidate.internal import extra_func
@@ -36,16 +34,8 @@ class Validator:
         result: Violations = None,
     ) -> Violations:
         ctx = _constraints.ConstraintContext(fail_fast=fail_fast, violations=result)
-        self._validate_message(ctx, "", message)
-        return ctx.violations
-
-    def _validate_message(
-        self,
-        ctx: _constraints.ConstraintContext,
-        field_path: str,
-        msg: message.Message,
-    ) -> None:
-        for constraint in self._factory.get(msg.DESCRIPTOR):
-            constraint.validate(ctx, field_path, msg)
+        for constraint in self._factory.get(message.DESCRIPTOR):
+            constraint.validate(ctx, message)
             if ctx.done:
                 return
+        return ctx.violations
