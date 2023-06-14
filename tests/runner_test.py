@@ -14,13 +14,12 @@
 
 import unittest
 
-from buf.validate import validator
-from buf.validate.conformance import runner
+import protovalidate
+from tests.conformance import runner
+from buf.validate.conformance.cases import oneofs_pb2
 from buf.validate.conformance.harness import results_pb2
 from google.protobuf import descriptor_pool
 from google.protobuf import message_factory
-
-from buf.validate.conformance.cases import oneofs_pb2
 
 
 class RunnerTest(unittest.TestCase):
