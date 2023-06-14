@@ -1,12 +1,7 @@
-from buf.protovalidate import validate_pb2 as _validate_pb2
+from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -32,12 +27,7 @@ class Oneof(_message.Message):
     x: str
     y: int
     z: TestOneofMsg
-    def __init__(
-        self,
-        x: _Optional[str] = ...,
-        y: _Optional[int] = ...,
-        z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...,
-    ) -> None: ...
+    def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...) -> None: ...
 
 class OneofRequired(_message.Message):
     __slots__ = ["x", "y", "name_with_underscores", "under_and_1_number"]
@@ -49,13 +39,7 @@ class OneofRequired(_message.Message):
     y: int
     name_with_underscores: int
     under_and_1_number: int
-    def __init__(
-        self,
-        x: _Optional[str] = ...,
-        y: _Optional[int] = ...,
-        name_with_underscores: _Optional[int] = ...,
-        under_and_1_number: _Optional[int] = ...,
-    ) -> None: ...
+    def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., name_with_underscores: _Optional[int] = ..., under_and_1_number: _Optional[int] = ...) -> None: ...
 
 class OneofIgnoreEmpty(_message.Message):
     __slots__ = ["x", "y", "z"]
@@ -65,9 +49,4 @@ class OneofIgnoreEmpty(_message.Message):
     x: str
     y: bytes
     z: int
-    def __init__(
-        self,
-        x: _Optional[str] = ...,
-        y: _Optional[bytes] = ...,
-        z: _Optional[int] = ...,
-    ) -> None: ...
+    def __init__(self, x: _Optional[str] = ..., y: _Optional[bytes] = ..., z: _Optional[int] = ...) -> None: ...

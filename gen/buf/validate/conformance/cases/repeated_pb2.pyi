@@ -1,18 +1,12 @@
-from buf.protovalidate.conformance.cases.other_package import embed_pb2 as _embed_pb2
-from buf.protovalidate import validate_pb2 as _validate_pb2
+from buf.validate.conformance.cases.other_package import embed_pb2 as _embed_pb2
+from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import any_pb2 as _any_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Iterable as _Iterable,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -21,7 +15,6 @@ class AnEnum(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     AN_ENUM_UNSPECIFIED: _ClassVar[AnEnum]
     AN_ENUM_X: _ClassVar[AnEnum]
     AN_ENUM_Y: _ClassVar[AnEnum]
-
 AN_ENUM_UNSPECIFIED: AnEnum
 AN_ENUM_X: AnEnum
 AN_ENUM_Y: AnEnum
@@ -42,25 +35,19 @@ class RepeatedEmbedNone(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[Embed]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...) -> None: ...
 
 class RepeatedEmbedCrossPackageNone(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[_embed_pb2.Embed]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[_embed_pb2.Embed, _Mapping]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[_embed_pb2.Embed, _Mapping]]] = ...) -> None: ...
 
 class RepeatedMin(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[Embed]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...) -> None: ...
 
 class RepeatedMax(_message.Message):
     __slots__ = ["val"]
@@ -102,9 +89,7 @@ class RepeatedEmbedSkip(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[Embed]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...) -> None: ...
 
 class RepeatedItemIn(_message.Message):
     __slots__ = ["val"]
@@ -122,21 +107,16 @@ class RepeatedEnumIn(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[AnEnum]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[AnEnum, str]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[AnEnum, str]]] = ...) -> None: ...
 
 class RepeatedEnumNotIn(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[AnEnum]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[AnEnum, str]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[AnEnum, str]]] = ...) -> None: ...
 
 class RepeatedEmbeddedEnumIn(_message.Message):
     __slots__ = ["val"]
-
     class AnotherInEnum(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = []
         ANOTHER_IN_ENUM_UNSPECIFIED: _ClassVar[RepeatedEmbeddedEnumIn.AnotherInEnum]
@@ -147,52 +127,33 @@ class RepeatedEmbeddedEnumIn(_message.Message):
     ANOTHER_IN_ENUM_B: RepeatedEmbeddedEnumIn.AnotherInEnum
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[RepeatedEmbeddedEnumIn.AnotherInEnum]
-    def __init__(
-        self,
-        val: _Optional[
-            _Iterable[_Union[RepeatedEmbeddedEnumIn.AnotherInEnum, str]]
-        ] = ...,
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[RepeatedEmbeddedEnumIn.AnotherInEnum, str]]] = ...) -> None: ...
 
 class RepeatedEmbeddedEnumNotIn(_message.Message):
     __slots__ = ["val"]
-
     class AnotherNotInEnum(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = []
-        ANOTHER_NOT_IN_ENUM_UNSPECIFIED: _ClassVar[
-            RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
-        ]
+        ANOTHER_NOT_IN_ENUM_UNSPECIFIED: _ClassVar[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
         ANOTHER_NOT_IN_ENUM_A: _ClassVar[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
         ANOTHER_NOT_IN_ENUM_B: _ClassVar[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
     ANOTHER_NOT_IN_ENUM_UNSPECIFIED: RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
     ANOTHER_NOT_IN_ENUM_A: RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
     ANOTHER_NOT_IN_ENUM_B: RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
     VAL_FIELD_NUMBER: _ClassVar[int]
-    val: _containers.RepeatedScalarFieldContainer[
-        RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
-    ]
-    def __init__(
-        self,
-        val: _Optional[
-            _Iterable[_Union[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum, str]]
-        ] = ...,
-    ) -> None: ...
+    val: _containers.RepeatedScalarFieldContainer[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
+    def __init__(self, val: _Optional[_Iterable[_Union[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum, str]]] = ...) -> None: ...
 
 class RepeatedAnyIn(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[_any_pb2.Any]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[_any_pb2.Any, _Mapping]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[_any_pb2.Any, _Mapping]]] = ...) -> None: ...
 
 class RepeatedAnyNotIn(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[_any_pb2.Any]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[_any_pb2.Any, _Mapping]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[_any_pb2.Any, _Mapping]]] = ...) -> None: ...
 
 class RepeatedMinAndItemLen(_message.Message):
     __slots__ = ["val"]
@@ -210,9 +171,7 @@ class RepeatedDuration(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[_duration_pb2.Duration]
-    def __init__(
-        self, val: _Optional[_Iterable[_Union[_duration_pb2.Duration, _Mapping]]] = ...
-    ) -> None: ...
+    def __init__(self, val: _Optional[_Iterable[_Union[_duration_pb2.Duration, _Mapping]]] = ...) -> None: ...
 
 class RepeatedExactIgnore(_message.Message):
     __slots__ = ["val"]
