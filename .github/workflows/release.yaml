@@ -1,4 +1,4 @@
-name: Manual PyPi Release
+name: Upload PyPi Release
 
 on:
   pull_request:
@@ -35,7 +35,7 @@ jobs:
             ${{ runner.os }}-${{ env.PYTHON_VERSION }}-venv
       - name: Install environment
         run: |
-          pip install pipenv
+          pip install --upgrade pip pipenv
           pipenv install --dev --deploy
       - name: Test installed package
         run: |
