@@ -9,34 +9,6 @@ env:
   PYTHON_VERSION: '3.7.17'
 
 jobs:
-  testing:
-    name: Test installed package
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Setup caches
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.local/share/virtualenvs
-            ~/.cache/pre-commit
-            ~/.cache/pip
-          key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-venv-${{ hashFiles('**/Pipfile*') }}-${{ hashFiles('**/.pre-commit-config.yaml*') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.PYTHON_VERSION }}-venv
-      - name: Install environment
-        run: |
-          pip install --upgrade pip
-
   build:
     name: Build package
     runs-on: ubuntu-latest
