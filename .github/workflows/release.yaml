@@ -4,6 +4,8 @@ on:
   release:
     types:
       - published
+permissions:
+  contents: read
 jobs:
   pypi:
     name: Upload release to PyPI
@@ -13,6 +15,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v3
+        with:
+
       - uses: actions/setup-python@v4
         with:
           python-version: "3.x"
