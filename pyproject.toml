@@ -1,19 +1,22 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
 name = "protovalidate"
-version = "0.0.1"
-description = "The python implementation of protovalidate"
+description = "Protocol Buffer Validation for python"
 readme = "README.md"
+license_files = "LICENSE"
 requires-python = ">=3.7"
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
 ]
+dynamic = ["version"]
 dependencies = ["protobuf", "cel-python"]
+[tool.hatch.version]
+source = "vcs"
 
 [project.urls]
 "Homepage" = "https://github.com/bufbuild/protovalidate-python"
