@@ -13,6 +13,7 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
 ]
+dynamic = ["version"]
 dependencies = ["protobuf", "cel-python"]
 [tool.hatch.version]
 source = "vcs"
