@@ -12,6 +12,8 @@ jobs:
   build:
     name: Build package
     runs-on: ubuntu-latest
+    environment:
+      name: release
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -30,6 +32,8 @@ jobs:
   publish:
     name: Publish on TestPyPi
     runs-on: ubuntu-latest
+    environment:
+      name: release
     needs: build
     steps:
       - name: Checkout source
