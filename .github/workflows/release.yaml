@@ -22,6 +22,5 @@ jobs:
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ steps.mint-token.outputs.api-token }}
 #         Used for testing
           repository-url: https://test.pypi.org/legacy/
