@@ -1,11 +1,10 @@
-# protovalidate-py
+# protovalidate-python
 
-[![CI](https://github.com/bufbuild/protovalidate-py/actions/workflows/ci.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-py/actions/workflows/ci.yaml)
-[![Conformance](https://github.com/bufbuild/protovalidate-py/actions/workflows/conformance.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-py/actions/workflows/conformance.yaml)
-[![Report Card](https://goreportcard.com/badge/github.com/bufbuild/protovalidate-py)](https://goreportcard.com/report/github.com/bufbuild/protovalidate-py)
-[![PyPI version](https://badge.fury.io/py/protovalidate-py.svg)](https://badge.fury.io/py/protovalidate-py)
+[![CI](https://github.com/bufbuild/protovalidate-python/actions/workflows/ci.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-python/actions/workflows/ci.yaml)
+[![Conformance](https://github.com/bufbuild/protovalidate-python/actions/workflows/conformance.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-python/actions/workflows/conformance.yaml)
+[![PyPI version](https://badge.fury.io/py/protovalidate.svg)](https://badge.fury.io/py/protovalidate)
 
-`protovalidate-py` is the Python implementation of [`protovalidate`](https://github.com/bufbuild/protovalidate), designed to validate Protobuf messages at runtime based on user-defined validation constraints. Powered by Google's Common Expression Language ([CEL](https://github.com/google/cel-spec)), it provides a flexible and efficient foundation for defining and evaluating custom validation rules. The primary goal of `protovalidate` is to help developers ensure data consistency and integrity across the network without requiring generated code.
+`protovalidate-python` is the Python implementation of [`protovalidate`](https://github.com/bufbuild/protovalidate), designed to validate Protobuf messages at runtime based on user-defined validation constraints. Powered by Google's Common Expression Language ([CEL](https://github.com/google/cel-spec)), it provides a flexible and efficient foundation for defining and evaluating custom validation rules. The primary goal of `protovalidate` is to help developers ensure data consistency and integrity across the network without requiring generated code.
 
 ## The `protovalidate` project
 
@@ -34,7 +33,7 @@ To install the package, use pip:
 pip install protovalidate
 ```
 
-Make sure you have the latest version of `protovalidate-py` by checking the project's [PyPI page](#).
+Make sure you have the latest version of `protovalidate-python` by checking the project's [PyPI page](https://pypi.org/project/protovalidate/).
 
 ## Usage
 
@@ -91,24 +90,6 @@ try:
 except Exception as e:
     print("Validation failed:", str(e))
 ```
-
-### Support legacy `protoc-gen-validate` constraints
-
-The `protovalidate-py` module provides support for existing `protoc-gen-validate` constraints. You can enable legacy support when initializing the validator:
-
-```python
-from protovalidate import Validator, LegacyMode
-
-validator = Validator(legacy_mode=LegacyMode.MERGE)
-```
-
-Note that `protoc-gen-validate` code generation is **not** used by `protovalidate-py`. The legacy support assumes the `protoc-gen-validate` extensions are imported into the generated code.
-
-A [migration tool](https://github.com/bufbuild/protovalidate/tree/main/tools/protovalidate-migrate) is also available to incrementally upgrade legacy constraints in `.proto` files.
-
-## Performance
-
-Performance benchmarks are not yet available for `protovalidate-py`.
 
 ### Ecosystem
 
