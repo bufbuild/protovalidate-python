@@ -38,7 +38,7 @@ test: generate install ## Run all unit tests
 	pipenv run pytest
 
 .PHONY: conformance
-conformance:  install
+conformance: $(BIN)/protovalidate-conformance install
 	$(BIN)/protovalidate-conformance $(ARGS) pipenv -- run python3 -m tests.conformance.runner
 
 .PHONY: install
