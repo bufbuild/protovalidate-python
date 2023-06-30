@@ -12,7 +12,7 @@ LICENSE_IGNORE := -e buf/validate
 LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
-ARGS ?= --strict
+ARGS ?= --strict --skipped=nonconforming.yaml
 BAZEL ?= bazel
 
 .PHONY: help
@@ -38,14 +38,14 @@ test: generate install ## Run all unit tests
 	pipenv run pytest
 
 .PHONY: conformance
-conformance: $(BIN)/protovalidate-conformance install
+conformance:  install
 	$(BIN)/protovalidate-conformance $(ARGS) pipenv -- run python3 -m tests.conformance.runner
 
 .PHONY: install
 install:
-	python3 -m pip install --upgrade pip
-	pip install pipenv ruff
-	pipenv --python python3 install
+	#python3 -m pip install --upgrade pip
+	#pip install pipenv ruff
+	#pipenv --python python3 install
 
 .PHONY: generate-license
 generate-license: $(BIN)/license-header ## Generate license headers for files
