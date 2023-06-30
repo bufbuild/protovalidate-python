@@ -43,9 +43,9 @@ conformance:  install
 
 .PHONY: install
 install:
-	#python3 -m pip install --upgrade pip
-	#pip install pipenv ruff
-	#pipenv --python python3 install
+	python3 -m pip install --upgrade pip
+	pip install pipenv ruff
+	pipenv --python python3 install
 
 .PHONY: generate-license
 generate-license: $(BIN)/license-header ## Generate license headers for files
