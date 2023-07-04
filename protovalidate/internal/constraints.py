@@ -442,7 +442,7 @@ class EnumConstraintRules(FieldConstraintRules):
                 ctx.add(
                     self._field.name,
                     "enum.defined_only",
-                    "value is not defined in enum",
+                    "value must be one of the defined enum values",
                 )
 
 
@@ -531,7 +531,7 @@ class OneofConstraintRules(ConstraintRules):
                 ctx.add(
                     self._oneof.name,
                     "required",
-                    "oneof is required",
+                    "exactly one field is required in oneof",
                 )
             return
 
