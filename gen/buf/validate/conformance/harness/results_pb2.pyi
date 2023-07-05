@@ -25,41 +25,47 @@ class ResultOptions(_message.Message):
     def __init__(self, suite_filter: _Optional[str] = ..., case_filter: _Optional[str] = ..., verbose: bool = ..., strict: bool = ..., strict_message: bool = ..., strict_error: bool = ...) -> None: ...
 
 class ResultSet(_message.Message):
-    __slots__ = ["successes", "failures", "suites", "options"]
+    __slots__ = ["successes", "failures", "suites", "options", "expected_failures"]
     SUCCESSES_FIELD_NUMBER: _ClassVar[int]
     FAILURES_FIELD_NUMBER: _ClassVar[int]
     SUITES_FIELD_NUMBER: _ClassVar[int]
     OPTIONS_FIELD_NUMBER: _ClassVar[int]
+    EXPECTED_FAILURES_FIELD_NUMBER: _ClassVar[int]
     successes: int
     failures: int
     suites: _containers.RepeatedCompositeFieldContainer[SuiteResults]
     options: ResultOptions
-    def __init__(self, successes: _Optional[int] = ..., failures: _Optional[int] = ..., suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ..., options: _Optional[_Union[ResultOptions, _Mapping]] = ...) -> None: ...
+    expected_failures: int
+    def __init__(self, successes: _Optional[int] = ..., failures: _Optional[int] = ..., suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ..., options: _Optional[_Union[ResultOptions, _Mapping]] = ..., expected_failures: _Optional[int] = ...) -> None: ...
 
 class SuiteResults(_message.Message):
-    __slots__ = ["name", "successes", "failures", "cases", "fdset"]
+    __slots__ = ["name", "successes", "failures", "cases", "fdset", "expected_failures"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     SUCCESSES_FIELD_NUMBER: _ClassVar[int]
     FAILURES_FIELD_NUMBER: _ClassVar[int]
     CASES_FIELD_NUMBER: _ClassVar[int]
     FDSET_FIELD_NUMBER: _ClassVar[int]
+    EXPECTED_FAILURES_FIELD_NUMBER: _ClassVar[int]
     name: str
     successes: int
     failures: int
     cases: _containers.RepeatedCompositeFieldContainer[CaseResult]
     fdset: _descriptor_pb2.FileDescriptorSet
-    def __init__(self, name: _Optional[str] = ..., successes: _Optional[int] = ..., failures: _Optional[int] = ..., cases: _Optional[_Iterable[_Union[CaseResult, _Mapping]]] = ..., fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ...) -> None: ...
+    expected_failures: int
+    def __init__(self, name: _Optional[str] = ..., successes: _Optional[int] = ..., failures: _Optional[int] = ..., cases: _Optional[_Iterable[_Union[CaseResult, _Mapping]]] = ..., fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ..., expected_failures: _Optional[int] = ...) -> None: ...
 
 class CaseResult(_message.Message):
-    __slots__ = ["name", "success", "wanted", "got", "input"]
+    __slots__ = ["name", "success", "wanted", "got", "input", "expected_failure"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     WANTED_FIELD_NUMBER: _ClassVar[int]
     GOT_FIELD_NUMBER: _ClassVar[int]
     INPUT_FIELD_NUMBER: _ClassVar[int]
+    EXPECTED_FAILURE_FIELD_NUMBER: _ClassVar[int]
     name: str
     success: bool
     wanted: _harness_pb2.TestResult
     got: _harness_pb2.TestResult
     input: _any_pb2.Any
-    def __init__(self, name: _Optional[str] = ..., success: bool = ..., wanted: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ..., got: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ..., input: _Optional[_Union[_any_pb2.Any, _Mapping]] = ...) -> None: ...
+    expected_failure: bool
+    def __init__(self, name: _Optional[str] = ..., success: bool = ..., wanted: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ..., got: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ..., input: _Optional[_Union[_any_pb2.Any, _Mapping]] = ..., expected_failure: bool = ...) -> None: ...

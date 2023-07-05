@@ -19,7 +19,7 @@ help: ## Describe useful make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-15s %s\n", $$1, $$2}'
 
 .PHONY: all
-all: test ## Run all tests and lint (default)
+all: test conformance
 
 .PHONY: clean
 clean: ## Delete intermediate build artifacts
