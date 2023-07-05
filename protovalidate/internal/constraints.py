@@ -406,13 +406,13 @@ class AnyConstraintRules(FieldConstraintRules):
                 ctx.add(
                     field_path,
                     "any.in",
-                    f"Type {value.type_url} is not in {self._in}",
+                    f"type URL must be in the allow list",
                 )
         if value.type_url in self._not_in:
             ctx.add(
                 field_path,
                 "any.not_in",
-                f"Type {value.type_url} is in {self._not_in}",
+                f"type URL must not be in the block list",
             )
 
 
