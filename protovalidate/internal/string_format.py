@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from _decimal import Decimal
 
 from celpy import celtypes
 import celpy
@@ -160,6 +161,8 @@ class StringFormat:
             return celtypes.StringType(arg.hex())
         if isinstance(arg, celtypes.ListType):
             return self.format_list(arg)
+        if isinstance(arg, celtypes.DurationType):
+            return self.format_duration(arg)
         return celtypes.StringType(arg)
 
     def format_value(self, arg: celtypes.Value) -> celpy.Result:
@@ -178,6 +181,31 @@ class StringFormat:
         result += "]"
         return celtypes.StringType(result)
 
+    def format_duration(self, arg: celtypes.DurationType) -> celpy.Result:
+        builder = []
+
+        # TODO: handle when item of list
+        # if listItem:
+        #     builder.append("duration(\"")
+
+        total_seconds = arg.total_seconds()
+
+        format_string = "{:f}"
+        formatted_seconds = format_string.format(total_seconds)
+        formatted_seconds_short = remove_exponent(Decimal(formatted_seconds))
+        builder.append(formatted_seconds_short)
+        builder.append("s")
+
+        # if listItem:
+        #     builder.append("\")")
+
+        result_str = "".join(builder)
+
+        return celtypes.StringType(result_str)
+
+def remove_exponent(d):
+    result = d.quantize(Decimal(1)) if d == d.to_integral() else d.normalize()
+    return str(result)
 
 _default_format = StringFormat("en_US")
 format = _default_format.format
