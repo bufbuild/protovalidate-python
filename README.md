@@ -53,7 +53,7 @@ message Transaction {
   uint64 id = 1 [(buf.validate.field).uint64.gt = 999];
   google.protobuf.Timestamp purchase_date = 2;
   google.protobuf.Timestamp delivery_date = 3;
-  
+
   string price = 4 [(buf.validate.field).cel = {
     id: "transaction.price",
     message: "price must be positive and include a valid currency symbol ($ or £)",
@@ -73,10 +73,9 @@ message Transaction {
 ### Example
 
 ```python
+import protovalidate
 from google.protobuf.timestamp_pb2 import Timestamp
-from protovalidate import Validator
-
-validator = Validator()
+from my.package import Transaction
 
 transaction = Transaction()
 transaction.id = 1234
@@ -84,11 +83,11 @@ transaction.price = "$5.67"
 transaction.purchase_date.CopyFrom(Timestamp())
 transaction.delivery_date.CopyFrom(Timestamp())
 
-try:
-    validator.validate(transaction)
-    print("Validation succeeded")
-except Exception as e:
-    print("Validation failed:", str(e))
+result = protovalidate.validate(transaction)
+if (len(result.violations) > 0) :
+  # Report the violations
+else:
+  # Process the transaction
 ```
 
 ### Ecosystem
