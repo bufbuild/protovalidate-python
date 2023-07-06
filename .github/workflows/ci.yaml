@@ -30,6 +30,8 @@ jobs:
         run: make checkgenerate
       - name: Execute tests
         run: make test
+      - name: Check mypy
+        run: mypy protovalidate
       - name: Check formatting
         uses: chartboost/ruff-action@v1
         with:

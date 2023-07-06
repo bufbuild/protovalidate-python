@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import celpy
-from celpy import celtypes
+import celpy  # type: ignore
+import typing
+from celpy import celtypes  # type: ignore
 import datetime
 from google.protobuf import any_pb2
 from google.protobuf import message
 from google.protobuf import descriptor
-from buf.validate import expression_pb2
-from buf.validate import validate_pb2
-from buf.validate.priv import private_pb2
+from buf.validate import expression_pb2  # type: ignore
+from buf.validate import validate_pb2  # type: ignore
+from buf.validate.priv import private_pb2  # type: ignore
 from protovalidate.internal import string_format
 
 
@@ -34,8 +35,8 @@ def make_key_path(field_name: str, key: celtypes.Value) -> str:
 
 def make_duration(msg: message.Message) -> celtypes.DurationType:
     return celtypes.DurationType(
-        seconds=msg.seconds,
-        nanos=msg.nanos,
+        seconds=msg.seconds,  # type: ignore
+        nanos=msg.nanos,  # type: ignore
     )
 
 
@@ -97,7 +98,7 @@ _TYPE_TO_CTOR = {
 
 
 def _ScalarFieldValueToCel(
-    val: any, field: descriptor.FieldDescriptor
+    val: typing.Any, field: descriptor.FieldDescriptor
 ) -> celtypes.Value:
     ctor = _TYPE_TO_CTOR.get(field.type)
     if ctor is None:
@@ -105,7 +106,9 @@ def _ScalarFieldValueToCel(
     return ctor(val)
 
 
-def _FieldValueToCel(val: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _FieldValueToCel(
+    val: typing.Any, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
             return _MapFieldValueToCel(val, field)
@@ -164,7 +167,7 @@ def _RepeatedFieldToCel(
 
 
 def _RepeatedFieldValueToCel(
-    val: any, field: descriptor.FieldDescriptor
+    val: typing.Any, field: descriptor.FieldDescriptor
 ) -> celtypes.Value:
     result = celtypes.ListType()
     for item in val:
@@ -172,7 +175,9 @@ def _RepeatedFieldValueToCel(
     return result
 
 
-def _MapFieldValueToCel(map: any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _MapFieldValueToCel(
+    map: typing.Any, field: descriptor.FieldDescriptor
+) -> celtypes.Value:
     result = celtypes.MapType()
     key_field = field.message_type.fields[0]
     val_field = field.message_type.fields[1]
@@ -238,7 +243,7 @@ class ConstraintContext:
 
     @property
     def done(self) -> bool:
-        return self._fail_fast and self.has_errors
+        return self._fail_fast and self.has_errors()
 
     def has_errors(self) -> bool:
         return len(self._violations.violations) > 0
@@ -258,7 +263,9 @@ class ConstraintRules:
 class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
-    _runners: list[(celpy.Runner, expression_pb2.Constraint | private_pb2.Constraint)]
+    _runners: list[
+        typing.Tuple[celpy.Runner, expression_pb2.Constraint | private_pb2.Constraint]
+    ]
     _rules_cel: celtypes.Value = None
 
     def __init__(self, rules: message.Message | None):
@@ -267,7 +274,7 @@ class CelConstraintRules(ConstraintRules):
             self._rules_cel = _MsgToCel(rules)
 
     def _validate_cel(
-        self, ctx: ConstraintContext, field_name: str, activation: dict[str, any]
+        self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any]
     ):
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(
@@ -370,21 +377,21 @@ class FieldConstraintRules(CelConstraintRules):
             ctx, self._field.name, {"this": _FieldValueToCel(val, self._field)}
         )
 
-    def validate_item(self, ctx: ConstraintContext, field_path: str, val: any):
+    def validate_item(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
         self._validate_value(ctx, field_path, val)
         self._validate_cel(
             ctx, field_path, {"this": _ScalarFieldValueToCel(val, self._field)}
         )
 
-    def _validate_value(self, ctx: ConstraintContext, field_path: str, val: any):
+    def _validate_value(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
         pass
 
 
 class AnyConstraintRules(FieldConstraintRules):
     """Rules for an Any field."""
 
-    _in = []
-    _not_in = []
+    _in: typing.List[str] = []
+    _not_in: typing.List[str] = []
 
     def __init__(
         self,
@@ -450,7 +457,7 @@ class EnumConstraintRules(FieldConstraintRules):
 class RepeatedConstraintRules(FieldConstraintRules):
     """Rules for a repeated field."""
 
-    _item_rules: ConstraintRules | None = None
+    _item_rules: FieldConstraintRules | None = None
 
     def __init__(
         self,
@@ -458,7 +465,7 @@ class RepeatedConstraintRules(FieldConstraintRules):
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         fieldLvl: validate_pb2.FieldConstraints,
-        item_rules: ConstraintRules | None,
+        item_rules: FieldConstraintRules | None,
     ):
         super().__init__(env, funcs, field, fieldLvl)
         if item_rules is not None:
@@ -483,8 +490,8 @@ class RepeatedConstraintRules(FieldConstraintRules):
 class MapConstraintRules(FieldConstraintRules):
     """Rules for a map field."""
 
-    _key_rules = None
-    _value_rules = None
+    _key_rules: FieldConstraintRules | None = None
+    _value_rules: FieldConstraintRules | None = None
 
     def __init__(
         self,
@@ -492,8 +499,8 @@ class MapConstraintRules(FieldConstraintRules):
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         fieldLvl: validate_pb2.FieldConstraints,
-        key_rules: ConstraintRules | None,
-        value_rules: ConstraintRules | None,
+        key_rules: FieldConstraintRules | None,
+        value_rules: FieldConstraintRules | None,
     ):
         super().__init__(env, funcs, field, fieldLvl)
         if key_rules is not None:
@@ -719,7 +726,8 @@ class ConstraintFactory:
         return RepeatedConstraintRules(self._env, self._funcs, field, rules, item_rule)
 
     def _new_constraints(self, desc: descriptor.Descriptor) -> list[ConstraintRules]:
-        result = []
+        result: list[ConstraintRules] = []
+        constraint: ConstraintRules | None = None
         if validate_pb2.message in desc.GetOptions().Extensions:
             msgLvl = desc.GetOptions().Extensions[validate_pb2.message]
             if msgLvl.disabled:
@@ -756,7 +764,7 @@ class ConstraintFactory:
         return result
 
 
-class SubMsgConstraint:
+class SubMsgConstraint(ConstraintRules):
     def __init__(
         self,
         factory: ConstraintFactory,
@@ -780,7 +788,7 @@ class SubMsgConstraint:
             ctx.add_errors(sub_ctx)
 
 
-class MapValMsgConstraint:
+class MapValMsgConstraint(ConstraintRules):
     def __init__(
         self,
         factory: ConstraintFactory,
@@ -807,7 +815,7 @@ class MapValMsgConstraint:
                 ctx.add_errors(sub_ctx)
 
 
-class RepeatedMsgConstraint:
+class RepeatedMsgConstraint(ConstraintRules):
     def __init__(
         self,
         factory: ConstraintFactory,
