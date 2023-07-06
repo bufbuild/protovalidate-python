@@ -30,7 +30,7 @@ clean: ## Delete intermediate build artifacts
 generate: generate-proto generate-license ## Regenerate code and license headers
 
 .PHONY: generate-license
-generate-license: format-black ## Format code and regenerate license headers
+generate-license: $(BIN)/license-header format-black ## Format code and regenerate license headers
 	$(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
