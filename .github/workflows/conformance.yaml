@@ -18,11 +18,11 @@ jobs:
       matrix:
         python-version: ["3.11"]
     steps:
-      - name: Setup Cache
-        uses: actions/cache@v3
+      - name: Mount bazel cache
+        uses: actions/cache@v1
         with:
-          path: ~/.cache/bazel
-          key: ${{ runner.os }}-build-cache
+          path: "/home/runner/.cache/bazel"
+          key: bazel
       - name: Checkout code
         uses: actions/checkout@v3
         with:

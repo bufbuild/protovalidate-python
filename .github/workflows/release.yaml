@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: release
+    strategy:
+      matrix:
+        python-version: [ "3.11" ]
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -22,9 +25,13 @@ jobs:
         run: |
           VERSION=${{github.head_ref}}
           echo "VERSION=${VERSION##*/}" >> $GITHUB_ENV
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Install pypa/build
         run: |
-          pip install build
+          python -m pip install build
           python -m build
       - uses: actions/upload-artifact@v2
         with:
