@@ -27,14 +27,28 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
-	rm -rf gen
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
+generate: generate-proto generate-license ## Regenerate code and license headers
+
+.PHONY: generate-license
+generate-license: $(BIN)/license-header format-black ## Format code and regenerate license headers
 	$(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "$(COPYRIGHT_YEARS)" $(LICENSE_IGNORE)
+
+
+.PHONY: generate-proto
+generate-proto: $(BIN)/buf ## Regenerate code from proto files
+	rm -rf gen
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
+
+.PHONY: format  ## Format all code
+format: generate-license
+
+.PHONY: format-black
+format-black: install  ## Format all code according to black
+	python3 -m black protovalidate tests
 
 .PHONY: test
 test: generate install ## Run all unit tests
@@ -47,7 +61,7 @@ conformance: $(BIN)/protovalidate-conformance install
 .PHONY: install
 install:
 	python3 -m pip install --upgrade pip
-	pip install pipenv ruff mypy types-protobuf
+	pip install pipenv ruff mypy types-protobuf black
 	pipenv --python python3 install
 
 .PHONY: checkgenerate
