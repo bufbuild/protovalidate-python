@@ -30,7 +30,7 @@ clean: ## Delete intermediate build artifacts
 generate: generate-proto generate-license ## Regenerate code and license headers
 
 .PHONY: generate-license
-generate-license: $(BIN)/license-header format-black ## Format code and regenerate license headers
+generate-license: $(BIN)/license-header format-python ## Format code and regenerate license headers
 	$(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
@@ -45,8 +45,9 @@ generate-proto: $(BIN)/buf ## Regenerate code from proto files
 .PHONY: format  ## Format all code
 format: generate-license
 
-.PHONY: format-black
-format-black: install  ## Format all code according to black
+.PHONY: format-python
+format-python: install  ## Format all code according to isort and black
+	python3 -m isort protovalidate tests
 	python3 -m black protovalidate tests
 
 .PHONY: test
@@ -60,7 +61,7 @@ conformance: $(BIN)/protovalidate-conformance install
 .PHONY: install
 install:
 	python3 -m pip install --upgrade pip
-	pip install pipenv ruff mypy types-protobuf black
+	pip install pipenv ruff mypy types-protobuf black isort
 	pipenv --python python3 install
 
 .PHONY: checkgenerate

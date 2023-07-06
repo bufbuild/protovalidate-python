@@ -13,14 +13,9 @@
 # limitations under the License.
 
 import sys
-import celpy
-import protovalidate
+import typing
 
-from buf.validate.conformance.harness import harness_pb2
-from google.protobuf import any_pb2
-from google.protobuf import descriptor_pool
-from google.protobuf import descriptor
-from google.protobuf import message_factory
+import celpy  # type: ignore
 
 # TODO(afuller): Use dynamic descriptor pool based on the FileDescriptorSet
 # in the TestConformanceRequest, once the Python protobuf library no longer
@@ -44,10 +39,14 @@ from buf.validate.conformance.cases import (
     wkt_wrappers_pb2,
 )
 from buf.validate.conformance.cases.custom_constraints import custom_constraints_pb2
+from buf.validate.conformance.harness import harness_pb2
+from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
+
+import protovalidate
 
 
 def run_test_case(
-    tc: any, result: harness_pb2.TestResult | None = None
+    tc: typing.Any, result: harness_pb2.TestResult | None = None
 ) -> harness_pb2.TestResult:
     if result is None:
         result = harness_pb2.TestResult()
