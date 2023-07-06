@@ -17,7 +17,6 @@ from urllib import parse as urlparse
 
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
-from validate_email import validate_email  # type: ignore
 
 from protovalidate.internal import string_format
 
@@ -52,9 +51,6 @@ def _validateHostName(host):
 def _validateEmail(addr):
     if "<" in addr and ">" in addr:
         addr = addr.split("<")[1].split(">")[0]
-
-    if not validate_email(addr):
-        return False
 
     if len(addr) > 254:
         return False
