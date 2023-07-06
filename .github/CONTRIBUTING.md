@@ -11,6 +11,13 @@ We pledge to maintain a welcoming and inclusive community. Please read
 our [Code of Conduct][code-of-conduct] before participating.
 
 ## How Can I Contribute?
+Clone the repository and install dependencies:
+```
+git clone git@github.com:bufbuild/protovalidate-python.git
+cd protovalidate-python
+make install
+pipenv shell
+```
 
 ### Reporting Bugs
 
