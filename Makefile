@@ -27,10 +27,14 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: $(BIN)/buf generate-license ## Regenerate code and license headers
+generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
+	$(BIN)/license-header \
+		--license-type apache \
+		--copyright-holder "Buf Technologies, Inc." \
+		--year-range "$(COPYRIGHT_YEARS)" $(LICENSE_IGNORE)
 
 .PHONY: test
 test: generate install ## Run all unit tests
@@ -45,22 +49,6 @@ install:
 	python3 -m pip install --upgrade pip
 	pip install pipenv ruff
 	pipenv --python python3 install
-
-.PHONY: generate-license
-generate-license: $(BIN)/license-header ## Generate license headers for files
-	@# We want to operate on a list of modified and new files, excluding
-	@# deleted and ignored files. git-ls-files can't do this alone. comm -23 takes
-	@# two files and prints the union, dropping lines common to both (-3) and
-	@# those only in the second file (-2). We make one git-ls-files call for
-	@# the modified, cached, and new (--others) files, and a second for the
-	@# deleted files.
-	comm -23 \
-		<(git ls-files --cached --modified --others --no-empty-directory --exclude-standard | sort -u | grep -v $(LICENSE_IGNORE) ) \
-		<(git ls-files --deleted | sort -u) | \
-		xargs $(BIN)/license-header \
-			--license-type apache \
-			--copyright-holder "Buf Technologies, Inc." \
-			--year-range "$(COPYRIGHT_YEARS)"
 
 .PHONY: checkgenerate
 checkgenerate: generate
