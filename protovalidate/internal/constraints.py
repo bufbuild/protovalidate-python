@@ -337,7 +337,8 @@ class FieldConstraintRules(CelConstraintRules):
         type_case = fieldLvl.WhichOneof("type")
         if type_case is not None:
             rules = getattr(fieldLvl, type_case)
-            # For each set field in the message, look for the private constraint extension.
+            # For each set field in the message, look for the private constraint
+            # extension.
             for field, _ in rules.ListFields():
                 if private_pb2.field in field.GetOptions().Extensions:
                     for cel in field.GetOptions().Extensions[private_pb2.field].cel:

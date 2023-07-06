@@ -30,3 +30,7 @@ jobs:
         run: make checkgenerate
       - name: Execute tests
         run: make test
+      - name: Check formatting
+        uses: chartboost/ruff-action@v1
+        with:
+          src: "./protovalidate"
