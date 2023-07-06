@@ -14,6 +14,7 @@
 
 from buf.validate import expression_pb2  # type: ignore
 from google.protobuf import message
+
 from protovalidate.internal import constraints as _constraints
 from protovalidate.internal import extra_func
 

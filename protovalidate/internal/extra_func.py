@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ipaddress import IPv4Address, IPv6Address, ip_address
+from urllib import parse as urlparse
+
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
-from protovalidate.internal import string_format
-from urllib import parse as urlparse
-from ipaddress import IPv4Address, IPv6Address, ip_address
 from validate_email import validate_email  # type: ignore
+
+from protovalidate.internal import string_format
 
 
 def _validateHostName(host):

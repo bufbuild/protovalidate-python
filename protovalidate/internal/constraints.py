@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import celpy  # type: ignore
-import typing
-from celpy import celtypes  # type: ignore
 import datetime
-from google.protobuf import any_pb2
-from google.protobuf import message
-from google.protobuf import descriptor
+import typing
+
+import celpy  # type: ignore
 from buf.validate import expression_pb2  # type: ignore
 from buf.validate import validate_pb2  # type: ignore
 from buf.validate.priv import private_pb2  # type: ignore
+from celpy import celtypes  # type: ignore
+from google.protobuf import any_pb2, descriptor, message
+
 from protovalidate.internal import string_format
 
 

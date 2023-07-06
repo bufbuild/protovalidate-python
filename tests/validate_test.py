@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import protovalidate
 import unittest
-from buf.validate.conformance.cases import numbers_pb2
-from buf.validate.conformance.cases import oneofs_pb2
-from buf.validate.conformance.cases import repeated_pb2
-from buf.validate.conformance.cases import maps_pb2
-from buf.validate.conformance.cases import wkt_timestamp_pb2
+
+from buf.validate.conformance.cases import (
+    maps_pb2,
+    numbers_pb2,
+    oneofs_pb2,
+    repeated_pb2,
+    wkt_timestamp_pb2,
+)
+
+import protovalidate
 
 
 # Test basic validation

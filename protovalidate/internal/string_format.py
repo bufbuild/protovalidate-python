@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from celpy import celtypes  # type: ignore
 import celpy  # type: ignore
-
+from celpy import celtypes  # type: ignore
 
 QUOTE_TRANS = str.maketrans(
     {
