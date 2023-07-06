@@ -1,25 +1,25 @@
 # Contributing Guidelines
 
 Firstly, we want to say thank you for considering contributing
-to `protovalidate`. We genuinely appreciate your help. This document aims to
+to `protovalidate-python`. We genuinely appreciate your help. This document aims to
 provide some guidelines to make your contribution process straightforward and
 meaningful.
 
 ## Code of Conduct
 
 We pledge to maintain a welcoming and inclusive community. Please read
-our [Code of Conduct](../CODE_OF_CONDUCT.md) before participating.
+our [Code of Conduct][code-of-conduct] before participating.
 
 ## How Can I Contribute?
 
 ### Reporting Bugs
 
 Bugs are tracked as GitHub issues. If you discover a problem
-with `protovalidate`, we want to hear about it. Here's how you can report a bug:
+with `protovalidate-python`, we want to hear about it. Here's how you can report a bug:
 
 1. __Ensure the bug was not already reported__: Before creating a new issue,
    please do a search
-   in [issues](https://github.com/bufbuild/protovalidate/issues) to see if
+   in [issues][issues] to see if
    the problem has already been reported. If it has and the issue is still open,
    add a comment to the existing issue instead of opening a new one.
 
@@ -34,19 +34,19 @@ Remember to detail the steps to reproduce the issue. This information is
 invaluable in helping us fix the issue.
 
 Once you've filled in the template, hit "Submit new issue", and we will take
-care of the rest. We appreciate your contribution to making `protovalidate`
+care of the rest. We appreciate your contribution to making `protovalidate-python`
 better!
 
 ### Suggesting Enhancements
 
-We welcome ideas for enhancements and new features to improve `protovalidate`.
+We welcome ideas for enhancements and new features to improve `protovalidate-python`.
 If you have an idea you'd like to share, if you want to expand language
 support,  
 please read [the section below](#language-support-requirements) first.
 
 1. __Check if the enhancement is already suggested__: Before creating a new
    issue, please do a search
-   in [issues](https://github.com/bufbuild/protovalidate/issues) to see if
+   in [issues][issues] to see if
    the idea or enhancement has already been suggested. If it has and the issue
    is still open, add a comment to the existing issue instead of opening a new
    one.
@@ -58,7 +58,7 @@ please read [the section below](#language-support-requirements) first.
    community members might jump in to discuss the enhancement. Be prepared to
    provide more context or insights about your suggestion.
 
-Remember, the goal of suggesting an enhancement is to improve `protovalidate`
+Remember, the goal of suggesting an enhancement is to improve `protovalidate-python`
 for everyone. Every suggestion is valued, and we thank you in advance for your
 contribution.
 
@@ -70,7 +70,7 @@ commit messages to help us understand and review your PR.
 
 ## Language Support Requirements
 
-We aim for `protovalidate` to support multiple languages, including but not
+We aim for `protovalidate-python` to support multiple languages, including but not
 limited to Go, Java, Python, C++, and Typescript. Here are the requirements for
 adding a new language:
 
@@ -80,21 +80,21 @@ adding a new language:
 
 2. __CEL Interpreter__: Implement a Common Expression Language (CEL) interpreter
    in your chosen language. CEL is a non-Turing complete language that makes it
-   easy to write simple expressions, and it's crucial to `protovalidate`.
+   easy to write simple expressions, and it's crucial to `protovalidate-python`.
 
 3. __Custom Function Equivalence__: Ensure that custom functions have equivalent
    behavior across all languages. This uniformity is essential to maintain the
    integrity and consistency of the project. Check out
-   the [Custom Functions](../docs/cel.md#custom-library-in-protovalidate) for more
+   the [Custom Functions][custom-funcs] for more
 
-If you are interested in adding a new language to `protovalidate`, please open
+If you are interested in adding a new language to `protovalidate-python`, please open
 an issue to discuss the details and requirements. We will be more than happy to
 guide you through the process.
 
 ### Minimizing Performance Regression
 
 Performance and efficient resource management are critical aspects
-of `protovalidate`. CEL, being non-Turing complete, provides production safety
+of `protovalidate-python`. CEL, being non-Turing complete, provides production safety
 controls to limit execution time, helping to prevent excessive resource
 consumption during evaluation. Here are some guidelines for effectively managing
 resource constraints and minimizing performance regressions:
@@ -129,7 +129,7 @@ resource constraints and minimizing performance regressions:
    constraint might be acceptable.
 
 By keeping performance and resource management in mind throughout the
-development process, we can ensure `protovalidate` remains efficient and
+development process, we can ensure `protovalidate-python` remains efficient and
 responsive, even as we add new features and fix bugs.
 
 ## Questions?
@@ -144,10 +144,11 @@ Again, we appreciate your help and time, and we are excited to see your
 contributions!
 
 Remember, you can reach out to us at any time, and we're looking forward to
-working together to make `protovalidate` the best it can be.
+working together to make `protovalidate-python` the best it can be.
 
-[file-bug]: https://github.com/bufbuild/protovalidate/issues/new?assignees=&labels=Bug&template=bug_report.md&title=%5BBUG%5D
-
-[file-feature-request]: https://github.com/bufbuild/protovalidate/issues/new?assignees=&labels=Feature&template=feature_request.md&title=%5BFeature+Request%5D
-
+[code-of-conduct]: https://github.com/bufbuild/protovalidate/tree/main/.github/CODE_OF_CONDUCT.md
+[issues]: https://github.com/bufbuild/protovalidate-python/issues
+[file-bug]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Bug&template=bug_report.md&title=%5BBUG%5D
+[custom-funcs]: https://github.com/bufbuild/protovalidate/tree/main/docs/cel.md#custom-library-in-protovalidate
+[file-feature-request]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Feature&template=feature_request.md&title=%5BFeature+Request%5D
 [cel-spec]: https://github.com/google/cel-spec
