@@ -36,7 +36,6 @@ generate-license: $(BIN)/license-header format-black ## Format code and regenera
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "$(COPYRIGHT_YEARS)" $(LICENSE_IGNORE)
 
-
 .PHONY: generate-proto
 generate-proto: $(BIN)/buf ## Regenerate code from proto files
 	rm -rf gen
