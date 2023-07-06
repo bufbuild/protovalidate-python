@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate import expression_pb2
+from buf.validate import expression_pb2  # type: ignore
 from google.protobuf import message
 from protovalidate.internal import constraints as _constraints
 from protovalidate.internal import extra_func
@@ -39,8 +39,8 @@ class Validator:
         self,
         message: message.Message,
         fail_fast: bool = False,
-        result: Violations = None,
-    ) -> Violations:
+        result: expression_pb2.Violations = None,
+    ) -> expression_pb2.Violations:
         """
         Validates the given message against the static constraints defined in
         the message's descriptor.
@@ -60,5 +60,5 @@ class Validator:
         for constraint in self._factory.get(message.DESCRIPTOR):
             constraint.validate(ctx, message)
             if ctx.done:
-                return
+                break
         return ctx.violations

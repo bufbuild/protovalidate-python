@@ -47,7 +47,7 @@ conformance: $(BIN)/protovalidate-conformance install
 .PHONY: install
 install:
 	python3 -m pip install --upgrade pip
-	pip install pipenv ruff
+	pip install pipenv ruff mypy types-protobuf
 	pipenv --python python3 install
 
 .PHONY: checkgenerate
