@@ -8,7 +8,7 @@ meaningful.
 ## Code of Conduct
 
 We pledge to maintain a welcoming and inclusive community. Please read
-our [Code of Conduct](../CODE_OF_CONDUCT.md) before participating.
+our [Code of Conduct][code-of-conduct] before participating.
 
 ## How Can I Contribute?
 
@@ -19,7 +19,7 @@ with `protovalidate`, we want to hear about it. Here's how you can report a bug:
 
 1. __Ensure the bug was not already reported__: Before creating a new issue,
    please do a search
-   in [issues](https://github.com/bufbuild/protovalidate/issues) to see if
+   in [issues][issues] to see if
    the problem has already been reported. If it has and the issue is still open,
    add a comment to the existing issue instead of opening a new one.
 
@@ -46,7 +46,7 @@ please read [the section below](#language-support-requirements) first.
 
 1. __Check if the enhancement is already suggested__: Before creating a new
    issue, please do a search
-   in [issues](https://github.com/bufbuild/protovalidate/issues) to see if
+   in [issues][issues] to see if
    the idea or enhancement has already been suggested. If it has and the issue
    is still open, add a comment to the existing issue instead of opening a new
    one.
@@ -85,7 +85,7 @@ adding a new language:
 3. __Custom Function Equivalence__: Ensure that custom functions have equivalent
    behavior across all languages. This uniformity is essential to maintain the
    integrity and consistency of the project. Check out
-   the [Custom Functions](../docs/cel.md#custom-library-in-protovalidate) for more
+   the [Custom Functions][custom-funcs] for more
 
 If you are interested in adding a new language to `protovalidate`, please open
 an issue to discuss the details and requirements. We will be more than happy to
@@ -146,8 +146,9 @@ contributions!
 Remember, you can reach out to us at any time, and we're looking forward to
 working together to make `protovalidate` the best it can be.
 
-[file-bug]: https://github.com/bufbuild/protovalidate/issues/new?assignees=&labels=Bug&template=bug_report.md&title=%5BBUG%5D
-
-[file-feature-request]: https://github.com/bufbuild/protovalidate/issues/new?assignees=&labels=Feature&template=feature_request.md&title=%5BFeature+Request%5D
-
+[code-of-conduct]: https://github.com/bufbuild/protovalidate/tree/main/.github/CODE_OF_CONDUCT.md
+[issues]: https://github.com/bufbuild/protovalidate-python/issues
+[file-bug]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Bug&template=bug_report.md&title=%5BBUG%5D
+[custom-funcs]: https://github.com/bufbuild/protovalidate/tree/main/docs/cel.md#custom-library-in-protovalidate
+[file-feature-request]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Feature&template=feature_request.md&title=%5BFeature+Request%5D
 [cel-spec]: https://github.com/google/cel-spec
