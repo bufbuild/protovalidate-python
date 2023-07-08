@@ -99,7 +99,8 @@ _TYPE_TO_CTOR = {
 def _ScalarFieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     ctor = _TYPE_TO_CTOR.get(field.type)
     if ctor is None:
-        raise CompilationError("unknown field type")
+        msg = "unknown field type"
+        raise CompilationError(msg)
     return ctor(val)
 
 
@@ -290,7 +291,8 @@ def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_n
     if field.type != expected and (
         field.type != descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
     ):
-        raise CompilationError(f"field {field.name} has type {field.type} but expected {expected}")
+        msg = f"field {field.name} has type {field.type} but expected {expected}"
+        raise CompilationError(msg)
 
 
 class FieldConstraintRules(CelConstraintRules):
