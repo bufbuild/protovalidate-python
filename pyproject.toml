@@ -32,3 +32,53 @@ line-length = 120
 [tool.ruff]
 target-version = "py37"
 line-length = 120
+select = [
+  "A",
+  "ARG",
+  "B",
+  "C",
+  "DTZ",
+  "E",
+  "EM",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "ISC",
+  "N",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "Q",
+  "RUF",
+  "S",
+  "T",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
+]
+ignore = [
+  # Allow boolean positional values in function calls, like `dict.get(..., True)`.
+  "FBT003",
+  # Ignore complexity
+  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Ignore magic values - in this library, most are obvious in context.
+  "PLR2004",
+]
+unfixable = [
+  # Don't autofix unused imports.
+  "F401",
+]
+
+[tool.ruff.isort]
+known-first-party = ["protovalidate", "buf"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use magic values, assertions, and relative imports.
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
+
