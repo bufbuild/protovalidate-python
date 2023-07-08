@@ -63,7 +63,7 @@ lint: install ## Lint code
 .PHONY: install
 install: ## Install dependencies
 	$(PYTHON) -m pip install --upgrade pip pipenv
-	pipenv --python $(PYTHON) sync
+	pipenv --python $(PYTHON) sync --dev
 
 .PHONY: checkgenerate
 checkgenerate: generate
