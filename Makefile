@@ -15,6 +15,10 @@ GO ?= go
 # Set to use a different Python interpreter. For example, `PYTHON=python make test`.
 PYTHON ?= python3
 CONFORMANCE_ARGS ?= --strict --expected_failures=nonconforming.yaml
+LICENSE_HEADER := $(BIN)/license-header \
+		--license-type apache \
+		--copyright-holder "Buf Technologies, Inc." \
+		--year-range "$(COPYRIGHT_YEARS)"
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -33,11 +37,11 @@ generate: $(BIN)/buf ## Regenerate code and license headers
 	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
-	$(MAKE) generate-license
+	$(LICENSE_HEADER) --ignore __init__.py
 
 .PHONY: format
 format: install ## Format code
-	$(MAKE) generate-license
+	$(LICENSE_HEADER)
 	pipenv run black protovalidate tests
 	pipenv run ruff --fix protovalidate tests
 
@@ -62,13 +66,6 @@ install: ## Install dependencies
 checkgenerate: generate
 	@# Used in CI to verify that `make generate` doesn't produce a diff.
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
-
-.PHONY: generate-license
-generate-license: $(BIN)/license-header
-	$(BIN)/license-header \
-		--license-type apache \
-		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "$(COPYRIGHT_YEARS)" $(LICENSE_IGNORE)
 
 $(BIN):
 	@mkdir -p $(BIN)
