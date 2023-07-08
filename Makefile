@@ -33,14 +33,14 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: $(BIN)/buf ## Regenerate code and license headers
+generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
 	$(LICENSE_HEADER) --ignore __init__.py
 
 .PHONY: format
-format: install ## Format code
+format: install $(BIN)/license-header ## Format code
 	$(LICENSE_HEADER)
 	pipenv run black protovalidate tests
 	pipenv run ruff --fix protovalidate tests
