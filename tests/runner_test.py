@@ -14,10 +14,10 @@
 
 import unittest
 
-from buf.validate.conformance.cases import oneofs_pb2  # noqa: F401
-from buf.validate.conformance.harness import results_pb2
 from google.protobuf import descriptor_pool
 
+from buf.validate.conformance.cases import oneofs_pb2  # noqa: F401
+from buf.validate.conformance.harness import results_pb2
 from tests.conformance import runner
 
 

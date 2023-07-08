@@ -16,6 +16,9 @@ import sys
 import typing
 
 import celpy  # type: ignore
+from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
+
+import protovalidate
 
 # TODO(afuller): Use dynamic descriptor pool based on the FileDescriptorSet
 # in the TestConformanceRequest, once the Python protobuf library no longer
@@ -40,9 +43,6 @@ from buf.validate.conformance.cases import (
 )
 from buf.validate.conformance.cases.custom_constraints import custom_constraints_pb2  # noqa: F401
 from buf.validate.conformance.harness import harness_pb2
-from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
-
-import protovalidate
 
 
 def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) -> harness_pb2.TestResult:
