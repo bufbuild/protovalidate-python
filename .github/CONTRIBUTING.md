@@ -11,13 +11,28 @@ We pledge to maintain a welcoming and inclusive community. Please read
 our [Code of Conduct][code-of-conduct] before participating.
 
 ## How Can I Contribute?
-Clone the repository and install dependencies:
+
+First, clone the repository:
+
 ```
 git clone git@github.com:bufbuild/protovalidate-python.git
 cd protovalidate-python
-make install
-pipenv shell
 ```
+
+Then, make any changes you'd like. We use a Makefile to test and lint our code,
+so you'll need a few non-Python tools:
+
+* GNU Make (to use the Makefile): part of the `build-essential` package on
+  Debian-derived Linux distributions (including Ubuntu), and part of
+  `xcode-select --install` on Macs.
+* Go (for the conformance test runner): often available in your system package
+  manager (`apt`, `dnf`, `brew`, etc.), but most reliable when [installed
+  directly from upstream](https://go.dev/doc/install).
+
+With Go and GNU Make installed, you can verify that your changes pass tests and
+lint checks by running `make`. If your Python 3 interpreter isn't available as
+`python3`, try `PYTHON=python make`. For a list of other useful commands, run
+`make help`.
 
 ### Reporting Bugs
 
