@@ -45,9 +45,7 @@ from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factor
 import protovalidate
 
 
-def run_test_case(
-    tc: typing.Any, result: harness_pb2.TestResult | None = None
-) -> harness_pb2.TestResult:
+def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) -> harness_pb2.TestResult:
     if result is None:
         result = harness_pb2.TestResult()
     # Run the validator

@@ -38,12 +38,7 @@ def _validateHostName(host):
         if part[0] == "-" or part[-1] == "-":
             return False
         for r in part:
-            if (
-                (r < "A" or r > "Z")
-                and (r < "a" or r > "z")
-                and (r < "0" or r > "9")
-                and r != "-"
-            ):
+            if (r < "A" or r > "Z") and (r < "a" or r > "z") and (r < "0" or r > "9") and r != "-":
                 return False
     return True
 

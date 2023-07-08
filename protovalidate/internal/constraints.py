@@ -97,18 +97,14 @@ _TYPE_TO_CTOR = {
 }
 
 
-def _ScalarFieldValueToCel(
-    val: typing.Any, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
+def _ScalarFieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     ctor = _TYPE_TO_CTOR.get(field.type)
     if ctor is None:
         raise CompilationError("unknown field type")
     return ctor(val)
 
 
-def _FieldValueToCel(
-    val: typing.Any, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
+def _FieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
             return _MapFieldValueToCel(val, field)
@@ -158,26 +154,20 @@ def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bo
     raise ValueError("unknown field type")
 
 
-def _RepeatedFieldToCel(
-    msg: message.Message, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
+def _RepeatedFieldToCel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.message_type is not None and field.message_type.GetOptions().map_entry:
         return _MapFieldToCel(msg, field)
     return _RepeatedFieldValueToCel(getattr(msg, field.name), field)
 
 
-def _RepeatedFieldValueToCel(
-    val: typing.Any, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
+def _RepeatedFieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     result = celtypes.ListType()
     for item in val:
         result.append(_ScalarFieldValueToCel(item, field))
     return result
 
 
-def _MapFieldValueToCel(
-    map: typing.Any, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
+def _MapFieldValueToCel(map: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     result = celtypes.MapType()
     key_field = field.message_type.fields[0]
     val_field = field.message_type.fields[1]
@@ -186,15 +176,11 @@ def _MapFieldValueToCel(
     return result
 
 
-def _MapFieldToCel(
-    msg: message.Message, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
+def _MapFieldToCel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     return _MapFieldValueToCel(getattr(msg, field.name), field)
 
 
-def _FieldToCel(
-    msg: message.Message, field: descriptor.FieldDescriptor
-) -> celtypes.Value:
+def _FieldToCel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return _RepeatedFieldToCel(msg, field)
     elif field.message_type is not None and not msg.HasField(field.name):
@@ -206,9 +192,7 @@ def _FieldToCel(
 class ConstraintContext:
     """The state associated with a single constraint evaluation."""
 
-    def __init__(
-        self, fail_fast: bool = False, violations: expression_pb2.Violations = None
-    ):
+    def __init__(self, fail_fast: bool = False, violations: expression_pb2.Violations = None):
         self._fail_fast = fail_fast
         if violations is None:
             violations = expression_pb2.Violations()
@@ -263,9 +247,7 @@ class ConstraintRules:
 class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
-    _runners: list[
-        typing.Tuple[celpy.Runner, expression_pb2.Constraint | private_pb2.Constraint]
-    ]
+    _runners: list[typing.Tuple[celpy.Runner, expression_pb2.Constraint | private_pb2.Constraint]]
     _rules_cel: celtypes.Value = None
 
     def __init__(self, rules: message.Message | None):
@@ -273,13 +255,9 @@ class CelConstraintRules(ConstraintRules):
         if rules is not None:
             self._rules_cel = _MsgToCel(rules)
 
-    def _validate_cel(
-        self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any]
-    ):
+    def _validate_cel(self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any]):
         activation["rules"] = self._rules_cel
-        activation["now"] = celtypes.TimestampType(
-            datetime.datetime.now(tz=datetime.timezone.utc)
-        )
+        activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
         for runner, constraint in self._runners:
             result = runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
@@ -309,16 +287,11 @@ class MessageConstraintRules(CelConstraintRules):
         self._validate_cel(ctx, "", {"this": _MsgToCel(message)})
 
 
-def check_field_type(
-    field: descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None
-):
+def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None):
     if field.type != expected and (
-        field.type != descriptor.FieldDescriptor.TYPE_MESSAGE
-        or field.message_type.full_name != wrapper_name
+        field.type != descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
     ):
-        raise CompilationError(
-            f"field {field.name} has type {field.type} but expected {expected}"
-        )
+        raise CompilationError(f"field {field.name} has type {field.type} but expected {expected}")
 
 
 class FieldConstraintRules(CelConstraintRules):
@@ -373,15 +346,11 @@ class FieldConstraintRules(CelConstraintRules):
                 return
         val = getattr(message, self._field.name)
         self._validate_value(ctx, self._field.name, val)
-        self._validate_cel(
-            ctx, self._field.name, {"this": _FieldValueToCel(val, self._field)}
-        )
+        self._validate_cel(ctx, self._field.name, {"this": _FieldValueToCel(val, self._field)})
 
     def validate_item(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
         self._validate_value(ctx, field_path, val)
-        self._validate_cel(
-            ctx, field_path, {"this": _ScalarFieldValueToCel(val, self._field)}
-        )
+        self._validate_cel(ctx, field_path, {"this": _ScalarFieldValueToCel(val, self._field)})
 
     def _validate_value(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
         pass
@@ -406,9 +375,7 @@ class AnyConstraintRules(FieldConstraintRules):
         if fieldLvl.any.not_in:
             self._not_in = fieldLvl.any.not_in
 
-    def _validate_value(
-        self, ctx: ConstraintContext, field_path: str, value: any_pb2.Any
-    ):
+    def _validate_value(self, ctx: ConstraintContext, field_path: str, value: any_pb2.Any):
         if len(self._in) > 0:
             if value.type_url not in self._in:
                 ctx.add(
@@ -526,9 +493,7 @@ class OneofConstraintRules(ConstraintRules):
 
     required = True
 
-    def __init__(
-        self, oneof: descriptor.OneofDescriptor, rules: validate_pb2.OneofConstraints
-    ):
+    def __init__(self, oneof: descriptor.OneofDescriptor, rules: validate_pb2.OneofConstraints):
         self._oneof = oneof
         if not rules.required:
             self.required = False
@@ -567,9 +532,7 @@ class ConstraintFactory:
             raise result
         return result
 
-    def _new_message_constraint(
-        self, rules: validate_pb2.message
-    ) -> MessageConstraintRules:
+    def _new_message_constraint(self, rules: validate_pb2.message) -> MessageConstraintRules:
         result = MessageConstraintRules(rules)
         for cel in rules.cel:
             result.add_rule(self._env, self._funcs, cel)
@@ -599,9 +562,7 @@ class ConstraintFactory:
             result = EnumConstraintRules(self._env, self._funcs, field, fieldLvl)
             return result
         elif type_case == "bool":
-            check_field_type(
-                field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue"
-            )
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
             result = FieldConstraintRules(self._env, self._funcs, field, fieldLvl)
             return result
         elif type_case == "bytes":
@@ -693,9 +654,7 @@ class ConstraintFactory:
             result = FieldConstraintRules(self._env, self._funcs, field, fieldLvl)
             return result
         elif type_case == "any":
-            check_field_type(
-                field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any"
-            )
+            check_field_type(field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any")
             result = AnyConstraintRules(self._env, self._funcs, field, fieldLvl)
             return result
 
@@ -714,12 +673,8 @@ class ConstraintFactory:
             value_rules = None
             if rules.map.HasField("values"):
                 value_field = field.message_type.fields_by_name["value"]
-                value_rules = self._new_scalar_field_constraint(
-                    value_field, rules.map.values
-                )
-            return MapConstraintRules(
-                self._env, self._funcs, field, rules, key_rules, value_rules
-            )
+                value_rules = self._new_scalar_field_constraint(value_field, rules.map.values)
+            return MapConstraintRules(self._env, self._funcs, field, rules, key_rules, value_rules)
         item_rule = None
         if rules.repeated.HasField("items"):
             item_rule = self._new_scalar_field_constraint(field, rules.repeated.items)
@@ -737,9 +692,7 @@ class ConstraintFactory:
 
         for oneof in desc.oneofs:
             if validate_pb2.oneof in oneof.GetOptions().Extensions:
-                if constraint := OneofConstraintRules(
-                    oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]
-                ):
+                if constraint := OneofConstraintRules(oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]):
                     result.append(constraint)
 
         for field in desc.fields:

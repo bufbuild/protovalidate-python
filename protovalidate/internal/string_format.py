@@ -42,13 +42,9 @@ class StringFormat:
 
     def format(self, fmt: celtypes.Value, args: celtypes.Value) -> celpy.Result:
         if not isinstance(fmt, celtypes.StringType):
-            return celpy.native_to_cel(
-                celpy.new_error("format() requires a string as the first argument")
-            )
+            return celpy.native_to_cel(celpy.new_error("format() requires a string as the first argument"))
         if not isinstance(args, celtypes.ListType):
-            return celpy.native_to_cel(
-                celpy.new_error("format() requires a list as the second argument")
-            )
+            return celpy.native_to_cel(celpy.new_error("format() requires a list as the second argument"))
         # printf style formatting
         i = 0
         j = 0
@@ -64,9 +60,7 @@ class StringFormat:
                 i += 2
                 continue
             if j >= len(args):
-                return celpy.CELEvalError(
-                    "format() not enough arguments for format string"
-                )
+                return celpy.CELEvalError("format() not enough arguments for format string")
             arg = args[j]
             j += 1
             i += 1
@@ -98,9 +92,7 @@ class StringFormat:
             elif fmt[i] == "b":
                 result += self.format_bin(arg)
             else:
-                return celpy.CELEvalError(
-                    "format() unknown format specifier: " + fmt[i]
-                )
+                return celpy.CELEvalError("format() unknown format specifier: " + fmt[i])
             i += 1
         if j < len(args):
             return celpy.CELEvalError("format() too many arguments for format string")
@@ -132,9 +124,7 @@ class StringFormat:
             return celtypes.StringType(arg.hex())
         if isinstance(arg, celtypes.StringType):
             return celtypes.StringType(arg.encode("utf-8").hex())
-        return celpy.CELEvalError(
-            "format_hex() requires an integer, string, or binary argument"
-        )
+        return celpy.CELEvalError("format_hex() requires an integer, string, or binary argument")
 
     def format_oct(self, arg: celtypes.Value) -> celpy.Result:
         if isinstance(arg, celtypes.IntType):

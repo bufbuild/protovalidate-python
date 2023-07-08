@@ -14,13 +14,7 @@
 
 import unittest
 
-from buf.validate.conformance.cases import (
-    maps_pb2,
-    numbers_pb2,
-    oneofs_pb2,
-    repeated_pb2,
-    wkt_timestamp_pb2,
-)
+from buf.validate.conformance.cases import maps_pb2, numbers_pb2, oneofs_pb2, repeated_pb2, wkt_timestamp_pb2
 
 import protovalidate
 
