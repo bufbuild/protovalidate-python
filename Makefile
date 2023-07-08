@@ -12,6 +12,8 @@ LICENSE_IGNORE :=
 LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
+# Set to use a different Python interpreter. For example, `PYTHON=python make test`.
+PYTHON ?= python3
 CONFORMANCE_ARGS ?= --strict --expected_failures=nonconforming.yaml
 
 .PHONY: help
@@ -47,8 +49,8 @@ format: generate-license
 
 .PHONY: format-python
 format-python: install  ## Format all code according to isort and black
-	python3 -m isort protovalidate tests
-	python3 -m black protovalidate tests
+	$(PYTHON) -m isort protovalidate tests
+	$(PYTHON) -m black protovalidate tests
 
 .PHONY: test
 test: generate install ## Run all unit tests
@@ -56,13 +58,13 @@ test: generate install ## Run all unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance install
-	$(BIN)/protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run python3 -m tests.conformance.runner
+	$(BIN)/protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run $(PYTHON) -m tests.conformance.runner
 
 .PHONY: install
 install:
-	python3 -m pip install --upgrade pip
+	$(PYTHON) -m pip install --upgrade pip
 	pip install pipenv ruff mypy types-protobuf black isort
-	pipenv --python python3 install
+	pipenv --python $(PYTHON) install
 
 .PHONY: checkgenerate
 checkgenerate: generate
