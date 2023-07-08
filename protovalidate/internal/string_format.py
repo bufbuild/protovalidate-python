@@ -40,7 +40,7 @@ class StringFormat:
     def __init__(self, locale: str):
         self.locale = locale
 
-    def format(self, fmt: celtypes.Value, args: celtypes.Value) -> celpy.Result:
+    def format(self, fmt: celtypes.Value, args: celtypes.Value) -> celpy.Result:  # noqa: A003
         if not isinstance(fmt, celtypes.StringType):
             return celpy.native_to_cel(celpy.new_error("format() requires a string as the first argument"))
         if not isinstance(args, celtypes.ListType):
@@ -169,5 +169,5 @@ class StringFormat:
 
 
 _default_format = StringFormat("en_US")
-format = _default_format.format
+format = _default_format.format  # noqa: A001
 format_value = _default_format.format_value
