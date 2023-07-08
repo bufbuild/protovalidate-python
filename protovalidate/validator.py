@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import typing
+
 from google.protobuf import message
 
 from buf.validate import expression_pb2  # type: ignore
@@ -26,9 +28,9 @@ class Validator:
     """
     Validates protobuf messages against static constraints.
 
-    Each validator instance is caches internal state generated from the static
-    constraints, so it is recommended to reuse the same instance for multiple
-    validations.
+    Each validator instance caches internal state generated from the static
+    constraints, so reusing the same instance for multiple validations
+    significantly improves performance.
     """
 
     _factory: _constraints.ConstraintFactory
@@ -39,9 +41,9 @@ class Validator:
     def validate(
         self,
         message: message.Message,
-        fail_fast: bool = False,  # noqa: FBT001, FBT002
-        result: expression_pb2.Violations = None,
-    ) -> expression_pb2.Violations:
+        *,
+        fail_fast: bool = False,
+    ):
         """
         Validates the given message against the static constraints defined in
         the message's descriptor.
@@ -49,17 +51,58 @@ class Validator:
         Parameters:
             message: The message to validate.
             fail_fast: If true, validation will stop after the first violation.
-            result: If provided, violations will be appended to this object, and
-                this object will be returned. Otherwise, a new Violations object
-                is allocated and returned.
-        Returns:
-            A Violations object containing any violations found.
+        Raises:
+            CompilationError: If the static constraints could not be compiled.
+            ValidationError: If the message is invalid.
+        """
+        violations = self.collect_violations(message, fail_fast=fail_fast)
+        if violations.violations:
+            msg = f"invalid {message.DESCRIPTOR.name}"
+            raise ValidationError(msg, violations)
+
+    def collect_violations(
+        self,
+        message: message.Message,
+        *,
+        fail_fast: bool = False,
+        into: expression_pb2.Violations = None,
+    ) -> expression_pb2.Violations:
+        """
+        Validates the given message against the static constraints defined in
+        the message's descriptor. Compared to validate, collect_violations is
+        faster but puts the burden of raising an appropriate exception on the
+        caller.
+
+        Parameters:
+            messages: The message(s) to validate.
+            fail_fast: If true, validation will stop after the first violation.
+            into: If provided, any violations will be appended to the
+                Violations object and the same object will be returned.
         Raises:
             CompilationError: If the static constraints could not be compiled.
         """
-        ctx = _constraints.ConstraintContext(fail_fast=fail_fast, violations=result)
+        ctx = _constraints.ConstraintContext(fail_fast=fail_fast, violations=into)
         for constraint in self._factory.get(message.DESCRIPTOR):
             constraint.validate(ctx, message)
             if ctx.done:
                 break
         return ctx.violations
+
+
+class ValidationError(ValueError):
+    """
+    An error raised when a message fails to validate.
+    """
+
+    violations: expression_pb2.Violations
+
+    def __init__(self, msg: str, violations: expression_pb2.Violations):
+        super().__init__(msg)
+        self.violations = violations
+
+    def errors(self) -> typing.List[expression_pb2.Violation]:
+        """
+        Returns the validation errors as a simple Python list, rather than the
+        Protobuf-specific collection type used by Violations.
+        """
+        return list(self.violations.violations)
