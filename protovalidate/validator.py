@@ -39,7 +39,7 @@ class Validator:
     def validate(
         self,
         message: message.Message,
-        fail_fast: bool = False,
+        fail_fast: bool = False,  # noqa: FBT001, FBT002
         result: expression_pb2.Violations = None,
     ) -> expression_pb2.Violations:
         """
