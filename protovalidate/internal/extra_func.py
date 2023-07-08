@@ -21,7 +21,7 @@ from celpy import celtypes  # type: ignore
 from protovalidate.internal import string_format
 
 
-def _validateHostName(host):
+def _validate_hostname(host):
     if not host:
         return False
     if len(host) > 253:
@@ -43,7 +43,7 @@ def _validateHostName(host):
     return True
 
 
-def _validateEmail(addr):
+def validate_email(addr):
     if "<" in addr and ">" in addr:
         addr = addr.split("<")[1].split(">")[0]
 
@@ -55,7 +55,7 @@ def _validateEmail(addr):
         return False
     if len(parts[0]) > 64:
         return False
-    return _validateHostName(parts[1])
+    return _validate_hostname(parts[1])
 
 
 def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.Result:
@@ -81,7 +81,7 @@ def is_email(string: celtypes.Value) -> celpy.Result:
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.EvalError(msg)
-    return celtypes.BoolType(_validateEmail(string))
+    return celtypes.BoolType(validate_email(string))
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
@@ -102,7 +102,7 @@ def is_hostname(string: celtypes.Value) -> celpy.Result:
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.EvalError(msg)
-    return celtypes.BoolType(_validateHostName(string))
+    return celtypes.BoolType(_validate_hostname(string))
 
 
 def unique(val: celtypes.Value) -> celpy.Result:

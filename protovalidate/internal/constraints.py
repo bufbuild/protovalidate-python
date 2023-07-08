@@ -44,7 +44,7 @@ def make_timestamp(msg: message.Message) -> celtypes.TimestampType:
 
 
 def unwrap(msg: message.Message) -> celtypes.Value:
-    return _FieldToCel(msg, msg.DESCRIPTOR.fields_by_name["value"])
+    return _field_to_cel(msg, msg.DESCRIPTOR.fields_by_name["value"])
 
 
 _MSG_TYPE_URL_TO_CTOR = {
@@ -62,7 +62,7 @@ _MSG_TYPE_URL_TO_CTOR = {
 }
 
 
-def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
+def _msg_to_cel(msg: message.Message) -> dict[str, celtypes.Value]:
     ctor = _MSG_TYPE_URL_TO_CTOR.get(msg.DESCRIPTOR.full_name)
     if ctor is not None:
         return ctor(msg)
@@ -71,12 +71,12 @@ def _MsgToCel(msg: message.Message) -> dict[str, celtypes.Value]:
     for field in msg.DESCRIPTOR.fields:
         if field.containing_oneof is not None and not msg.HasField(field.name):
             continue
-        result[field.name] = _FieldToCel(msg, field)
+        result[field.name] = _field_to_cel(msg, field)
     return result
 
 
 _TYPE_TO_CTOR = {
-    descriptor.FieldDescriptor.TYPE_MESSAGE: _MsgToCel,
+    descriptor.FieldDescriptor.TYPE_MESSAGE: _msg_to_cel,
     descriptor.FieldDescriptor.TYPE_ENUM: celtypes.IntType,
     descriptor.FieldDescriptor.TYPE_BOOL: celtypes.BoolType,
     descriptor.FieldDescriptor.TYPE_BYTES: celtypes.BytesType,
@@ -96,7 +96,7 @@ _TYPE_TO_CTOR = {
 }
 
 
-def _ScalarFieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     ctor = _TYPE_TO_CTOR.get(field.type)
     if ctor is None:
         msg = "unknown field type"
@@ -104,15 +104,15 @@ def _ScalarFieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -
     return ctor(val)
 
 
-def _FieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
-            return _MapFieldValueToCel(val, field)
-        return _RepeatedFieldValueToCel(val, field)
-    return _ScalarFieldValueToCel(val, field)
+            return _map_field_value_to_cel(val, field)
+        return _repeated_field_value_to_cel(val, field)
+    return _scalar_field_value_to_cel(val, field)
 
 
-def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
+def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
     if field.containing_oneof is not None and not msg.HasField(field.name):
         return True
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
@@ -154,39 +154,39 @@ def _IsEmptyField(msg: message.Message, field: descriptor.FieldDescriptor) -> bo
     raise ValueError("unknown field type")
 
 
-def _RepeatedFieldToCel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _repeated_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.message_type is not None and field.message_type.GetOptions().map_entry:
-        return _MapFieldToCel(msg, field)
-    return _RepeatedFieldValueToCel(getattr(msg, field.name), field)
+        return _map_field_to_cel(msg, field)
+    return _repeated_field_value_to_cel(getattr(msg, field.name), field)
 
 
-def _RepeatedFieldValueToCel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _repeated_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     result = celtypes.ListType()
     for item in val:
-        result.append(_ScalarFieldValueToCel(item, field))
+        result.append(_scalar_field_value_to_cel(item, field))
     return result
 
 
-def _MapFieldValueToCel(map: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _map_field_value_to_cel(map: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     result = celtypes.MapType()
     key_field = field.message_type.fields[0]
     val_field = field.message_type.fields[1]
     for key, val in map.items():
-        result[_FieldValueToCel(key, key_field)] = _FieldValueToCel(val, val_field)
+        result[_field_value_to_cel(key, key_field)] = _field_value_to_cel(val, val_field)
     return result
 
 
-def _MapFieldToCel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    return _MapFieldValueToCel(getattr(msg, field.name), field)
+def _map_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
+    return _map_field_value_to_cel(getattr(msg, field.name), field)
 
 
-def _FieldToCel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-        return _RepeatedFieldToCel(msg, field)
+        return _repeated_field_to_cel(msg, field)
     elif field.message_type is not None and not msg.HasField(field.name):
         return None
     else:
-        return _ScalarFieldValueToCel(getattr(msg, field.name), field)
+        return _scalar_field_value_to_cel(getattr(msg, field.name), field)
 
 
 class ConstraintContext:
@@ -253,7 +253,7 @@ class CelConstraintRules(ConstraintRules):
     def __init__(self, rules: message.Message | None):
         self._runners = []
         if rules is not None:
-            self._rules_cel = _MsgToCel(rules)
+            self._rules_cel = _msg_to_cel(rules)
 
     def _validate_cel(self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any]):
         activation["rules"] = self._rules_cel
@@ -284,7 +284,7 @@ class MessageConstraintRules(CelConstraintRules):
     """Message-level rules."""
 
     def validate(self, ctx: ConstraintContext, message: message.Message):
-        self._validate_cel(ctx, "", {"this": _MsgToCel(message)})
+        self._validate_cel(ctx, "", {"this": _msg_to_cel(message)})
 
 
 def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None):
@@ -328,7 +328,7 @@ class FieldConstraintRules(CelConstraintRules):
             self.add_rule(env, funcs, cel)
 
     def validate(self, ctx: ConstraintContext, message: message.Message):
-        if _IsEmptyField(message, self._field):
+        if _is_empty_field(message, self._field):
             if self._required:
                 ctx.add(
                     self._field.name,
@@ -347,11 +347,11 @@ class FieldConstraintRules(CelConstraintRules):
                 return
         val = getattr(message, self._field.name)
         self._validate_value(ctx, self._field.name, val)
-        self._validate_cel(ctx, self._field.name, {"this": _FieldValueToCel(val, self._field)})
+        self._validate_cel(ctx, self._field.name, {"this": _field_value_to_cel(val, self._field)})
 
     def validate_item(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
         self._validate_value(ctx, field_path, val)
-        self._validate_cel(ctx, field_path, {"this": _ScalarFieldValueToCel(val, self._field)})
+        self._validate_cel(ctx, field_path, {"this": _scalar_field_value_to_cel(val, self._field)})
 
     def _validate_value(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
         pass

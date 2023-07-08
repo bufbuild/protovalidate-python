@@ -20,12 +20,12 @@ from buf.validate.conformance.cases import maps_pb2, numbers_pb2, oneofs_pb2, re
 
 # Test basic validation
 class TestValidate(unittest.TestCase):
-    def test_SFixed64ExLTGT(self):
+    def test_sfixed64(self):
         msg = numbers_pb2.SFixed64ExLTGT(val=11)
         violations = protovalidate.validate(msg)
         self.assertEqual(len(violations.violations), 0)
 
-    def test_Oneofs(self):
+    def test_oneofs(self):
         msg1 = oneofs_pb2.Oneof()
         msg1.y = 123
         violations = protovalidate.validate(msg1)
@@ -36,18 +36,18 @@ class TestValidate(unittest.TestCase):
         violations = protovalidate.validate(msg2)
         self.assertEqual(len(violations.violations), 0)
 
-    def test_Repeated(self):
+    def test_repeated(self):
         msg = repeated_pb2.RepeatedEmbedSkip()
         msg.val.add(val=-1)
         violations = protovalidate.validate(msg)
         self.assertEqual(len(violations.violations), 0)
 
-    def test_Maps(self):
+    def test_maps(self):
         msg = maps_pb2.MapMinMax()
         violations = protovalidate.validate(msg)
         self.assertEqual(len(violations.violations), 1)
 
-    def test_Timestamp(self):
+    def test_timestamp(self):
         msg = wkt_timestamp_pb2.TimestampGTNow()
         violations = protovalidate.validate(msg)
         self.assertEqual(len(violations.violations), 0)
