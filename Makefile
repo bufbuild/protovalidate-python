@@ -21,7 +21,7 @@ help: ## Describe useful make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-15s %s\n", $$1, $$2}'
 
 .PHONY: all
-all: test conformance
+all: test conformance ## Run unit and conformance tests (default)
 
 .PHONY: clean
 clean: ## Delete intermediate build artifacts
@@ -46,11 +46,11 @@ test: generate install ## Run all unit tests
 	pipenv run pytest
 
 .PHONY: conformance
-conformance: $(BIN)/protovalidate-conformance install
+conformance: $(BIN)/protovalidate-conformance install ## Run conformance tests
 	$(BIN)/protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run $(PYTHON) -m tests.conformance.runner
 
 .PHONY: install
-install:
+install: ## Install dependencies
 	$(PYTHON) -m pip install --upgrade pip
 	pip install pipenv ruff mypy types-protobuf black isort
 	pipenv --python $(PYTHON) install
