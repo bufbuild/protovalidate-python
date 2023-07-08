@@ -29,28 +29,17 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: generate-proto generate-license ## Regenerate code and license headers
-
-.PHONY: generate-license
-generate-license: $(BIN)/license-header format-python ## Format code and regenerate license headers
-	$(BIN)/license-header \
-		--license-type apache \
-		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "$(COPYRIGHT_YEARS)" $(LICENSE_IGNORE)
-
-.PHONY: generate-proto
-generate-proto: $(BIN)/buf ## Regenerate code from proto files
+generate: $(BIN)/buf ## Regenerate code and license headers
 	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
+	$(MAKE) generate-license
 
-.PHONY: format  ## Format all code
-format: generate-license
-
-.PHONY: format-python
-format-python: install  ## Format all code according to isort and black
+.PHONY: format
+format: install ## Format code
 	$(PYTHON) -m isort protovalidate tests
 	$(PYTHON) -m black protovalidate tests
+	$(MAKE) generate-license
 
 .PHONY: test
 test: generate install ## Run all unit tests
@@ -70,6 +59,13 @@ install:
 checkgenerate: generate
 	@# Used in CI to verify that `make generate` doesn't produce a diff.
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
+
+.PHONY: generate-license
+generate-license: $(BIN)/license-header
+	$(BIN)/license-header \
+		--license-type apache \
+		--copyright-holder "Buf Technologies, Inc." \
+		--year-range "$(COPYRIGHT_YEARS)" $(LICENSE_IGNORE)
 
 $(BIN):
 	@mkdir -p $(BIN)
