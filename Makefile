@@ -21,7 +21,7 @@ help: ## Describe useful make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-15s %s\n", $$1, $$2}'
 
 .PHONY: all
-all: test conformance ## Run unit and conformance tests (default)
+all: test lint ## Run all tests and lint (default)
 
 .PHONY: clean
 clean: ## Delete intermediate build artifacts
@@ -37,23 +37,26 @@ generate: $(BIN)/buf ## Regenerate code and license headers
 
 .PHONY: format
 format: install ## Format code
-	$(PYTHON) -m isort protovalidate tests
-	$(PYTHON) -m black protovalidate tests
 	$(MAKE) generate-license
+	pipenv run black protovalidate tests
+	pipenv run ruff --fix protovalidate tests
 
 .PHONY: test
-test: generate install ## Run all unit tests
+test: $(BIN)/protovalidate-conformance generate install ## Run unit and conformance tests
 	pipenv run pytest
-
-.PHONY: conformance
-conformance: $(BIN)/protovalidate-conformance install ## Run conformance tests
 	$(BIN)/protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run $(PYTHON) -m tests.conformance.runner
+
+.PHONY: lint
+lint: install ## Lint code
+	pipenv run black --check --diff protovalidate tests
+	pipenv run mypy protovalidate
+	pipenv run ruff protovalidate tests
+	pipenv verify
 
 .PHONY: install
 install: ## Install dependencies
-	$(PYTHON) -m pip install --upgrade pip
-	pip install pipenv ruff mypy types-protobuf black isort
-	pipenv --python $(PYTHON) install
+	$(PYTHON) -m pip install --upgrade pip pipenv
+	pipenv --python $(PYTHON) sync
 
 .PHONY: checkgenerate
 checkgenerate: generate

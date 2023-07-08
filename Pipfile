@@ -6,10 +6,13 @@ name = "pypi"
 [packages]
 cel-python = "*"
 protobuf = "*"
-pytest = "*"
-validate-email = "*"
 
 [dev-packages]
+pytest = "*"
+mypy = "*"
+ruff = "*"
+types-protobuf = "*"
+black = "*"
 
 [requires]
 python_version = "3.11"
