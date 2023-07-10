@@ -21,8 +21,8 @@ from tests.conformance import runner
 
 def test_oneof():
     results = results_pb2.ResultSet()
-    # load the results from oneof.binproto
-    with open("tests/oneof.binproto", "rb") as f:
+    # load the results from oneof.binpb
+    with open("tests/oneof.binpb", "rb") as f:
         results.ParseFromString(f.read())
     for suite in results.suites:
         pool = descriptor_pool.Default()
