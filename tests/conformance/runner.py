@@ -50,7 +50,7 @@ def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) 
         result = harness_pb2.TestResult()
     # Run the validator
     try:
-        protovalidate.validate(tc, False, result.validation_error)
+        protovalidate.collect_violations(tc, into=result.validation_error)
         if len(result.validation_error.violations) == 0:
             result.success = True
     except celpy.CELEvalError as e:
