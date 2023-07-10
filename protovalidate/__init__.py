@@ -16,9 +16,11 @@ from protovalidate import validator
 
 Validator = validator.Validator
 CompilationError = validator.CompilationError
+ValidationError = validator.ValidationError
 Violations = validator.Violations
 
 _validator = Validator()
 validate = _validator.validate
+collect_violations = _validator.collect_violations
 
-__all__ = ["Validator", "CompilationError", "Violations", "validate"]
+__all__ = ["Validator", "CompilationError", "ValidationError", "Violations", "validate", "collect_violations"]

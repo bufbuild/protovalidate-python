@@ -16,43 +16,41 @@ import sys
 import typing
 
 import celpy  # type: ignore
+from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
+
+import protovalidate
 
 # TODO(afuller): Use dynamic descriptor pool based on the FileDescriptorSet
 # in the TestConformanceRequest, once the Python protobuf library no longer
 # segfaults when using a dynamic descriptor pool.
 from buf.validate.conformance.cases import (
-    bool_pb2,
-    bytes_pb2,
-    enums_pb2,
-    filename_with_dash_pb2,
-    kitchen_sink_pb2,
-    maps_pb2,
-    messages_pb2,
-    numbers_pb2,
-    oneofs_pb2,
-    repeated_pb2,
-    strings_pb2,
-    wkt_any_pb2,
-    wkt_duration_pb2,
-    wkt_nested_pb2,
-    wkt_timestamp_pb2,
-    wkt_wrappers_pb2,
+    bool_pb2,  # noqa: F401
+    bytes_pb2,  # noqa: F401
+    enums_pb2,  # noqa: F401
+    filename_with_dash_pb2,  # noqa: F401
+    kitchen_sink_pb2,  # noqa: F401
+    maps_pb2,  # noqa: F401
+    messages_pb2,  # noqa: F401
+    numbers_pb2,  # noqa: F401
+    oneofs_pb2,  # noqa: F401
+    repeated_pb2,  # noqa: F401
+    strings_pb2,  # noqa: F401
+    wkt_any_pb2,  # noqa: F401
+    wkt_duration_pb2,  # noqa: F401
+    wkt_nested_pb2,  # noqa: F401
+    wkt_timestamp_pb2,  # noqa: F401
+    wkt_wrappers_pb2,  # noqa: F401
 )
-from buf.validate.conformance.cases.custom_constraints import custom_constraints_pb2
+from buf.validate.conformance.cases.custom_constraints import custom_constraints_pb2  # noqa: F401
 from buf.validate.conformance.harness import harness_pb2
-from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
-
-import protovalidate
 
 
-def run_test_case(
-    tc: typing.Any, result: harness_pb2.TestResult | None = None
-) -> harness_pb2.TestResult:
+def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) -> harness_pb2.TestResult:
     if result is None:
         result = harness_pb2.TestResult()
     # Run the validator
     try:
-        protovalidate.validate(tc, False, result.validation_error)
+        protovalidate.collect_violations(tc, into=result.validation_error)
         if len(result.validation_error.violations) == 0:
             result.success = True
     except celpy.CELEvalError as e:
