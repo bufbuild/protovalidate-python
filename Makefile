@@ -14,7 +14,7 @@ LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
 GO ?= go
 # Set to use a different Python interpreter. For example, `PYTHON=python make test`.
 PYTHON ?= python3
-CONFORMANCE_ARGS ?= --strict --expected_failures=nonconforming.yaml
+CONFORMANCE_ARGS ?= --strict --expected_failures=tests/conformance/nonconforming.yaml
 LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
