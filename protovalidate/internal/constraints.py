@@ -383,13 +383,13 @@ class AnyConstraintRules(FieldConstraintRules):
                 ctx.add(
                     field_path,
                     "any.in",
-                    f"Type {value.type_url} is not in {self._in}",
+                    "type URL must be in the allow list",
                 )
         if value.type_url in self._not_in:
             ctx.add(
                 field_path,
                 "any.not_in",
-                f"Type {value.type_url} is in {self._not_in}",
+                "type URL must not be in the block list",
             )
 
 
@@ -419,7 +419,7 @@ class EnumConstraintRules(FieldConstraintRules):
                 ctx.add(
                     self._field.name,
                     "enum.defined_only",
-                    "value is not defined in enum",
+                    "value must be one of the defined enum values",
                 )
 
 
@@ -506,7 +506,7 @@ class OneofConstraintRules(ConstraintRules):
                 ctx.add(
                     self._oneof.name,
                     "required",
-                    "oneof is required",
+                    "exactly one field is required in oneof",
                 )
             return
 
