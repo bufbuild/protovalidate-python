@@ -74,7 +74,7 @@ class Validator:
         caller.
 
         Parameters:
-            messages: The message(s) to validate.
+            message: The message to validate.
             fail_fast: If true, validation will stop after the first violation.
             into: If provided, any violations will be appended to the
                 Violations object and the same object will be returned.
