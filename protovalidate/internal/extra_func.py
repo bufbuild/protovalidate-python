@@ -21,7 +21,7 @@ from celpy import celtypes  # type: ignore
 from protovalidate.internal import string_format
 
 
-def _validateHostName(host):
+def _validate_hostname(host):
     if not host:
         return False
     if len(host) > 253:
@@ -38,17 +38,12 @@ def _validateHostName(host):
         if part[0] == "-" or part[-1] == "-":
             return False
         for r in part:
-            if (
-                (r < "A" or r > "Z")
-                and (r < "a" or r > "z")
-                and (r < "0" or r > "9")
-                and r != "-"
-            ):
+            if (r < "A" or r > "Z") and (r < "a" or r > "z") and (r < "0" or r > "9") and r != "-":
                 return False
     return True
 
 
-def _validateEmail(addr):
+def validate_email(addr):
     if "<" in addr and ">" in addr:
         addr = addr.split("<")[1].split(">")[0]
 
@@ -60,12 +55,13 @@ def _validateEmail(addr):
         return False
     if len(parts[0]) > 64:
         return False
-    return _validateHostName(parts[1])
+    return _validate_hostname(parts[1])
 
 
 def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.Result:
     if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
-        raise celpy.EvalError("invalid argument, expected string or bytes")
+        msg = "invalid argument, expected string or bytes"
+        raise celpy.EvalError(msg)
     try:
         if version is None:
             ip_address(val)
@@ -74,7 +70,8 @@ def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.R
         elif version == 6:
             IPv6Address(val)
         else:
-            raise celpy.EvalError("invalid argument, expected 4 or 6")
+            msg = "invalid argument, expected 4 or 6"
+            raise celpy.EvalError(msg)
         return celtypes.BoolType(True)
     except ValueError:
         return celtypes.BoolType(False)
@@ -82,8 +79,9 @@ def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.R
 
 def is_email(string: celtypes.Value) -> celpy.Result:
     if not isinstance(string, celtypes.StringType):
-        raise celpy.EvalError("invalid argument, expected string")
-    return celtypes.BoolType(_validateEmail(string))
+        msg = "invalid argument, expected string"
+        raise celpy.EvalError(msg)
+    return celtypes.BoolType(validate_email(string))
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
@@ -102,13 +100,15 @@ def is_uri_ref(string: celtypes.Value) -> celpy.Result:
 
 def is_hostname(string: celtypes.Value) -> celpy.Result:
     if not isinstance(string, celtypes.StringType):
-        raise celpy.EvalError("invalid argument, expected string")
-    return celtypes.BoolType(_validateHostName(string))
+        msg = "invalid argument, expected string"
+        raise celpy.EvalError(msg)
+    return celtypes.BoolType(_validate_hostname(string))
 
 
 def unique(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.ListType):
-        raise celpy.EvalError("invalid argument, expected list")
+        msg = "invalid argument, expected list"
+        raise celpy.EvalError(msg)
     return celtypes.BoolType(len(val) == len(set(val)))
 
 

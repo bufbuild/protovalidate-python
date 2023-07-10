@@ -12,14 +12,20 @@ LICENSE_IGNORE :=
 LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
-ARGS ?= --strict --expected_failures=nonconforming.yaml
+# Set to use a different Python interpreter. For example, `PYTHON=python make test`.
+PYTHON ?= python3
+CONFORMANCE_ARGS ?= --strict --expected_failures=nonconforming.yaml
+LICENSE_HEADER := $(BIN)/license-header \
+		--license-type apache \
+		--copyright-holder "Buf Technologies, Inc." \
+		--year-range "$(COPYRIGHT_YEARS)"
 
 .PHONY: help
 help: ## Describe useful make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-15s %s\n", $$1, $$2}'
 
 .PHONY: all
-all: test conformance
+all: test conformance lint ## Run all tests and lint (default)
 
 .PHONY: clean
 clean: ## Delete intermediate build artifacts
@@ -27,42 +33,37 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: generate-proto generate-license ## Regenerate code and license headers
-
-.PHONY: generate-license
-generate-license: $(BIN)/license-header format-python ## Format code and regenerate license headers
-	$(BIN)/license-header \
-		--license-type apache \
-		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "$(COPYRIGHT_YEARS)" $(LICENSE_IGNORE)
-
-.PHONY: generate-proto
-generate-proto: $(BIN)/buf ## Regenerate code from proto files
+generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
+	$(LICENSE_HEADER) --ignore __init__.py
 
-.PHONY: format  ## Format all code
-format: generate-license
-
-.PHONY: format-python
-format-python: install  ## Format all code according to isort and black
-	python3 -m isort protovalidate tests
-	python3 -m black protovalidate tests
+.PHONY: format
+format: install $(BIN)/license-header ## Format code
+	$(LICENSE_HEADER)
+	pipenv run black protovalidate tests
+	pipenv run ruff --fix protovalidate tests
 
 .PHONY: test
-test: generate install ## Run all unit tests
+test: $(BIN)/protovalidate-conformance generate install ## Run unit tests
 	pipenv run pytest
 
 .PHONY: conformance
-conformance: $(BIN)/protovalidate-conformance install
-	$(BIN)/protovalidate-conformance $(ARGS) pipenv -- run python3 -m tests.conformance.runner
+conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
+	$(BIN)/protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run $(PYTHON) -m tests.conformance.runner
+
+.PHONY: lint
+lint: install ## Lint code
+	pipenv run black --check --diff protovalidate tests
+	pipenv run mypy protovalidate
+	pipenv run ruff protovalidate tests
+	pipenv verify
 
 .PHONY: install
-install:
-	python3 -m pip install --upgrade pip
-	pip install pipenv ruff mypy types-protobuf black isort
-	pipenv --python python3 install
+install: ## Install dependencies
+	$(PYTHON) -m pip install --upgrade pip pipenv
+	pipenv --python $(PYTHON) sync --dev
 
 .PHONY: checkgenerate
 checkgenerate: generate
