@@ -13,9 +13,8 @@
 # limitations under the License.
 from _decimal import Decimal
 
-from celpy import celtypes
-import celpy
-
+import celpy  # type: ignore
+from celpy import celtypes  # type: ignore
 
 QUOTE_TRANS = str.maketrans(
     {
