@@ -19,6 +19,7 @@ LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "$(COPYRIGHT_YEARS)"
+PROTOVALIDATE_VERSION ?= v0.2.0
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -35,8 +36,8 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
 	$(LICENSE_HEADER) --ignore __init__.py
 
 .PHONY: format
@@ -82,4 +83,4 @@ $(BIN)/license-header: $(BIN) Makefile
 
 $(BIN)/protovalidate-conformance: $(BIN) Makefile
 	GOBIN=$(abspath $(BIN)) $(GO) install \
-    	github.com/bufbuild/protovalidate/tools/protovalidate-conformance@latest
+    	github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)
