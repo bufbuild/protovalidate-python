@@ -28,7 +28,7 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?buf/validate/conformance/cases/yet_another_package/embed2.proto\x12\x32\x62uf.validate.conformance.cases.yet_another_package\x1a\x1b\x62uf/validate/validate.proto\"c\n\x05\x45mbed\x12\x1a\n\x03val\x18\x01 \x01(\x03\x42\x08\xfa\xf7\x18\x04\"\x02 \x00R\x03val\">\n\nEnumerated\x12\x1a\n\x16\x45NUMERATED_UNSPECIFIED\x10\x00\x12\x14\n\x10\x45NUMERATED_VALUE\x10\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n?buf/validate/conformance/cases/yet_another_package/embed2.proto\x12\x32\x62uf.validate.conformance.cases.yet_another_package\x1a\x1b\x62uf/validate/validate.proto\"b\n\x05\x45mbed\x12\x19\n\x03val\x18\x01 \x01(\x03\x42\x07\xbaH\x04\"\x02 \x00R\x03val\">\n\nEnumerated\x12\x1a\n\x16\x45NUMERATED_UNSPECIFIED\x10\x00\x12\x14\n\x10\x45NUMERATED_VALUE\x10\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,9 +37,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _EMBED.fields_by_name['val']._options = None
-  _EMBED.fields_by_name['val']._serialized_options = b'\372\367\030\004\"\002 \000'
+  _EMBED.fields_by_name['val']._serialized_options = b'\272H\004\"\002 \000'
   _globals['_EMBED']._serialized_start=148
-  _globals['_EMBED']._serialized_end=247
-  _globals['_EMBED_ENUMERATED']._serialized_start=185
-  _globals['_EMBED_ENUMERATED']._serialized_end=247
+  _globals['_EMBED']._serialized_end=246
+  _globals['_EMBED_ENUMERATED']._serialized_start=184
+  _globals['_EMBED_ENUMERATED']._serialized_end=246
 # @@protoc_insertion_point(module_scope)
