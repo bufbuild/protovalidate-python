@@ -238,7 +238,7 @@ class ConstraintContext:
 
 
 class ConstraintRules:
-    """The constrains associated with a single 'rules' message."""
+    """The constraints associated with a single 'rules' message."""
 
     def validate(self, ctx: ConstraintContext, message: message.Message):  # noqa: ARG002
         """Validate the message against the rules in this constraint."""
