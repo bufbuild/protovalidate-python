@@ -83,11 +83,10 @@ transaction.price = "$5.67"
 transaction.purchase_date.CopyFrom(Timestamp())
 transaction.delivery_date.CopyFrom(Timestamp())
 
-result = protovalidate.validate(transaction)
-if (len(result.violations) > 0) :
+try:
+  protovalidate.validate(transaction)
+except protovalidate.ValidationError as e:
   # Report the violations
-else:
-  # Process the transaction
 ```
 
 ### Ecosystem
