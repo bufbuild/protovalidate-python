@@ -39,7 +39,7 @@ jobs:
           path: dist/
 
   publish:
-    name: Publish on TestPyPi
+    name: Publish on PyPi
     runs-on: ubuntu-latest
     environment:
       name: release
