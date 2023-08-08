@@ -82,11 +82,6 @@ message Transaction {
 
 ### Generating Code
 
-Sure! The content looks clear, but I'll add a bit more detail to ensure understanding and make the section more
-comprehensive:
-
-### Generating Code
-
 Both `buf` and `protoc` provide valuable utilities for working with protovalidate. While `buf` offers modern features
 and easier integration with various platforms, `protoc` remains a versatile tool for direct code generation.
 Experimenting with both will help you determine which is best suited to your project.
