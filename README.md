@@ -119,7 +119,7 @@ linting, and code generation. Here are the steps:
    ```
 
 4. **Define a Local Plugin Template**: The `buf.gen.yaml` file is used to define how code will be generated for specific
-   languages. This file is typically placed next to the `buf.work.yaml` file.
+   languages. 
 
    ```yaml
    # buf.gen.yaml
