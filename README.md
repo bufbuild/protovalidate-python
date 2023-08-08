@@ -185,11 +185,7 @@ except protovalidate.ValidationError as e:
 Offered under the [Apache 2 license][license].
 
 [license]: LICENSE
-
 [buf]: https://buf.build
-
 [buf-mod]: https://buf.build/bufbuild/protovalidate
-
 [cel-go]: https://github.com/google/cel-go
-
 [cel-spec]: https://github.com/google/cel-spec
