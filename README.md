@@ -135,7 +135,7 @@ linting, and code generation. Here are the steps:
    language(s) specified in the `buf.gen.yaml` file.
 
    ```shell
-   buf generate 
+   buf generate --include-imports
    ```
 
 #### `protoc`
