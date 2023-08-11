@@ -80,80 +80,50 @@ message Transaction {
 }
 ```
 
-### Generating Code
+### Generating Code with `buf`
 
-Both `buf` and `protoc` provide valuable utilities for working with protovalidate. While `buf` offers modern features
-and easier integration with various platforms, `protoc` remains a versatile tool for direct code generation.
-Experimenting with both will help you determine which is best suited to your project.
+When using the runtime library after installing it with `pip`, it's necessary to generate the Python code for the core `buf.protovalidate` Protobuf package. `buf` provides an efficient method for this:
 
-#### `buf`
-
-The `buf` tool facilitates the process of working with protobuf by providing functionality like initialization,
-linting, and code generation. Here are the steps:
-
-1. **Initialize a New Configuration File**: To start a new project, initialize the `buf.yaml` configuration file. This
-   file will define the behavior of the `buf` tool for your project.
-
+1. **Initialize a New Configuration File**: 
    ```shell
    buf mod init
    ```
+   This initializes the `buf.yaml` configuration file at the root of the Protobuf source files.
 
-2. **Define the Module Configuration**: The `buf.yaml` file defines a module and is placed at the root of the Protobuf
-   source files. This file includes lint rules, breaking change detection rules, module name, and dependencies. Here's
-   an example of what a typical `buf.yaml` file might look like:
-
+2. **Module Configuration and Dependencies**:
    ```yaml
    # buf.yaml
    version: v1
-   # <snip>
    deps: 
      - buf.build/bufbuild/protovalidate
-   # <snip>
    ```
 
-3. **Update Module Dependencies**: You can update a module's dependencies using the `buf.lock` file, which keeps track
-   of the specific versions of dependencies used in the project.
-
+   Ensure your dependencies are up-to-date with:
    ```shell
    buf mod update
    ```
 
-4. **Define a Local Plugin Template**: The `buf.gen.yaml` file is used to define how code will be generated for specific
-   languages. 
-
+3. **Setup Code Generation**:
    ```yaml
    # buf.gen.yaml
    version: v1
-   # <snip>
    plugins:
      - plugin: buf.build/protocolbuffers/python:v23.4
        out: gen
-   # <snip>
    ```
 
-5. **Generate Code**: Finally, you can generate code using the defined plugins. This command will generate code for the
-   language(s) specified in the `buf.gen.yaml` file.
-
+4. **Generate Code**:
+   To generate the required Python code:
    ```shell
    buf generate --include-imports
    ```
 
-#### `protoc`
-
-`protoc` is an alternative to `buf`. It's a command-line utility that you can use to generate code for various
-programming languages from `.proto` files. Here's an example command that generates Python code:
-
+If your goal is to generate code specifically for the `buf.protovalidate` Protobuf package, run:
 ```shell
-protoc \
-  -I . \
-  -I path/to/validate/ \
-  --python_out=":./gen" \
-  transaction.proto
+buf generate buf.build/bufbuild/protovalidate
 ```
 
-This command tells `protoc` to include the current directory (`-I .`) and the path to validation
-rules (`-I path/to/validate/`) while generating code for the `transaction.proto` file. The generated code will be placed
-in the `./gen` directory.
+> **Note:** For users familiar with `protoc`, while it's an alternative to `buf`, it is recommended to use tooling or frameworks like Bazel for direct code generation, as it provides an encapsulated environment for such tasks.
 
 ### Example
 
