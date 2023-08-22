@@ -109,7 +109,7 @@ class FieldConstraints(_message.Message):
     def __init__(self, cel: _Optional[_Iterable[_Union[_expression_pb2.Constraint, _Mapping]]] = ..., skipped: bool = ..., required: bool = ..., ignore_empty: bool = ..., float: _Optional[_Union[FloatRules, _Mapping]] = ..., double: _Optional[_Union[DoubleRules, _Mapping]] = ..., int32: _Optional[_Union[Int32Rules, _Mapping]] = ..., int64: _Optional[_Union[Int64Rules, _Mapping]] = ..., uint32: _Optional[_Union[UInt32Rules, _Mapping]] = ..., uint64: _Optional[_Union[UInt64Rules, _Mapping]] = ..., sint32: _Optional[_Union[SInt32Rules, _Mapping]] = ..., sint64: _Optional[_Union[SInt64Rules, _Mapping]] = ..., fixed32: _Optional[_Union[Fixed32Rules, _Mapping]] = ..., fixed64: _Optional[_Union[Fixed64Rules, _Mapping]] = ..., sfixed32: _Optional[_Union[SFixed32Rules, _Mapping]] = ..., sfixed64: _Optional[_Union[SFixed64Rules, _Mapping]] = ..., bool: _Optional[_Union[BoolRules, _Mapping]] = ..., string: _Optional[_Union[StringRules, _Mapping]] = ..., bytes: _Optional[_Union[BytesRules, _Mapping]] = ..., enum: _Optional[_Union[EnumRules, _Mapping]] = ..., repeated: _Optional[_Union[RepeatedRules, _Mapping]] = ..., map: _Optional[_Union[MapRules, _Mapping]] = ..., any: _Optional[_Union[AnyRules, _Mapping]] = ..., duration: _Optional[_Union[DurationRules, _Mapping]] = ..., timestamp: _Optional[_Union[TimestampRules, _Mapping]] = ...) -> None: ...
 
 class FloatRules(_message.Message):
-    __slots__ = ["const", "lt", "lte", "gt", "gte", "not_in"]
+    __slots__ = ["const", "lt", "lte", "gt", "gte", "not_in", "finite"]
     CONST_FIELD_NUMBER: _ClassVar[int]
     LT_FIELD_NUMBER: _ClassVar[int]
     LTE_FIELD_NUMBER: _ClassVar[int]
@@ -117,16 +117,18 @@ class FloatRules(_message.Message):
     GTE_FIELD_NUMBER: _ClassVar[int]
     IN_FIELD_NUMBER: _ClassVar[int]
     NOT_IN_FIELD_NUMBER: _ClassVar[int]
+    FINITE_FIELD_NUMBER: _ClassVar[int]
     const: float
     lt: float
     lte: float
     gt: float
     gte: float
     not_in: _containers.RepeatedScalarFieldContainer[float]
-    def __init__(self, const: _Optional[float] = ..., lt: _Optional[float] = ..., lte: _Optional[float] = ..., gt: _Optional[float] = ..., gte: _Optional[float] = ..., not_in: _Optional[_Iterable[float]] = ..., **kwargs) -> None: ...
+    finite: bool
+    def __init__(self, const: _Optional[float] = ..., lt: _Optional[float] = ..., lte: _Optional[float] = ..., gt: _Optional[float] = ..., gte: _Optional[float] = ..., not_in: _Optional[_Iterable[float]] = ..., finite: bool = ..., **kwargs) -> None: ...
 
 class DoubleRules(_message.Message):
-    __slots__ = ["const", "lt", "lte", "gt", "gte", "not_in"]
+    __slots__ = ["const", "lt", "lte", "gt", "gte", "not_in", "finite"]
     CONST_FIELD_NUMBER: _ClassVar[int]
     LT_FIELD_NUMBER: _ClassVar[int]
     LTE_FIELD_NUMBER: _ClassVar[int]
@@ -134,13 +136,15 @@ class DoubleRules(_message.Message):
     GTE_FIELD_NUMBER: _ClassVar[int]
     IN_FIELD_NUMBER: _ClassVar[int]
     NOT_IN_FIELD_NUMBER: _ClassVar[int]
+    FINITE_FIELD_NUMBER: _ClassVar[int]
     const: float
     lt: float
     lte: float
     gt: float
     gte: float
     not_in: _containers.RepeatedScalarFieldContainer[float]
-    def __init__(self, const: _Optional[float] = ..., lt: _Optional[float] = ..., lte: _Optional[float] = ..., gt: _Optional[float] = ..., gte: _Optional[float] = ..., not_in: _Optional[_Iterable[float]] = ..., **kwargs) -> None: ...
+    finite: bool
+    def __init__(self, const: _Optional[float] = ..., lt: _Optional[float] = ..., lte: _Optional[float] = ..., gt: _Optional[float] = ..., gte: _Optional[float] = ..., not_in: _Optional[_Iterable[float]] = ..., finite: bool = ..., **kwargs) -> None: ...
 
 class Int32Rules(_message.Message):
     __slots__ = ["const", "lt", "lte", "gt", "gte", "not_in"]
@@ -460,21 +464,21 @@ class DurationRules(_message.Message):
     def __init__(self, const: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., lt: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., lte: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., gt: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., gte: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., not_in: _Optional[_Iterable[_Union[_duration_pb2.Duration, _Mapping]]] = ..., **kwargs) -> None: ...
 
 class TimestampRules(_message.Message):
-    __slots__ = ["const", "lt", "lte", "gt", "gte", "lt_now", "gt_now", "within"]
+    __slots__ = ["const", "lt", "lte", "lt_now", "gt", "gte", "gt_now", "within"]
     CONST_FIELD_NUMBER: _ClassVar[int]
     LT_FIELD_NUMBER: _ClassVar[int]
     LTE_FIELD_NUMBER: _ClassVar[int]
+    LT_NOW_FIELD_NUMBER: _ClassVar[int]
     GT_FIELD_NUMBER: _ClassVar[int]
     GTE_FIELD_NUMBER: _ClassVar[int]
-    LT_NOW_FIELD_NUMBER: _ClassVar[int]
     GT_NOW_FIELD_NUMBER: _ClassVar[int]
     WITHIN_FIELD_NUMBER: _ClassVar[int]
     const: _timestamp_pb2.Timestamp
     lt: _timestamp_pb2.Timestamp
     lte: _timestamp_pb2.Timestamp
+    lt_now: bool
     gt: _timestamp_pb2.Timestamp
     gte: _timestamp_pb2.Timestamp
-    lt_now: bool
     gt_now: bool
     within: _duration_pb2.Duration
-    def __init__(self, const: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt_now: bool = ..., gt_now: bool = ..., within: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+    def __init__(self, const: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt_now: bool = ..., gt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gt_now: bool = ..., within: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...

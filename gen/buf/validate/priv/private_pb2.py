@@ -28,7 +28,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import descriptor_pb2 as google_dot_protobuf_dot_descriptor__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x62uf/validate/priv/private.proto\x12\x11\x62uf.validate.priv\x1a google/protobuf/descriptor.proto\"C\n\x10\x46ieldConstraints\x12/\n\x03\x63\x65l\x18\x01 \x03(\x0b\x32\x1d.buf.validate.priv.ConstraintR\x03\x63\x65l\"V\n\nConstraint\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n\x07message\x18\x02 \x01(\tR\x07message\x12\x1e\n\nexpression\x18\x03 \x01(\tR\nexpression:\\\n\x05\x66ield\x12\x1d.google.protobuf.FieldOptions\x18\x88\t \x01(\x0b\x32#.buf.validate.priv.FieldConstraintsR\x05\x66ield\x88\x01\x01\x42NZLbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate/privb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x62uf/validate/priv/private.proto\x12\x11\x62uf.validate.priv\x1a google/protobuf/descriptor.proto\"C\n\x10\x46ieldConstraints\x12/\n\x03\x63\x65l\x18\x01 \x03(\x0b\x32\x1d.buf.validate.priv.ConstraintR\x03\x63\x65l\"V\n\nConstraint\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n\x07message\x18\x02 \x01(\tR\x07message\x12\x1e\n\nexpression\x18\x03 \x01(\tR\nexpression:\\\n\x05\x66ield\x12\x1d.google.protobuf.FieldOptions\x18\x88\t \x01(\x0b\x32#.buf.validate.priv.FieldConstraintsR\x05\x66ield\x88\x01\x01\x42w\n\x17\x62uild.buf.validate.privB\x0cPrivateProtoP\x01ZLbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate/privb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,7 +37,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   google_dot_protobuf_dot_descriptor__pb2.FieldOptions.RegisterExtension(field)
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'ZLbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate/priv'
+  DESCRIPTOR._serialized_options = b'\n\027build.buf.validate.privB\014PrivateProtoP\001ZLbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate/priv'
   _globals['_FIELDCONSTRAINTS']._serialized_start=88
   _globals['_FIELDCONSTRAINTS']._serialized_end=155
   _globals['_CONSTRAINT']._serialized_start=157
