@@ -19,7 +19,7 @@ LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "$(COPYRIGHT_YEARS)"
-PROTOVALIDATE_VERSION ?= v0.2.2
+PROTOVALIDATE_VERSION ?= v0.3.1
 
 .PHONY: help
 help: ## Describe useful make targets
