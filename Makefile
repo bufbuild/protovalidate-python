@@ -19,7 +19,7 @@ LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "$(COPYRIGHT_YEARS)"
-PROTOVALIDATE_VERSION ?= v0.2.2
+PROTOVALIDATE_VERSION ?= v0.3.1
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -60,6 +60,12 @@ lint: install ## Lint code
 	pipenv run mypy protovalidate
 	pipenv run ruff protovalidate tests
 	pipenv verify
+
+.PHONY: lint-fix
+lint-fix: install ## Lint code
+	pipenv run black protovalidate tests
+	pipenv run ruff --fix protovalidate tests
+
 
 .PHONY: install
 install: ## Install dependencies

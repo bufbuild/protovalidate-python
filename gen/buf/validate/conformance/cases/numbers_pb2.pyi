@@ -91,6 +91,12 @@ class FloatExGTELTE(_message.Message):
     val: float
     def __init__(self, val: _Optional[float] = ...) -> None: ...
 
+class FloatFinite(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: float
+    def __init__(self, val: _Optional[float] = ...) -> None: ...
+
 class FloatIgnore(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -170,6 +176,12 @@ class DoubleGTELTE(_message.Message):
     def __init__(self, val: _Optional[float] = ...) -> None: ...
 
 class DoubleExGTELTE(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: float
+    def __init__(self, val: _Optional[float] = ...) -> None: ...
+
+class DoubleFinite(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: float
