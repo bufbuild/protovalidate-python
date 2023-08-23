@@ -393,11 +393,11 @@
         },
         "types-protobuf": {
             "hashes": [
-                "sha256:035bd85066828d21f12ba42bfe941089b2b59a7d8ca64708696d63f8b4850e89",
-                "sha256:772ed02906d456d71711d34c3c036b2137fd99a562a883da6d9aa232be0da357"
+                "sha256:90adea3b693d6a40d8ef075c58fe6b5cc6e01fe1496301a7e6fc70398dcff92e",
+                "sha256:df203a204e4ae97d4cca4c9cf725262579dd7857a19f9e7fc74871ccfa073c01"
             ],
             "index": "pypi",
-            "version": "==4.23.0.3"
+            "version": "==4.24.0.1"
         },
         "typing-extensions": {
             "hashes": [
