@@ -23,10 +23,8 @@ class TestValidate(unittest.TestCase):
         msg = numbers_pb2.DoubleFinite()
         msg.val = float("-inf")
         violations = protovalidate.collect_violations(msg)
-        # TODO: update celpy to support divide by zero (which returns inf or -inf)
-        self.assertEqual(len(violations.violations), 0)
-        # self.assertEqual(len(violations.violations), 1)
-        # self.assertEqual(violations.violations[0].constraint_id, "double.finite")
+        self.assertEqual(len(violations.violations), 1)
+        self.assertEqual(violations.violations[0].constraint_id, "double.finite")
 
     def test_map_key(self):
         msg = maps_pb2.MapKeys()
