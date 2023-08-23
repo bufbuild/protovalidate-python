@@ -207,12 +207,13 @@ class ConstraintContext:
     def violations(self) -> expression_pb2.Violations:
         return self._violations
 
-    def add(self, field_name: str, constraint_id: str, message: str):
+    def add(self, field_name: str, constraint_id: str, message: str, *, for_key: bool = False):
         self._violations.violations.append(
             expression_pb2.Violation(
                 field_path=field_name,
                 constraint_id=constraint_id,
                 message=message,
+                for_key=for_key,
             )
         )
 
@@ -256,17 +257,19 @@ class CelConstraintRules(ConstraintRules):
         if rules is not None:
             self._rules_cel = _msg_to_cel(rules)
 
-    def _validate_cel(self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any]):
+    def _validate_cel(
+        self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any], *, for_key: bool = False
+    ):
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
         for runner, constraint in self._runners:
             result = runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
                 if not result:
-                    ctx.add(field_name, constraint.id, constraint.message)
+                    ctx.add(field_name, constraint.id, constraint.message, for_key=for_key)
             elif isinstance(result, celtypes.StringType):
                 if result:
-                    ctx.add(field_name, constraint.id, result)
+                    ctx.add(field_name, constraint.id, result, for_key=for_key)
             elif isinstance(result, Exception):
                 raise result
 
@@ -350,11 +353,11 @@ class FieldConstraintRules(CelConstraintRules):
         self._validate_value(ctx, self._field.name, val)
         self._validate_cel(ctx, self._field.name, {"this": _field_value_to_cel(val, self._field)})
 
-    def validate_item(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
-        self._validate_value(ctx, field_path, val)
-        self._validate_cel(ctx, field_path, {"this": _scalar_field_value_to_cel(val, self._field)})
+    def validate_item(self, ctx: ConstraintContext, field_path: str, val: typing.Any, *, for_key: bool = False):
+        self._validate_value(ctx, field_path, val, for_key=for_key)
+        self._validate_cel(ctx, field_path, {"this": _scalar_field_value_to_cel(val, self._field)}, for_key=for_key)
 
-    def _validate_value(self, ctx: ConstraintContext, field_path: str, val: typing.Any):
+    def _validate_value(self, ctx: ConstraintContext, field_path: str, val: typing.Any, *, for_key: bool = False):
         pass
 
 
@@ -377,19 +380,21 @@ class AnyConstraintRules(FieldConstraintRules):
         if field_level.any.not_in:
             self._not_in = field_level.any.not_in
 
-    def _validate_value(self, ctx: ConstraintContext, field_path: str, value: any_pb2.Any):
+    def _validate_value(self, ctx: ConstraintContext, field_path: str, value: any_pb2.Any, *, for_key: bool = False):
         if len(self._in) > 0:
             if value.type_url not in self._in:
                 ctx.add(
                     field_path,
                     "any.in",
                     "type URL must be in the allow list",
+                    for_key=for_key,
                 )
         if value.type_url in self._not_in:
             ctx.add(
                 field_path,
                 "any.not_in",
                 "type URL must not be in the block list",
+                for_key=for_key,
             )
 
 
@@ -485,7 +490,7 @@ class MapConstraintRules(FieldConstraintRules):
         for k, v in value.items():
             key_field_path = make_key_path(self._field.name, k)
             if self._key_rules is not None:
-                self._key_rules.validate_item(ctx, key_field_path, k)
+                self._key_rules.validate_item(ctx, key_field_path, k, for_key=True)
             if self._value_rules is not None:
                 self._value_rules.validate_item(ctx, key_field_path, v)
 

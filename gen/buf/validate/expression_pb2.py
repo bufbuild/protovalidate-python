@@ -27,7 +27,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1d\x62uf/validate/expression.proto\x12\x0c\x62uf.validate\"V\n\nConstraint\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n\x07message\x18\x02 \x01(\tR\x07message\x12\x1e\n\nexpression\x18\x03 \x01(\tR\nexpression\"E\n\nViolations\x12\x37\n\nviolations\x18\x01 \x03(\x0b\x32\x17.buf.validate.ViolationR\nviolations\"i\n\tViolation\x12\x1d\n\nfield_path\x18\x01 \x01(\tR\tfieldPath\x12#\n\rconstraint_id\x18\x02 \x01(\tR\x0c\x63onstraintId\x12\x18\n\x07message\x18\x03 \x01(\tR\x07messageBIZGbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validateb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1d\x62uf/validate/expression.proto\x12\x0c\x62uf.validate\"V\n\nConstraint\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n\x07message\x18\x02 \x01(\tR\x07message\x12\x1e\n\nexpression\x18\x03 \x01(\tR\nexpression\"E\n\nViolations\x12\x37\n\nviolations\x18\x01 \x03(\x0b\x32\x17.buf.validate.ViolationR\nviolations\"\x82\x01\n\tViolation\x12\x1d\n\nfield_path\x18\x01 \x01(\tR\tfieldPath\x12#\n\rconstraint_id\x18\x02 \x01(\tR\x0c\x63onstraintId\x12\x18\n\x07message\x18\x03 \x01(\tR\x07message\x12\x17\n\x07\x66or_key\x18\x04 \x01(\x08R\x06\x66orKeyBp\n\x12\x62uild.buf.validateB\x0f\x45xpressionProtoP\x01ZGbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validateb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,11 +35,11 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'buf.validate.expression_pb2
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'ZGbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate'
+  DESCRIPTOR._serialized_options = b'\n\022build.buf.validateB\017ExpressionProtoP\001ZGbuf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate'
   _globals['_CONSTRAINT']._serialized_start=47
   _globals['_CONSTRAINT']._serialized_end=133
   _globals['_VIOLATIONS']._serialized_start=135
   _globals['_VIOLATIONS']._serialized_end=204
-  _globals['_VIOLATION']._serialized_start=206
-  _globals['_VIOLATION']._serialized_end=311
+  _globals['_VIOLATION']._serialized_start=207
+  _globals['_VIOLATION']._serialized_end=337
 # @@protoc_insertion_point(module_scope)

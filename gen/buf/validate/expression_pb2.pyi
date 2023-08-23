@@ -36,11 +36,13 @@ class Violations(_message.Message):
     def __init__(self, violations: _Optional[_Iterable[_Union[Violation, _Mapping]]] = ...) -> None: ...
 
 class Violation(_message.Message):
-    __slots__ = ["field_path", "constraint_id", "message"]
+    __slots__ = ["field_path", "constraint_id", "message", "for_key"]
     FIELD_PATH_FIELD_NUMBER: _ClassVar[int]
     CONSTRAINT_ID_FIELD_NUMBER: _ClassVar[int]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    FOR_KEY_FIELD_NUMBER: _ClassVar[int]
     field_path: str
     constraint_id: str
     message: str
-    def __init__(self, field_path: _Optional[str] = ..., constraint_id: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
+    for_key: bool
+    def __init__(self, field_path: _Optional[str] = ..., constraint_id: _Optional[str] = ..., message: _Optional[str] = ..., for_key: bool = ...) -> None: ...
