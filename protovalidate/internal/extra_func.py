@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 from ipaddress import IPv4Address, IPv6Address, ip_address
 from urllib import parse as urlparse
 
@@ -105,6 +106,31 @@ def is_hostname(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(_validate_hostname(string))
 
 
+def is_nan(val: celtypes.Value) -> celpy.Result:
+    if not isinstance(val, celtypes.DoubleType):
+        msg = "invalid argument, expected double"
+        raise celpy.EvalError(msg)
+    return celtypes.BoolType(math.isnan(val))
+
+
+def is_inf(val: celtypes.Value, sign: None | celtypes.Value = None) -> celpy.Result:
+    if not isinstance(val, celtypes.DoubleType):
+        msg = "invalid argument, expected double"
+        raise celpy.EvalError(msg)
+    if sign is None:
+        return celtypes.BoolType(math.isinf(val))
+
+    if not isinstance(sign, celtypes.IntType):
+        msg = "invalid argument, expected int"
+        raise celpy.EvalError(msg)
+    if sign > 0:
+        return celtypes.BoolType(math.isinf(val) and val > 0)
+    elif sign < 0:
+        return celtypes.BoolType(math.isinf(val) and val < 0)
+    else:
+        return celtypes.BoolType(math.isinf(val))
+
+
 def unique(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.ListType):
         msg = "invalid argument, expected list"
@@ -115,7 +141,11 @@ def unique(val: celtypes.Value) -> celpy.Result:
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     string_fmt = string_format.StringFormat(locale)
     return {
+        # Missing standard functions
         "format": string_fmt.format,
+        # protovalidate specific functions
+        "isNan": is_nan,
+        "isInf": is_inf,
         "isIp": is_ip,
         "isEmail": is_email,
         "isUri": is_uri,
