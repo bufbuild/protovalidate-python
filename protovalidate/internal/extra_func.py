@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 from ipaddress import IPv4Address, IPv6Address, ip_address
 from urllib import parse as urlparse
 
@@ -105,6 +106,20 @@ def is_hostname(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(_validate_hostname(string))
 
 
+def is_nan(val: celtypes.Value) -> celpy.Result:
+    if not isinstance(val, (celtypes.DoubleType, celtypes.FloatType)):
+        msg = "invalid argument, expected double or float"
+        raise celpy.EvalError(msg)
+    return celtypes.BoolType(math.isnan(val))
+
+
+def is_inf(val: celtypes.Value) -> celpy.Result:
+    if not isinstance(val, (celtypes.DoubleType, celtypes.FloatType)):
+        msg = "invalid argument, expected double or float"
+        raise celpy.EvalError(msg)
+    return celtypes.BoolType(math.isinf(val))
+
+
 def unique(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.ListType):
         msg = "invalid argument, expected list"
@@ -115,7 +130,18 @@ def unique(val: celtypes.Value) -> celpy.Result:
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     string_fmt = string_format.StringFormat(locale)
     return {
+        # Missing standard functions
         "format": string_fmt.format,
+        # protovalidate specific functions
+        "buf.validate.isNan": is_nan,
+        "buf.validate.isInf": is_inf,
+        "buf.validate.isIp": is_ip,
+        "buf.validate.isEmail": is_email,
+        "buf.validate.isUri": is_uri,
+        "buf.validate.isUriRef": is_uri_ref,
+        "buf.validate.isHostname": is_hostname,
+        "buf.validate.unique": unique,
+        # Deprecated unqualified protovalidate specific functions
         "isIp": is_ip,
         "isEmail": is_email,
         "isUri": is_uri,
