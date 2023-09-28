@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import math
-from ipaddress import IPv4Address, IPv6Address, ip_address
+from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
 
 import celpy  # type: ignore
@@ -70,6 +70,40 @@ def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.R
             IPv4Address(val)
         elif version == 6:
             IPv6Address(val)
+        else:
+            msg = "invalid argument, expected 4 or 6"
+            raise celpy.EvalError(msg)
+        return celtypes.BoolType(True)
+    except ValueError:
+        return celtypes.BoolType(False)
+
+
+def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
+    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
+        msg = "invalid argument, expected string or bytes"
+        raise celpy.EvalError(msg)
+    version = None
+    strict = celtypes.BoolType(False)
+    if len(args) == 1 and isinstance(args[0], celtypes.BoolType):
+        strict = args[0]
+    elif len(args) == 1 and isinstance(args[0], celtypes.IntType):
+        version = args[0]
+    elif len(args) == 1 and (not isinstance(args[0], celtypes.BoolType) or not isinstance(args[0], celtypes.IntType)):
+        msg = "invalid argument, expected bool or int"
+        raise celpy.EvalError(msg)
+    elif len(args) == 2 and isinstance(args[0], celtypes.IntType) and isinstance(args[1], celtypes.BoolType):
+        version = args[0]
+        strict = args[1]
+    elif len(args) == 2 and (not isinstance(args[0], celtypes.IntType) or not isinstance(args[1], celtypes.BoolType)):
+        msg = "invalid argument, expected int and bool"
+        raise celpy.EvalError(msg)
+    try:
+        if version is None:
+            ip_network(val, strict=strict)
+        elif version == 4:
+            IPv4Network(val, strict=strict)
+        elif version == 6:
+            IPv6Network(val, strict=strict)
         else:
             msg = "invalid argument, expected 4 or 6"
             raise celpy.EvalError(msg)
@@ -147,6 +181,7 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         "isNan": is_nan,
         "isInf": is_inf,
         "isIp": is_ip,
+        "isIpPrefix": is_ip_prefix,
         "isEmail": is_email,
         "isUri": is_uri,
         "isUriRef": is_uri_ref,
