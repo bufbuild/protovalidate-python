@@ -464,7 +464,7 @@ class DurationRules(_message.Message):
     def __init__(self, const: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., lt: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., lte: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., gt: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., gte: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., not_in: _Optional[_Iterable[_Union[_duration_pb2.Duration, _Mapping]]] = ..., **kwargs) -> None: ...
 
 class TimestampRules(_message.Message):
-    __slots__ = ["const", "lt", "lte", "lt_now", "gt", "gte", "gt_now", "within"]
+    __slots__ = ["const", "lt", "lte", "lt_now", "gt", "gte", "gt_now", "within", "valid"]
     CONST_FIELD_NUMBER: _ClassVar[int]
     LT_FIELD_NUMBER: _ClassVar[int]
     LTE_FIELD_NUMBER: _ClassVar[int]
@@ -473,6 +473,7 @@ class TimestampRules(_message.Message):
     GTE_FIELD_NUMBER: _ClassVar[int]
     GT_NOW_FIELD_NUMBER: _ClassVar[int]
     WITHIN_FIELD_NUMBER: _ClassVar[int]
+    VALID_FIELD_NUMBER: _ClassVar[int]
     const: _timestamp_pb2.Timestamp
     lt: _timestamp_pb2.Timestamp
     lte: _timestamp_pb2.Timestamp
@@ -481,4 +482,5 @@ class TimestampRules(_message.Message):
     gte: _timestamp_pb2.Timestamp
     gt_now: bool
     within: _duration_pb2.Duration
-    def __init__(self, const: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt_now: bool = ..., gt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gt_now: bool = ..., within: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+    valid: bool
+    def __init__(self, const: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt_now: bool = ..., gt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gt_now: bool = ..., within: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., valid: bool = ...) -> None: ...

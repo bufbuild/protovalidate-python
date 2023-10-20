@@ -17,11 +17,14 @@ import typing
 
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
-from google.protobuf import any_pb2, descriptor, message
+from google.protobuf import any_pb2, descriptor, message, timestamp_pb2
 
 from buf.validate import expression_pb2, validate_pb2  # type: ignore
 from buf.validate.priv import private_pb2  # type: ignore
 from protovalidate.internal import string_format
+
+_MAX_TIMESTAMP = +253402300799
+_MIN_TIMESTAMP = -62135596800
 
 
 class CompilationError(Exception):
@@ -40,7 +43,21 @@ def make_duration(msg: message.Message) -> celtypes.DurationType:
 
 
 def make_timestamp(msg: message.Message) -> celtypes.TimestampType:
-    return make_duration(msg) + celtypes.TimestampType(1970, 1, 1)
+    # clipping seconds and nanos to prevent OverflowError
+    seconds = msg.seconds  # type: ignore
+    if seconds > _MAX_TIMESTAMP:
+        seconds = _MAX_TIMESTAMP
+    elif seconds < _MIN_TIMESTAMP:
+        seconds = _MIN_TIMESTAMP
+    nanos = msg.nanos  # type: ignore
+    if nanos >= 1e9:
+        nanos = 1e9 - 1
+    elif nanos < 0:
+        nanos = 0
+    return celtypes.TimestampType(
+        datetime.datetime(1970, 1, 1, tzinfo=datetime.UTC)
+        + datetime.timedelta(seconds=seconds, microseconds=nanos // 1000)
+    )
 
 
 def unwrap(msg: message.Message) -> celtypes.Value:
@@ -516,6 +533,43 @@ class OneofConstraintRules(ConstraintRules):
             return
 
 
+class TimestampConstraintRules(FieldConstraintRules):
+    """Rules for a Timestamp field."""
+
+    _valid: bool = False
+
+    def __init__(
+        self,
+        env: celpy.Environment,
+        funcs: dict[str, celpy.CELFunction],
+        field: descriptor.FieldDescriptor,
+        field_level: validate_pb2.FieldConstraints,
+    ):
+        super().__init__(env, funcs, field, field_level)
+        if field_level.timestamp.valid:
+            self._valid = field_level.timestamp.valid
+
+    def _validate_value(
+        self, ctx: ConstraintContext, field_path: str, value: timestamp_pb2.Timestamp, *, for_key: bool = False
+    ):
+        if self._valid:
+            error_message = ""
+            if value.seconds < _MIN_TIMESTAMP:
+                error_message = "timestamp before 0001-01-01"
+            elif value.seconds > _MAX_TIMESTAMP:
+                error_message = "timestamp after 9999-12-31"
+            elif value.nanos < 0 or value.nanos >= 1e9:
+                error_message = "timestamp has out-of-range nanos"
+
+            if len(error_message) != 0:
+                ctx.add(
+                    field_path,
+                    "timestamp.valid",
+                    error_message,
+                    for_key=for_key,
+                )
+
+
 class ConstraintFactory:
     """Factory for creating and caching constraints."""
 
@@ -562,7 +616,7 @@ class ConstraintFactory:
             return result
         elif type_case == "timestamp":
             check_field_type(field, 0, "google.protobuf.Timestamp")
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = TimestampConstraintRules(self._env, self._funcs, field, field_level)
             return result
         elif type_case == "enum":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_ENUM)
