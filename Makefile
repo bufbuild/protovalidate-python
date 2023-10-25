@@ -7,18 +7,15 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
-COPYRIGHT_YEARS := 2023
-LICENSE_IGNORE :=
-LICENSE_HEADER_VERSION := 59c69fa4ddbd56c887cb178a03257cd3908ce518
-# Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
-GO ?= go
+export PATH := $(BIN):$(PATH)
+export GOBIN := $(abspath $(BIN))
 # Set to use a different Python interpreter. For example, `PYTHON=python make test`.
 PYTHON ?= python3
 CONFORMANCE_ARGS ?= --strict --expected_failures=tests/conformance/nonconforming.yaml
-LICENSE_HEADER := $(BIN)/license-header \
+ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "$(COPYRIGHT_YEARS)"
+		--year-range "2023"
 PROTOVALIDATE_VERSION ?= v0.4.2
 
 .PHONY: help
@@ -36,13 +33,13 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
-	$(LICENSE_HEADER) --ignore __init__.py
+	buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+	buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(ADD_LICENSE_HEADER) --ignore __init__.py
 
 .PHONY: format
 format: install $(BIN)/license-header ## Format code
-	$(LICENSE_HEADER)
+	$(ADD_LICENSE_HEADER)
 	pipenv run black protovalidate tests
 	pipenv run ruff --fix protovalidate tests
 
@@ -52,7 +49,7 @@ test: $(BIN)/protovalidate-conformance generate install ## Run unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
-	$(BIN)/protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run $(PYTHON) -m tests.conformance.runner
+	protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run $(PYTHON) -m tests.conformance.runner
 
 .PHONY: lint
 lint: install ## Lint code
@@ -65,7 +62,6 @@ lint: install ## Lint code
 lint-fix: install ## Lint code
 	pipenv run black protovalidate tests
 	pipenv run ruff --fix protovalidate tests
-
 
 .PHONY: install
 install: ## Install dependencies
@@ -81,12 +77,10 @@ $(BIN):
 	@mkdir -p $(BIN)
 
 $(BIN)/buf: $(BIN) Makefile
-	GOBIN=$(abspath $(@D)) $(GO) install github.com/bufbuild/buf/cmd/buf@latest
+	go install github.com/bufbuild/buf/cmd/buf@latest
 
 $(BIN)/license-header: $(BIN) Makefile
-	GOBIN=$(abspath $(@D)) $(GO) install \
-		  github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@$(LICENSE_HEADER_VERSION)
+	go install github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@latest
 
 $(BIN)/protovalidate-conformance: $(BIN) Makefile
-	GOBIN=$(abspath $(BIN)) $(GO) install \
-    	github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)
+	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)
