@@ -249,7 +249,7 @@ class ConstraintRules:
 class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
-    _runners: list[typing.Tuple[celpy.Runner, expression_pb2.Constraint | private_pb2.Constraint]]
+    _runners: list[tuple[celpy.Runner, expression_pb2.Constraint | private_pb2.Constraint]]
     _rules_cel: celtypes.Value = None
 
     def __init__(self, rules: message.Message | None):
@@ -261,7 +261,7 @@ class CelConstraintRules(ConstraintRules):
         self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any], *, for_key: bool = False
     ):
         activation["rules"] = self._rules_cel
-        activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
+        activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.UTC))
         for runner, constraint in self._runners:
             result = runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
@@ -364,8 +364,8 @@ class FieldConstraintRules(CelConstraintRules):
 class AnyConstraintRules(FieldConstraintRules):
     """Rules for an Any field."""
 
-    _in: typing.List[str] = []  # noqa: RUF012
-    _not_in: typing.List[str] = []  # noqa: RUF012
+    _in: list[str] = []  # noqa: RUF012
+    _not_in: list[str] = []  # noqa: RUF012
 
     def __init__(
         self,

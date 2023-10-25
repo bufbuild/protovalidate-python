@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import typing
-
 from google.protobuf import message
 
 from buf.validate import expression_pb2  # type: ignore
@@ -100,7 +98,7 @@ class ValidationError(ValueError):
         super().__init__(msg)
         self.violations = violations
 
-    def errors(self) -> typing.List[expression_pb2.Violation]:
+    def errors(self) -> list[expression_pb2.Violation]:
         """
         Returns the validation errors as a simple Python list, rather than the
         Protobuf-specific collection type used by Violations.
