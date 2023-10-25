@@ -60,7 +60,7 @@ def validate_email(addr):
 
 
 def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.Result:
-    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
+    if not isinstance(val, celtypes.BytesType | celtypes.StringType):
         msg = "invalid argument, expected string or bytes"
         raise celpy.EvalError(msg)
     try:
