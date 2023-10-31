@@ -28,7 +28,7 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,buf/validate/conformance/cases/strings.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1e\n\nStringNone\x12\x10\n\x03val\x18\x01 \x01(\tR\x03val\"+\n\x0bStringConst\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05\n\x03\x66ooR\x03val\"-\n\x08StringIn\x12!\n\x03val\x18\x01 \x01(\tB\x0f\xbaH\x0cr\nR\x03\x62\x61rR\x03\x62\x61zR\x03val\"2\n\x0bStringNotIn\x12#\n\x03val\x18\x01 \x01(\tB\x11\xbaH\x0er\x0cZ\x04\x66izzZ\x04\x62uzzR\x03val\"\'\n\tStringLen\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x98\x01\x03R\x03val\")\n\x0cStringMinLen\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02\x10\x03R\x03val\")\n\x0cStringMaxLen\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02\x18\x05R\x03val\".\n\x0fStringMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x03\x18\x05R\x03val\"3\n\x14StringEqualMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\x05R\x03val\",\n\x0eStringLenBytes\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xa0\x01\x04R\x03val\"+\n\x0eStringMinBytes\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02 \x04R\x03val\"+\n\x0eStringMaxBytes\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02(\x08R\x03val\"0\n\x11StringMinMaxBytes\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04 \x04(\x08R\x03val\"5\n\x16StringEqualMinMaxBytes\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04 \x04(\x04R\x03val\"9\n\rStringPattern\x12(\n\x03val\x18\x01 \x01(\tB\x16\xbaH\x13r\x11\x32\x0f(?i)^[a-z0-9]+$R\x03val\"9\n\x14StringPatternEscapes\x12!\n\x03val\x18\x01 \x01(\tB\x0f\xbaH\x0cr\n2\x08\\* \\\\ \\wR\x03val\",\n\x0cStringPrefix\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05:\x03\x66ooR\x03val\".\n\x0eStringContains\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05J\x03\x62\x61rR\x03val\"2\n\x11StringNotContains\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06\xba\x01\x03\x62\x61rR\x03val\",\n\x0cStringSuffix\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05\x42\x03\x62\x61zR\x03val\"(\n\x0bStringEmail\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02`\x01R\x03val\"+\n\rStringAddress\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xa8\x01\x01R\x03val\"+\n\x0eStringHostname\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02h\x01R\x03val\"%\n\x08StringIP\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02p\x01R\x03val\"\'\n\nStringIPv4\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02x\x01R\x03val\"(\n\nStringIPv6\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x80\x01\x01R\x03val\"\'\n\tStringURI\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x88\x01\x01R\x03val\"*\n\x0cStringURIRef\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x90\x01\x01R\x03val\"(\n\nStringUUID\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xb0\x01\x01R\x03val\"2\n\x14StringHttpHeaderName\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xc0\x01\x01R\x03val\"3\n\x15StringHttpHeaderValue\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xc0\x01\x02R\x03val\":\n\x19StringHttpHeaderNameLoose\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06\xc0\x01\x01\xc8\x01\x00R\x03val\";\n\x1aStringHttpHeaderValueLoose\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06\xc0\x01\x02\xc8\x01\x00R\x03val\"1\n\x10StringUUIDIgnore\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x03\xb0\x01\x01\xd0\x01\x01R\x03val\"7\n\rStringInOneof\x12\x1f\n\x03\x62\x61r\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06R\x01\x61R\x01\x62H\x00R\x03\x62\x61rB\x05\n\x03\x66oob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,buf/validate/conformance/cases/strings.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1e\n\nStringNone\x12\x10\n\x03val\x18\x01 \x01(\tR\x03val\"+\n\x0bStringConst\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05\n\x03\x66ooR\x03val\"-\n\x08StringIn\x12!\n\x03val\x18\x01 \x01(\tB\x0f\xbaH\x0cr\nR\x03\x62\x61rR\x03\x62\x61zR\x03val\"2\n\x0bStringNotIn\x12#\n\x03val\x18\x01 \x01(\tB\x11\xbaH\x0er\x0cZ\x04\x66izzZ\x04\x62uzzR\x03val\"\'\n\tStringLen\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x98\x01\x03R\x03val\")\n\x0cStringMinLen\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02\x10\x03R\x03val\")\n\x0cStringMaxLen\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02\x18\x05R\x03val\".\n\x0fStringMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x03\x18\x05R\x03val\"3\n\x14StringEqualMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x05\x18\x05R\x03val\",\n\x0eStringLenBytes\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xa0\x01\x04R\x03val\"+\n\x0eStringMinBytes\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02 \x04R\x03val\"+\n\x0eStringMaxBytes\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02(\x08R\x03val\"0\n\x11StringMinMaxBytes\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04 \x04(\x08R\x03val\"5\n\x16StringEqualMinMaxBytes\x12\x1b\n\x03val\x18\x01 \x01(\tB\t\xbaH\x06r\x04 \x04(\x04R\x03val\"9\n\rStringPattern\x12(\n\x03val\x18\x01 \x01(\tB\x16\xbaH\x13r\x11\x32\x0f(?i)^[a-z0-9]+$R\x03val\"9\n\x14StringPatternEscapes\x12!\n\x03val\x18\x01 \x01(\tB\x0f\xbaH\x0cr\n2\x08\\* \\\\ \\wR\x03val\",\n\x0cStringPrefix\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05:\x03\x66ooR\x03val\".\n\x0eStringContains\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05J\x03\x62\x61rR\x03val\"2\n\x11StringNotContains\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06\xba\x01\x03\x62\x61rR\x03val\",\n\x0cStringSuffix\x12\x1c\n\x03val\x18\x01 \x01(\tB\n\xbaH\x07r\x05\x42\x03\x62\x61zR\x03val\"(\n\x0bStringEmail\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02`\x01R\x03val\"+\n\rStringAddress\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xa8\x01\x01R\x03val\"+\n\x0eStringHostname\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02h\x01R\x03val\"%\n\x08StringIP\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02p\x01R\x03val\"\'\n\nStringIPv4\x12\x19\n\x03val\x18\x01 \x01(\tB\x07\xbaH\x04r\x02x\x01R\x03val\"(\n\nStringIPv6\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x80\x01\x01R\x03val\"3\n\x15StringIPWithPrefixLen\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xd0\x01\x01R\x03val\"5\n\x17StringIPv4WithPrefixLen\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xd8\x01\x01R\x03val\"5\n\x17StringIPv6WithPrefixLen\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xe0\x01\x01R\x03val\",\n\x0eStringIPPrefix\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xe8\x01\x01R\x03val\".\n\x10StringIPv4Prefix\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xf0\x01\x01R\x03val\".\n\x10StringIPv6Prefix\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xf8\x01\x01R\x03val\"\'\n\tStringURI\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x88\x01\x01R\x03val\"*\n\x0cStringURIRef\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\x90\x01\x01R\x03val\"(\n\nStringUUID\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xb0\x01\x01R\x03val\"2\n\x14StringHttpHeaderName\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xc0\x01\x01R\x03val\"3\n\x15StringHttpHeaderValue\x12\x1a\n\x03val\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xc0\x01\x02R\x03val\":\n\x19StringHttpHeaderNameLoose\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06\xc0\x01\x01\xc8\x01\x00R\x03val\";\n\x1aStringHttpHeaderValueLoose\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06\xc0\x01\x02\xc8\x01\x00R\x03val\"1\n\x10StringUUIDIgnore\x12\x1d\n\x03val\x18\x01 \x01(\tB\x0b\xbaH\x08r\x03\xb0\x01\x01\xd0\x01\x01R\x03val\"7\n\rStringInOneof\x12\x1f\n\x03\x62\x61r\x18\x01 \x01(\tB\x0b\xbaH\x08r\x06R\x01\x61R\x01\x62H\x00R\x03\x62\x61rB\x05\n\x03\x66oob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -86,6 +86,18 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _STRINGIPV4.fields_by_name['val']._serialized_options = b'\272H\004r\002x\001'
   _STRINGIPV6.fields_by_name['val']._options = None
   _STRINGIPV6.fields_by_name['val']._serialized_options = b'\272H\005r\003\200\001\001'
+  _STRINGIPWITHPREFIXLEN.fields_by_name['val']._options = None
+  _STRINGIPWITHPREFIXLEN.fields_by_name['val']._serialized_options = b'\272H\005r\003\320\001\001'
+  _STRINGIPV4WITHPREFIXLEN.fields_by_name['val']._options = None
+  _STRINGIPV4WITHPREFIXLEN.fields_by_name['val']._serialized_options = b'\272H\005r\003\330\001\001'
+  _STRINGIPV6WITHPREFIXLEN.fields_by_name['val']._options = None
+  _STRINGIPV6WITHPREFIXLEN.fields_by_name['val']._serialized_options = b'\272H\005r\003\340\001\001'
+  _STRINGIPPREFIX.fields_by_name['val']._options = None
+  _STRINGIPPREFIX.fields_by_name['val']._serialized_options = b'\272H\005r\003\350\001\001'
+  _STRINGIPV4PREFIX.fields_by_name['val']._options = None
+  _STRINGIPV4PREFIX.fields_by_name['val']._serialized_options = b'\272H\005r\003\360\001\001'
+  _STRINGIPV6PREFIX.fields_by_name['val']._options = None
+  _STRINGIPV6PREFIX.fields_by_name['val']._serialized_options = b'\272H\005r\003\370\001\001'
   _STRINGURI.fields_by_name['val']._options = None
   _STRINGURI.fields_by_name['val']._serialized_options = b'\272H\005r\003\210\001\001'
   _STRINGURIREF.fields_by_name['val']._options = None
@@ -156,22 +168,34 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_STRINGIPV4']._serialized_end=1274
   _globals['_STRINGIPV6']._serialized_start=1276
   _globals['_STRINGIPV6']._serialized_end=1316
-  _globals['_STRINGURI']._serialized_start=1318
-  _globals['_STRINGURI']._serialized_end=1357
-  _globals['_STRINGURIREF']._serialized_start=1359
-  _globals['_STRINGURIREF']._serialized_end=1401
-  _globals['_STRINGUUID']._serialized_start=1403
-  _globals['_STRINGUUID']._serialized_end=1443
-  _globals['_STRINGHTTPHEADERNAME']._serialized_start=1445
-  _globals['_STRINGHTTPHEADERNAME']._serialized_end=1495
-  _globals['_STRINGHTTPHEADERVALUE']._serialized_start=1497
-  _globals['_STRINGHTTPHEADERVALUE']._serialized_end=1548
-  _globals['_STRINGHTTPHEADERNAMELOOSE']._serialized_start=1550
-  _globals['_STRINGHTTPHEADERNAMELOOSE']._serialized_end=1608
-  _globals['_STRINGHTTPHEADERVALUELOOSE']._serialized_start=1610
-  _globals['_STRINGHTTPHEADERVALUELOOSE']._serialized_end=1669
-  _globals['_STRINGUUIDIGNORE']._serialized_start=1671
-  _globals['_STRINGUUIDIGNORE']._serialized_end=1720
-  _globals['_STRINGINONEOF']._serialized_start=1722
-  _globals['_STRINGINONEOF']._serialized_end=1777
+  _globals['_STRINGIPWITHPREFIXLEN']._serialized_start=1318
+  _globals['_STRINGIPWITHPREFIXLEN']._serialized_end=1369
+  _globals['_STRINGIPV4WITHPREFIXLEN']._serialized_start=1371
+  _globals['_STRINGIPV4WITHPREFIXLEN']._serialized_end=1424
+  _globals['_STRINGIPV6WITHPREFIXLEN']._serialized_start=1426
+  _globals['_STRINGIPV6WITHPREFIXLEN']._serialized_end=1479
+  _globals['_STRINGIPPREFIX']._serialized_start=1481
+  _globals['_STRINGIPPREFIX']._serialized_end=1525
+  _globals['_STRINGIPV4PREFIX']._serialized_start=1527
+  _globals['_STRINGIPV4PREFIX']._serialized_end=1573
+  _globals['_STRINGIPV6PREFIX']._serialized_start=1575
+  _globals['_STRINGIPV6PREFIX']._serialized_end=1621
+  _globals['_STRINGURI']._serialized_start=1623
+  _globals['_STRINGURI']._serialized_end=1662
+  _globals['_STRINGURIREF']._serialized_start=1664
+  _globals['_STRINGURIREF']._serialized_end=1706
+  _globals['_STRINGUUID']._serialized_start=1708
+  _globals['_STRINGUUID']._serialized_end=1748
+  _globals['_STRINGHTTPHEADERNAME']._serialized_start=1750
+  _globals['_STRINGHTTPHEADERNAME']._serialized_end=1800
+  _globals['_STRINGHTTPHEADERVALUE']._serialized_start=1802
+  _globals['_STRINGHTTPHEADERVALUE']._serialized_end=1853
+  _globals['_STRINGHTTPHEADERNAMELOOSE']._serialized_start=1855
+  _globals['_STRINGHTTPHEADERNAMELOOSE']._serialized_end=1913
+  _globals['_STRINGHTTPHEADERVALUELOOSE']._serialized_start=1915
+  _globals['_STRINGHTTPHEADERVALUELOOSE']._serialized_end=1974
+  _globals['_STRINGUUIDIGNORE']._serialized_start=1976
+  _globals['_STRINGUUIDIGNORE']._serialized_end=2025
+  _globals['_STRINGINONEOF']._serialized_start=2027
+  _globals['_STRINGINONEOF']._serialized_end=2082
 # @@protoc_insertion_point(module_scope)

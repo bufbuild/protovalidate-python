@@ -323,7 +323,7 @@ class BoolRules(_message.Message):
     def __init__(self, const: bool = ...) -> None: ...
 
 class StringRules(_message.Message):
-    __slots__ = ["const", "len", "min_len", "max_len", "len_bytes", "min_bytes", "max_bytes", "pattern", "prefix", "suffix", "contains", "not_contains", "not_in", "email", "hostname", "ip", "ipv4", "ipv6", "uri", "uri_ref", "address", "uuid", "well_known_regex", "strict"]
+    __slots__ = ["const", "len", "min_len", "max_len", "len_bytes", "min_bytes", "max_bytes", "pattern", "prefix", "suffix", "contains", "not_contains", "not_in", "email", "hostname", "ip", "ipv4", "ipv6", "uri", "uri_ref", "address", "uuid", "ip_with_prefixlen", "ipv4_with_prefixlen", "ipv6_with_prefixlen", "ip_prefix", "ipv4_prefix", "ipv6_prefix", "well_known_regex", "strict"]
     CONST_FIELD_NUMBER: _ClassVar[int]
     LEN_FIELD_NUMBER: _ClassVar[int]
     MIN_LEN_FIELD_NUMBER: _ClassVar[int]
@@ -347,6 +347,12 @@ class StringRules(_message.Message):
     URI_REF_FIELD_NUMBER: _ClassVar[int]
     ADDRESS_FIELD_NUMBER: _ClassVar[int]
     UUID_FIELD_NUMBER: _ClassVar[int]
+    IP_WITH_PREFIXLEN_FIELD_NUMBER: _ClassVar[int]
+    IPV4_WITH_PREFIXLEN_FIELD_NUMBER: _ClassVar[int]
+    IPV6_WITH_PREFIXLEN_FIELD_NUMBER: _ClassVar[int]
+    IP_PREFIX_FIELD_NUMBER: _ClassVar[int]
+    IPV4_PREFIX_FIELD_NUMBER: _ClassVar[int]
+    IPV6_PREFIX_FIELD_NUMBER: _ClassVar[int]
     WELL_KNOWN_REGEX_FIELD_NUMBER: _ClassVar[int]
     STRICT_FIELD_NUMBER: _ClassVar[int]
     const: str
@@ -371,9 +377,15 @@ class StringRules(_message.Message):
     uri_ref: bool
     address: bool
     uuid: bool
+    ip_with_prefixlen: bool
+    ipv4_with_prefixlen: bool
+    ipv6_with_prefixlen: bool
+    ip_prefix: bool
+    ipv4_prefix: bool
+    ipv6_prefix: bool
     well_known_regex: KnownRegex
     strict: bool
-    def __init__(self, const: _Optional[str] = ..., len: _Optional[int] = ..., min_len: _Optional[int] = ..., max_len: _Optional[int] = ..., len_bytes: _Optional[int] = ..., min_bytes: _Optional[int] = ..., max_bytes: _Optional[int] = ..., pattern: _Optional[str] = ..., prefix: _Optional[str] = ..., suffix: _Optional[str] = ..., contains: _Optional[str] = ..., not_contains: _Optional[str] = ..., not_in: _Optional[_Iterable[str]] = ..., email: bool = ..., hostname: bool = ..., ip: bool = ..., ipv4: bool = ..., ipv6: bool = ..., uri: bool = ..., uri_ref: bool = ..., address: bool = ..., uuid: bool = ..., well_known_regex: _Optional[_Union[KnownRegex, str]] = ..., strict: bool = ..., **kwargs) -> None: ...
+    def __init__(self, const: _Optional[str] = ..., len: _Optional[int] = ..., min_len: _Optional[int] = ..., max_len: _Optional[int] = ..., len_bytes: _Optional[int] = ..., min_bytes: _Optional[int] = ..., max_bytes: _Optional[int] = ..., pattern: _Optional[str] = ..., prefix: _Optional[str] = ..., suffix: _Optional[str] = ..., contains: _Optional[str] = ..., not_contains: _Optional[str] = ..., not_in: _Optional[_Iterable[str]] = ..., email: bool = ..., hostname: bool = ..., ip: bool = ..., ipv4: bool = ..., ipv6: bool = ..., uri: bool = ..., uri_ref: bool = ..., address: bool = ..., uuid: bool = ..., ip_with_prefixlen: bool = ..., ipv4_with_prefixlen: bool = ..., ipv6_with_prefixlen: bool = ..., ip_prefix: bool = ..., ipv4_prefix: bool = ..., ipv6_prefix: bool = ..., well_known_regex: _Optional[_Union[KnownRegex, str]] = ..., strict: bool = ..., **kwargs) -> None: ...
 
 class BytesRules(_message.Message):
     __slots__ = ["const", "len", "min_len", "max_len", "pattern", "prefix", "suffix", "contains", "not_in", "ip", "ipv4", "ipv6"]
