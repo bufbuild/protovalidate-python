@@ -87,6 +87,14 @@ class RepeatedUnique(_message.Message):
     val: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...
 
+class RepeatedMultipleUnique(_message.Message):
+    __slots__ = ["a", "b"]
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    a: _containers.RepeatedScalarFieldContainer[str]
+    b: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, a: _Optional[_Iterable[str]] = ..., b: _Optional[_Iterable[int]] = ...) -> None: ...
+
 class RepeatedItemRule(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]

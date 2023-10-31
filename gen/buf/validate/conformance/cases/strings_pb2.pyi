@@ -175,6 +175,42 @@ class StringIPv6(_message.Message):
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
+class StringIPWithPrefixLen(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringIPv4WithPrefixLen(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringIPv6WithPrefixLen(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringIPPrefix(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringIPv4Prefix(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringIPv6Prefix(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
 class StringURI(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
