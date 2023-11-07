@@ -1,4 +1,4 @@
-# celpy only doesn't support nano seconds
+# celpy doesn't support nano seconds
 standard_constraints/well_known_types/duration:
  - gte_lte/invalid/above
  - lte/invalid

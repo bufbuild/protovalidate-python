@@ -28,7 +28,7 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+buf/validate/conformance/cases/oneofs.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\")\n\x0cTestOneofMsg\x12\x19\n\x03val\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\x03val\"0\n\tOneofNone\x12\x0e\n\x01x\x18\x01 \x01(\tH\x00R\x01x\x12\x0e\n\x01y\x18\x02 \x01(\x05H\x00R\x01yB\x03\n\x01o\"\x7f\n\x05Oneof\x12\x1a\n\x01x\x18\x01 \x01(\tB\n\xbaH\x07r\x05:\x03\x66ooH\x00R\x01x\x12\x17\n\x01y\x18\x02 \x01(\x05\x42\x07\xbaH\x04\x1a\x02 \x00H\x00R\x01y\x12<\n\x01z\x18\x03 \x01(\x0b\x32,.buf.validate.conformance.cases.TestOneofMsgH\x00R\x01zB\x03\n\x01o\"\xa0\x01\n\rOneofRequired\x12\x0e\n\x01x\x18\x01 \x01(\tH\x00R\x01x\x12\x0e\n\x01y\x18\x02 \x01(\x05H\x00R\x01y\x12\x34\n\x15name_with_underscores\x18\x03 \x01(\x05H\x00R\x13nameWithUnderscores\x12-\n\x12under_and_1_number\x18\x04 \x01(\x05H\x00R\x0funderAnd1NumberB\n\n\x01o\x12\x05\xbaH\x02\x08\x01\"s\n\x10OneofIgnoreEmpty\x12\x1c\n\x01x\x18\x01 \x01(\tB\x0c\xbaH\tr\x04\x10\x03\x18\x05\xd0\x01\x01H\x00R\x01x\x12\x1c\n\x01y\x18\x02 \x01(\x0c\x42\x0c\xbaH\tz\x04\x10\x03\x18\x05\xd0\x01\x01H\x00R\x01y\x12\x1e\n\x01z\x18\x03 \x01(\x05\x42\x0e\xbaH\x0b\x1a\x06\x18\x80\x01(\x80\x02\xd0\x01\x01H\x00R\x01zB\x03\n\x01ob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n+buf/validate/conformance/cases/oneofs.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\")\n\x0cTestOneofMsg\x12\x19\n\x03val\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\x03val\"0\n\tOneofNone\x12\x0e\n\x01x\x18\x01 \x01(\tH\x00R\x01x\x12\x0e\n\x01y\x18\x02 \x01(\x05H\x00R\x01yB\x03\n\x01o\"\x7f\n\x05Oneof\x12\x1a\n\x01x\x18\x01 \x01(\tB\n\xbaH\x07r\x05:\x03\x66ooH\x00R\x01x\x12\x17\n\x01y\x18\x02 \x01(\x05\x42\x07\xbaH\x04\x1a\x02 \x00H\x00R\x01y\x12<\n\x01z\x18\x03 \x01(\x0b\x32,.buf.validate.conformance.cases.TestOneofMsgH\x00R\x01zB\x03\n\x01o\"\xa0\x01\n\rOneofRequired\x12\x0e\n\x01x\x18\x01 \x01(\tH\x00R\x01x\x12\x0e\n\x01y\x18\x02 \x01(\x05H\x00R\x01y\x12\x34\n\x15name_with_underscores\x18\x03 \x01(\x05H\x00R\x13nameWithUnderscores\x12-\n\x12under_and_1_number\x18\x04 \x01(\x05H\x00R\x0funderAnd1NumberB\n\n\x01o\x12\x05\xbaH\x02\x08\x01\"T\n\x1eOneofRequiredWithRequiredField\x12\x16\n\x01\x61\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x00R\x01\x61\x12\x0e\n\x01\x62\x18\x02 \x01(\tH\x00R\x01\x62\x42\n\n\x01o\x12\x05\xbaH\x02\x08\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -44,12 +44,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _ONEOF.fields_by_name['y']._serialized_options = b'\272H\004\032\002 \000'
   _ONEOFREQUIRED.oneofs_by_name['o']._options = None
   _ONEOFREQUIRED.oneofs_by_name['o']._serialized_options = b'\272H\002\010\001'
-  _ONEOFIGNOREEMPTY.fields_by_name['x']._options = None
-  _ONEOFIGNOREEMPTY.fields_by_name['x']._serialized_options = b'\272H\tr\004\020\003\030\005\320\001\001'
-  _ONEOFIGNOREEMPTY.fields_by_name['y']._options = None
-  _ONEOFIGNOREEMPTY.fields_by_name['y']._serialized_options = b'\272H\tz\004\020\003\030\005\320\001\001'
-  _ONEOFIGNOREEMPTY.fields_by_name['z']._options = None
-  _ONEOFIGNOREEMPTY.fields_by_name['z']._serialized_options = b'\272H\013\032\006\030\200\001(\200\002\320\001\001'
+  _ONEOFREQUIREDWITHREQUIREDFIELD.oneofs_by_name['o']._options = None
+  _ONEOFREQUIREDWITHREQUIREDFIELD.oneofs_by_name['o']._serialized_options = b'\272H\002\010\001'
+  _ONEOFREQUIREDWITHREQUIREDFIELD.fields_by_name['a']._options = None
+  _ONEOFREQUIREDWITHREQUIREDFIELD.fields_by_name['a']._serialized_options = b'\272H\003\310\001\001'
   _globals['_TESTONEOFMSG']._serialized_start=108
   _globals['_TESTONEOFMSG']._serialized_end=149
   _globals['_ONEOFNONE']._serialized_start=151
@@ -58,6 +56,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_ONEOF']._serialized_end=328
   _globals['_ONEOFREQUIRED']._serialized_start=331
   _globals['_ONEOFREQUIRED']._serialized_end=491
-  _globals['_ONEOFIGNOREEMPTY']._serialized_start=493
-  _globals['_ONEOFIGNOREEMPTY']._serialized_end=608
+  _globals['_ONEOFREQUIREDWITHREQUIREDFIELD']._serialized_start=493
+  _globals['_ONEOFREQUIREDWITHREQUIREDFIELD']._serialized_end=577
 # @@protoc_insertion_point(module_scope)
