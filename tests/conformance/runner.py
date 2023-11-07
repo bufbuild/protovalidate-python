@@ -28,12 +28,16 @@ from buf.validate.conformance.cases import (
     bytes_pb2,  # noqa: F401
     enums_pb2,  # noqa: F401
     filename_with_dash_pb2,  # noqa: F401
+    ignore_empty_proto2_pb2,  # noqa: F401
+    ignore_empty_proto3_pb2,  # noqa: F401
     kitchen_sink_pb2,  # noqa: F401
     maps_pb2,  # noqa: F401
     messages_pb2,  # noqa: F401
     numbers_pb2,  # noqa: F401
     oneofs_pb2,  # noqa: F401
     repeated_pb2,  # noqa: F401
+    required_field_proto2_pb2,  # noqa: F401
+    required_field_proto3_pb2,  # noqa: F401
     strings_pb2,  # noqa: F401
     wkt_any_pb2,  # noqa: F401
     wkt_duration_pb2,  # noqa: F401

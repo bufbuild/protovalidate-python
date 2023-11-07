@@ -113,46 +113,11 @@ def _field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> c
 
 
 def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
-    if field.containing_oneof is not None and not msg.HasField(field.name):
-        return True
+    if field.has_presence:  # type: ignore[attr-defined]
+        return not msg.HasField(field.name)
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return len(getattr(msg, field.name)) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_MESSAGE:
-        return not msg.HasField(field.name)
-    if field.type == descriptor.FieldDescriptor.TYPE_BOOL:
-        return not getattr(msg, field.name)
-    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-        return len(getattr(msg, field.name)) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_STRING:
-        return len(getattr(msg, field.name)) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_FLOAT:
-        return getattr(msg, field.name) == 0.0
-    if field.type == descriptor.FieldDescriptor.TYPE_DOUBLE:
-        return getattr(msg, field.name) == 0.0
-    if field.type == descriptor.FieldDescriptor.TYPE_INT32:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_INT64:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT32:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_UINT64:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT32:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_SINT64:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED32:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_FIXED64:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED32:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_SFIXED64:
-        return getattr(msg, field.name) == 0
-    if field.type == descriptor.FieldDescriptor.TYPE_ENUM:
-        return getattr(msg, field.name) == 0
-    exception_msg = "unknown field type"
-    raise ValueError(exception_msg)
+    return getattr(msg, field.name) == field.default_value
 
 
 def _repeated_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
@@ -315,10 +280,8 @@ class FieldConstraintRules(CelConstraintRules):
         type_case = field_level.WhichOneof("type")
         super().__init__(None if type_case is None else getattr(field_level, type_case))
         self._field = field
-        if field_level.ignore_empty:
-            self._ignore_empty = True
-        if field_level.required:
-            self._required = True
+        self._ignore_empty = field_level.ignore_empty or field.has_presence  # type: ignore[attr-defined]
+        self._required = field_level.required
         type_case = field_level.WhichOneof("type")
         if type_case is not None:
             rules = getattr(field_level, type_case)
@@ -340,14 +303,7 @@ class FieldConstraintRules(CelConstraintRules):
                     "value is required",
                 )
                 return
-            if (
-                self._ignore_empty
-                or (
-                    self._field.label != descriptor.FieldDescriptor.LABEL_REPEATED
-                    and self._field.type == descriptor.FieldDescriptor.TYPE_MESSAGE
-                )
-                or self._field.containing_oneof is not None
-            ):
+            if self._ignore_empty:
                 return
         val = getattr(message, self._field.name)
         self._validate_value(ctx, self._field.name, val)
@@ -452,6 +408,8 @@ class RepeatedConstraintRules(FieldConstraintRules):
         value = getattr(message, self._field.name)
         if self._item_rules is not None:
             for i, item in enumerate(value):
+                if self._item_rules._ignore_empty and not item:
+                    continue
                 sub_ctx = ctx.sub_context()
                 self._item_rules.validate_item(sub_ctx, "", item)
                 if sub_ctx.has_errors():
@@ -490,9 +448,11 @@ class MapConstraintRules(FieldConstraintRules):
         for k, v in value.items():
             key_field_path = make_key_path(self._field.name, k)
             if self._key_rules is not None:
-                self._key_rules.validate_item(ctx, key_field_path, k, for_key=True)
+                if not self._key_rules._ignore_empty or k:
+                    self._key_rules.validate_item(ctx, key_field_path, k, for_key=True)
             if self._value_rules is not None:
-                self._value_rules.validate_item(ctx, key_field_path, v)
+                if not self._value_rules._ignore_empty or v:
+                    self._value_rules.validate_item(ctx, key_field_path, v)
 
 
 class OneofConstraintRules(ConstraintRules):

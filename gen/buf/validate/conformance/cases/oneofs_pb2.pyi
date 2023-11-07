@@ -55,12 +55,10 @@ class OneofRequired(_message.Message):
     under_and_1_number: int
     def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., name_with_underscores: _Optional[int] = ..., under_and_1_number: _Optional[int] = ...) -> None: ...
 
-class OneofIgnoreEmpty(_message.Message):
-    __slots__ = ["x", "y", "z"]
-    X_FIELD_NUMBER: _ClassVar[int]
-    Y_FIELD_NUMBER: _ClassVar[int]
-    Z_FIELD_NUMBER: _ClassVar[int]
-    x: str
-    y: bytes
-    z: int
-    def __init__(self, x: _Optional[str] = ..., y: _Optional[bytes] = ..., z: _Optional[int] = ...) -> None: ...
+class OneofRequiredWithRequiredField(_message.Message):
+    __slots__ = ["a", "b"]
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    a: str
+    b: str
+    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ...) -> None: ...
