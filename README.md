@@ -73,9 +73,7 @@ message Transaction {
   option (buf.validate.message).cel = {
     id: "transaction.delivery_date",
     message: "delivery date must be after purchase date",
-    expression:
-
- "this.delivery_date > this.purchase_date"
+    expression: "this.delivery_date > this.purchase_date"
   };
 }
 ```
