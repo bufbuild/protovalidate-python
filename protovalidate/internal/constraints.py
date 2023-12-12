@@ -62,7 +62,7 @@ _MSG_TYPE_URL_TO_CTOR = {
 }
 
 
-def _msg_to_cel(msg: message.Message) -> dict[str, celtypes.Value]:
+def _msg_to_cel(msg: message.Message) -> typing.Dict[str, celtypes.Value]:
     ctor = _MSG_TYPE_URL_TO_CTOR.get(msg.DESCRIPTOR.full_name)
     if ctor is not None:
         return ctor(msg)
@@ -214,16 +214,21 @@ class ConstraintRules:
 class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
-    _runners: list[tuple[celpy.Runner, expression_pb2.Constraint | private_pb2.Constraint]]
+    _runners: typing.List[typing.Tuple[celpy.Runner, typing.Union[expression_pb2.Constraint, private_pb2.Constraint]]]
     _rules_cel: celtypes.Value = None
 
-    def __init__(self, rules: message.Message | None):
+    def __init__(self, rules: typing.Optional[message.Message]):
         self._runners = []
         if rules is not None:
             self._rules_cel = _msg_to_cel(rules)
 
     def _validate_cel(
-        self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any], *, for_key: bool = False
+        self,
+        ctx: ConstraintContext,
+        field_name: str,
+        activation: typing.Dict[str, typing.Any],
+        *,
+        for_key: bool = False,
     ):
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
@@ -241,8 +246,8 @@ class CelConstraintRules(ConstraintRules):
     def add_rule(
         self,
         env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
-        rules: expression_pb2.Constraint | private_pb2.Constraint,
+        funcs: typing.Dict[str, celpy.CELFunction],
+        rules: typing.Union[expression_pb2.Constraint, private_pb2.Constraint],
     ):
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
@@ -256,7 +261,7 @@ class MessageConstraintRules(CelConstraintRules):
         self._validate_cel(ctx, "", {"this": _msg_to_cel(message)})
 
 
-def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None):
+def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: typing.Optional[str] = None):
     if field.type != expected and (
         field.type != descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
     ):
@@ -273,7 +278,7 @@ class FieldConstraintRules(CelConstraintRules):
     def __init__(
         self,
         env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: typing.Dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldConstraints,
     ):
@@ -320,13 +325,13 @@ class FieldConstraintRules(CelConstraintRules):
 class AnyConstraintRules(FieldConstraintRules):
     """Rules for an Any field."""
 
-    _in: list[str] = []  # noqa: RUF012
-    _not_in: list[str] = []  # noqa: RUF012
+    _in: typing.List[str] = []  # noqa: RUF012
+    _not_in: typing.List[str] = []  # noqa: RUF012
 
     def __init__(
         self,
         env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: typing.Dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldConstraints,
     ):
@@ -362,7 +367,7 @@ class EnumConstraintRules(FieldConstraintRules):
     def __init__(
         self,
         env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: typing.Dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldConstraints,
     ):
@@ -387,15 +392,15 @@ class EnumConstraintRules(FieldConstraintRules):
 class RepeatedConstraintRules(FieldConstraintRules):
     """Rules for a repeated field."""
 
-    _item_rules: FieldConstraintRules | None = None
+    _item_rules: typing.Optional[FieldConstraintRules] = None
 
     def __init__(
         self,
         env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: typing.Dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldConstraints,
-        item_rules: FieldConstraintRules | None,
+        item_rules: typing.Optional[FieldConstraintRules],
     ):
         super().__init__(env, funcs, field, field_level)
         if item_rules is not None:
@@ -422,17 +427,17 @@ class RepeatedConstraintRules(FieldConstraintRules):
 class MapConstraintRules(FieldConstraintRules):
     """Rules for a map field."""
 
-    _key_rules: FieldConstraintRules | None = None
-    _value_rules: FieldConstraintRules | None = None
+    _key_rules: typing.Optional[FieldConstraintRules] = None
+    _value_rules: typing.Optional[FieldConstraintRules] = None
 
     def __init__(
         self,
         env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: typing.Dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldConstraints,
-        key_rules: FieldConstraintRules | None,
-        value_rules: FieldConstraintRules | None,
+        key_rules: typing.Optional[FieldConstraintRules],
+        value_rules: typing.Optional[FieldConstraintRules],
     ):
         super().__init__(env, funcs, field, field_level)
         if key_rules is not None:
@@ -480,15 +485,15 @@ class ConstraintFactory:
     """Factory for creating and caching constraints."""
 
     _env: celpy.Environment
-    _funcs: dict[str, celpy.CELFunction]
-    _cache: dict[descriptor.Descriptor, list[ConstraintRules] | Exception]
+    _funcs: typing.Dict[str, celpy.CELFunction]
+    _cache: typing.Dict[descriptor.Descriptor, typing.Union[typing.List[ConstraintRules], Exception]]
 
-    def __init__(self, funcs: dict[str, celpy.CELFunction]):
+    def __init__(self, funcs: typing.Dict[str, celpy.CELFunction]):
         self._env = celpy.Environment()
         self._funcs = funcs
         self._cache = {}
 
-    def get(self, descriptor: descriptor.Descriptor) -> list[ConstraintRules]:
+    def get(self, descriptor: descriptor.Descriptor) -> typing.List[ConstraintRules]:
         if descriptor not in self._cache:
             try:
                 self._cache[descriptor] = self._new_constraints(descriptor)
@@ -647,9 +652,9 @@ class ConstraintFactory:
             item_rule = self._new_scalar_field_constraint(field, rules.repeated.items)
         return RepeatedConstraintRules(self._env, self._funcs, field, rules, item_rule)
 
-    def _new_constraints(self, desc: descriptor.Descriptor) -> list[ConstraintRules]:
-        result: list[ConstraintRules] = []
-        constraint: ConstraintRules | None = None
+    def _new_constraints(self, desc: descriptor.Descriptor) -> typing.List[ConstraintRules]:
+        result: typing.List[ConstraintRules] = []
+        constraint: typing.Optional[ConstraintRules] = None
         if validate_pb2.message in desc.GetOptions().Extensions:
             message_level = desc.GetOptions().Extensions[validate_pb2.message]
             if message_level.disabled:

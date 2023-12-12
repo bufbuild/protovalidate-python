@@ -152,7 +152,7 @@ class StringFormat:
         return celtypes.StringType(arg)
 
     def format_value(self, arg: celtypes.Value) -> celpy.Result:
-        if isinstance(arg, celtypes.StringType | str):
+        if isinstance(arg, (celtypes.StringType, str)):
             return celtypes.StringType(quote(arg))
         if isinstance(arg, celtypes.UintType):
             return celtypes.StringType(arg)
