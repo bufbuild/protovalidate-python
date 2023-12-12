@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 1
       - name: Install Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
       - name: Install Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v4
