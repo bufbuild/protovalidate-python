@@ -32,8 +32,8 @@ jobs:
       - name: Execute tests
         run: make test PYTHON=${{ steps.python.outputs.python-path }}
       - name: Lint
-        run: make lint
+        run: make lint PYTHON=${{ steps.python.outputs.python-path }}
       - name: Format
-        run: make format
+        run: make format PYTHON=${{ steps.python.outputs.python-path }}
       - name: Check generated
-        run: make checkgenerate
+        run: make checkgenerate PYTHON=${{ steps.python.outputs.python-path }}
