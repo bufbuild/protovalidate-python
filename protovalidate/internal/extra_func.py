@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import math
+import typing
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
 
@@ -59,8 +60,8 @@ def validate_email(addr):
     return _validate_hostname(parts[1])
 
 
-def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.Result:
-    if not isinstance(val, celtypes.BytesType | celtypes.StringType):
+def is_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
         msg = "invalid argument, expected string or bytes"
         raise celpy.EvalError(msg)
     try:
@@ -79,7 +80,7 @@ def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.R
 
 
 def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
-    if not isinstance(val, celtypes.BytesType | celtypes.StringType):
+    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
         msg = "invalid argument, expected string or bytes"
         raise celpy.EvalError(msg)
     version = None
@@ -147,7 +148,7 @@ def is_nan(val: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(math.isnan(val))
 
 
-def is_inf(val: celtypes.Value, sign: None | celtypes.Value = None) -> celpy.Result:
+def is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
         raise celpy.EvalError(msg)
@@ -172,7 +173,7 @@ def unique(val: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(len(val) == len(set(val)))
 
 
-def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
+def make_extra_funcs(locale: str) -> typing.Dict[str, celpy.CELFunction]:
     string_fmt = string_format.StringFormat(locale)
     return {
         # Missing standard functions
