@@ -25,8 +25,9 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v4
       - name: Install Python ${{ matrix.python-version }}
+        id: python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Test conformance
-        run: make conformance
+        run: make conformance PYTHON=${{ steps.python.outputs.python-path }}
