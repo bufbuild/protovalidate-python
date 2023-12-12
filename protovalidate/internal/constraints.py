@@ -226,7 +226,7 @@ class CelConstraintRules(ConstraintRules):
         self, ctx: ConstraintContext, field_name: str, activation: dict[str, typing.Any], *, for_key: bool = False
     ):
         activation["rules"] = self._rules_cel
-        activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.UTC))
+        activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
         for runner, constraint in self._runners:
             result = runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
