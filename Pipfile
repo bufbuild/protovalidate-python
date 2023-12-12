@@ -13,6 +13,7 @@ mypy = "*"
 ruff = "*"
 types-protobuf = "*"
 black = "*"
+exceptiongroup = "*"
 
 [requires]
 python_version = "3.10"
