@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.10", "3.11"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,14 +25,15 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v4
       - name: Install Python ${{ matrix.python-version }}
+        id: python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Execute tests
-        run: make test
+        run: make test PYTHON=${{ steps.python.outputs.python-path }}
       - name: Lint
-        run: make lint
+        run: make lint PYTHON=${{ steps.python.outputs.python-path }}
       - name: Format
-        run: make format
+        run: make format PYTHON=${{ steps.python.outputs.python-path }}
       - name: Check generated
-        run: make checkgenerate
+        run: make checkgenerate PYTHON=${{ steps.python.outputs.python-path }}
