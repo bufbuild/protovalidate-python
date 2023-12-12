@@ -49,7 +49,7 @@ test: $(BIN)/protovalidate-conformance generate install ## Run unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
-	protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- run $(PYTHON) -m tests.conformance.runner
+	protovalidate-conformance $(CONFORMANCE_ARGS) pipenv -- --python $(PYTHON) run python3 -m tests.conformance.runner
 
 .PHONY: lint
 lint: install ## Lint code

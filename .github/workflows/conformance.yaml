@@ -30,4 +30,4 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Test conformance
-        run: make conformance # TODO add: PYTHON=${{ steps.python.outputs.python-path }}
+        run: make conformance PYTHON=${{ steps.python.outputs.python-path }}
