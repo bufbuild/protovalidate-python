@@ -64,7 +64,7 @@ def validate_email(addr):
 
 
 def validate_host_and_port(string: str, *, port_required: bool) -> bool:
-    if string == "":
+    if not string:
         return False
 
     split_idx = string.rfind(":")
@@ -74,7 +74,7 @@ def validate_host_and_port(string: str, *, port_required: bool) -> bool:
         if after_end == len(string):  # no port
             return not port_required and validate_ip(string[1:end], 6)
         if after_end == split_idx:  # port
-            return validate_ip(string[1:end]) and validate_port(string[split_idx + 1 :])
+            return validate_ip(string[1:end]) and validate_port(string[split_idx + 1:])
         return False  # malformed
 
     if split_idx == -1:
