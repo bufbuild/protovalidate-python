@@ -264,3 +264,15 @@ class StringInOneof(_message.Message):
     BAR_FIELD_NUMBER: _ClassVar[int]
     bar: str
     def __init__(self, bar: _Optional[str] = ...) -> None: ...
+
+class StringHostAndPort(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringHostAndOptionalPort(_message.Message):
+    __slots__ = ["val"]
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...

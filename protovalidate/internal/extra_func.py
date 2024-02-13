@@ -32,6 +32,7 @@ def _validate_hostname(host):
     if host[-1] == ".":
         host = host[:-1]
 
+    all_digits = True
     for part in host.split("."):
         if len(part) == 0 or len(part) > 63:
             return False
@@ -39,10 +40,12 @@ def _validate_hostname(host):
         # Host names cannot begin or end with hyphens
         if part[0] == "-" or part[-1] == "-":
             return False
+        all_digits = True
         for r in part:
             if (r < "A" or r > "Z") and (r < "a" or r > "z") and (r < "0" or r > "9") and r != "-":
                 return False
-    return True
+            all_digits = all_digits and "0" <= r <= "9"
+    return not all_digits
 
 
 def validate_email(addr):
@@ -60,10 +63,37 @@ def validate_email(addr):
     return _validate_hostname(parts[1])
 
 
-def is_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) -> celpy.Result:
-    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
-        msg = "invalid argument, expected string or bytes"
-        raise celpy.EvalError(msg)
+def validate_host_and_port(string: str, port_required: bool) -> bool:
+    if string == "":
+        return False
+    
+    split_idx = string.rfind(':')
+    if string[0] == '[':
+        end = string.find(']')
+        after_end = end+1
+        if after_end == len(string):  # no port
+            return not port_required and validate_ip(string[1:end], 6)
+        if after_end == split_idx:  # port
+            return validate_ip(string[1:end]) and validate_port(string[split_idx+1:])
+        return False  # malformed
+    
+    if split_idx == -1:
+        return not port_required and (_validate_hostname(string) or validate_ip(string, 4))
+    
+    host = string[:split_idx]
+    port = string[split_idx+1:]
+    return (_validate_hostname(host) or validate_ip(host, 4)) and validate_port(port)
+
+
+def validate_port(val: str) -> bool:
+    try:
+        port = int(val)
+        return port <= 65535
+    except ValueError:
+        return False
+
+
+def validate_ip(val: str | bytes, version: int | None = None) -> bool:
     try:
         if version is None:
             ip_address(val)
@@ -73,16 +103,26 @@ def is_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) 
             IPv6Address(val)
         else:
             msg = "invalid argument, expected 4 or 6"
-            raise celpy.EvalError(msg)
-        return celtypes.BoolType(True)
+            raise celpy.CELEvalError(msg)
+        return True
     except ValueError:
-        return celtypes.BoolType(False)
+        return False
+
+
+def is_ip(val: celtypes.Value, version: celtypes.Value | None = None) -> celpy.Result:
+    if not isinstance(val, celtypes.BytesType | celtypes.StringType):
+        msg = "invalid argument, expected string or bytes"
+        raise celpy.CELEvalError(msg)
+    if not isinstance(version, celtypes.IntType | None):
+        msg = "invalid argument, expected int"
+        raise celpy.CELEvalError(msg)
+    return celtypes.BoolType(validate_ip(val, version))
 
 
 def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
     if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
         msg = "invalid argument, expected string or bytes"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     version = None
     strict = celtypes.BoolType(False)
     if len(args) == 1 and isinstance(args[0], celtypes.BoolType):
@@ -91,13 +131,13 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
         version = args[0]
     elif len(args) == 1 and (not isinstance(args[0], celtypes.BoolType) or not isinstance(args[0], celtypes.IntType)):
         msg = "invalid argument, expected bool or int"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     elif len(args) == 2 and isinstance(args[0], celtypes.IntType) and isinstance(args[1], celtypes.BoolType):
         version = args[0]
         strict = args[1]
     elif len(args) == 2 and (not isinstance(args[0], celtypes.IntType) or not isinstance(args[1], celtypes.BoolType)):
         msg = "invalid argument, expected int and bool"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     try:
         if version is None:
             ip_network(val, strict=strict)
@@ -107,16 +147,15 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
             IPv6Network(val, strict=strict)
         else:
             msg = "invalid argument, expected 4 or 6"
-            raise celpy.EvalError(msg)
+            raise celpy.CELEvalError(msg)
         return celtypes.BoolType(True)
     except ValueError:
         return celtypes.BoolType(False)
 
-
 def is_email(string: celtypes.Value) -> celpy.Result:
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     return celtypes.BoolType(validate_email(string))
 
 
@@ -137,27 +176,35 @@ def is_uri_ref(string: celtypes.Value) -> celpy.Result:
 def is_hostname(string: celtypes.Value) -> celpy.Result:
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     return celtypes.BoolType(_validate_hostname(string))
 
+def is_host_and_port(string: celtypes.Value, portRequired: celtypes.Value) -> celpy.Result:
+    if not isinstance(string, celtypes.StringType):
+        msg = "invalid argument, expected string"
+        raise celpy.CELEvalError(msg)
+    if not isinstance(portRequired, celtypes.BoolType):
+        msg = "invalid argument, expected bool"
+        raise celpy.CELEvalError(msg)
+    return celtypes.BoolType(validate_host_and_port(string, portRequired))
 
 def is_nan(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     return celtypes.BoolType(math.isnan(val))
 
 
 def is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     if sign is None:
         return celtypes.BoolType(math.isinf(val))
 
     if not isinstance(sign, celtypes.IntType):
         msg = "invalid argument, expected int"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     if sign > 0:
         return celtypes.BoolType(math.isinf(val) and val > 0)
     elif sign < 0:
@@ -169,7 +216,7 @@ def is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) ->
 def unique(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.ListType):
         msg = "invalid argument, expected list"
-        raise celpy.EvalError(msg)
+        raise celpy.CELEvalError(msg)
     return celtypes.BoolType(len(val) == len(set(val)))
 
 
@@ -187,6 +234,7 @@ def make_extra_funcs(locale: str) -> typing.Dict[str, celpy.CELFunction]:
         "isUri": is_uri,
         "isUriRef": is_uri_ref,
         "isHostname": is_hostname,
+        "isHostAndPort": is_host_and_port,
         "unique": unique,
     }
 
