@@ -110,10 +110,10 @@ def validate_ip(val: typing.Union[str, bytes], version: typing.Optional[int] = N
 
 
 def is_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) -> celpy.Result:
-    if not isinstance(val, typing.Union[celtypes.BytesType, celtypes.StringType]):
+    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
         msg = "invalid argument, expected string or bytes"
         raise celpy.CELEvalError(msg)
-    if not isinstance(version, typing.Optional[celtypes.IntType]):
+    if not isinstance(version, celtypes.IntType) and version is not None:
         msg = "invalid argument, expected int"
         raise celpy.CELEvalError(msg)
     return celtypes.BoolType(validate_ip(val, version))
