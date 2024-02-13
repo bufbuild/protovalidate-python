@@ -25,11 +25,20 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class Ignore(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    IGNORE_UNSPECIFIED: _ClassVar[Ignore]
+    IGNORE_EMPTY: _ClassVar[Ignore]
+    IGNORE_DEFAULT: _ClassVar[Ignore]
+
 class KnownRegex(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
     KNOWN_REGEX_UNSPECIFIED: _ClassVar[KnownRegex]
     KNOWN_REGEX_HTTP_HEADER_NAME: _ClassVar[KnownRegex]
     KNOWN_REGEX_HTTP_HEADER_VALUE: _ClassVar[KnownRegex]
+IGNORE_UNSPECIFIED: Ignore
+IGNORE_EMPTY: Ignore
+IGNORE_DEFAULT: Ignore
 KNOWN_REGEX_UNSPECIFIED: KnownRegex
 KNOWN_REGEX_HTTP_HEADER_NAME: KnownRegex
 KNOWN_REGEX_HTTP_HEADER_VALUE: KnownRegex
@@ -55,11 +64,12 @@ class OneofConstraints(_message.Message):
     def __init__(self, required: bool = ...) -> None: ...
 
 class FieldConstraints(_message.Message):
-    __slots__ = ["cel", "skipped", "required", "ignore_empty", "float", "double", "int32", "int64", "uint32", "uint64", "sint32", "sint64", "fixed32", "fixed64", "sfixed32", "sfixed64", "bool", "string", "bytes", "enum", "repeated", "map", "any", "duration", "timestamp"]
+    __slots__ = ["cel", "skipped", "required", "ignore_empty", "ignore", "float", "double", "int32", "int64", "uint32", "uint64", "sint32", "sint64", "fixed32", "fixed64", "sfixed32", "sfixed64", "bool", "string", "bytes", "enum", "repeated", "map", "any", "duration", "timestamp"]
     CEL_FIELD_NUMBER: _ClassVar[int]
     SKIPPED_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_FIELD_NUMBER: _ClassVar[int]
     IGNORE_EMPTY_FIELD_NUMBER: _ClassVar[int]
+    IGNORE_FIELD_NUMBER: _ClassVar[int]
     FLOAT_FIELD_NUMBER: _ClassVar[int]
     DOUBLE_FIELD_NUMBER: _ClassVar[int]
     INT32_FIELD_NUMBER: _ClassVar[int]
@@ -85,6 +95,7 @@ class FieldConstraints(_message.Message):
     skipped: bool
     required: bool
     ignore_empty: bool
+    ignore: Ignore
     float: FloatRules
     double: DoubleRules
     int32: Int32Rules
@@ -106,7 +117,7 @@ class FieldConstraints(_message.Message):
     any: AnyRules
     duration: DurationRules
     timestamp: TimestampRules
-    def __init__(self, cel: _Optional[_Iterable[_Union[_expression_pb2.Constraint, _Mapping]]] = ..., skipped: bool = ..., required: bool = ..., ignore_empty: bool = ..., float: _Optional[_Union[FloatRules, _Mapping]] = ..., double: _Optional[_Union[DoubleRules, _Mapping]] = ..., int32: _Optional[_Union[Int32Rules, _Mapping]] = ..., int64: _Optional[_Union[Int64Rules, _Mapping]] = ..., uint32: _Optional[_Union[UInt32Rules, _Mapping]] = ..., uint64: _Optional[_Union[UInt64Rules, _Mapping]] = ..., sint32: _Optional[_Union[SInt32Rules, _Mapping]] = ..., sint64: _Optional[_Union[SInt64Rules, _Mapping]] = ..., fixed32: _Optional[_Union[Fixed32Rules, _Mapping]] = ..., fixed64: _Optional[_Union[Fixed64Rules, _Mapping]] = ..., sfixed32: _Optional[_Union[SFixed32Rules, _Mapping]] = ..., sfixed64: _Optional[_Union[SFixed64Rules, _Mapping]] = ..., bool: _Optional[_Union[BoolRules, _Mapping]] = ..., string: _Optional[_Union[StringRules, _Mapping]] = ..., bytes: _Optional[_Union[BytesRules, _Mapping]] = ..., enum: _Optional[_Union[EnumRules, _Mapping]] = ..., repeated: _Optional[_Union[RepeatedRules, _Mapping]] = ..., map: _Optional[_Union[MapRules, _Mapping]] = ..., any: _Optional[_Union[AnyRules, _Mapping]] = ..., duration: _Optional[_Union[DurationRules, _Mapping]] = ..., timestamp: _Optional[_Union[TimestampRules, _Mapping]] = ...) -> None: ...
+    def __init__(self, cel: _Optional[_Iterable[_Union[_expression_pb2.Constraint, _Mapping]]] = ..., skipped: bool = ..., required: bool = ..., ignore_empty: bool = ..., ignore: _Optional[_Union[Ignore, str]] = ..., float: _Optional[_Union[FloatRules, _Mapping]] = ..., double: _Optional[_Union[DoubleRules, _Mapping]] = ..., int32: _Optional[_Union[Int32Rules, _Mapping]] = ..., int64: _Optional[_Union[Int64Rules, _Mapping]] = ..., uint32: _Optional[_Union[UInt32Rules, _Mapping]] = ..., uint64: _Optional[_Union[UInt64Rules, _Mapping]] = ..., sint32: _Optional[_Union[SInt32Rules, _Mapping]] = ..., sint64: _Optional[_Union[SInt64Rules, _Mapping]] = ..., fixed32: _Optional[_Union[Fixed32Rules, _Mapping]] = ..., fixed64: _Optional[_Union[Fixed64Rules, _Mapping]] = ..., sfixed32: _Optional[_Union[SFixed32Rules, _Mapping]] = ..., sfixed64: _Optional[_Union[SFixed64Rules, _Mapping]] = ..., bool: _Optional[_Union[BoolRules, _Mapping]] = ..., string: _Optional[_Union[StringRules, _Mapping]] = ..., bytes: _Optional[_Union[BytesRules, _Mapping]] = ..., enum: _Optional[_Union[EnumRules, _Mapping]] = ..., repeated: _Optional[_Union[RepeatedRules, _Mapping]] = ..., map: _Optional[_Union[MapRules, _Mapping]] = ..., any: _Optional[_Union[AnyRules, _Mapping]] = ..., duration: _Optional[_Union[DurationRules, _Mapping]] = ..., timestamp: _Optional[_Union[TimestampRules, _Mapping]] = ...) -> None: ...
 
 class FloatRules(_message.Message):
     __slots__ = ["const", "lt", "lte", "gt", "gte", "not_in", "finite"]
@@ -323,7 +334,7 @@ class BoolRules(_message.Message):
     def __init__(self, const: bool = ...) -> None: ...
 
 class StringRules(_message.Message):
-    __slots__ = ["const", "len", "min_len", "max_len", "len_bytes", "min_bytes", "max_bytes", "pattern", "prefix", "suffix", "contains", "not_contains", "not_in", "email", "hostname", "ip", "ipv4", "ipv6", "uri", "uri_ref", "address", "uuid", "ip_with_prefixlen", "ipv4_with_prefixlen", "ipv6_with_prefixlen", "ip_prefix", "ipv4_prefix", "ipv6_prefix", "well_known_regex", "strict"]
+    __slots__ = ["const", "len", "min_len", "max_len", "len_bytes", "min_bytes", "max_bytes", "pattern", "prefix", "suffix", "contains", "not_contains", "not_in", "email", "hostname", "ip", "ipv4", "ipv6", "uri", "uri_ref", "address", "uuid", "ip_with_prefixlen", "ipv4_with_prefixlen", "ipv6_with_prefixlen", "ip_prefix", "ipv4_prefix", "ipv6_prefix", "host_and_port", "well_known_regex", "strict"]
     CONST_FIELD_NUMBER: _ClassVar[int]
     LEN_FIELD_NUMBER: _ClassVar[int]
     MIN_LEN_FIELD_NUMBER: _ClassVar[int]
@@ -353,6 +364,7 @@ class StringRules(_message.Message):
     IP_PREFIX_FIELD_NUMBER: _ClassVar[int]
     IPV4_PREFIX_FIELD_NUMBER: _ClassVar[int]
     IPV6_PREFIX_FIELD_NUMBER: _ClassVar[int]
+    HOST_AND_PORT_FIELD_NUMBER: _ClassVar[int]
     WELL_KNOWN_REGEX_FIELD_NUMBER: _ClassVar[int]
     STRICT_FIELD_NUMBER: _ClassVar[int]
     const: str
@@ -383,9 +395,10 @@ class StringRules(_message.Message):
     ip_prefix: bool
     ipv4_prefix: bool
     ipv6_prefix: bool
+    host_and_port: bool
     well_known_regex: KnownRegex
     strict: bool
-    def __init__(self, const: _Optional[str] = ..., len: _Optional[int] = ..., min_len: _Optional[int] = ..., max_len: _Optional[int] = ..., len_bytes: _Optional[int] = ..., min_bytes: _Optional[int] = ..., max_bytes: _Optional[int] = ..., pattern: _Optional[str] = ..., prefix: _Optional[str] = ..., suffix: _Optional[str] = ..., contains: _Optional[str] = ..., not_contains: _Optional[str] = ..., not_in: _Optional[_Iterable[str]] = ..., email: bool = ..., hostname: bool = ..., ip: bool = ..., ipv4: bool = ..., ipv6: bool = ..., uri: bool = ..., uri_ref: bool = ..., address: bool = ..., uuid: bool = ..., ip_with_prefixlen: bool = ..., ipv4_with_prefixlen: bool = ..., ipv6_with_prefixlen: bool = ..., ip_prefix: bool = ..., ipv4_prefix: bool = ..., ipv6_prefix: bool = ..., well_known_regex: _Optional[_Union[KnownRegex, str]] = ..., strict: bool = ..., **kwargs) -> None: ...
+    def __init__(self, const: _Optional[str] = ..., len: _Optional[int] = ..., min_len: _Optional[int] = ..., max_len: _Optional[int] = ..., len_bytes: _Optional[int] = ..., min_bytes: _Optional[int] = ..., max_bytes: _Optional[int] = ..., pattern: _Optional[str] = ..., prefix: _Optional[str] = ..., suffix: _Optional[str] = ..., contains: _Optional[str] = ..., not_contains: _Optional[str] = ..., not_in: _Optional[_Iterable[str]] = ..., email: bool = ..., hostname: bool = ..., ip: bool = ..., ipv4: bool = ..., ipv6: bool = ..., uri: bool = ..., uri_ref: bool = ..., address: bool = ..., uuid: bool = ..., ip_with_prefixlen: bool = ..., ipv4_with_prefixlen: bool = ..., ipv6_with_prefixlen: bool = ..., ip_prefix: bool = ..., ipv4_prefix: bool = ..., ipv6_prefix: bool = ..., host_and_port: bool = ..., well_known_regex: _Optional[_Union[KnownRegex, str]] = ..., strict: bool = ..., **kwargs) -> None: ...
 
 class BytesRules(_message.Message):
     __slots__ = ["const", "len", "min_len", "max_len", "pattern", "prefix", "suffix", "contains", "not_in", "ip", "ipv4", "ipv6"]

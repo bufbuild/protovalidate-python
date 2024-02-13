@@ -361,6 +361,33 @@ class Int64Ignore(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
+class Int64BigConstraints(_message.Message):
+    __slots__ = ["lt_pos", "lt_neg", "gt_pos", "gt_neg", "lte_pos", "lte_neg", "gte_pos", "gte_neg", "constant_pos", "constant_neg", "notin"]
+    LT_POS_FIELD_NUMBER: _ClassVar[int]
+    LT_NEG_FIELD_NUMBER: _ClassVar[int]
+    GT_POS_FIELD_NUMBER: _ClassVar[int]
+    GT_NEG_FIELD_NUMBER: _ClassVar[int]
+    LTE_POS_FIELD_NUMBER: _ClassVar[int]
+    LTE_NEG_FIELD_NUMBER: _ClassVar[int]
+    GTE_POS_FIELD_NUMBER: _ClassVar[int]
+    GTE_NEG_FIELD_NUMBER: _ClassVar[int]
+    CONSTANT_POS_FIELD_NUMBER: _ClassVar[int]
+    CONSTANT_NEG_FIELD_NUMBER: _ClassVar[int]
+    IN_FIELD_NUMBER: _ClassVar[int]
+    NOTIN_FIELD_NUMBER: _ClassVar[int]
+    lt_pos: int
+    lt_neg: int
+    gt_pos: int
+    gt_neg: int
+    lte_pos: int
+    lte_neg: int
+    gte_pos: int
+    gte_neg: int
+    constant_pos: int
+    constant_neg: int
+    notin: int
+    def __init__(self, lt_pos: _Optional[int] = ..., lt_neg: _Optional[int] = ..., gt_pos: _Optional[int] = ..., gt_neg: _Optional[int] = ..., lte_pos: _Optional[int] = ..., lte_neg: _Optional[int] = ..., gte_pos: _Optional[int] = ..., gte_neg: _Optional[int] = ..., constant_pos: _Optional[int] = ..., constant_neg: _Optional[int] = ..., notin: _Optional[int] = ..., **kwargs) -> None: ...
+
 class Int64IncorrectType(_message.Message):
     __slots__ = ["val"]
     VAL_FIELD_NUMBER: _ClassVar[int]
