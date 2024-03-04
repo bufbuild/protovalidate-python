@@ -708,12 +708,12 @@
         },
         "types-protobuf": {
             "hashes": [
-                "sha256:131ab7d0cbc9e444bc89c994141327dcce7bcaeded72b1acb72a94827eb9c7af",
-                "sha256:57ab42cb171dfdba2c74bb5b50c250478538cc3c5ed95b8b368929ad0c9f90a5"
+                "sha256:5c607990f50f14606c2edaf379f8acc7418fef1451b227aa3c6a8a2cbc6ff14a",
+                "sha256:f22c00cc0cea9722e71e14d389bba429af9e35a74a949719c167203a5abbe2e4"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.7'",
-            "version": "==4.24.0.4"
+            "markers": "python_version >= '3.8'",
+            "version": "==4.24.0.20240302"
         },
         "typing-extensions": {
             "hashes": [
