@@ -116,6 +116,12 @@ When using the runtime library after installing it with `pip`, it's necessary to
    buf generate --include-imports
    ```
 
+5. **Specify import paths**:
+   Ensure that the generated code is importable by setting the `PYTHONPATH` environment variable:
+   ```shell
+   export PYTHONPATH=$PYTHONPATH:gen
+   ```
+
 If your goal is to generate code specifically for the `buf.protovalidate` Protobuf package, run:
 ```shell
 buf generate buf.build/bufbuild/protovalidate
