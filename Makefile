@@ -40,7 +40,7 @@ generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license header
 .PHONY: format
 format: install $(BIN)/license-header ## Format code
 	$(ADD_LICENSE_HEADER)
-	pipenv run black protovalidate tests
+	pipenv run ruff format protovalidate tests
 	pipenv run ruff --fix protovalidate tests
 
 .PHONY: test
@@ -53,14 +53,14 @@ conformance: $(BIN)/protovalidate-conformance generate install ## Run conformanc
 
 .PHONY: lint
 lint: install ## Lint code
-	pipenv run black --check --diff protovalidate tests
+	pipenv run ruff format --check --diff protovalidate tests
 	pipenv run mypy protovalidate
 	pipenv run ruff protovalidate tests
 	pipenv verify
 
 .PHONY: lint-fix
 lint-fix: install ## Lint code
-	pipenv run black protovalidate tests
+	pipenv run ruff format protovalidate tests
 	pipenv run ruff --fix protovalidate tests
 
 .PHONY: install
