@@ -292,9 +292,9 @@ class FieldConstraintRules(CelConstraintRules):
             rules = getattr(field_level, type_case)
             # For each set field in the message, look for the private constraint
             # extension.
-            for field, _ in rules.ListFields():
-                if private_pb2.field in field.GetOptions().Extensions:
-                    for cel in field.GetOptions().Extensions[private_pb2.field].cel:
+            for list_field, _ in rules.ListFields():
+                if private_pb2.field in list_field.GetOptions().Extensions:
+                    for cel in list_field.GetOptions().Extensions[private_pb2.field].cel:
                         self.add_rule(env, funcs, cel)
         for cel in field_level.cel:
             self.add_rule(env, funcs, cel)
