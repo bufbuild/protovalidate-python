@@ -40,7 +40,6 @@ lint.select = [
   "FBT",
   "I",
   "ICN",
-  "ISC",
   "N",
   "PLC",
   "PLE",
