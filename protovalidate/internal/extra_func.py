@@ -14,7 +14,7 @@
 
 import math
 import typing
-from email.utils import getaddresses
+from email.utils import parseaddr
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
 
@@ -50,14 +50,11 @@ def _validate_hostname(host):
 
 
 def validate_email(addr):
-    addrs = getaddresses([addr])
-    if len(addrs) != 1:
+    parts = parseaddr(addr)
+    if addr != parts[1]:
         return False
 
-    if "<" in addr or addr != addrs[0][1]:
-        return False
-
-    addr = addrs[0][1]
+    addr = parts[1]
     if len(addr) > 254:
         return False
 
