@@ -21,27 +21,27 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class RequiredProto2ScalarOptional(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
 class RequiredProto2ScalarOptionalDefault(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
 class RequiredProto2ScalarRequired(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
 class RequiredProto2Message(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class Msg(_message.Message):
-        __slots__ = ["val"]
+        __slots__ = ("val",)
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
@@ -50,7 +50,7 @@ class RequiredProto2Message(_message.Message):
     def __init__(self, val: _Optional[_Union[RequiredProto2Message.Msg, _Mapping]] = ...) -> None: ...
 
 class RequiredProto2Oneof(_message.Message):
-    __slots__ = ["a", "b"]
+    __slots__ = ("a", "b")
     A_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
     a: str
@@ -58,15 +58,15 @@ class RequiredProto2Oneof(_message.Message):
     def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ...) -> None: ...
 
 class RequiredProto2Repeated(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class RequiredProto2Map(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str

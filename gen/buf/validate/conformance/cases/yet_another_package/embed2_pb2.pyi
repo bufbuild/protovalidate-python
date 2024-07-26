@@ -21,9 +21,9 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Embed(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class Enumerated(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = []
+        __slots__ = ()
         ENUMERATED_UNSPECIFIED: _ClassVar[Embed.Enumerated]
         ENUMERATED_VALUE: _ClassVar[Embed.Enumerated]
     ENUMERATED_UNSPECIFIED: Embed.Enumerated

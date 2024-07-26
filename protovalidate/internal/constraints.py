@@ -17,7 +17,7 @@ import typing
 
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
-from google.protobuf import any_pb2, descriptor, message
+from google.protobuf import any_pb2, descriptor, message, message_factory
 
 from buf.validate import expression_pb2, validate_pb2  # type: ignore
 from buf.validate.priv import private_pb2  # type: ignore
@@ -62,21 +62,31 @@ _MSG_TYPE_URL_TO_CTOR = {
 }
 
 
+class MessageType(celtypes.MapType):
+    msg: message.Message
+    desc: descriptor.Descriptor
+
+    def __init__(self, msg: message.Message):
+        super().__init__()
+        self.msg = msg
+        self.desc = msg.DESCRIPTOR
+        field: descriptor.FieldDescriptor
+        for field in self.desc.fields:
+            if field.containing_oneof is not None and not self.msg.HasField(field.name):
+                continue
+            self[field.name] = _field_to_cel(self.msg, field)
+
+
 def _msg_to_cel(msg: message.Message) -> typing.Dict[str, celtypes.Value]:
     ctor = _MSG_TYPE_URL_TO_CTOR.get(msg.DESCRIPTOR.full_name)
     if ctor is not None:
         return ctor(msg)
-    result = celtypes.MapType()
-    field: descriptor.FieldDescriptor
-    for field in msg.DESCRIPTOR.fields:
-        if field.containing_oneof is not None and not msg.HasField(field.name):
-            continue
-        result[field.name] = _field_to_cel(msg, field)
-    return result
+    return MessageType(msg)
 
 
 _TYPE_TO_CTOR = {
     descriptor.FieldDescriptor.TYPE_MESSAGE: _msg_to_cel,
+    descriptor.FieldDescriptor.TYPE_GROUP: _msg_to_cel,
     descriptor.FieldDescriptor.TYPE_ENUM: celtypes.IntType,
     descriptor.FieldDescriptor.TYPE_BOOL: celtypes.BoolType,
     descriptor.FieldDescriptor.TYPE_BYTES: celtypes.BytesType,
@@ -269,11 +279,43 @@ def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_n
         raise CompilationError(msg)
 
 
+def _is_map(field: descriptor.FieldDescriptor):
+    return (
+        field.label == descriptor.FieldDescriptor.LABEL_REPEATED
+        and field.message_type is not None
+        and field.message_type.GetOptions().map_entry
+    )
+
+
+def _is_list(field: descriptor.FieldDescriptor):
+    return field.label == descriptor.FieldDescriptor.LABEL_REPEATED and not _is_map(field)
+
+
+def _zero_value(field: descriptor.FieldDescriptor, *, for_items: bool):
+    if for_items and _is_list(field):
+        message = message_factory.GetMessageClass(field.containing_type)()
+        setattr(message, field.name, [message_factory.GetMessageClass(field.message_type)()])
+        return message
+    elif field.message_type is not None and field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
+        return message_factory.GetMessageClass(field.message_type)()
+    else:
+        return field.default_value
+
+
+def _proto_equals(a, b):
+    if isinstance(a, message.Message) and isinstance(b, message.Message):
+        # TODO: Python protobuf does not have the ability to compare messages.
+        return a.SerializeToString(deterministic=True) == b.SerializeToString(deterministic=True)
+    return a == b
+
+
 class FieldConstraintRules(CelConstraintRules):
     """Field-level rules."""
 
     _ignore_empty = False
+    _ignore_default = False
     _required = False
+    _zero = None
 
     def __init__(
         self,
@@ -281,12 +323,22 @@ class FieldConstraintRules(CelConstraintRules):
         funcs: typing.Dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldConstraints,
+        *,
+        for_items: bool = False,
     ):
         type_case = field_level.WhichOneof("type")
         super().__init__(None if type_case is None else getattr(field_level, type_case))
         self._field = field
-        self._ignore_empty = field_level.ignore_empty or field.has_presence  # type: ignore[attr-defined]
+        self._ignore_empty = (
+            field_level.ignore_empty
+            or field_level.ignore in (validate_pb2.IGNORE_IF_UNPOPULATED, validate_pb2.IGNORE_IF_DEFAULT_VALUE)
+            or field.has_presence  # type: ignore[attr-defined]
+            and not for_items
+        )
+        self._ignore_default = field.has_presence and field_level.ignore == validate_pb2.IGNORE_IF_DEFAULT_VALUE  # type: ignore[attr-defined]
         self._required = field_level.required
+        if self._ignore_default:
+            self._zero = _zero_value(field, for_items=for_items)
         type_case = field_level.WhichOneof("type")
         if type_case is not None:
             rules = getattr(field_level, type_case)
@@ -311,6 +363,8 @@ class FieldConstraintRules(CelConstraintRules):
             if self._ignore_empty:
                 return
         val = getattr(message, self._field.name)
+        if self._ignore_default and _proto_equals(val, self._zero):
+            return
         self._validate_value(ctx, self._field.name, val)
         self._validate_cel(ctx, self._field.name, {"this": _field_value_to_cel(val, self._field)})
 
@@ -370,8 +424,10 @@ class EnumConstraintRules(FieldConstraintRules):
         funcs: typing.Dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldConstraints,
+        *,
+        for_items: bool = False,
     ):
-        super().__init__(env, funcs, field, field_level)
+        super().__init__(env, funcs, field, field_level, for_items=for_items)
         if field_level.enum.defined_only:
             self._defined_only = True
 
@@ -514,28 +570,30 @@ class ConstraintFactory:
         self,
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.field,
+        *,
+        for_items: bool = False,
     ):
-        if field_level.skipped:
+        if field_level.ignore == validate_pb2.IGNORE_ALWAYS or field_level.skipped:
             return None
         type_case = field_level.WhichOneof("type")
         if type_case is None:
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "duration":
             check_field_type(field, 0, "google.protobuf.Duration")
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "timestamp":
             check_field_type(field, 0, "google.protobuf.Timestamp")
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "enum":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_ENUM)
-            result = EnumConstraintRules(self._env, self._funcs, field, field_level)
+            result = EnumConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bool":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bytes":
             check_field_type(
@@ -543,15 +601,15 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_BYTES,
                 "google.protobuf.BytesValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED32)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED64)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "float":
             check_field_type(
@@ -559,7 +617,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_FLOAT,
                 "google.protobuf.FloatValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "double":
             check_field_type(
@@ -567,7 +625,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_DOUBLE,
                 "google.protobuf.DoubleValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int32":
             check_field_type(
@@ -575,7 +633,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_INT32,
                 "google.protobuf.Int32Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int64":
             check_field_type(
@@ -583,23 +641,23 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_INT64,
                 "google.protobuf.Int64Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED32)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED64)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT32)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT64)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint32":
             check_field_type(
@@ -607,7 +665,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_UINT32,
                 "google.protobuf.UInt32Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint64":
             check_field_type(
@@ -615,7 +673,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_UINT64,
                 "google.protobuf.UInt64Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "string":
             check_field_type(
@@ -623,7 +681,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_STRING,
                 "google.protobuf.StringValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level)
+            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "any":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any")
@@ -641,11 +699,11 @@ class ConstraintFactory:
             key_rules = None
             if rules.map.HasField("keys"):
                 key_field = field.message_type.fields_by_name["key"]
-                key_rules = self._new_scalar_field_constraint(key_field, rules.map.keys)
+                key_rules = self._new_scalar_field_constraint(key_field, rules.map.keys, for_items=True)
             value_rules = None
             if rules.map.HasField("values"):
                 value_field = field.message_type.fields_by_name["value"]
-                value_rules = self._new_scalar_field_constraint(value_field, rules.map.values)
+                value_rules = self._new_scalar_field_constraint(value_field, rules.map.values, for_items=True)
             return MapConstraintRules(self._env, self._funcs, field, rules, key_rules, value_rules)
         item_rule = None
         if rules.repeated.HasField("items"):
@@ -670,10 +728,13 @@ class ConstraintFactory:
         for field in desc.fields:
             if validate_pb2.field in field.GetOptions().Extensions:
                 field_level = field.GetOptions().Extensions[validate_pb2.field]
-                if field_level.skipped:
+                if field_level.ignore == validate_pb2.IGNORE_ALWAYS or field_level.skipped:
                     continue
                 result.append(self._new_field_constraint(field, field_level))
-                if field_level.repeated.items.skipped:
+                if (
+                    field_level.repeated.items.ignore == validate_pb2.IGNORE_ALWAYS
+                    or field_level.repeated.items.skipped
+                ):
                     continue
             if field.message_type is None:
                 continue

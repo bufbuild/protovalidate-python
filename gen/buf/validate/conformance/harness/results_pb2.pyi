@@ -23,7 +23,7 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ResultOptions(_message.Message):
-    __slots__ = ["suite_filter", "case_filter", "verbose", "strict", "strict_message", "strict_error"]
+    __slots__ = ("suite_filter", "case_filter", "verbose", "strict", "strict_message", "strict_error")
     SUITE_FILTER_FIELD_NUMBER: _ClassVar[int]
     CASE_FILTER_FIELD_NUMBER: _ClassVar[int]
     VERBOSE_FIELD_NUMBER: _ClassVar[int]
@@ -39,7 +39,7 @@ class ResultOptions(_message.Message):
     def __init__(self, suite_filter: _Optional[str] = ..., case_filter: _Optional[str] = ..., verbose: bool = ..., strict: bool = ..., strict_message: bool = ..., strict_error: bool = ...) -> None: ...
 
 class ResultSet(_message.Message):
-    __slots__ = ["successes", "failures", "suites", "options", "expected_failures"]
+    __slots__ = ("successes", "failures", "suites", "options", "expected_failures")
     SUCCESSES_FIELD_NUMBER: _ClassVar[int]
     FAILURES_FIELD_NUMBER: _ClassVar[int]
     SUITES_FIELD_NUMBER: _ClassVar[int]
@@ -53,7 +53,7 @@ class ResultSet(_message.Message):
     def __init__(self, successes: _Optional[int] = ..., failures: _Optional[int] = ..., suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ..., options: _Optional[_Union[ResultOptions, _Mapping]] = ..., expected_failures: _Optional[int] = ...) -> None: ...
 
 class SuiteResults(_message.Message):
-    __slots__ = ["name", "successes", "failures", "cases", "fdset", "expected_failures"]
+    __slots__ = ("name", "successes", "failures", "cases", "fdset", "expected_failures")
     NAME_FIELD_NUMBER: _ClassVar[int]
     SUCCESSES_FIELD_NUMBER: _ClassVar[int]
     FAILURES_FIELD_NUMBER: _ClassVar[int]
@@ -69,7 +69,7 @@ class SuiteResults(_message.Message):
     def __init__(self, name: _Optional[str] = ..., successes: _Optional[int] = ..., failures: _Optional[int] = ..., cases: _Optional[_Iterable[_Union[CaseResult, _Mapping]]] = ..., fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ..., expected_failures: _Optional[int] = ...) -> None: ...
 
 class CaseResult(_message.Message):
-    __slots__ = ["name", "success", "wanted", "got", "input", "expected_failure"]
+    __slots__ = ("name", "success", "wanted", "got", "input", "expected_failure")
     NAME_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     WANTED_FIELD_NUMBER: _ClassVar[int]

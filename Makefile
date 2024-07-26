@@ -16,7 +16,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023"
-PROTOVALIDATE_VERSION ?= v0.5.6
+PROTOVALIDATE_VERSION ?= v0.7.1
 
 .PHONY: help
 help: ## Describe useful make targets

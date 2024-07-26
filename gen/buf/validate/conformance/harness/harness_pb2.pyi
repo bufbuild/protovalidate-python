@@ -23,9 +23,9 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class TestConformanceRequest(_message.Message):
-    __slots__ = ["fdset", "cases"]
+    __slots__ = ("fdset", "cases")
     class CasesEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -38,9 +38,9 @@ class TestConformanceRequest(_message.Message):
     def __init__(self, fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ..., cases: _Optional[_Mapping[str, _any_pb2.Any]] = ...) -> None: ...
 
 class TestConformanceResponse(_message.Message):
-    __slots__ = ["results"]
+    __slots__ = ("results",)
     class ResultsEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -51,7 +51,7 @@ class TestConformanceResponse(_message.Message):
     def __init__(self, results: _Optional[_Mapping[str, TestResult]] = ...) -> None: ...
 
 class TestResult(_message.Message):
-    __slots__ = ["success", "validation_error", "compilation_error", "runtime_error", "unexpected_error"]
+    __slots__ = ("success", "validation_error", "compilation_error", "runtime_error", "unexpected_error")
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     VALIDATION_ERROR_FIELD_NUMBER: _ClassVar[int]
     COMPILATION_ERROR_FIELD_NUMBER: _ClassVar[int]
