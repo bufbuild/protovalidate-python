@@ -6,11 +6,3 @@ standard_constraints/well_known_types/duration:
 standard_constraints/well_known_types/timestamp:
  - gte_lte/invalid/above
  - lte/invalid
-# There are a couple of cases where celpy's mapping of has(...) and x.y seem to
-# be incongruent with protobuf presence, resulting in a runtime error instead of
-# a validation error.
-standard_constraints/ignore:
- - proto3/message/optional/ignore_empty/invalid/default
- - proto3/message/optional/ignore_unspecified/invalid/default
- - proto3/message/ignore_empty/invalid/default
- - proto3/message/ignore_unspecified/invalid/default

@@ -22,6 +22,7 @@ from google.protobuf import any_pb2, descriptor, message, message_factory
 from buf.validate import expression_pb2, validate_pb2  # type: ignore
 from buf.validate.priv import private_pb2  # type: ignore
 from protovalidate.internal import string_format
+from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
 
 class CompilationError(Exception):
@@ -75,6 +76,12 @@ class MessageType(celtypes.MapType):
             if field.containing_oneof is not None and not self.msg.HasField(field.name):
                 continue
             self[field.name] = _field_to_cel(self.msg, field)
+
+    def __getitem__(self, name):
+        field = self.desc.fields_by_name[name]
+        if not in_has() and field.has_presence and not self.msg.HasField(name):
+            return _zero_value(field)
+        return super().__getitem__(name)
 
 
 def _msg_to_cel(msg: message.Message) -> typing.Dict[str, celtypes.Value]:
@@ -535,7 +542,7 @@ class ConstraintFactory:
     _cache: typing.Dict[descriptor.Descriptor, typing.Union[typing.List[ConstraintRules], Exception]]
 
     def __init__(self, funcs: typing.Dict[str, celpy.CELFunction]):
-        self._env = celpy.Environment()
+        self._env = celpy.Environment(runner_class=InterpretedRunner)
         self._funcs = funcs
         self._cache = {}
 
