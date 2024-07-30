@@ -291,22 +291,11 @@ def _is_list(field: descriptor.FieldDescriptor):
     return field.label == descriptor.FieldDescriptor.LABEL_REPEATED and not _is_map(field)
 
 
-def _zero_value(field: descriptor.FieldDescriptor, *, for_items: bool):
-    if for_items and _is_list(field):
-        message = message_factory.GetMessageClass(field.containing_type)()
-        setattr(message, field.name, [message_factory.GetMessageClass(field.message_type)()])
-        return message
-    elif field.message_type is not None and field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
-        return message_factory.GetMessageClass(field.message_type)()
+def _zero_value(field: descriptor.FieldDescriptor):
+    if field.message_type is not None and field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
+        return _field_value_to_cel(message_factory.GetMessageClass(field.message_type)(), field)
     else:
-        return field.default_value
-
-
-def _proto_equals(a, b):
-    if isinstance(a, message.Message) and isinstance(b, message.Message):
-        # TODO: Python protobuf does not have the ability to compare messages.
-        return a.SerializeToString(deterministic=True) == b.SerializeToString(deterministic=True)
-    return a == b
+        return _field_value_to_cel(field.default_value, field)
 
 
 class FieldConstraintRules(CelConstraintRules):
@@ -338,7 +327,7 @@ class FieldConstraintRules(CelConstraintRules):
         self._ignore_default = field.has_presence and field_level.ignore == validate_pb2.IGNORE_IF_DEFAULT_VALUE  # type: ignore[attr-defined]
         self._required = field_level.required
         if self._ignore_default:
-            self._zero = _zero_value(field, for_items=for_items)
+            self._zero = _zero_value(field)
         type_case = field_level.WhichOneof("type")
         if type_case is not None:
             rules = getattr(field_level, type_case)
@@ -363,10 +352,11 @@ class FieldConstraintRules(CelConstraintRules):
             if self._ignore_empty:
                 return
         val = getattr(message, self._field.name)
-        if self._ignore_default and _proto_equals(val, self._zero):
+        cel_val = _field_value_to_cel(val, self._field)
+        if self._ignore_default and cel_val == self._zero:
             return
         self._validate_value(ctx, self._field.name, val)
-        self._validate_cel(ctx, self._field.name, {"this": _field_value_to_cel(val, self._field)})
+        self._validate_cel(ctx, self._field.name, {"this": cel_val})
 
     def validate_item(self, ctx: ConstraintContext, field_path: str, val: typing.Any, *, for_key: bool = False):
         self._validate_value(ctx, field_path, val, for_key=for_key)
