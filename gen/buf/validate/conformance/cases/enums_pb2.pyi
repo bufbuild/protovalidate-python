@@ -24,13 +24,13 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class TestEnum(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-    __slots__ = []
+    __slots__ = ()
     TEST_ENUM_UNSPECIFIED: _ClassVar[TestEnum]
     TEST_ENUM_ONE: _ClassVar[TestEnum]
     TEST_ENUM_TWO: _ClassVar[TestEnum]
 
 class TestEnumAlias(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-    __slots__ = []
+    __slots__ = ()
     TEST_ENUM_ALIAS_UNSPECIFIED: _ClassVar[TestEnumAlias]
     TEST_ENUM_ALIAS_A: _ClassVar[TestEnumAlias]
     TEST_ENUM_ALIAS_B: _ClassVar[TestEnumAlias]
@@ -50,93 +50,93 @@ TEST_ENUM_ALIAS_BETA: TestEnumAlias
 TEST_ENUM_ALIAS_GAMMA: TestEnumAlias
 
 class EnumNone(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnum
     def __init__(self, val: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
 
 class EnumConst(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnum
     def __init__(self, val: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
 
 class EnumAliasConst(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnumAlias
     def __init__(self, val: _Optional[_Union[TestEnumAlias, str]] = ...) -> None: ...
 
 class EnumDefined(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnum
     def __init__(self, val: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
 
 class EnumAliasDefined(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnumAlias
     def __init__(self, val: _Optional[_Union[TestEnumAlias, str]] = ...) -> None: ...
 
 class EnumIn(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnum
     def __init__(self, val: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
 
 class EnumAliasIn(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnumAlias
     def __init__(self, val: _Optional[_Union[TestEnumAlias, str]] = ...) -> None: ...
 
 class EnumNotIn(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnum
     def __init__(self, val: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
 
 class EnumAliasNotIn(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TestEnumAlias
     def __init__(self, val: _Optional[_Union[TestEnumAlias, str]] = ...) -> None: ...
 
 class EnumExternal(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _embed_pb2.Embed.Enumerated
     def __init__(self, val: _Optional[_Union[_embed_pb2.Embed.Enumerated, str]] = ...) -> None: ...
 
 class EnumExternal2(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _embed_pb2.Embed.DoubleEmbed.DoubleEnumerated
     def __init__(self, val: _Optional[_Union[_embed_pb2.Embed.DoubleEmbed.DoubleEnumerated, str]] = ...) -> None: ...
 
 class RepeatedEnumDefined(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[TestEnum]
     def __init__(self, val: _Optional[_Iterable[_Union[TestEnum, str]]] = ...) -> None: ...
 
 class RepeatedExternalEnumDefined(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[_embed_pb2.Embed.Enumerated]
     def __init__(self, val: _Optional[_Iterable[_Union[_embed_pb2.Embed.Enumerated, str]]] = ...) -> None: ...
 
 class RepeatedYetAnotherExternalEnumDefined(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[_embed2_pb2.Embed.Enumerated]
     def __init__(self, val: _Optional[_Iterable[_Union[_embed2_pb2.Embed.Enumerated, str]]] = ...) -> None: ...
 
 class MapEnumDefined(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -147,9 +147,9 @@ class MapEnumDefined(_message.Message):
     def __init__(self, val: _Optional[_Mapping[str, TestEnum]] = ...) -> None: ...
 
 class MapExternalEnumDefined(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -160,7 +160,7 @@ class MapExternalEnumDefined(_message.Message):
     def __init__(self, val: _Optional[_Mapping[str, _embed_pb2.Embed.Enumerated]] = ...) -> None: ...
 
 class EnumInsideOneof(_message.Message):
-    __slots__ = ["val", "val2"]
+    __slots__ = ("val", "val2")
     VAL_FIELD_NUMBER: _ClassVar[int]
     VAL2_FIELD_NUMBER: _ClassVar[int]
     val: TestEnum

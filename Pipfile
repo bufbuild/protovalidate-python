@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-cel-python = "==0.1.*"
-protobuf = "==4.*"
+cel-python = "==0.1.5"
+protobuf = "==5.*"
 
 [dev-packages]
 pytest = "*"

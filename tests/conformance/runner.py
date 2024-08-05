@@ -30,6 +30,10 @@ from buf.validate.conformance.cases import (
     filename_with_dash_pb2,  # noqa: F401
     ignore_empty_proto2_pb2,  # noqa: F401
     ignore_empty_proto3_pb2,  # noqa: F401
+    ignore_empty_proto_editions_pb2,  # noqa: F401
+    ignore_proto2_pb2,  # noqa: F401
+    ignore_proto3_pb2,  # noqa: F401
+    ignore_proto_editions_pb2,  # noqa: F401
     kitchen_sink_pb2,  # noqa: F401
     maps_pb2,  # noqa: F401
     messages_pb2,  # noqa: F401
@@ -38,6 +42,7 @@ from buf.validate.conformance.cases import (
     repeated_pb2,  # noqa: F401
     required_field_proto2_pb2,  # noqa: F401
     required_field_proto3_pb2,  # noqa: F401
+    required_field_proto_editions_pb2,  # noqa: F401
     strings_pb2,  # noqa: F401
     wkt_any_pb2,  # noqa: F401
     wkt_duration_pb2,  # noqa: F401

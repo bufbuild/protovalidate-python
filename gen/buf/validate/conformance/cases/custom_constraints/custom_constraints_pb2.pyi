@@ -21,16 +21,16 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Enum(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-    __slots__ = []
+    __slots__ = ()
     ENUM_UNSPECIFIED: _ClassVar[Enum]
     ENUM_ONE: _ClassVar[Enum]
 ENUM_UNSPECIFIED: Enum
 ENUM_ONE: Enum
 
 class NoExpressions(_message.Message):
-    __slots__ = ["a", "b", "c"]
+    __slots__ = ("a", "b", "c")
     class Nested(_message.Message):
-        __slots__ = []
+        __slots__ = ()
         def __init__(self) -> None: ...
     A_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
@@ -41,9 +41,9 @@ class NoExpressions(_message.Message):
     def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[Enum, str]] = ..., c: _Optional[_Union[NoExpressions.Nested, _Mapping]] = ...) -> None: ...
 
 class MessageExpressions(_message.Message):
-    __slots__ = ["a", "b", "c", "d", "e", "f"]
+    __slots__ = ("a", "b", "c", "d", "e", "f")
     class Nested(_message.Message):
-        __slots__ = ["a", "b"]
+        __slots__ = ("a", "b")
         A_FIELD_NUMBER: _ClassVar[int]
         B_FIELD_NUMBER: _ClassVar[int]
         a: int
@@ -64,9 +64,9 @@ class MessageExpressions(_message.Message):
     def __init__(self, a: _Optional[int] = ..., b: _Optional[int] = ..., c: _Optional[_Union[Enum, str]] = ..., d: _Optional[_Union[Enum, str]] = ..., e: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ..., f: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ...) -> None: ...
 
 class FieldExpressions(_message.Message):
-    __slots__ = ["a", "b", "c"]
+    __slots__ = ("a", "b", "c")
     class Nested(_message.Message):
-        __slots__ = ["a"]
+        __slots__ = ("a",)
         A_FIELD_NUMBER: _ClassVar[int]
         a: int
         def __init__(self, a: _Optional[int] = ...) -> None: ...
@@ -79,23 +79,23 @@ class FieldExpressions(_message.Message):
     def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[Enum, str]] = ..., c: _Optional[_Union[FieldExpressions.Nested, _Mapping]] = ...) -> None: ...
 
 class MissingField(_message.Message):
-    __slots__ = ["a"]
+    __slots__ = ("a",)
     A_FIELD_NUMBER: _ClassVar[int]
     a: int
     def __init__(self, a: _Optional[int] = ...) -> None: ...
 
 class IncorrectType(_message.Message):
-    __slots__ = ["a"]
+    __slots__ = ("a",)
     A_FIELD_NUMBER: _ClassVar[int]
     a: int
     def __init__(self, a: _Optional[int] = ...) -> None: ...
 
 class DynRuntimeError(_message.Message):
-    __slots__ = ["a"]
+    __slots__ = ("a",)
     A_FIELD_NUMBER: _ClassVar[int]
     a: int
     def __init__(self, a: _Optional[int] = ...) -> None: ...
 
 class NowEqualsNow(_message.Message):
-    __slots__ = []
+    __slots__ = ()
     def __init__(self) -> None: ...

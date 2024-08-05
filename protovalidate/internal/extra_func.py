@@ -14,6 +14,7 @@
 
 import math
 import typing
+from email.utils import parseaddr
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
 
@@ -49,9 +50,11 @@ def _validate_hostname(host):
 
 
 def validate_email(addr):
-    if "<" in addr and ">" in addr:
-        addr = addr.split("<")[1].split(">")[0]
+    parts = parseaddr(addr)
+    if addr != parts[1]:
+        return False
 
+    addr = parts[1]
     if len(addr) > 254:
         return False
 

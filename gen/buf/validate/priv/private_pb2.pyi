@@ -23,13 +23,13 @@ FIELD_FIELD_NUMBER: _ClassVar[int]
 field: _descriptor.FieldDescriptor
 
 class FieldConstraints(_message.Message):
-    __slots__ = ["cel"]
+    __slots__ = ("cel",)
     CEL_FIELD_NUMBER: _ClassVar[int]
     cel: _containers.RepeatedCompositeFieldContainer[Constraint]
     def __init__(self, cel: _Optional[_Iterable[_Union[Constraint, _Mapping]]] = ...) -> None: ...
 
 class Constraint(_message.Message):
-    __slots__ = ["id", "message", "expression"]
+    __slots__ = ("id", "message", "expression")
     ID_FIELD_NUMBER: _ClassVar[int]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
     EXPRESSION_FIELD_NUMBER: _ClassVar[int]

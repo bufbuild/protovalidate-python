@@ -21,21 +21,21 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class IgnoreEmptyProto3Scalar(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class IgnoreEmptyProto3OptionalScalar(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class IgnoreEmptyProto3Message(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class Msg(_message.Message):
-        __slots__ = ["val"]
+        __slots__ = ("val",)
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
@@ -44,21 +44,21 @@ class IgnoreEmptyProto3Message(_message.Message):
     def __init__(self, val: _Optional[_Union[IgnoreEmptyProto3Message.Msg, _Mapping]] = ...) -> None: ...
 
 class IgnoreEmptyProto3Oneof(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class IgnoreEmptyProto3Repeated(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class IgnoreEmptyProto3Map(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
@@ -69,15 +69,15 @@ class IgnoreEmptyProto3Map(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
 
 class IgnoreEmptyRepeatedItems(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class IgnoreEmptyMapPairs(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str

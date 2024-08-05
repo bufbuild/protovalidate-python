@@ -20,13 +20,13 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class TestOneofMsg(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: bool
     def __init__(self, val: bool = ...) -> None: ...
 
 class OneofNone(_message.Message):
-    __slots__ = ["x", "y"]
+    __slots__ = ("x", "y")
     X_FIELD_NUMBER: _ClassVar[int]
     Y_FIELD_NUMBER: _ClassVar[int]
     x: str
@@ -34,7 +34,7 @@ class OneofNone(_message.Message):
     def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ...) -> None: ...
 
 class Oneof(_message.Message):
-    __slots__ = ["x", "y", "z"]
+    __slots__ = ("x", "y", "z")
     X_FIELD_NUMBER: _ClassVar[int]
     Y_FIELD_NUMBER: _ClassVar[int]
     Z_FIELD_NUMBER: _ClassVar[int]
@@ -44,7 +44,7 @@ class Oneof(_message.Message):
     def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...) -> None: ...
 
 class OneofRequired(_message.Message):
-    __slots__ = ["x", "y", "name_with_underscores", "under_and_1_number"]
+    __slots__ = ("x", "y", "name_with_underscores", "under_and_1_number")
     X_FIELD_NUMBER: _ClassVar[int]
     Y_FIELD_NUMBER: _ClassVar[int]
     NAME_WITH_UNDERSCORES_FIELD_NUMBER: _ClassVar[int]
@@ -56,7 +56,7 @@ class OneofRequired(_message.Message):
     def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., name_with_underscores: _Optional[int] = ..., under_and_1_number: _Optional[int] = ...) -> None: ...
 
 class OneofRequiredWithRequiredField(_message.Message):
-    __slots__ = ["a", "b"]
+    __slots__ = ("a", "b")
     A_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
     a: str

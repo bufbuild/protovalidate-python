@@ -21,9 +21,9 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class MapNone(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
@@ -34,9 +34,9 @@ class MapNone(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, bool]] = ...) -> None: ...
 
 class MapMin(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
@@ -47,9 +47,9 @@ class MapMin(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, float]] = ...) -> None: ...
 
 class MapMax(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
@@ -60,9 +60,9 @@ class MapMax(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, float]] = ...) -> None: ...
 
 class MapMinMax(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -73,9 +73,9 @@ class MapMinMax(_message.Message):
     def __init__(self, val: _Optional[_Mapping[str, bool]] = ...) -> None: ...
 
 class MapExact(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
@@ -86,9 +86,9 @@ class MapExact(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...
 
 class MapKeys(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
@@ -99,9 +99,9 @@ class MapKeys(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...
 
 class MapValues(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -112,9 +112,9 @@ class MapValues(_message.Message):
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MapKeysPattern(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -125,9 +125,9 @@ class MapKeysPattern(_message.Message):
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MapValuesPattern(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -138,16 +138,16 @@ class MapValuesPattern(_message.Message):
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MapRecursive(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
         value: MapRecursive.Msg
         def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[MapRecursive.Msg, _Mapping]] = ...) -> None: ...
     class Msg(_message.Message):
-        __slots__ = ["val"]
+        __slots__ = ("val",)
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
@@ -156,9 +156,9 @@ class MapRecursive(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, MapRecursive.Msg]] = ...) -> None: ...
 
 class MapExactIgnore(_message.Message):
-    __slots__ = ["val"]
+    __slots__ = ("val",)
     class ValEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
@@ -169,23 +169,23 @@ class MapExactIgnore(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...
 
 class MultipleMaps(_message.Message):
-    __slots__ = ["first", "second", "third"]
+    __slots__ = ("first", "second", "third")
     class FirstEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
         value: str
         def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
     class SecondEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
         value: bool
         def __init__(self, key: _Optional[int] = ..., value: bool = ...) -> None: ...
     class ThirdEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int

@@ -20,11 +20,11 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class WktLevelOne(_message.Message):
-    __slots__ = ["two"]
+    __slots__ = ("two",)
     class WktLevelTwo(_message.Message):
-        __slots__ = ["three"]
+        __slots__ = ("three",)
         class WktLevelThree(_message.Message):
-            __slots__ = ["uuid"]
+            __slots__ = ("uuid",)
             UUID_FIELD_NUMBER: _ClassVar[int]
             uuid: str
             def __init__(self, uuid: _Optional[str] = ...) -> None: ...
