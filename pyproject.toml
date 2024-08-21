@@ -20,12 +20,25 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = ["protobuf", "cel-python"]
+dependencies = [
+    "protobuf==6.*",
+    "cel-python==0.2.*",
+]
 
 [project.urls]
 Homepage = "https://github.com/bufbuild/protovalidate-python"
 Source = "https://github.com/bufbuild/protovalidate-python"
 Issues = "https://github.com/bufbuild/protovalidate-python/issues"
+
+[dependency-groups]
+dev = [
+	"pytest",
+	"mypy",
+	"ruff",
+	"types-protobuf==6.30.2.20250503",
+	"exceptiongroup",
+	"tomli",
+]
 
 [tool.hatch.version]
 source = "vcs"
@@ -33,46 +46,46 @@ source = "vcs"
 [tool.ruff]
 line-length = 120
 lint.select = [
-  "A",
-  "ARG",
-  "B",
-  "C",
-  "DTZ",
-  "E",
-  "EM",
-  "F",
-  "FBT",
-  "I",
-  "ICN",
-  "N",
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  "Q",
-  "RUF",
-  "S",
-  "T",
-  "TID",
-  "UP",
-  "W",
-  "YTT",
+	"A",
+	"ARG",
+	"B",
+	"C",
+	"DTZ",
+	"E",
+	"EM",
+	"F",
+	"FBT",
+	"I",
+	"ICN",
+	"N",
+	"PLC",
+	"PLE",
+	"PLR",
+	"PLW",
+	"Q",
+	"RUF",
+	"S",
+	"T",
+	"TID",
+	"UP",
+	"W",
+	"YTT",
 ]
 lint.ignore = [
-  # Allow boolean positional values in function calls, like `dict.get(..., True)`.
-  "FBT003",
-  # Ignore complexity
-  "C901",
-  "PLR0911",
-  "PLR0912",
-  "PLR0913",
-  "PLR0915",
-  # Ignore magic values - in this library, most are obvious in context.
-  "PLR2004",
+	# Allow boolean positional values in function calls, like `dict.get(..., True)`.
+	"FBT003",
+	# Ignore complexity
+	"C901",
+	"PLR0911",
+	"PLR0912",
+	"PLR0913",
+	"PLR0915",
+	# Ignore magic values - in this library, most are obvious in context.
+	"PLR2004",
 ]
 lint.unfixable = [
-  # Don't autofix unused imports.
-  "F401",
+	# Don't autofix unused imports.
+	"F401",
 ]
 
 [tool.ruff.lint.isort]
