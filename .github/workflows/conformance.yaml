@@ -27,12 +27,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
+      - uses: astral-sh/setup-uv@v6
       - name: Install Python ${{ matrix.python-version }}
-        id: python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pipenv"
-      - run: ${{steps.python.outputs.python-path}}  -m pip install --upgrade pip pipenv
+        run: uv python install ${{ matrix.python-version }}
       - name: Test conformance
-        run: make conformance PYTHON=${{ steps.python.outputs.python-path }}
+        run: make conformance

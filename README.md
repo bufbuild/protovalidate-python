@@ -54,7 +54,7 @@ pip install protovalidate
 
 ## Documentation
 
-Comprehensive documentation for Protovalidate is available in [Buf's documentation library][protovalidate]. 
+Comprehensive documentation for Protovalidate is available in [Buf's documentation library][protovalidate].
 
 Highlights for Python developers include:
 
@@ -64,7 +64,7 @@ Highlights for Python developers include:
 
 ## Additional languages and repositories
 
-Protovalidate isn't just for Python! You might be interested in sibling repositories for other languages: 
+Protovalidate isn't just for Python! You might be interested in sibling repositories for other languages:
 
 - [`protovalidate-go`][pv-go] (Go)
 - [`protovalidate-java`][pv-java] (Java)
