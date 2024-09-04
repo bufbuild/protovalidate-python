@@ -1,18 +1,4 @@
-# Copyright 2023 Buf Technologies, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-from buf.validate import expression_pb2 as _expression_pb2
+from buf.validate import violation_pb2 as _violation_pb2
 from google.protobuf import any_pb2 as _any_pb2
 from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf.internal import containers as _containers
@@ -58,8 +44,8 @@ class TestResult(_message.Message):
     RUNTIME_ERROR_FIELD_NUMBER: _ClassVar[int]
     UNEXPECTED_ERROR_FIELD_NUMBER: _ClassVar[int]
     success: bool
-    validation_error: _expression_pb2.Violations
+    validation_error: _violation_pb2.Violations
     compilation_error: str
     runtime_error: str
     unexpected_error: str
-    def __init__(self, success: bool = ..., validation_error: _Optional[_Union[_expression_pb2.Violations, _Mapping]] = ..., compilation_error: _Optional[str] = ..., runtime_error: _Optional[str] = ..., unexpected_error: _Optional[str] = ...) -> None: ...
+    def __init__(self, success: bool = ..., validation_error: _Optional[_Union[_violation_pb2.Violations, _Mapping]] = ..., compilation_error: _Optional[str] = ..., runtime_error: _Optional[str] = ..., unexpected_error: _Optional[str] = ...) -> None: ...

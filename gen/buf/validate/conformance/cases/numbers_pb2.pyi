@@ -1,17 +1,3 @@
-# Copyright 2023 Buf Technologies, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -109,6 +95,12 @@ class FloatIncorrectType(_message.Message):
     val: float
     def __init__(self, val: _Optional[float] = ...) -> None: ...
 
+class FloatExample(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: float
+    def __init__(self, val: _Optional[float] = ...) -> None: ...
+
 class DoubleNone(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -199,6 +191,12 @@ class DoubleIncorrectType(_message.Message):
     val: float
     def __init__(self, val: _Optional[float] = ...) -> None: ...
 
+class DoubleExample(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: float
+    def __init__(self, val: _Optional[float] = ...) -> None: ...
+
 class Int32None(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -278,6 +276,12 @@ class Int32Ignore(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class Int32IncorrectType(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class Int32Example(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -394,6 +398,12 @@ class Int64IncorrectType(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
+class Int64Example(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
 class UInt32None(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -473,6 +483,12 @@ class UInt32Ignore(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class UInt32IncorrectType(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class UInt32Example(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -562,6 +578,12 @@ class UInt64IncorrectType(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
+class UInt64Example(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
 class SInt32None(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -641,6 +663,12 @@ class SInt32Ignore(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class SInt32IncorrectType(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class SInt32Example(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -730,6 +758,12 @@ class SInt64IncorrectType(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
+class SInt64Example(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
 class Fixed32None(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -809,6 +843,12 @@ class Fixed32Ignore(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class Fixed32IncorrectType(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class Fixed32Example(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -898,6 +938,12 @@ class Fixed64IncorrectType(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
+class Fixed64Example(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
 class SFixed32None(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -982,6 +1028,12 @@ class SFixed32IncorrectType(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
+class SFixed32Example(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
 class SFixed64None(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -1061,6 +1113,12 @@ class SFixed64Ignore(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class SFixed64IncorrectType(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class SFixed64Example(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int

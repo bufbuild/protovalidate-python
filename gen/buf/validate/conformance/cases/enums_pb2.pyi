@@ -1,17 +1,3 @@
-# Copyright 2023 Buf Technologies, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 from buf.validate.conformance.cases.other_package import embed_pb2 as _embed_pb2
 from buf.validate.conformance.cases.yet_another_package import embed2_pb2 as _embed2_pb2
 from buf.validate import validate_pb2 as _validate_pb2
@@ -166,3 +152,9 @@ class EnumInsideOneof(_message.Message):
     val: TestEnum
     val2: TestEnum
     def __init__(self, val: _Optional[_Union[TestEnum, str]] = ..., val2: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
+
+class EnumExample(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: TestEnum
+    def __init__(self, val: _Optional[_Union[TestEnum, str]] = ...) -> None: ...

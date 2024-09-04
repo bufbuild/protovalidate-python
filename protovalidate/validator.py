@@ -16,12 +16,12 @@ import typing
 
 from google.protobuf import message
 
-from buf.validate import expression_pb2  # type: ignore
+from buf.validate import violation_pb2  # type: ignore
 from protovalidate.internal import constraints as _constraints
 from protovalidate.internal import extra_func
 
 CompilationError = _constraints.CompilationError
-Violations = expression_pb2.Violations
+Violations = violation_pb2.Violations
 
 
 class Validator:
@@ -65,8 +65,8 @@ class Validator:
         message: message.Message,
         *,
         fail_fast: bool = False,
-        into: expression_pb2.Violations = None,
-    ) -> expression_pb2.Violations:
+        into: violation_pb2.Violations = None,
+    ) -> violation_pb2.Violations:
         """
         Validates the given message against the static constraints defined in
         the message's descriptor. Compared to validate, collect_violations is
@@ -94,13 +94,13 @@ class ValidationError(ValueError):
     An error raised when a message fails to validate.
     """
 
-    violations: expression_pb2.Violations
+    violations: violation_pb2.Violations
 
-    def __init__(self, msg: str, violations: expression_pb2.Violations):
+    def __init__(self, msg: str, violations: violation_pb2.Violations):
         super().__init__(msg)
         self.violations = violations
 
-    def errors(self) -> typing.List[expression_pb2.Violation]:
+    def errors(self) -> typing.List[violation_pb2.Violation]:
         """
         Returns the validation errors as a simple Python list, rather than the
         Protobuf-specific collection type used by Violations.

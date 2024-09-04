@@ -43,6 +43,9 @@ from buf.validate.conformance.cases import (
     required_field_proto2_pb2,  # noqa: F401
     required_field_proto3_pb2,  # noqa: F401
     required_field_proto_editions_pb2,  # noqa: F401
+    shared_rules_proto2_pb2,  # noqa: F401
+    shared_rules_proto3_pb2,  # noqa: F401
+    shared_rules_proto_editions_pb2,  # noqa: F401
     strings_pb2,  # noqa: F401
     wkt_any_pb2,  # noqa: F401
     wkt_duration_pb2,  # noqa: F401
