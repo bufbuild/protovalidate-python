@@ -113,6 +113,20 @@ _TYPE_TO_CTOR = {
 }
 
 
+def _proto_message_has_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+    if field.is_extension:
+        return msg.HasExtension(field)  # type: ignore
+    else:
+        return msg.HasField(field.name)
+
+
+def _proto_message_get_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+    if field.is_extension:
+        return msg.Extensions[field]  # type: ignore
+    else:
+        return getattr(msg, field.name)
+
+
 def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     ctor = _TYPE_TO_CTOR.get(field.type)
     if ctor is None:
@@ -131,16 +145,16 @@ def _field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> c
 
 def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
     if field.has_presence:  # type: ignore[attr-defined]
-        return not msg.HasField(field.name)
+        return not _proto_message_has_field(msg, field)
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-        return len(getattr(msg, field.name)) == 0
-    return getattr(msg, field.name) == field.default_value
+        return len(_proto_message_get_field(msg, field)) == 0
+    return _proto_message_get_field(msg, field) == field.default_value
 
 
 def _repeated_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.message_type is not None and field.message_type.GetOptions().map_entry:
         return _map_field_to_cel(msg, field)
-    return _repeated_field_value_to_cel(getattr(msg, field.name), field)
+    return _repeated_field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
 def _repeated_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
@@ -160,16 +174,16 @@ def _map_field_value_to_cel(mapping: typing.Any, field: descriptor.FieldDescript
 
 
 def _map_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    return _map_field_value_to_cel(getattr(msg, field.name), field)
+    return _map_field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
 def _field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return _repeated_field_to_cel(msg, field)
-    elif field.message_type is not None and not msg.HasField(field.name):
+    elif field.message_type is not None and not _proto_message_has_field(msg, field):
         return None
     else:
-        return _scalar_field_value_to_cel(getattr(msg, field.name), field)
+        return _scalar_field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
 class ConstraintContext:
