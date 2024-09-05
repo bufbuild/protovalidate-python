@@ -245,7 +245,7 @@ class ConstraintRules:
 class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
-    _runners: typing.List[typing.Tuple[celpy.Runner, typing.Union[constraints_pb2.Constraint, constraints_pb2.Constraint]]]
+    _runners: typing.List[typing.Tuple[celpy.Runner, typing.Union[constraints_pb2.Constraint, constraints_pb2.Constraint], typing.Optional[celtypes.Value]]]
     _rules_cel: celtypes.Value = None
 
     def __init__(self, rules: typing.Optional[message.Message]):
@@ -263,7 +263,8 @@ class CelConstraintRules(ConstraintRules):
     ):
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
-        for runner, constraint in self._runners:
+        for runner, constraint, rule in self._runners:
+            activation["rule"] = rule
             result = runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
                 if not result:
@@ -279,10 +280,12 @@ class CelConstraintRules(ConstraintRules):
         env: celpy.Environment,
         funcs: typing.Dict[str, celpy.CELFunction],
         rules: typing.Union[constraints_pb2.Constraint, constraints_pb2.Constraint],
+        *,
+        rule: typing.Optional[celtypes.Value] = None,
     ):
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
-        self._runners.append((prog, rules))
+        self._runners.append((prog, rules, rule))
 
 
 class MessageConstraintRules(CelConstraintRules):
@@ -357,7 +360,7 @@ class FieldConstraintRules(CelConstraintRules):
             for list_field, _ in rules.ListFields():
                 if constraints_pb2.field in list_field.GetOptions().Extensions:
                     for cel in list_field.GetOptions().Extensions[constraints_pb2.field].cel:
-                        self.add_rule(env, funcs, cel)
+                        self.add_rule(env, funcs, cel, rule=_field_to_cel(rules, list_field))
         for cel in field_level.cel:
             self.add_rule(env, funcs, cel)
 
