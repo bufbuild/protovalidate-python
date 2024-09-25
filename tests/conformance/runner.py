@@ -39,6 +39,9 @@ from buf.validate.conformance.cases import (
     messages_pb2,  # noqa: F401
     numbers_pb2,  # noqa: F401
     oneofs_pb2,  # noqa: F401
+    predefined_rules_proto2_pb2,  # noqa: F401
+    predefined_rules_proto3_pb2,  # noqa: F401
+    predefined_rules_proto_editions_pb2,  # noqa: F401
     repeated_pb2,  # noqa: F401
     required_field_proto2_pb2,  # noqa: F401
     required_field_proto3_pb2,  # noqa: F401

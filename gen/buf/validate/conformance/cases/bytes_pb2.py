@@ -39,7 +39,7 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*buf/validate/conformance/cases/bytes.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1d\n\tBytesNone\x12\x10\n\x03val\x18\x01 \x01(\x0cR\x03val\"*\n\nBytesConst\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xbaH\x07z\x05\n\x03\x66ooR\x03val\",\n\x07\x42ytesIn\x12!\n\x03val\x18\x01 \x01(\x0c\x42\x0f\xbaH\x0cz\nB\x03\x62\x61rB\x03\x62\x61zR\x03val\"1\n\nBytesNotIn\x12#\n\x03val\x18\x01 \x01(\x0c\x42\x11\xbaH\x0ez\x0cJ\x04\x66izzJ\x04\x62uzzR\x03val\"%\n\x08\x42ytesLen\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02h\x03R\x03val\"(\n\x0b\x42ytesMinLen\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02\x10\x03R\x03val\"(\n\x0b\x42ytesMaxLen\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02\x18\x05R\x03val\"-\n\x0e\x42ytesMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\x0c\x42\t\xbaH\x06z\x04\x10\x03\x18\x05R\x03val\"2\n\x13\x42ytesEqualMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\x0c\x42\t\xbaH\x06z\x04\x10\x05\x18\x05R\x03val\"7\n\x0c\x42ytesPattern\x12\'\n\x03val\x18\x01 \x01(\x0c\x42\x15\xbaH\x12z\x10\"\x0e^[\\x00-\\x7F]+$R\x03val\")\n\x0b\x42ytesPrefix\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xbaH\x05z\x03*\x01\x99R\x03val\"-\n\rBytesContains\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xbaH\x07z\x05:\x03\x62\x61rR\x03val\",\n\x0b\x42ytesSuffix\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xbaH\x08z\x06\x32\x04\x62uzzR\x03val\"$\n\x07\x42ytesIP\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02P\x01R\x03val\"&\n\tBytesIPv4\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02X\x01R\x03val\"&\n\tBytesIPv6\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02`\x01R\x03val\"/\n\x0f\x42ytesIPv6Ignore\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xbaH\x07z\x02`\x01\xd0\x01\x01R\x03valb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*buf/validate/conformance/cases/bytes.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1d\n\tBytesNone\x12\x10\n\x03val\x18\x01 \x01(\x0cR\x03val\"*\n\nBytesConst\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xbaH\x07z\x05\n\x03\x66ooR\x03val\",\n\x07\x42ytesIn\x12!\n\x03val\x18\x01 \x01(\x0c\x42\x0f\xbaH\x0cz\nB\x03\x62\x61rB\x03\x62\x61zR\x03val\"1\n\nBytesNotIn\x12#\n\x03val\x18\x01 \x01(\x0c\x42\x11\xbaH\x0ez\x0cJ\x04\x66izzJ\x04\x62uzzR\x03val\"%\n\x08\x42ytesLen\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02h\x03R\x03val\"(\n\x0b\x42ytesMinLen\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02\x10\x03R\x03val\"(\n\x0b\x42ytesMaxLen\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02\x18\x05R\x03val\"-\n\x0e\x42ytesMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\x0c\x42\t\xbaH\x06z\x04\x10\x03\x18\x05R\x03val\"2\n\x13\x42ytesEqualMinMaxLen\x12\x1b\n\x03val\x18\x01 \x01(\x0c\x42\t\xbaH\x06z\x04\x10\x05\x18\x05R\x03val\"7\n\x0c\x42ytesPattern\x12\'\n\x03val\x18\x01 \x01(\x0c\x42\x15\xbaH\x12z\x10\"\x0e^[\\x00-\\x7F]+$R\x03val\")\n\x0b\x42ytesPrefix\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xbaH\x05z\x03*\x01\x99R\x03val\"-\n\rBytesContains\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xbaH\x07z\x05:\x03\x62\x61rR\x03val\",\n\x0b\x42ytesSuffix\x12\x1d\n\x03val\x18\x01 \x01(\x0c\x42\x0b\xbaH\x08z\x06\x32\x04\x62uzzR\x03val\"$\n\x07\x42ytesIP\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02P\x01R\x03val\"\'\n\nBytesNotIP\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02P\x00R\x03val\"&\n\tBytesIPv4\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02X\x01R\x03val\")\n\x0c\x42ytesNotIPv4\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02X\x00R\x03val\"&\n\tBytesIPv6\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02`\x01R\x03val\")\n\x0c\x42ytesNotIPv6\x12\x19\n\x03val\x18\x01 \x01(\x0c\x42\x07\xbaH\x04z\x02`\x00R\x03val\"/\n\x0f\x42ytesIPv6Ignore\x12\x1c\n\x03val\x18\x01 \x01(\x0c\x42\n\xbaH\x07z\x02`\x01\xd0\x01\x01R\x03val\"*\n\x0c\x42ytesExample\x12\x1a\n\x03val\x18\x01 \x01(\x0c\x42\x08\xbaH\x05z\x03r\x01\x99R\x03valb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -72,12 +72,20 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_BYTESSUFFIX'].fields_by_name['val']._serialized_options = b'\272H\010z\0062\004buzz'
   _globals['_BYTESIP'].fields_by_name['val']._loaded_options = None
   _globals['_BYTESIP'].fields_by_name['val']._serialized_options = b'\272H\004z\002P\001'
+  _globals['_BYTESNOTIP'].fields_by_name['val']._loaded_options = None
+  _globals['_BYTESNOTIP'].fields_by_name['val']._serialized_options = b'\272H\004z\002P\000'
   _globals['_BYTESIPV4'].fields_by_name['val']._loaded_options = None
   _globals['_BYTESIPV4'].fields_by_name['val']._serialized_options = b'\272H\004z\002X\001'
+  _globals['_BYTESNOTIPV4'].fields_by_name['val']._loaded_options = None
+  _globals['_BYTESNOTIPV4'].fields_by_name['val']._serialized_options = b'\272H\004z\002X\000'
   _globals['_BYTESIPV6'].fields_by_name['val']._loaded_options = None
   _globals['_BYTESIPV6'].fields_by_name['val']._serialized_options = b'\272H\004z\002`\001'
+  _globals['_BYTESNOTIPV6'].fields_by_name['val']._loaded_options = None
+  _globals['_BYTESNOTIPV6'].fields_by_name['val']._serialized_options = b'\272H\004z\002`\000'
   _globals['_BYTESIPV6IGNORE'].fields_by_name['val']._loaded_options = None
   _globals['_BYTESIPV6IGNORE'].fields_by_name['val']._serialized_options = b'\272H\007z\002`\001\320\001\001'
+  _globals['_BYTESEXAMPLE'].fields_by_name['val']._loaded_options = None
+  _globals['_BYTESEXAMPLE'].fields_by_name['val']._serialized_options = b'\272H\005z\003r\001\231'
   _globals['_BYTESNONE']._serialized_start=107
   _globals['_BYTESNONE']._serialized_end=136
   _globals['_BYTESCONST']._serialized_start=138
@@ -106,10 +114,18 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_BYTESSUFFIX']._serialized_end=692
   _globals['_BYTESIP']._serialized_start=694
   _globals['_BYTESIP']._serialized_end=730
-  _globals['_BYTESIPV4']._serialized_start=732
-  _globals['_BYTESIPV4']._serialized_end=770
-  _globals['_BYTESIPV6']._serialized_start=772
-  _globals['_BYTESIPV6']._serialized_end=810
-  _globals['_BYTESIPV6IGNORE']._serialized_start=812
-  _globals['_BYTESIPV6IGNORE']._serialized_end=859
+  _globals['_BYTESNOTIP']._serialized_start=732
+  _globals['_BYTESNOTIP']._serialized_end=771
+  _globals['_BYTESIPV4']._serialized_start=773
+  _globals['_BYTESIPV4']._serialized_end=811
+  _globals['_BYTESNOTIPV4']._serialized_start=813
+  _globals['_BYTESNOTIPV4']._serialized_end=854
+  _globals['_BYTESIPV6']._serialized_start=856
+  _globals['_BYTESIPV6']._serialized_end=894
+  _globals['_BYTESNOTIPV6']._serialized_start=896
+  _globals['_BYTESNOTIPV6']._serialized_end=937
+  _globals['_BYTESIPV6IGNORE']._serialized_start=939
+  _globals['_BYTESIPV6IGNORE']._serialized_end=986
+  _globals['_BYTESEXAMPLE']._serialized_start=988
+  _globals['_BYTESEXAMPLE']._serialized_end=1030
 # @@protoc_insertion_point(module_scope)

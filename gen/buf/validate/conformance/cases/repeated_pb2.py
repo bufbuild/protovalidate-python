@@ -42,7 +42,7 @@ from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 from google.protobuf import duration_pb2 as google_dot_protobuf_dot_duration__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-buf/validate/conformance/cases/repeated.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x38\x62uf/validate/conformance/cases/other_package/embed.proto\x1a\x1b\x62uf/validate/validate.proto\x1a\x19google/protobuf/any.proto\x1a\x1egoogle/protobuf/duration.proto\"\"\n\x05\x45mbed\x12\x19\n\x03val\x18\x01 \x01(\x03\x42\x07\xbaH\x04\"\x02 \x00R\x03val\" \n\x0cRepeatedNone\x12\x10\n\x03val\x18\x01 \x03(\x03R\x03val\"L\n\x11RepeatedEmbedNone\x12\x37\n\x03val\x18\x01 \x03(\x0b\x32%.buf.validate.conformance.cases.EmbedR\x03val\"f\n\x1dRepeatedEmbedCrossPackageNone\x12\x45\n\x03val\x18\x01 \x03(\x0b\x32\x33.buf.validate.conformance.cases.other_package.EmbedR\x03val\"P\n\x0bRepeatedMin\x12\x41\n\x03val\x18\x01 \x03(\x0b\x32%.buf.validate.conformance.cases.EmbedB\x08\xbaH\x05\x92\x01\x02\x08\x02R\x03val\")\n\x0bRepeatedMax\x12\x1a\n\x03val\x18\x01 \x03(\x01\x42\x08\xbaH\x05\x92\x01\x02\x10\x03R\x03val\".\n\x0eRepeatedMinMax\x12\x1c\n\x03val\x18\x01 \x03(\x0f\x42\n\xbaH\x07\x92\x01\x04\x08\x02\x10\x04R\x03val\"-\n\rRepeatedExact\x12\x1c\n\x03val\x18\x01 \x03(\rB\n\xbaH\x07\x92\x01\x04\x08\x03\x10\x03R\x03val\",\n\x0eRepeatedUnique\x12\x1a\n\x03val\x18\x01 \x03(\tB\x08\xbaH\x05\x92\x01\x02\x18\x01R\x03val\"H\n\x16RepeatedMultipleUnique\x12\x16\n\x01\x61\x18\x01 \x03(\tB\x08\xbaH\x05\x92\x01\x02\x18\x01R\x01\x61\x12\x16\n\x01\x62\x18\x02 \x03(\x05\x42\x08\xbaH\x05\x92\x01\x02\x18\x01R\x01\x62\"5\n\x10RepeatedItemRule\x12!\n\x03val\x18\x01 \x03(\x02\x42\x0f\xbaH\x0c\x92\x01\t\"\x07\n\x05%\x00\x00\x00\x00R\x03val\"D\n\x13RepeatedItemPattern\x12-\n\x03val\x18\x01 \x03(\tB\x1b\xbaH\x18\x92\x01\x15\"\x13r\x11\x32\x0f(?i)^[a-z0-9]+$R\x03val\"Y\n\x11RepeatedEmbedSkip\x12\x44\n\x03val\x18\x01 \x03(\x0b\x32%.buf.validate.conformance.cases.EmbedB\x0b\xbaH\x08\x92\x01\x05\"\x03\xd8\x01\x03R\x03val\"8\n\x0eRepeatedItemIn\x12&\n\x03val\x18\x01 \x03(\tB\x14\xbaH\x11\x92\x01\x0e\"\x0cr\nR\x03\x66ooR\x03\x62\x61rR\x03val\";\n\x11RepeatedItemNotIn\x12&\n\x03val\x18\x01 \x03(\tB\x14\xbaH\x11\x92\x01\x0e\"\x0cr\nZ\x03\x66ooZ\x03\x62\x61rR\x03val\"Z\n\x0eRepeatedEnumIn\x12H\n\x03val\x18\x01 \x03(\x0e\x32&.buf.validate.conformance.cases.AnEnumB\x0e\xbaH\x0b\x92\x01\x08\"\x06\x82\x01\x03\x1a\x01\x00R\x03val\"]\n\x11RepeatedEnumNotIn\x12H\n\x03val\x18\x01 \x03(\x0e\x32&.buf.validate.conformance.cases.AnEnumB\x0e\xbaH\x0b\x92\x01\x08\"\x06\x82\x01\x03\"\x01\x00R\x03val\"\xe0\x01\n\x16RepeatedEmbeddedEnumIn\x12\x66\n\x03val\x18\x01 \x03(\x0e\x32\x44.buf.validate.conformance.cases.RepeatedEmbeddedEnumIn.AnotherInEnumB\x0e\xbaH\x0b\x92\x01\x08\"\x06\x82\x01\x03\x1a\x01\x00R\x03val\"^\n\rAnotherInEnum\x12\x1f\n\x1b\x41NOTHER_IN_ENUM_UNSPECIFIED\x10\x00\x12\x15\n\x11\x41NOTHER_IN_ENUM_A\x10\x01\x12\x15\n\x11\x41NOTHER_IN_ENUM_B\x10\x02\"\xf8\x01\n\x19RepeatedEmbeddedEnumNotIn\x12l\n\x03val\x18\x01 \x03(\x0e\x32J.buf.validate.conformance.cases.RepeatedEmbeddedEnumNotIn.AnotherNotInEnumB\x0e\xbaH\x0b\x92\x01\x08\"\x06\x82\x01\x03\"\x01\x00R\x03val\"m\n\x10\x41notherNotInEnum\x12#\n\x1f\x41NOTHER_NOT_IN_ENUM_UNSPECIFIED\x10\x00\x12\x19\n\x15\x41NOTHER_NOT_IN_ENUM_A\x10\x01\x12\x19\n\x15\x41NOTHER_NOT_IN_ENUM_B\x10\x02\"r\n\rRepeatedAnyIn\x12\x61\n\x03val\x18\x01 \x03(\x0b\x32\x14.google.protobuf.AnyB9\xbaH6\x92\x01\x33\"1\xa2\x01.\x12,type.googleapis.com/google.protobuf.DurationR\x03val\"v\n\x10RepeatedAnyNotIn\x12\x62\n\x03val\x18\x01 \x03(\x0b\x32\x14.google.protobuf.AnyB:\xbaH7\x92\x01\x34\"2\xa2\x01/\x1a-type.googleapis.com/google.protobuf.TimestampR\x03val\":\n\x15RepeatedMinAndItemLen\x12!\n\x03val\x18\x01 \x03(\tB\x0f\xbaH\x0c\x92\x01\t\x08\x01\"\x05r\x03\x98\x01\x03R\x03val\"8\n\x18RepeatedMinAndMaxItemLen\x12\x1c\n\x03val\x18\x01 \x03(\tB\n\xbaH\x07\x92\x01\x04\x08\x01\x10\x03R\x03val\"R\n\x10RepeatedDuration\x12>\n\x03val\x18\x01 \x03(\x0b\x32\x19.google.protobuf.DurationB\x11\xbaH\x0e\x92\x01\x0b\"\t\xaa\x01\x06\x32\x04\x10\xc0\x84=R\x03val\"6\n\x13RepeatedExactIgnore\x12\x1f\n\x03val\x18\x01 \x03(\rB\r\xbaH\n\x92\x01\x04\x08\x03\x10\x03\xd0\x01\x01R\x03val*?\n\x06\x41nEnum\x12\x17\n\x13\x41N_ENUM_UNSPECIFIED\x10\x00\x12\r\n\tAN_ENUM_X\x10\x01\x12\r\n\tAN_ENUM_Y\x10\x02\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-buf/validate/conformance/cases/repeated.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x38\x62uf/validate/conformance/cases/other_package/embed.proto\x1a\x1b\x62uf/validate/validate.proto\x1a\x19google/protobuf/any.proto\x1a\x1egoogle/protobuf/duration.proto\"\"\n\x05\x45mbed\x12\x19\n\x03val\x18\x01 \x01(\x03\x42\x07\xbaH\x04\"\x02 \x00R\x03val\" \n\x0cRepeatedNone\x12\x10\n\x03val\x18\x01 \x03(\x03R\x03val\"L\n\x11RepeatedEmbedNone\x12\x37\n\x03val\x18\x01 \x03(\x0b\x32%.buf.validate.conformance.cases.EmbedR\x03val\"f\n\x1dRepeatedEmbedCrossPackageNone\x12\x45\n\x03val\x18\x01 \x03(\x0b\x32\x33.buf.validate.conformance.cases.other_package.EmbedR\x03val\"P\n\x0bRepeatedMin\x12\x41\n\x03val\x18\x01 \x03(\x0b\x32%.buf.validate.conformance.cases.EmbedB\x08\xbaH\x05\x92\x01\x02\x08\x02R\x03val\")\n\x0bRepeatedMax\x12\x1a\n\x03val\x18\x01 \x03(\x01\x42\x08\xbaH\x05\x92\x01\x02\x10\x03R\x03val\".\n\x0eRepeatedMinMax\x12\x1c\n\x03val\x18\x01 \x03(\x0f\x42\n\xbaH\x07\x92\x01\x04\x08\x02\x10\x04R\x03val\"-\n\rRepeatedExact\x12\x1c\n\x03val\x18\x01 \x03(\rB\n\xbaH\x07\x92\x01\x04\x08\x03\x10\x03R\x03val\",\n\x0eRepeatedUnique\x12\x1a\n\x03val\x18\x01 \x03(\tB\x08\xbaH\x05\x92\x01\x02\x18\x01R\x03val\"/\n\x11RepeatedNotUnique\x12\x1a\n\x03val\x18\x01 \x03(\tB\x08\xbaH\x05\x92\x01\x02\x18\x00R\x03val\"H\n\x16RepeatedMultipleUnique\x12\x16\n\x01\x61\x18\x01 \x03(\tB\x08\xbaH\x05\x92\x01\x02\x18\x01R\x01\x61\x12\x16\n\x01\x62\x18\x02 \x03(\x05\x42\x08\xbaH\x05\x92\x01\x02\x18\x01R\x01\x62\"5\n\x10RepeatedItemRule\x12!\n\x03val\x18\x01 \x03(\x02\x42\x0f\xbaH\x0c\x92\x01\t\"\x07\n\x05%\x00\x00\x00\x00R\x03val\"D\n\x13RepeatedItemPattern\x12-\n\x03val\x18\x01 \x03(\tB\x1b\xbaH\x18\x92\x01\x15\"\x13r\x11\x32\x0f(?i)^[a-z0-9]+$R\x03val\"Y\n\x11RepeatedEmbedSkip\x12\x44\n\x03val\x18\x01 \x03(\x0b\x32%.buf.validate.conformance.cases.EmbedB\x0b\xbaH\x08\x92\x01\x05\"\x03\xd8\x01\x03R\x03val\"8\n\x0eRepeatedItemIn\x12&\n\x03val\x18\x01 \x03(\tB\x14\xbaH\x11\x92\x01\x0e\"\x0cr\nR\x03\x66ooR\x03\x62\x61rR\x03val\";\n\x11RepeatedItemNotIn\x12&\n\x03val\x18\x01 \x03(\tB\x14\xbaH\x11\x92\x01\x0e\"\x0cr\nZ\x03\x66ooZ\x03\x62\x61rR\x03val\"Y\n\x0eRepeatedEnumIn\x12G\n\x03val\x18\x01 \x03(\x0e\x32&.buf.validate.conformance.cases.AnEnumB\r\xbaH\n\x92\x01\x07\"\x05\x82\x01\x02\x18\x00R\x03val\"\\\n\x11RepeatedEnumNotIn\x12G\n\x03val\x18\x01 \x03(\x0e\x32&.buf.validate.conformance.cases.AnEnumB\r\xbaH\n\x92\x01\x07\"\x05\x82\x01\x02 \x00R\x03val\"\xdf\x01\n\x16RepeatedEmbeddedEnumIn\x12\x65\n\x03val\x18\x01 \x03(\x0e\x32\x44.buf.validate.conformance.cases.RepeatedEmbeddedEnumIn.AnotherInEnumB\r\xbaH\n\x92\x01\x07\"\x05\x82\x01\x02\x18\x00R\x03val\"^\n\rAnotherInEnum\x12\x1f\n\x1b\x41NOTHER_IN_ENUM_UNSPECIFIED\x10\x00\x12\x15\n\x11\x41NOTHER_IN_ENUM_A\x10\x01\x12\x15\n\x11\x41NOTHER_IN_ENUM_B\x10\x02\"\xf7\x01\n\x19RepeatedEmbeddedEnumNotIn\x12k\n\x03val\x18\x01 \x03(\x0e\x32J.buf.validate.conformance.cases.RepeatedEmbeddedEnumNotIn.AnotherNotInEnumB\r\xbaH\n\x92\x01\x07\"\x05\x82\x01\x02 \x00R\x03val\"m\n\x10\x41notherNotInEnum\x12#\n\x1f\x41NOTHER_NOT_IN_ENUM_UNSPECIFIED\x10\x00\x12\x19\n\x15\x41NOTHER_NOT_IN_ENUM_A\x10\x01\x12\x19\n\x15\x41NOTHER_NOT_IN_ENUM_B\x10\x02\"r\n\rRepeatedAnyIn\x12\x61\n\x03val\x18\x01 \x03(\x0b\x32\x14.google.protobuf.AnyB9\xbaH6\x92\x01\x33\"1\xa2\x01.\x12,type.googleapis.com/google.protobuf.DurationR\x03val\"v\n\x10RepeatedAnyNotIn\x12\x62\n\x03val\x18\x01 \x03(\x0b\x32\x14.google.protobuf.AnyB:\xbaH7\x92\x01\x34\"2\xa2\x01/\x1a-type.googleapis.com/google.protobuf.TimestampR\x03val\":\n\x15RepeatedMinAndItemLen\x12!\n\x03val\x18\x01 \x03(\tB\x0f\xbaH\x0c\x92\x01\t\x08\x01\"\x05r\x03\x98\x01\x03R\x03val\"8\n\x18RepeatedMinAndMaxItemLen\x12\x1c\n\x03val\x18\x01 \x03(\tB\n\xbaH\x07\x92\x01\x04\x08\x01\x10\x03R\x03val\"R\n\x10RepeatedDuration\x12>\n\x03val\x18\x01 \x03(\x0b\x32\x19.google.protobuf.DurationB\x11\xbaH\x0e\x92\x01\x0b\"\t\xaa\x01\x06\x32\x04\x10\xc0\x84=R\x03val\"6\n\x13RepeatedExactIgnore\x12\x1f\n\x03val\x18\x01 \x03(\rB\r\xbaH\n\x92\x01\x04\x08\x03\x10\x03\xd0\x01\x01R\x03val*?\n\x06\x41nEnum\x12\x17\n\x13\x41N_ENUM_UNSPECIFIED\x10\x00\x12\r\n\tAN_ENUM_X\x10\x01\x12\r\n\tAN_ENUM_Y\x10\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -61,6 +61,8 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_REPEATEDEXACT'].fields_by_name['val']._serialized_options = b'\272H\007\222\001\004\010\003\020\003'
   _globals['_REPEATEDUNIQUE'].fields_by_name['val']._loaded_options = None
   _globals['_REPEATEDUNIQUE'].fields_by_name['val']._serialized_options = b'\272H\005\222\001\002\030\001'
+  _globals['_REPEATEDNOTUNIQUE'].fields_by_name['val']._loaded_options = None
+  _globals['_REPEATEDNOTUNIQUE'].fields_by_name['val']._serialized_options = b'\272H\005\222\001\002\030\000'
   _globals['_REPEATEDMULTIPLEUNIQUE'].fields_by_name['a']._loaded_options = None
   _globals['_REPEATEDMULTIPLEUNIQUE'].fields_by_name['a']._serialized_options = b'\272H\005\222\001\002\030\001'
   _globals['_REPEATEDMULTIPLEUNIQUE'].fields_by_name['b']._loaded_options = None
@@ -76,13 +78,13 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_REPEATEDITEMNOTIN'].fields_by_name['val']._loaded_options = None
   _globals['_REPEATEDITEMNOTIN'].fields_by_name['val']._serialized_options = b'\272H\021\222\001\016\"\014r\nZ\003fooZ\003bar'
   _globals['_REPEATEDENUMIN'].fields_by_name['val']._loaded_options = None
-  _globals['_REPEATEDENUMIN'].fields_by_name['val']._serialized_options = b'\272H\013\222\001\010\"\006\202\001\003\032\001\000'
+  _globals['_REPEATEDENUMIN'].fields_by_name['val']._serialized_options = b'\272H\n\222\001\007\"\005\202\001\002\030\000'
   _globals['_REPEATEDENUMNOTIN'].fields_by_name['val']._loaded_options = None
-  _globals['_REPEATEDENUMNOTIN'].fields_by_name['val']._serialized_options = b'\272H\013\222\001\010\"\006\202\001\003\"\001\000'
+  _globals['_REPEATEDENUMNOTIN'].fields_by_name['val']._serialized_options = b'\272H\n\222\001\007\"\005\202\001\002 \000'
   _globals['_REPEATEDEMBEDDEDENUMIN'].fields_by_name['val']._loaded_options = None
-  _globals['_REPEATEDEMBEDDEDENUMIN'].fields_by_name['val']._serialized_options = b'\272H\013\222\001\010\"\006\202\001\003\032\001\000'
+  _globals['_REPEATEDEMBEDDEDENUMIN'].fields_by_name['val']._serialized_options = b'\272H\n\222\001\007\"\005\202\001\002\030\000'
   _globals['_REPEATEDEMBEDDEDENUMNOTIN'].fields_by_name['val']._loaded_options = None
-  _globals['_REPEATEDEMBEDDEDENUMNOTIN'].fields_by_name['val']._serialized_options = b'\272H\013\222\001\010\"\006\202\001\003\"\001\000'
+  _globals['_REPEATEDEMBEDDEDENUMNOTIN'].fields_by_name['val']._serialized_options = b'\272H\n\222\001\007\"\005\202\001\002 \000'
   _globals['_REPEATEDANYIN'].fields_by_name['val']._loaded_options = None
   _globals['_REPEATEDANYIN'].fields_by_name['val']._serialized_options = b'\272H6\222\0013\"1\242\001.\022,type.googleapis.com/google.protobuf.Duration'
   _globals['_REPEATEDANYNOTIN'].fields_by_name['val']._loaded_options = None
@@ -95,8 +97,8 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_REPEATEDDURATION'].fields_by_name['val']._serialized_options = b'\272H\016\222\001\013\"\t\252\001\0062\004\020\300\204='
   _globals['_REPEATEDEXACTIGNORE'].fields_by_name['val']._loaded_options = None
   _globals['_REPEATEDEXACTIGNORE'].fields_by_name['val']._serialized_options = b'\272H\n\222\001\004\010\003\020\003\320\001\001'
-  _globals['_ANENUM']._serialized_start=2313
-  _globals['_ANENUM']._serialized_end=2376
+  _globals['_ANENUM']._serialized_start=2358
+  _globals['_ANENUM']._serialized_end=2421
   _globals['_EMBED']._serialized_start=227
   _globals['_EMBED']._serialized_end=261
   _globals['_REPEATEDNONE']._serialized_start=263
@@ -115,40 +117,42 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_REPEATEDEXACT']._serialized_end=697
   _globals['_REPEATEDUNIQUE']._serialized_start=699
   _globals['_REPEATEDUNIQUE']._serialized_end=743
-  _globals['_REPEATEDMULTIPLEUNIQUE']._serialized_start=745
-  _globals['_REPEATEDMULTIPLEUNIQUE']._serialized_end=817
-  _globals['_REPEATEDITEMRULE']._serialized_start=819
-  _globals['_REPEATEDITEMRULE']._serialized_end=872
-  _globals['_REPEATEDITEMPATTERN']._serialized_start=874
-  _globals['_REPEATEDITEMPATTERN']._serialized_end=942
-  _globals['_REPEATEDEMBEDSKIP']._serialized_start=944
-  _globals['_REPEATEDEMBEDSKIP']._serialized_end=1033
-  _globals['_REPEATEDITEMIN']._serialized_start=1035
-  _globals['_REPEATEDITEMIN']._serialized_end=1091
-  _globals['_REPEATEDITEMNOTIN']._serialized_start=1093
-  _globals['_REPEATEDITEMNOTIN']._serialized_end=1152
-  _globals['_REPEATEDENUMIN']._serialized_start=1154
-  _globals['_REPEATEDENUMIN']._serialized_end=1244
-  _globals['_REPEATEDENUMNOTIN']._serialized_start=1246
-  _globals['_REPEATEDENUMNOTIN']._serialized_end=1339
-  _globals['_REPEATEDEMBEDDEDENUMIN']._serialized_start=1342
-  _globals['_REPEATEDEMBEDDEDENUMIN']._serialized_end=1566
-  _globals['_REPEATEDEMBEDDEDENUMIN_ANOTHERINENUM']._serialized_start=1472
-  _globals['_REPEATEDEMBEDDEDENUMIN_ANOTHERINENUM']._serialized_end=1566
-  _globals['_REPEATEDEMBEDDEDENUMNOTIN']._serialized_start=1569
-  _globals['_REPEATEDEMBEDDEDENUMNOTIN']._serialized_end=1817
-  _globals['_REPEATEDEMBEDDEDENUMNOTIN_ANOTHERNOTINENUM']._serialized_start=1708
-  _globals['_REPEATEDEMBEDDEDENUMNOTIN_ANOTHERNOTINENUM']._serialized_end=1817
-  _globals['_REPEATEDANYIN']._serialized_start=1819
-  _globals['_REPEATEDANYIN']._serialized_end=1933
-  _globals['_REPEATEDANYNOTIN']._serialized_start=1935
-  _globals['_REPEATEDANYNOTIN']._serialized_end=2053
-  _globals['_REPEATEDMINANDITEMLEN']._serialized_start=2055
-  _globals['_REPEATEDMINANDITEMLEN']._serialized_end=2113
-  _globals['_REPEATEDMINANDMAXITEMLEN']._serialized_start=2115
-  _globals['_REPEATEDMINANDMAXITEMLEN']._serialized_end=2171
-  _globals['_REPEATEDDURATION']._serialized_start=2173
-  _globals['_REPEATEDDURATION']._serialized_end=2255
-  _globals['_REPEATEDEXACTIGNORE']._serialized_start=2257
-  _globals['_REPEATEDEXACTIGNORE']._serialized_end=2311
+  _globals['_REPEATEDNOTUNIQUE']._serialized_start=745
+  _globals['_REPEATEDNOTUNIQUE']._serialized_end=792
+  _globals['_REPEATEDMULTIPLEUNIQUE']._serialized_start=794
+  _globals['_REPEATEDMULTIPLEUNIQUE']._serialized_end=866
+  _globals['_REPEATEDITEMRULE']._serialized_start=868
+  _globals['_REPEATEDITEMRULE']._serialized_end=921
+  _globals['_REPEATEDITEMPATTERN']._serialized_start=923
+  _globals['_REPEATEDITEMPATTERN']._serialized_end=991
+  _globals['_REPEATEDEMBEDSKIP']._serialized_start=993
+  _globals['_REPEATEDEMBEDSKIP']._serialized_end=1082
+  _globals['_REPEATEDITEMIN']._serialized_start=1084
+  _globals['_REPEATEDITEMIN']._serialized_end=1140
+  _globals['_REPEATEDITEMNOTIN']._serialized_start=1142
+  _globals['_REPEATEDITEMNOTIN']._serialized_end=1201
+  _globals['_REPEATEDENUMIN']._serialized_start=1203
+  _globals['_REPEATEDENUMIN']._serialized_end=1292
+  _globals['_REPEATEDENUMNOTIN']._serialized_start=1294
+  _globals['_REPEATEDENUMNOTIN']._serialized_end=1386
+  _globals['_REPEATEDEMBEDDEDENUMIN']._serialized_start=1389
+  _globals['_REPEATEDEMBEDDEDENUMIN']._serialized_end=1612
+  _globals['_REPEATEDEMBEDDEDENUMIN_ANOTHERINENUM']._serialized_start=1518
+  _globals['_REPEATEDEMBEDDEDENUMIN_ANOTHERINENUM']._serialized_end=1612
+  _globals['_REPEATEDEMBEDDEDENUMNOTIN']._serialized_start=1615
+  _globals['_REPEATEDEMBEDDEDENUMNOTIN']._serialized_end=1862
+  _globals['_REPEATEDEMBEDDEDENUMNOTIN_ANOTHERNOTINENUM']._serialized_start=1753
+  _globals['_REPEATEDEMBEDDEDENUMNOTIN_ANOTHERNOTINENUM']._serialized_end=1862
+  _globals['_REPEATEDANYIN']._serialized_start=1864
+  _globals['_REPEATEDANYIN']._serialized_end=1978
+  _globals['_REPEATEDANYNOTIN']._serialized_start=1980
+  _globals['_REPEATEDANYNOTIN']._serialized_end=2098
+  _globals['_REPEATEDMINANDITEMLEN']._serialized_start=2100
+  _globals['_REPEATEDMINANDITEMLEN']._serialized_end=2158
+  _globals['_REPEATEDMINANDMAXITEMLEN']._serialized_start=2160
+  _globals['_REPEATEDMINANDMAXITEMLEN']._serialized_end=2216
+  _globals['_REPEATEDDURATION']._serialized_start=2218
+  _globals['_REPEATEDDURATION']._serialized_end=2300
+  _globals['_REPEATEDEXACTIGNORE']._serialized_start=2302
+  _globals['_REPEATEDEXACTIGNORE']._serialized_end=2356
 # @@protoc_insertion_point(module_scope)

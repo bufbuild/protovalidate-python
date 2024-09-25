@@ -166,3 +166,9 @@ class EnumInsideOneof(_message.Message):
     val: TestEnum
     val2: TestEnum
     def __init__(self, val: _Optional[_Union[TestEnum, str]] = ..., val2: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
+
+class EnumExample(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: TestEnum
+    def __init__(self, val: _Optional[_Union[TestEnum, str]] = ...) -> None: ...

@@ -19,8 +19,7 @@ import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
 from google.protobuf import any_pb2, descriptor, message, message_factory
 
-from buf.validate import expression_pb2, validate_pb2  # type: ignore
-from buf.validate.priv import private_pb2  # type: ignore
+from buf.validate import validate_pb2  # type: ignore
 from protovalidate.internal import string_format
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
@@ -79,8 +78,11 @@ class MessageType(celtypes.MapType):
 
     def __getitem__(self, name):
         field = self.desc.fields_by_name[name]
-        if not in_has() and field.has_presence and not self.msg.HasField(name):
-            return _zero_value(field)
+        if field.has_presence and not self.msg.HasField(name):
+            if in_has():
+                raise KeyError()
+            else:
+                return _zero_value(field)
         return super().__getitem__(name)
 
 
@@ -113,6 +115,20 @@ _TYPE_TO_CTOR = {
 }
 
 
+def _proto_message_has_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+    if field.is_extension:
+        return msg.HasExtension(field)  # type: ignore
+    else:
+        return msg.HasField(field.name)
+
+
+def _proto_message_get_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+    if field.is_extension:
+        return msg.Extensions[field]  # type: ignore
+    else:
+        return getattr(msg, field.name)
+
+
 def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
     ctor = _TYPE_TO_CTOR.get(field.type)
     if ctor is None:
@@ -131,16 +147,16 @@ def _field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> c
 
 def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
     if field.has_presence:  # type: ignore[attr-defined]
-        return not msg.HasField(field.name)
+        return not _proto_message_has_field(msg, field)
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-        return len(getattr(msg, field.name)) == 0
-    return getattr(msg, field.name) == field.default_value
+        return len(_proto_message_get_field(msg, field)) == 0
+    return _proto_message_get_field(msg, field) == field.default_value
 
 
 def _repeated_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.message_type is not None and field.message_type.GetOptions().map_entry:
         return _map_field_to_cel(msg, field)
-    return _repeated_field_value_to_cel(getattr(msg, field.name), field)
+    return _repeated_field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
 def _repeated_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
@@ -160,25 +176,25 @@ def _map_field_value_to_cel(mapping: typing.Any, field: descriptor.FieldDescript
 
 
 def _map_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    return _map_field_value_to_cel(getattr(msg, field.name), field)
+    return _map_field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
 def _field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return _repeated_field_to_cel(msg, field)
-    elif field.message_type is not None and not msg.HasField(field.name):
+    elif field.message_type is not None and not _proto_message_has_field(msg, field):
         return None
     else:
-        return _scalar_field_value_to_cel(getattr(msg, field.name), field)
+        return _scalar_field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
 class ConstraintContext:
     """The state associated with a single constraint evaluation."""
 
-    def __init__(self, fail_fast: bool = False, violations: expression_pb2.Violations = None):  # noqa: FBT001, FBT002
+    def __init__(self, fail_fast: bool = False, violations: validate_pb2.Violations = None):  # noqa: FBT001, FBT002
         self._fail_fast = fail_fast
         if violations is None:
-            violations = expression_pb2.Violations()
+            violations = validate_pb2.Violations()
         self._violations = violations
 
     @property
@@ -186,12 +202,12 @@ class ConstraintContext:
         return self._fail_fast
 
     @property
-    def violations(self) -> expression_pb2.Violations:
+    def violations(self) -> validate_pb2.Violations:
         return self._violations
 
     def add(self, field_name: str, constraint_id: str, message: str, *, for_key: bool = False):
         self._violations.violations.append(
-            expression_pb2.Violation(
+            validate_pb2.Violation(
                 field_path=field_name,
                 constraint_id=constraint_id,
                 message=message,
@@ -231,7 +247,7 @@ class ConstraintRules:
 class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
-    _runners: typing.List[typing.Tuple[celpy.Runner, typing.Union[expression_pb2.Constraint, private_pb2.Constraint]]]
+    _runners: typing.List[typing.Tuple[celpy.Runner, validate_pb2.Constraint, typing.Optional[celtypes.Value]]]
     _rules_cel: celtypes.Value = None
 
     def __init__(self, rules: typing.Optional[message.Message]):
@@ -249,7 +265,8 @@ class CelConstraintRules(ConstraintRules):
     ):
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
-        for runner, constraint in self._runners:
+        for runner, constraint, rule in self._runners:
+            activation["rule"] = rule
             result = runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
                 if not result:
@@ -264,11 +281,13 @@ class CelConstraintRules(ConstraintRules):
         self,
         env: celpy.Environment,
         funcs: typing.Dict[str, celpy.CELFunction],
-        rules: typing.Union[expression_pb2.Constraint, private_pb2.Constraint],
+        rules: validate_pb2.Constraint,
+        *,
+        rule: typing.Optional[celtypes.Value] = None,
     ):
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
-        self._runners.append((prog, rules))
+        self._runners.append((prog, rules, rule))
 
 
 class MessageConstraintRules(CelConstraintRules):
@@ -341,9 +360,9 @@ class FieldConstraintRules(CelConstraintRules):
             # For each set field in the message, look for the private constraint
             # extension.
             for list_field, _ in rules.ListFields():
-                if private_pb2.field in list_field.GetOptions().Extensions:
-                    for cel in list_field.GetOptions().Extensions[private_pb2.field].cel:
-                        self.add_rule(env, funcs, cel)
+                if validate_pb2.predefined in list_field.GetOptions().Extensions:
+                    for cel in list_field.GetOptions().Extensions[validate_pb2.predefined].cel:
+                        self.add_rule(env, funcs, cel, rule=_field_to_cel(rules, list_field))
         for cel in field_level.cel:
             self.add_rule(env, funcs, cel)
 

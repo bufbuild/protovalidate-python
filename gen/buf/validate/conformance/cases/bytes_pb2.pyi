@@ -103,7 +103,19 @@ class BytesIP(_message.Message):
     val: bytes
     def __init__(self, val: _Optional[bytes] = ...) -> None: ...
 
+class BytesNotIP(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: bytes
+    def __init__(self, val: _Optional[bytes] = ...) -> None: ...
+
 class BytesIPv4(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: bytes
+    def __init__(self, val: _Optional[bytes] = ...) -> None: ...
+
+class BytesNotIPv4(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: bytes
@@ -115,7 +127,19 @@ class BytesIPv6(_message.Message):
     val: bytes
     def __init__(self, val: _Optional[bytes] = ...) -> None: ...
 
+class BytesNotIPv6(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: bytes
+    def __init__(self, val: _Optional[bytes] = ...) -> None: ...
+
 class BytesIPv6Ignore(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: bytes
+    def __init__(self, val: _Optional[bytes] = ...) -> None: ...
+
+class BytesExample(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: bytes

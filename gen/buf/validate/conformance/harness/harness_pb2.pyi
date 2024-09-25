@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate import expression_pb2 as _expression_pb2
+from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import any_pb2 as _any_pb2
 from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf.internal import containers as _containers
@@ -58,8 +58,8 @@ class TestResult(_message.Message):
     RUNTIME_ERROR_FIELD_NUMBER: _ClassVar[int]
     UNEXPECTED_ERROR_FIELD_NUMBER: _ClassVar[int]
     success: bool
-    validation_error: _expression_pb2.Violations
+    validation_error: _validate_pb2.Violations
     compilation_error: str
     runtime_error: str
     unexpected_error: str
-    def __init__(self, success: bool = ..., validation_error: _Optional[_Union[_expression_pb2.Violations, _Mapping]] = ..., compilation_error: _Optional[str] = ..., runtime_error: _Optional[str] = ..., unexpected_error: _Optional[str] = ...) -> None: ...
+    def __init__(self, success: bool = ..., validation_error: _Optional[_Union[_validate_pb2.Violations, _Mapping]] = ..., compilation_error: _Optional[str] = ..., runtime_error: _Optional[str] = ..., unexpected_error: _Optional[str] = ...) -> None: ...

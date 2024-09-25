@@ -39,7 +39,7 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n)buf/validate/conformance/cases/bool.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1c\n\x08\x42oolNone\x12\x10\n\x03val\x18\x01 \x01(\x08R\x03val\"*\n\rBoolConstTrue\x12\x19\n\x03val\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\x03val\"+\n\x0e\x42oolConstFalse\x12\x19\n\x03val\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x00R\x03valb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n)buf/validate/conformance/cases/bool.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x1c\n\x08\x42oolNone\x12\x10\n\x03val\x18\x01 \x01(\x08R\x03val\"*\n\rBoolConstTrue\x12\x19\n\x03val\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\x03val\"+\n\x0e\x42oolConstFalse\x12\x19\n\x03val\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x00R\x03val\"(\n\x0b\x42oolExample\x12\x19\n\x03val\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x10\x01R\x03valb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -50,10 +50,14 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_BOOLCONSTTRUE'].fields_by_name['val']._serialized_options = b'\272H\004j\002\010\001'
   _globals['_BOOLCONSTFALSE'].fields_by_name['val']._loaded_options = None
   _globals['_BOOLCONSTFALSE'].fields_by_name['val']._serialized_options = b'\272H\004j\002\010\000'
+  _globals['_BOOLEXAMPLE'].fields_by_name['val']._loaded_options = None
+  _globals['_BOOLEXAMPLE'].fields_by_name['val']._serialized_options = b'\272H\004j\002\020\001'
   _globals['_BOOLNONE']._serialized_start=106
   _globals['_BOOLNONE']._serialized_end=134
   _globals['_BOOLCONSTTRUE']._serialized_start=136
   _globals['_BOOLCONSTTRUE']._serialized_end=178
   _globals['_BOOLCONSTFALSE']._serialized_start=180
   _globals['_BOOLCONSTFALSE']._serialized_end=223
+  _globals['_BOOLEXAMPLE']._serialized_start=225
+  _globals['_BOOLEXAMPLE']._serialized_end=265
 # @@protoc_insertion_point(module_scope)

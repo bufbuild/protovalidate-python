@@ -105,3 +105,9 @@ class DurationFieldWithOtherFields(_message.Message):
     duration_val: _duration_pb2.Duration
     int_val: int
     def __init__(self, duration_val: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., int_val: _Optional[int] = ...) -> None: ...
+
+class DurationExample(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _duration_pb2.Duration
+    def __init__(self, val: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...

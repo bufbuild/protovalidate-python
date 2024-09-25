@@ -36,3 +36,9 @@ class BoolConstFalse(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: bool
     def __init__(self, val: bool = ...) -> None: ...
+
+class BoolExample(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: bool
+    def __init__(self, val: bool = ...) -> None: ...
