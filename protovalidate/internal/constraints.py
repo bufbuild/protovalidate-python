@@ -14,13 +14,13 @@
 
 import datetime
 import typing
+import sys
 
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
 from google.protobuf import any_pb2, descriptor, message, message_factory
 
-from buf.validate import violation_pb2, validate_pb2  # type: ignore
-from buf.validate.shared import constraints_pb2  # type: ignore
+from buf.validate import validate_pb2  # type: ignore
 from protovalidate.internal import string_format
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
@@ -79,8 +79,11 @@ class MessageType(celtypes.MapType):
 
     def __getitem__(self, name):
         field = self.desc.fields_by_name[name]
-        if not in_has() and field.has_presence and not self.msg.HasField(name):
-            return _zero_value(field)
+        if field.has_presence and not self.msg.HasField(name):
+            if in_has():
+                raise KeyError(f"{name} not present")
+            else:
+                return _zero_value(field)
         return super().__getitem__(name)
 
 
@@ -189,10 +192,10 @@ def _field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> ce
 class ConstraintContext:
     """The state associated with a single constraint evaluation."""
 
-    def __init__(self, fail_fast: bool = False, violations: violation_pb2.Violations = None):  # noqa: FBT001, FBT002
+    def __init__(self, fail_fast: bool = False, violations: validate_pb2.Violations = None):  # noqa: FBT001, FBT002
         self._fail_fast = fail_fast
         if violations is None:
-            violations = violation_pb2.Violations()
+            violations = validate_pb2.Violations()
         self._violations = violations
 
     @property
@@ -200,12 +203,12 @@ class ConstraintContext:
         return self._fail_fast
 
     @property
-    def violations(self) -> violation_pb2.Violations:
+    def violations(self) -> validate_pb2.Violations:
         return self._violations
 
     def add(self, field_name: str, constraint_id: str, message: str, *, for_key: bool = False):
         self._violations.violations.append(
-            violation_pb2.Violation(
+            validate_pb2.Violation(
                 field_path=field_name,
                 constraint_id=constraint_id,
                 message=message,
@@ -245,7 +248,7 @@ class ConstraintRules:
 class CelConstraintRules(ConstraintRules):
     """A constraint that has rules written in CEL."""
 
-    _runners: typing.List[typing.Tuple[celpy.Runner, typing.Union[constraints_pb2.Constraint, constraints_pb2.Constraint], typing.Optional[celtypes.Value]]]
+    _runners: typing.List[typing.Tuple[celpy.Runner, validate_pb2.Constraint, typing.Optional[celtypes.Value]]]
     _rules_cel: celtypes.Value = None
 
     def __init__(self, rules: typing.Optional[message.Message]):
@@ -279,7 +282,7 @@ class CelConstraintRules(ConstraintRules):
         self,
         env: celpy.Environment,
         funcs: typing.Dict[str, celpy.CELFunction],
-        rules: typing.Union[constraints_pb2.Constraint, constraints_pb2.Constraint],
+        rules: validate_pb2.Constraint,
         *,
         rule: typing.Optional[celtypes.Value] = None,
     ):
@@ -358,8 +361,8 @@ class FieldConstraintRules(CelConstraintRules):
             # For each set field in the message, look for the private constraint
             # extension.
             for list_field, _ in rules.ListFields():
-                if constraints_pb2.field in list_field.GetOptions().Extensions:
-                    for cel in list_field.GetOptions().Extensions[constraints_pb2.field].cel:
+                if validate_pb2.predefined in list_field.GetOptions().Extensions:
+                    for cel in list_field.GetOptions().Extensions[validate_pb2.predefined].cel:
                         self.add_rule(env, funcs, cel, rule=_field_to_cel(rules, list_field))
         for cel in field_level.cel:
             self.add_rule(env, funcs, cel)

@@ -1,4 +1,17 @@
-from buf.validate.shared import constraints_pb2 as _constraints_pb2
+# Copyright 2023 Buf Technologies, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
@@ -40,14 +53,26 @@ ONEOF_FIELD_NUMBER: _ClassVar[int]
 oneof: _descriptor.FieldDescriptor
 FIELD_FIELD_NUMBER: _ClassVar[int]
 field: _descriptor.FieldDescriptor
+PREDEFINED_FIELD_NUMBER: _ClassVar[int]
+predefined: _descriptor.FieldDescriptor
+
+class Constraint(_message.Message):
+    __slots__ = ("id", "message", "expression")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    EXPRESSION_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    message: str
+    expression: str
+    def __init__(self, id: _Optional[str] = ..., message: _Optional[str] = ..., expression: _Optional[str] = ...) -> None: ...
 
 class MessageConstraints(_message.Message):
     __slots__ = ("disabled", "cel")
     DISABLED_FIELD_NUMBER: _ClassVar[int]
     CEL_FIELD_NUMBER: _ClassVar[int]
     disabled: bool
-    cel: _containers.RepeatedCompositeFieldContainer[_constraints_pb2.Constraint]
-    def __init__(self, disabled: bool = ..., cel: _Optional[_Iterable[_Union[_constraints_pb2.Constraint, _Mapping]]] = ...) -> None: ...
+    cel: _containers.RepeatedCompositeFieldContainer[Constraint]
+    def __init__(self, disabled: bool = ..., cel: _Optional[_Iterable[_Union[Constraint, _Mapping]]] = ...) -> None: ...
 
 class OneofConstraints(_message.Message):
     __slots__ = ("required",)
@@ -83,7 +108,7 @@ class FieldConstraints(_message.Message):
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     SKIPPED_FIELD_NUMBER: _ClassVar[int]
     IGNORE_EMPTY_FIELD_NUMBER: _ClassVar[int]
-    cel: _containers.RepeatedCompositeFieldContainer[_constraints_pb2.Constraint]
+    cel: _containers.RepeatedCompositeFieldContainer[Constraint]
     required: bool
     ignore: Ignore
     float: FloatRules
@@ -109,7 +134,13 @@ class FieldConstraints(_message.Message):
     timestamp: TimestampRules
     skipped: bool
     ignore_empty: bool
-    def __init__(self, cel: _Optional[_Iterable[_Union[_constraints_pb2.Constraint, _Mapping]]] = ..., required: bool = ..., ignore: _Optional[_Union[Ignore, str]] = ..., float: _Optional[_Union[FloatRules, _Mapping]] = ..., double: _Optional[_Union[DoubleRules, _Mapping]] = ..., int32: _Optional[_Union[Int32Rules, _Mapping]] = ..., int64: _Optional[_Union[Int64Rules, _Mapping]] = ..., uint32: _Optional[_Union[UInt32Rules, _Mapping]] = ..., uint64: _Optional[_Union[UInt64Rules, _Mapping]] = ..., sint32: _Optional[_Union[SInt32Rules, _Mapping]] = ..., sint64: _Optional[_Union[SInt64Rules, _Mapping]] = ..., fixed32: _Optional[_Union[Fixed32Rules, _Mapping]] = ..., fixed64: _Optional[_Union[Fixed64Rules, _Mapping]] = ..., sfixed32: _Optional[_Union[SFixed32Rules, _Mapping]] = ..., sfixed64: _Optional[_Union[SFixed64Rules, _Mapping]] = ..., bool: _Optional[_Union[BoolRules, _Mapping]] = ..., string: _Optional[_Union[StringRules, _Mapping]] = ..., bytes: _Optional[_Union[BytesRules, _Mapping]] = ..., enum: _Optional[_Union[EnumRules, _Mapping]] = ..., repeated: _Optional[_Union[RepeatedRules, _Mapping]] = ..., map: _Optional[_Union[MapRules, _Mapping]] = ..., any: _Optional[_Union[AnyRules, _Mapping]] = ..., duration: _Optional[_Union[DurationRules, _Mapping]] = ..., timestamp: _Optional[_Union[TimestampRules, _Mapping]] = ..., skipped: bool = ..., ignore_empty: bool = ...) -> None: ...
+    def __init__(self, cel: _Optional[_Iterable[_Union[Constraint, _Mapping]]] = ..., required: bool = ..., ignore: _Optional[_Union[Ignore, str]] = ..., float: _Optional[_Union[FloatRules, _Mapping]] = ..., double: _Optional[_Union[DoubleRules, _Mapping]] = ..., int32: _Optional[_Union[Int32Rules, _Mapping]] = ..., int64: _Optional[_Union[Int64Rules, _Mapping]] = ..., uint32: _Optional[_Union[UInt32Rules, _Mapping]] = ..., uint64: _Optional[_Union[UInt64Rules, _Mapping]] = ..., sint32: _Optional[_Union[SInt32Rules, _Mapping]] = ..., sint64: _Optional[_Union[SInt64Rules, _Mapping]] = ..., fixed32: _Optional[_Union[Fixed32Rules, _Mapping]] = ..., fixed64: _Optional[_Union[Fixed64Rules, _Mapping]] = ..., sfixed32: _Optional[_Union[SFixed32Rules, _Mapping]] = ..., sfixed64: _Optional[_Union[SFixed64Rules, _Mapping]] = ..., bool: _Optional[_Union[BoolRules, _Mapping]] = ..., string: _Optional[_Union[StringRules, _Mapping]] = ..., bytes: _Optional[_Union[BytesRules, _Mapping]] = ..., enum: _Optional[_Union[EnumRules, _Mapping]] = ..., repeated: _Optional[_Union[RepeatedRules, _Mapping]] = ..., map: _Optional[_Union[MapRules, _Mapping]] = ..., any: _Optional[_Union[AnyRules, _Mapping]] = ..., duration: _Optional[_Union[DurationRules, _Mapping]] = ..., timestamp: _Optional[_Union[TimestampRules, _Mapping]] = ..., skipped: bool = ..., ignore_empty: bool = ...) -> None: ...
+
+class PredefinedConstraints(_message.Message):
+    __slots__ = ("cel",)
+    CEL_FIELD_NUMBER: _ClassVar[int]
+    cel: _containers.RepeatedCompositeFieldContainer[Constraint]
+    def __init__(self, cel: _Optional[_Iterable[_Union[Constraint, _Mapping]]] = ...) -> None: ...
 
 class FloatRules(_message.Message):
     __slots__ = ("const", "lt", "lte", "gt", "gte", "not_in", "finite", "example")
@@ -557,3 +588,21 @@ class TimestampRules(_message.Message):
     within: _duration_pb2.Duration
     example: _containers.RepeatedCompositeFieldContainer[_timestamp_pb2.Timestamp]
     def __init__(self, const: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lt_now: bool = ..., gt: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gte: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., gt_now: bool = ..., within: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., example: _Optional[_Iterable[_Union[_timestamp_pb2.Timestamp, _Mapping]]] = ...) -> None: ...
+
+class Violations(_message.Message):
+    __slots__ = ("violations",)
+    VIOLATIONS_FIELD_NUMBER: _ClassVar[int]
+    violations: _containers.RepeatedCompositeFieldContainer[Violation]
+    def __init__(self, violations: _Optional[_Iterable[_Union[Violation, _Mapping]]] = ...) -> None: ...
+
+class Violation(_message.Message):
+    __slots__ = ("field_path", "constraint_id", "message", "for_key")
+    FIELD_PATH_FIELD_NUMBER: _ClassVar[int]
+    CONSTRAINT_ID_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    FOR_KEY_FIELD_NUMBER: _ClassVar[int]
+    field_path: str
+    constraint_id: str
+    message: str
+    for_key: bool
+    def __init__(self, field_path: _Optional[str] = ..., constraint_id: _Optional[str] = ..., message: _Optional[str] = ..., for_key: bool = ...) -> None: ...

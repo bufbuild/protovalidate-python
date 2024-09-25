@@ -1,4 +1,17 @@
-from buf.validate.shared import constraints_pb2 as _constraints_pb2
+# Copyright 2023 Buf Technologies, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
@@ -48,122 +61,141 @@ duration_too_long_proto2: _descriptor.FieldDescriptor
 TIMESTAMP_IN_RANGE_PROTO2_FIELD_NUMBER: _ClassVar[int]
 timestamp_in_range_proto2: _descriptor.FieldDescriptor
 
-class SharedFloatRuleProto2(_message.Message):
+class PredefinedFloatRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: float
     def __init__(self, val: _Optional[float] = ...) -> None: ...
 
-class SharedDoubleRuleProto2(_message.Message):
+class PredefinedDoubleRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: float
     def __init__(self, val: _Optional[float] = ...) -> None: ...
 
-class SharedInt32RuleProto2(_message.Message):
+class PredefinedInt32RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedInt64RuleProto2(_message.Message):
+class PredefinedInt64RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedUInt32RuleProto2(_message.Message):
+class PredefinedUInt32RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedUInt64RuleProto2(_message.Message):
+class PredefinedUInt64RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedSInt32RuleProto2(_message.Message):
+class PredefinedSInt32RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedSInt64RuleProto2(_message.Message):
+class PredefinedSInt64RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedFixed32RuleProto2(_message.Message):
+class PredefinedFixed32RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedFixed64RuleProto2(_message.Message):
+class PredefinedFixed64RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedSFixed32RuleProto2(_message.Message):
+class PredefinedSFixed32RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedSFixed64RuleProto2(_message.Message):
+class PredefinedSFixed64RuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class SharedBoolRuleProto2(_message.Message):
+class PredefinedBoolRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: bool
     def __init__(self, val: bool = ...) -> None: ...
 
-class SharedStringRuleProto2(_message.Message):
+class PredefinedStringRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
-class SharedBytesRuleProto2(_message.Message):
+class PredefinedBytesRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: bytes
     def __init__(self, val: _Optional[bytes] = ...) -> None: ...
 
-class SharedEnumRuleProto2(_message.Message):
+class PredefinedEnumRuleProto2(_message.Message):
     __slots__ = ("val",)
     class EnumProto2(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        ENUM_PROTO2_ZERO_UNSPECIFIED: _ClassVar[SharedEnumRuleProto2.EnumProto2]
-        ENUM_PROTO2_ONE: _ClassVar[SharedEnumRuleProto2.EnumProto2]
-    ENUM_PROTO2_ZERO_UNSPECIFIED: SharedEnumRuleProto2.EnumProto2
-    ENUM_PROTO2_ONE: SharedEnumRuleProto2.EnumProto2
+        ENUM_PROTO2_ZERO_UNSPECIFIED: _ClassVar[PredefinedEnumRuleProto2.EnumProto2]
+        ENUM_PROTO2_ONE: _ClassVar[PredefinedEnumRuleProto2.EnumProto2]
+    ENUM_PROTO2_ZERO_UNSPECIFIED: PredefinedEnumRuleProto2.EnumProto2
+    ENUM_PROTO2_ONE: PredefinedEnumRuleProto2.EnumProto2
     VAL_FIELD_NUMBER: _ClassVar[int]
-    val: SharedEnumRuleProto2.EnumProto2
-    def __init__(self, val: _Optional[_Union[SharedEnumRuleProto2.EnumProto2, str]] = ...) -> None: ...
+    val: PredefinedEnumRuleProto2.EnumProto2
+    def __init__(self, val: _Optional[_Union[PredefinedEnumRuleProto2.EnumProto2, str]] = ...) -> None: ...
 
-class SharedRepeatedRuleProto2(_message.Message):
+class PredefinedRepeatedRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
 
-class SharedDurationRuleProto2(_message.Message):
+class PredefinedDurationRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _duration_pb2.Duration
     def __init__(self, val: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
 
-class SharedTimestampRuleProto2(_message.Message):
+class PredefinedTimestampRuleProto2(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _timestamp_pb2.Timestamp
     def __init__(self, val: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+
+class PredefinedAndCustomRuleProto2(_message.Message):
+    __slots__ = ("a", "b")
+    class Nested(_message.Message):
+        __slots__ = ("c",)
+        C_FIELD_NUMBER: _ClassVar[int]
+        c: int
+        def __init__(self, c: _Optional[int] = ...) -> None: ...
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    a: int
+    b: PredefinedAndCustomRuleProto2.Nested
+    def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[PredefinedAndCustomRuleProto2.Nested, _Mapping]] = ...) -> None: ...
+
+class StandardPredefinedAndCustomRuleProto2(_message.Message):
+    __slots__ = ("a",)
+    A_FIELD_NUMBER: _ClassVar[int]
+    a: int
+    def __init__(self, a: _Optional[int] = ...) -> None: ...
