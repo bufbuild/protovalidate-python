@@ -14,7 +14,6 @@
 
 import datetime
 import typing
-import sys
 
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
@@ -81,7 +80,7 @@ class MessageType(celtypes.MapType):
         field = self.desc.fields_by_name[name]
         if field.has_presence and not self.msg.HasField(name):
             if in_has():
-                raise KeyError(f"{name} not present")
+                raise KeyError()
             else:
                 return _zero_value(field)
         return super().__getitem__(name)
