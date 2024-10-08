@@ -82,31 +82,31 @@ message Transaction {
 
 When using the runtime library after installing it with `pip`, it's necessary to generate the Python code for the core `buf.protovalidate` Protobuf package. `buf` provides an efficient method for this:
 
-1. **Initialize a New Configuration File**: 
+1. **Initialize a New Configuration File**:
    ```shell
-   buf mod init
+   buf config init
    ```
    This initializes the `buf.yaml` configuration file at the root of the Protobuf source files.
 
 2. **Module Configuration and Dependencies**:
    ```yaml
    # buf.yaml
-   version: v1
-   deps: 
+   version: v2
+   deps:
      - buf.build/bufbuild/protovalidate
    ```
 
    Ensure your dependencies are up-to-date with:
    ```shell
-   buf mod update
+   buf dep update
    ```
 
 3. **Setup Code Generation**:
    ```yaml
    # buf.gen.yaml
-   version: v1
+   version: v2
    plugins:
-     - plugin: buf.build/protocolbuffers/python:v23.4
+     - remote: buf.build/protocolbuffers/python
        out: gen
    ```
 
