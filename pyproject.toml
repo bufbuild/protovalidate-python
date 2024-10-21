@@ -26,7 +26,7 @@ Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 source = "vcs"
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py39"
 line-length = 120
 lint.select = [
   "A",
