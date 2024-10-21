@@ -100,7 +100,7 @@ class ValidationError(ValueError):
         super().__init__(msg)
         self.violations = violations
 
-    def errors(self) -> typing.List[validate_pb2.Violation]:
+    def errors(self) -> list[validate_pb2.Violation]:
         """
         Returns the validation errors as a simple Python list, rather than the
         Protobuf-specific collection type used by Violations.
