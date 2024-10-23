@@ -226,7 +226,7 @@ def unique(val: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(len(val) == len(set(val)))
 
 
-def make_extra_funcs(locale: str) -> typing.Dict[str, celpy.CELFunction]:
+def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     string_fmt = string_format.StringFormat(locale)
     return {
         # Missing standard functions
