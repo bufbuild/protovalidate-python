@@ -12,8 +12,6 @@ pytest = "*"
 mypy = "*"
 ruff = "*"
 types-protobuf = "*"
-exceptiongroup = "*"
-tomli = "*"
 
 [requires]
 python_version = "3.8"
