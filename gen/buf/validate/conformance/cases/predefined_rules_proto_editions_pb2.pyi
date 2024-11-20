@@ -15,6 +15,7 @@
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -26,10 +27,10 @@ FLOAT_ABS_RANGE_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
 float_abs_range_edition_2023: _descriptor.FieldDescriptor
 DOUBLE_ABS_RANGE_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
 double_abs_range_edition_2023: _descriptor.FieldDescriptor
-INT32_EVEN_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
-int32_even_edition_2023: _descriptor.FieldDescriptor
-INT64_EVEN_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
-int64_even_edition_2023: _descriptor.FieldDescriptor
+INT32_ABS_IN_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
+int32_abs_in_edition_2023: _descriptor.FieldDescriptor
+INT64_ABS_IN_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
+int64_abs_in_edition_2023: _descriptor.FieldDescriptor
 UINT32_EVEN_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
 uint32_even_edition_2023: _descriptor.FieldDescriptor
 UINT64_EVEN_EDITION_2023_FIELD_NUMBER: _ClassVar[int]
@@ -195,6 +196,114 @@ class PredefinedTimestampRuleEdition2023(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _timestamp_pb2.Timestamp
     def __init__(self, val: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedFloatRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.FloatValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.FloatValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedDoubleRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.DoubleValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.DoubleValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedInt32RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.Int32Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedInt64RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.Int64Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.Int64Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedUInt32RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.UInt32Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.UInt32Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedUInt64RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.UInt64Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.UInt64Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedBoolRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.BoolValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedStringRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.StringValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.StringValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedBytesRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.BytesValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.BytesValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedFloatRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.FloatValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.FloatValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedDoubleRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.DoubleValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.DoubleValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedInt32RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.Int32Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.Int32Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedInt64RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.Int64Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.Int64Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedUInt32RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.UInt32Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.UInt32Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedUInt64RuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.UInt64Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.UInt64Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedBoolRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.BoolValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.BoolValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedStringRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.StringValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.StringValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedBytesRuleEdition2023(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.BytesValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.BytesValue, _Mapping]]] = ...) -> None: ...
 
 class PredefinedAndCustomRuleEdition2023(_message.Message):
     __slots__ = ("a", "b")

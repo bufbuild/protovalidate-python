@@ -17,6 +17,7 @@ from buf.validate.conformance.cases import predefined_rules_proto_editions_pb2 a
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -157,6 +158,114 @@ class PredefinedTimestampRuleProto3(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _timestamp_pb2.Timestamp
     def __init__(self, val: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedFloatRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.FloatValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.FloatValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedDoubleRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.DoubleValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.DoubleValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedInt32RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.Int32Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedInt64RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.Int64Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.Int64Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedUInt32RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.UInt32Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.UInt32Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedUInt64RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.UInt64Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.UInt64Value, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedBoolRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.BoolValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedStringRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.StringValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.StringValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedWrappedBytesRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.BytesValue
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.BytesValue, _Mapping]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedFloatRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.FloatValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.FloatValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedDoubleRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.DoubleValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.DoubleValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedInt32RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.Int32Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.Int32Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedInt64RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.Int64Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.Int64Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedUInt32RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.UInt32Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.UInt32Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedUInt64RuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.UInt64Value]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.UInt64Value, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedBoolRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.BoolValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.BoolValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedStringRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.StringValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.StringValue, _Mapping]]] = ...) -> None: ...
+
+class PredefinedRepeatedWrappedBytesRuleProto3(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[_wrappers_pb2.BytesValue]
+    def __init__(self, val: _Optional[_Iterable[_Union[_wrappers_pb2.BytesValue, _Mapping]]] = ...) -> None: ...
 
 class PredefinedAndCustomRuleProto3(_message.Message):
     __slots__ = ("a", "b")
