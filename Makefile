@@ -16,7 +16,8 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023"
-PROTOVALIDATE_VERSION ?= v0.8.2
+# TODO: DO NOT MERGE
+PROTOVALIDATE_VERSION ?= 9fbcb20937fb97609f5711d25474213241694294
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -33,8 +34,9 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	# TODO: DO NOT MERGE
+	buf generate buf.build/jchadwick-buf/protovalidate:6ecee89ee0c94599abc6a872387cd5ed
+	buf generate buf.build/bufbuild/protovalidate-testing:v0.8.2
 	$(ADD_LICENSE_HEADER) --ignore __init__.py
 
 .PHONY: format
