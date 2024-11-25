@@ -17,7 +17,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023"
 # TODO: DO NOT MERGE
-PROTOVALIDATE_VERSION ?= 9fbcb20937fb97609f5711d25474213241694294
+PROTOVALIDATE_VERSION ?= a4d7e113cc9e8944fb22098123eddc5413500381
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -35,8 +35,9 @@ clean: ## Delete intermediate build artifacts
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
 	# TODO: DO NOT MERGE
-	buf generate buf.build/jchadwick-buf/protovalidate:6ecee89ee0c94599abc6a872387cd5ed
-	buf generate buf.build/bufbuild/protovalidate-testing:v0.8.2
+	buf generate buf.build/jchadwick-buf/protovalidate:fd74cad4128d4294812fe3ad3fac0e2f
+	# TODO: DO NOT MERGE
+	buf generate buf.build/jchadwick-buf/protovalidate-testing:4b978585a3ae4589a2bf979580e0cf51
 	$(ADD_LICENSE_HEADER) --ignore __init__.py
 
 .PHONY: format

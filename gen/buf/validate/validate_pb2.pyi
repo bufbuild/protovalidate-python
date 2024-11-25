@@ -618,23 +618,25 @@ class FieldPath(_message.Message):
     def __init__(self, elements: _Optional[_Iterable[_Union[FieldPathElement, _Mapping]]] = ...) -> None: ...
 
 class FieldPathElement(_message.Message):
-    __slots__ = ("field_number", "field_name", "field_type", "index", "bool_key", "int_key", "sint_key", "uint_key", "string_key")
+    __slots__ = ("field_number", "field_name", "field_type", "key_type", "value_type", "index", "bool_key", "int_key", "uint_key", "string_key")
     FIELD_NUMBER_FIELD_NUMBER: _ClassVar[int]
     FIELD_NAME_FIELD_NUMBER: _ClassVar[int]
     FIELD_TYPE_FIELD_NUMBER: _ClassVar[int]
+    KEY_TYPE_FIELD_NUMBER: _ClassVar[int]
+    VALUE_TYPE_FIELD_NUMBER: _ClassVar[int]
     INDEX_FIELD_NUMBER: _ClassVar[int]
     BOOL_KEY_FIELD_NUMBER: _ClassVar[int]
     INT_KEY_FIELD_NUMBER: _ClassVar[int]
-    SINT_KEY_FIELD_NUMBER: _ClassVar[int]
     UINT_KEY_FIELD_NUMBER: _ClassVar[int]
     STRING_KEY_FIELD_NUMBER: _ClassVar[int]
     field_number: int
     field_name: str
     field_type: _descriptor_pb2.FieldDescriptorProto.Type
+    key_type: _descriptor_pb2.FieldDescriptorProto.Type
+    value_type: _descriptor_pb2.FieldDescriptorProto.Type
     index: int
     bool_key: bool
     int_key: int
-    sint_key: int
     uint_key: int
     string_key: str
-    def __init__(self, field_number: _Optional[int] = ..., field_name: _Optional[str] = ..., field_type: _Optional[_Union[_descriptor_pb2.FieldDescriptorProto.Type, str]] = ..., index: _Optional[int] = ..., bool_key: bool = ..., int_key: _Optional[int] = ..., sint_key: _Optional[int] = ..., uint_key: _Optional[int] = ..., string_key: _Optional[str] = ...) -> None: ...
+    def __init__(self, field_number: _Optional[int] = ..., field_name: _Optional[str] = ..., field_type: _Optional[_Union[_descriptor_pb2.FieldDescriptorProto.Type, str]] = ..., key_type: _Optional[_Union[_descriptor_pb2.FieldDescriptorProto.Type, str]] = ..., value_type: _Optional[_Union[_descriptor_pb2.FieldDescriptorProto.Type, str]] = ..., index: _Optional[int] = ..., bool_key: bool = ..., int_key: _Optional[int] = ..., uint_key: _Optional[int] = ..., string_key: _Optional[str] = ...) -> None: ...

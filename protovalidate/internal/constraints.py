@@ -198,17 +198,22 @@ def _oneof_to_element(oneof: descriptor.OneofDescriptor) -> validate_pb2.FieldPa
 
 
 def _set_path_element_map_key(
-    element: validate_pb2.FieldPathElement, key: typing.Any, key_field: descriptor.FieldDescriptor
+    element: validate_pb2.FieldPathElement,
+    key: typing.Any,
+    key_field: descriptor.FieldDescriptor,
+    value_field: descriptor.FieldDescriptor,
 ):
+    element.key_type = key_field.type
+    element.value_type = value_field.type
     if key_field.type == descriptor.FieldDescriptor.TYPE_BOOL:
         element.bool_key = key
-    elif key_field.type in (descriptor.FieldDescriptor.TYPE_SINT32, descriptor.FieldDescriptor.TYPE_SINT64):
-        element.sint_key = key
     elif key_field.type in (
         descriptor.FieldDescriptor.TYPE_INT32,
         descriptor.FieldDescriptor.TYPE_SFIXED32,
         descriptor.FieldDescriptor.TYPE_INT64,
         descriptor.FieldDescriptor.TYPE_SFIXED64,
+        descriptor.FieldDescriptor.TYPE_SINT32,
+        descriptor.FieldDescriptor.TYPE_SINT64,
     ):
         element.int_key = key
     elif key_field.type in (
@@ -390,8 +395,18 @@ class FieldConstraintRules(CelConstraintRules):
                 validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
                     validate_pb2.FieldConstraints.REQUIRED_FIELD_NUMBER
                 ]
-            ),
-        ],
+            )
+        ]
+    )
+
+    _cel_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
+        elements=[
+            _field_to_element(
+                validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
+                    validate_pb2.FieldConstraints.CEL_FIELD_NUMBER
+                ]
+            )
+        ]
     )
 
     def __init__(
@@ -438,8 +453,11 @@ class FieldConstraintRules(CelConstraintRules):
                                 ]
                             ),
                         )
-        for cel in field_level.cel:
-            self.add_rule(env, funcs, cel)
+        for i, cel in enumerate(field_level.cel):
+            rule_path = validate_pb2.FieldPath()
+            rule_path.CopyFrom(self._cel_rule_path)
+            rule_path.elements[0].index = i
+            self.add_rule(env, funcs, cel, rule_path=rule_path)
 
     def validate(self, ctx: ConstraintContext, message: message.Message):
         if _is_empty_field(message, self._field):
@@ -702,7 +720,8 @@ class MapConstraintRules(FieldConstraintRules):
             if map_ctx.has_errors():
                 element = _field_to_element(self._field)
                 key_field = self._field.message_type.fields_by_name["key"]
-                _set_path_element_map_key(element, k, key_field)
+                value_field = self._field.message_type.fields_by_name["value"]
+                _set_path_element_map_key(element, k, key_field, value_field)
                 map_ctx.add_field_path_element(element)
                 ctx.add_errors(map_ctx)
 
@@ -997,7 +1016,7 @@ class MapValMsgConstraint(ConstraintRules):
                 constraint.validate(sub_ctx, v)
             if sub_ctx.has_errors():
                 element = _field_to_element(self._field)
-                _set_path_element_map_key(element, k, self._key_field)
+                _set_path_element_map_key(element, k, self._key_field, self._value_field)
                 sub_ctx.add_field_path_element(element)
                 ctx.add_errors(sub_ctx)
 
