@@ -23,4 +23,4 @@ _validator = Validator()
 validate = _validator.validate
 collect_violations = _validator.collect_violations
 
-__all__ = ["Validator", "CompilationError", "ValidationError", "Violations", "validate", "collect_violations"]
+__all__ = ["CompilationError", "ValidationError", "Validator", "Violations", "collect_violations", "validate"]

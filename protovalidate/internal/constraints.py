@@ -347,8 +347,10 @@ class FieldConstraintRules(CelConstraintRules):
         self._ignore_empty = (
             field_level.ignore_empty
             or field_level.ignore in (validate_pb2.IGNORE_IF_UNPOPULATED, validate_pb2.IGNORE_IF_DEFAULT_VALUE)
-            or field.has_presence  # type: ignore[attr-defined]
-            and not for_items
+            or (
+                field.has_presence  # type: ignore[attr-defined]
+                and not for_items
+            )
         )
         self._ignore_default = field.has_presence and field_level.ignore == validate_pb2.IGNORE_IF_DEFAULT_VALUE  # type: ignore[attr-defined]
         self._required = field_level.required
