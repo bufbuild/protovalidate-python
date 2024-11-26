@@ -16,7 +16,7 @@ from google.protobuf import message
 
 from buf.validate import validate_pb2  # type: ignore
 from protovalidate.internal import constraints as _constraints
-from protovalidate.internal import extra_func, string_format
+from protovalidate.internal import extra_func, field_path
 
 CompilationError = _constraints.CompilationError
 Violations = validate_pb2.Violations
@@ -89,28 +89,8 @@ class Validator:
                 violation.field.elements.reverse()
             if violation.HasField("rule"):
                 violation.rule.elements.reverse()
-            violation.field_path = Validator._field_path_string(violation.field)
+            violation.field_path = field_path.string(violation.field)
         return ctx.violations
-
-    @classmethod
-    def _field_path_string(cls, path: validate_pb2.FieldPath) -> str:
-        result: list[str] = []
-        for element in path.elements:
-            if len(result) > 0:
-                result.append(".")
-            subscript_case = element.WhichOneof("subscript")
-            if subscript_case is not None:
-                result.extend(
-                    (
-                        element.field_name,
-                        "[",
-                        string_format.format_value(getattr(element, subscript_case)),
-                        "]",
-                    )
-                )
-            else:
-                result.append(element.field_name)
-        return "".join(result)
 
 
 class ValidationError(ValueError):
