@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate import validate_pb2
+from buf.validate import validate_pb2  # type: ignore
 from . import string_format
 
 
