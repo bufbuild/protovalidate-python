@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from buf.validate import validate_pb2  # type: ignore
-from . import string_format
+from protovalidate.internal import string_format
 
 
 def string(path: validate_pb2.FieldPath) -> str:
