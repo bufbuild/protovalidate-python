@@ -16,7 +16,7 @@ from google.protobuf import message
 
 from buf.validate import validate_pb2  # type: ignore
 from protovalidate.internal import constraints as _constraints
-from protovalidate.internal import extra_func
+from protovalidate.internal import extra_func, field_path
 
 CompilationError = _constraints.CompilationError
 Violations = validate_pb2.Violations
@@ -84,6 +84,12 @@ class Validator:
             constraint.validate(ctx, message)
             if ctx.done:
                 break
+        for violation in ctx.violations.violations:
+            if violation.HasField("field"):
+                violation.field.elements.reverse()
+            if violation.HasField("rule"):
+                violation.rule.elements.reverse()
+            violation.field_path = field_path.string(violation.field)
         return ctx.violations
 
 

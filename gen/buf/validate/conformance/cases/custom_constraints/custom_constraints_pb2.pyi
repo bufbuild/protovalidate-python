@@ -64,7 +64,7 @@ class MessageExpressions(_message.Message):
     def __init__(self, a: _Optional[int] = ..., b: _Optional[int] = ..., c: _Optional[_Union[Enum, str]] = ..., d: _Optional[_Union[Enum, str]] = ..., e: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ..., f: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ...) -> None: ...
 
 class FieldExpressions(_message.Message):
-    __slots__ = ("a", "b", "c")
+    __slots__ = ("a", "b", "c", "d")
     class Nested(_message.Message):
         __slots__ = ("a",)
         A_FIELD_NUMBER: _ClassVar[int]
@@ -73,10 +73,12 @@ class FieldExpressions(_message.Message):
     A_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
     C_FIELD_NUMBER: _ClassVar[int]
+    D_FIELD_NUMBER: _ClassVar[int]
     a: int
     b: Enum
     c: FieldExpressions.Nested
-    def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[Enum, str]] = ..., c: _Optional[_Union[FieldExpressions.Nested, _Mapping]] = ...) -> None: ...
+    d: int
+    def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[Enum, str]] = ..., c: _Optional[_Union[FieldExpressions.Nested, _Mapping]] = ..., d: _Optional[int] = ...) -> None: ...
 
 class MissingField(_message.Message):
     __slots__ = ("a",)
