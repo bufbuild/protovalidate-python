@@ -23,23 +23,27 @@ class TestValidate(unittest.TestCase):
         msg = numbers_pb2.DoubleFinite()
         msg.val = float("-inf")
         violations = protovalidate.collect_violations(msg)
-        self.assertEqual(len(violations.violations), 1)
-        self.assertEqual(violations.violations[0].constraint_id, "double.finite")
+        self.assertEqual(len(violations), 1)
+        self.assertEqual(violations[0].proto.constraint_id, "double.finite")
+        self.assertEqual(violations[0].field_value, msg.val)
+        self.assertEqual(violations[0].rule_value, True)
 
     def test_map_key(self):
         msg = maps_pb2.MapKeys()
         msg.val[1] = "a"
         violations = protovalidate.collect_violations(msg)
-        self.assertEqual(len(violations.violations), 1)
-        self.assertEqual(violations.violations[0].field_path, "val[1]")
-        self.assertEqual(violations.violations[0].for_key, True)
+        self.assertEqual(len(violations), 1)
+        self.assertEqual(violations[0].proto.field_path, "val[1]")
+        self.assertEqual(violations[0].proto.for_key, True)
+        self.assertEqual(violations[0].field_value, 1)
+        self.assertEqual(violations[0].rule_value, 0)
 
     def test_sfixed64(self):
         msg = numbers_pb2.SFixed64ExLTGT(val=11)
         protovalidate.validate(msg)
 
         violations = protovalidate.collect_violations(msg)
-        self.assertEqual(len(violations.violations), 0)
+        self.assertEqual(len(violations), 0)
 
     def test_oneofs(self):
         msg1 = oneofs_pb2.Oneof()
@@ -52,7 +56,7 @@ class TestValidate(unittest.TestCase):
 
         violations = protovalidate.collect_violations(msg1)
         protovalidate.collect_violations(msg2, into=violations)
-        assert len(violations.violations) == 0
+        assert len(violations) == 0
 
     def test_repeated(self):
         msg = repeated_pb2.RepeatedEmbedSkip()
@@ -60,23 +64,23 @@ class TestValidate(unittest.TestCase):
         protovalidate.validate(msg)
 
         violations = protovalidate.collect_violations(msg)
-        assert len(violations.violations) == 0
+        assert len(violations) == 0
 
     def test_maps(self):
         msg = maps_pb2.MapMinMax()
         try:
             protovalidate.validate(msg)
         except protovalidate.ValidationError as e:
-            assert len(e.errors()) == 1
-            assert len(e.violations.violations) == 1
+            assert len(e.violations) == 1
+            assert len(e.to_proto().violations) == 1
             assert str(e) == "invalid MapMinMax"
 
         violations = protovalidate.collect_violations(msg)
-        assert len(violations.violations) == 1
+        assert len(violations) == 1
 
     def test_timestamp(self):
         msg = wkt_timestamp_pb2.TimestampGTNow()
         protovalidate.validate(msg)
 
         violations = protovalidate.collect_violations(msg)
-        assert len(violations.violations) == 0
+        assert len(violations) == 0
