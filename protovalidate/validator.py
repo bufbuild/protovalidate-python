@@ -103,7 +103,7 @@ class ValidationError(ValueError):
 
     _violations: list[Violation]
 
-    def __init__(self, msg: str, violations: list[Violations]):
+    def __init__(self, msg: str, violations: list[validate_pb2.Violations]):
         super().__init__(msg)
         self._violations = violations
 

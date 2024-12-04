@@ -260,7 +260,7 @@ class ConstraintContext:
     def violations(self) -> list[Violation]:
         return self._violations
 
-    def add(self, violation: list[Violation]):
+    def add(self, violation: Violation):
         self._violations.append(violation)
 
     def add_errors(self, other_ctx):
