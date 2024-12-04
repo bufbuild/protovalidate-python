@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import dataclasses
 import datetime
 import typing
 
@@ -293,27 +294,13 @@ class ConstraintRules:
         ctx.add(Violation(constraint_id="unimplemented", message="Unimplemented"))
 
 
+@dataclasses.dataclass
 class CelRunner:
     runner: celpy.Runner
     constraint: validate_pb2.Constraint
-    rule_value: typing.Optional[typing.Any]
-    rule_cel: typing.Optional[celtypes.Value]
-    rule_path: typing.Optional[validate_pb2.FieldPath]
-
-    def __init__(
-        self,
-        *,
-        runner: celpy.Runner,
-        constraint: validate_pb2.Constraint,
-        rule_value: typing.Optional[typing.Any] = None,
-        rule_cel: typing.Optional[celtypes.Value] = None,
-        rule_path: typing.Optional[validate_pb2.FieldPath] = None,
-    ):
-        self.runner = runner
-        self.constraint = constraint
-        self.rule_value = rule_value
-        self.rule_cel = rule_cel
-        self.rule_path = rule_path
+    rule_value: typing.Optional[typing.Any] = None
+    rule_cel: typing.Optional[celtypes.Value] = None
+    rule_path: typing.Optional[validate_pb2.FieldPath] = None
 
 
 class CelConstraintRules(ConstraintRules):
