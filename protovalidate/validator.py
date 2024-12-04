@@ -101,9 +101,9 @@ class ValidationError(ValueError):
     An error raised when a message fails to validate.
     """
 
-    _violations: list[Violation]
+    _violations: list[_constraints.Violation]
 
-    def __init__(self, msg: str, violations: list[validate_pb2.Violations]):
+    def __init__(self, msg: str, violations: list[_constraints.Violation]):
         super().__init__(msg)
         self._violations = violations
 
