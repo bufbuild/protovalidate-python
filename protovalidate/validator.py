@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import typing
+
 from google.protobuf import message
 
 from buf.validate import validate_pb2  # type: ignore
@@ -20,6 +22,7 @@ from protovalidate.internal import extra_func, field_path
 
 CompilationError = _constraints.CompilationError
 Violations = validate_pb2.Violations
+Violation = _constraints.Violation
 
 
 class Validator:
@@ -54,7 +57,7 @@ class Validator:
             ValidationError: If the message is invalid.
         """
         violations = self.collect_violations(message, fail_fast=fail_fast)
-        if violations.violations:
+        if len(violations) > 0:
             msg = f"invalid {message.DESCRIPTOR.name}"
             raise ValidationError(msg, violations)
 
@@ -63,8 +66,8 @@ class Validator:
         message: message.Message,
         *,
         fail_fast: bool = False,
-        into: validate_pb2.Violations = None,
-    ) -> validate_pb2.Violations:
+        into: typing.Optional[list[Violation]] = None,
+    ) -> list[Violation]:
         """
         Validates the given message against the static constraints defined in
         the message's descriptor. Compared to validate, collect_violations is
@@ -84,12 +87,12 @@ class Validator:
             constraint.validate(ctx, message)
             if ctx.done:
                 break
-        for violation in ctx.violations.violations:
-            if violation.HasField("field"):
-                violation.field.elements.reverse()
-            if violation.HasField("rule"):
-                violation.rule.elements.reverse()
-            violation.field_path = field_path.string(violation.field)
+        for violation in ctx.violations:
+            if violation.proto.HasField("field"):
+                violation.proto.field.elements.reverse()
+            if violation.proto.HasField("rule"):
+                violation.proto.rule.elements.reverse()
+            violation.proto.field_path = field_path.string(violation.proto.field)
         return ctx.violations
 
 
@@ -98,15 +101,25 @@ class ValidationError(ValueError):
     An error raised when a message fails to validate.
     """
 
-    violations: validate_pb2.Violations
+    _violations: list[_constraints.Violation]
 
-    def __init__(self, msg: str, violations: validate_pb2.Violations):
+    def __init__(self, msg: str, violations: list[_constraints.Violation]):
         super().__init__(msg)
-        self.violations = violations
+        self._violations = violations
 
-    def errors(self) -> list[validate_pb2.Violation]:
+    def to_proto(self) -> validate_pb2.Violations:
         """
-        Returns the validation errors as a simple Python list, rather than the
+        Provides the Protobuf form of the validation errors.
+        """
+        result = validate_pb2.Violations()
+        for violation in self._violations:
+            result.violations.append(violation.proto)
+        return result
+
+    @property
+    def violations(self) -> list[Violation]:
+        """
+        Provides the validation errors as a simple Python list, rather than the
         Protobuf-specific collection type used by Violations.
         """
-        return list(self.violations.violations)
+        return self._violations

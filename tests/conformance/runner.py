@@ -62,7 +62,9 @@ def run_test_case(tc: typing.Any, result: typing.Optional[harness_pb2.TestResult
         result = harness_pb2.TestResult()
     # Run the validator
     try:
-        protovalidate.collect_violations(tc, into=result.validation_error)
+        violations = protovalidate.collect_violations(tc)
+        for violation in violations:
+            result.validation_error.violations.append(violation.proto)
         if len(result.validation_error.violations) == 0:
             result.success = True
     except celpy.CELEvalError as e:
