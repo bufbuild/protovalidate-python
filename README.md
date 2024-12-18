@@ -67,7 +67,7 @@ message Transaction {
   string price = 4 [(buf.validate.field).cel = {
     id: "transaction.price",
     message: "price must be positive and include a valid currency symbol ($ or £)",
-    expression: "(this.startswith('$') or this.startswith('£')) and float(this[1:]) > 0"
+    expression: "(this.startsWith('$') || this.startsWith('£')) && double(this.substring(1)) > 0"
   }];
 
   option (buf.validate.message).cel = {
