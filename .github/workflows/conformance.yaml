@@ -27,11 +27,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Install Python ${{ matrix.python-version }}
-        id: python
-        uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - uses: hynek/setup-cached-uv@v2
+          enable-cache: true
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
       - name: Test conformance
-        run: make conformance PYTHON=${{ steps.python.outputs.python-path }}
+        run: make conformance

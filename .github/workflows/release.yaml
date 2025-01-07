@@ -19,16 +19,20 @@ jobs:
         run: |
           VERSION=${{github.head_ref}}
           echo "VERSION=${VERSION##*/}" >> $GITHUB_ENV
-      - uses: hynek/setup-cached-uv@v2
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - name: Build release
         run: |
-          uvx --from build pyproject-build --installer uv
+          uv build
       - uses: actions/upload-artifact@v4
         with:
           name: package
           path: dist/
 
   publish:
+    # TODO: trusted publisher
+    # https://docs.astral.sh/uv/guides/publish/#publishing-your-package
     name: Publish on PyPI
     runs-on: ubuntu-latest
     environment:
