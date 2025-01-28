@@ -33,7 +33,6 @@ class TestValidate(unittest.TestCase):
         msg.val[1] = "a"
         violations = protovalidate.collect_violations(msg)
         self.assertEqual(len(violations), 1)
-        self.assertEqual(violations[0].proto.field_path, "val[1]")
         self.assertEqual(violations[0].proto.for_key, True)
         self.assertEqual(violations[0].field_value, 1)
         self.assertEqual(violations[0].rule_value, 0)

@@ -460,13 +460,12 @@ class FieldConstraintRules(CelConstraintRules):
         type_case = field_level.WhichOneof("type")
         super().__init__(None if type_case is None else getattr(field_level, type_case))
         self._field = field
-        self._ignore_empty = (
-            field_level.ignore_empty
-            or field_level.ignore in (validate_pb2.IGNORE_IF_UNPOPULATED, validate_pb2.IGNORE_IF_DEFAULT_VALUE)
-            or (
-                field.has_presence  # type: ignore[attr-defined]
-                and not for_items
-            )
+        self._ignore_empty = field_level.ignore in (
+            validate_pb2.IGNORE_IF_UNPOPULATED,
+            validate_pb2.IGNORE_IF_DEFAULT_VALUE,
+        ) or (
+            field.has_presence  # type: ignore[attr-defined]
+            and not for_items
         )
         self._ignore_default = field.has_presence and field_level.ignore == validate_pb2.IGNORE_IF_DEFAULT_VALUE  # type: ignore[attr-defined]
         self._required = field_level.required
@@ -832,7 +831,7 @@ class ConstraintFactory:
         *,
         for_items: bool = False,
     ):
-        if field_level.ignore == validate_pb2.IGNORE_ALWAYS or field_level.skipped:
+        if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
             return None
         type_case = field_level.WhichOneof("type")
         if type_case is None:
@@ -987,13 +986,10 @@ class ConstraintFactory:
         for field in desc.fields:
             if validate_pb2.field in field.GetOptions().Extensions:
                 field_level = field.GetOptions().Extensions[validate_pb2.field]
-                if field_level.ignore == validate_pb2.IGNORE_ALWAYS or field_level.skipped:
+                if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
                     continue
                 result.append(self._new_field_constraint(field, field_level))
-                if (
-                    field_level.repeated.items.ignore == validate_pb2.IGNORE_ALWAYS
-                    or field_level.repeated.items.skipped
-                ):
+                if field_level.repeated.items.ignore == validate_pb2.IGNORE_ALWAYS:
                     continue
             if field.message_type is None:
                 continue
