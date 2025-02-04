@@ -165,8 +165,20 @@ def is_email(string: celtypes.Value) -> celpy.Result:
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
     url = urlparse.urlparse(string)
-    if not all([url.scheme, url.netloc, url.path]):
-        return celtypes.BoolType(False)
+    # urlparse correctly reads the scheme from URNs but parses everything
+    # after (except the query string) as the path. 
+    if url.scheme == "urn":
+        if not (url.path):
+            return celtypes.BoolType(False)
+    else:
+        if not all([url.scheme, url.netloc, url.path]):
+            return celtypes.BoolType(False)
+
+    # If the query string contains percent-encoding, then try to decode it.
+    # unquote will return the same string if it is improperly encoded.
+    if "%" in url.query:
+        return celtypes.BoolType(urlparse.unquote(url.query) != url.query)
+
     return celtypes.BoolType(True)
 
 
