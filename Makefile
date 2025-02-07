@@ -16,8 +16,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023"
-# TODO: DO NOT MERGE: Temporary because protovalidate-python does not support dynamic fdsets.
-PROTOVALIDATE_VERSION ?= 1d6530da26a3c5c96f5d7d4c842aa9164f82ee4b
+PROTOVALIDATE_VERSION ?= v0.10.0
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -34,9 +33,8 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	# TODO: DO NOT MERGE: Temporary because protovalidate-python does not support dynamic fdsets.
-	buf generate https://github.com/bufbuild/protovalidate.git#branch=jchadwick/remove-deprecated,subdir=proto/protovalidate
-	buf generate https://github.com/bufbuild/protovalidate.git#branch=jchadwick/remove-deprecated,subdir=proto/protovalidate-testing
+	buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+	buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
 	$(ADD_LICENSE_HEADER) --ignore __init__.py
 
 .PHONY: format
