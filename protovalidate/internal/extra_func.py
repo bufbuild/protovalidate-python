@@ -143,11 +143,11 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
         raise celpy.CELEvalError(msg)
     try:
         if version is None:
-            ip_network(val, strict=strict)
+            ip_network(val, strict=bool(strict))
         elif version == 4:
-            IPv4Network(val, strict=strict)
+            IPv4Network(val, strict=bool(strict))
         elif version == 6:
-            IPv6Network(val, strict=strict)
+            IPv6Network(val, strict=bool(strict))
         else:
             msg = "invalid argument, expected 4 or 6"
             raise celpy.CELEvalError(msg)
@@ -164,7 +164,7 @@ def is_email(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
-    url = urlparse.urlparse(string)
+    url = urlparse.urlparse(str(string))
     # urlparse correctly reads the scheme from URNs but parses everything
     # after (except the query string) as the path.
     if url.scheme == "urn":
@@ -182,7 +182,7 @@ def is_uri(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri_ref(string: celtypes.Value) -> celpy.Result:
-    url = urlparse.urlparse(string)
+    url = urlparse.urlparse(str(string))
     if not all([url.scheme, url.path]) and url.fragment:
         return celtypes.BoolType(False)
     return celtypes.BoolType(True)
