@@ -42,9 +42,9 @@ class StringFormat:
 
     def format(self, fmt: celtypes.Value, args: celtypes.Value) -> celpy.Result:
         if not isinstance(fmt, celtypes.StringType):
-            return celpy.native_to_cel(celpy.new_error("format() requires a string as the first argument"))
+            return celpy.CELEvalError("format() requires a string as the first argument")
         if not isinstance(args, celtypes.ListType):
-            return celpy.native_to_cel(celpy.new_error("format() requires a list as the second argument"))
+            return celpy.CELEvalError("format() requires a list as the second argument")
         # printf style formatting
         i = 0
         j = 0
