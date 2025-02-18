@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from decimal import Decimal
+
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
-from decimal import Decimal
 
 QUOTE_TRANS = str.maketrans(
     {
