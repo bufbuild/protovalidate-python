@@ -3,12 +3,7 @@
 standard_constraints/well_known_types/duration:
  - gte_lte/invalid/above
  - lte/invalid
- - gte/invalid
- - gt/invalid
- - in/invalid
- - "not in/valid"
+ - not in/valid
 standard_constraints/well_known_types/timestamp:
  - gte_lte/invalid/above
  - lte/invalid
-standard_constraints/repeated:
- - duration/gte/invalid

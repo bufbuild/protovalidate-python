@@ -14,6 +14,7 @@
 
 import celpy  # type: ignore
 from celpy import celtypes  # type: ignore
+from decimal import Decimal
 
 QUOTE_TRANS = str.maketrans(
     {
@@ -154,6 +155,8 @@ class StringFormat:
             return celtypes.StringType(str(arg).lower())
         if isinstance(arg, celtypes.DoubleType):
             return celtypes.StringType(f"{arg:.0f}")
+        if isinstance(arg, celtypes.DurationType):
+            return celtypes.StringType(self._format_duration(arg))
         if isinstance(arg, celtypes.TimestampType):
             base = arg.isoformat()
             if arg.getMilliseconds() != 0:
@@ -167,7 +170,7 @@ class StringFormat:
         if isinstance(arg, celtypes.UintType):
             return celtypes.StringType(arg)
         if isinstance(arg, celtypes.DurationType):
-            return celtypes.StringType(f'duration("{arg.seconds + (arg.microseconds // 1e6):.0f}s")')
+            return celtypes.StringType(f'duration("{self._format_duration(arg)}")')
         if isinstance(arg, celtypes.DoubleType):
             return celtypes.StringType(f"{arg:f}")
         return self.format_string(arg)
@@ -180,6 +183,9 @@ class StringFormat:
             result += self.format_value(arg[i])
         result += "]"
         return celtypes.StringType(result)
+
+    def _format_duration(self, arg: celtypes.DurationType) -> celpy.Result:
+        return f"{arg.seconds + Decimal(arg.microseconds) / Decimal(1_000_000):f}s"
 
 
 _default_format = StringFormat("en_US")
