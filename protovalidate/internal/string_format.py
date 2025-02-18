@@ -146,9 +146,19 @@ class StringFormat:
         if isinstance(arg, celtypes.StringType):
             return arg
         if isinstance(arg, celtypes.BytesType):
-            return celtypes.StringType(arg.hex())
+            return celtypes.StringType(arg)
         if isinstance(arg, celtypes.ListType):
             return self.format_list(arg)
+        if isinstance(arg, celtypes.BoolType):
+            # True -> true
+            return celtypes.StringType(str(arg).lower())
+        if isinstance(arg, celtypes.DoubleType):
+            return celtypes.StringType(f"{arg:.0f}")
+        if isinstance(arg, celtypes.TimestampType):
+            base = arg.isoformat()
+            if arg.getMilliseconds() != 0:
+                base = arg.isoformat(timespec="milliseconds")
+            return celtypes.StringType(base.removesuffix("+00:00") + "Z")
         return celtypes.StringType(arg)
 
     def format_value(self, arg: celtypes.Value) -> celpy.Result:
@@ -156,6 +166,10 @@ class StringFormat:
             return celtypes.StringType(quote(arg))
         if isinstance(arg, celtypes.UintType):
             return celtypes.StringType(arg)
+        if isinstance(arg, celtypes.DurationType):
+            return celtypes.StringType(f'duration("{arg.seconds + (arg.microseconds // 1e6):.0f}s")')
+        if isinstance(arg, celtypes.DoubleType):
+            return celtypes.StringType(f"{arg:f}")
         return self.format_string(arg)
 
     def format_list(self, arg: celtypes.ListType) -> celpy.Result:
