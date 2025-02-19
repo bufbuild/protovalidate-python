@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# type: ignore
+# TODO(#257): Fully test and fix types in this file.
+
 from decimal import Decimal
 
 import celpy  # type: ignore
