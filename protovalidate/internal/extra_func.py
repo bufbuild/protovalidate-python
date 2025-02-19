@@ -238,7 +238,9 @@ def unique(val: celtypes.Value) -> celpy.Result:
 
 
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
-    string_fmt = string_format.StringFormat(locale)
+    # TODO(#257): Fix types and add tests for StringFormat.
+    # For now, ignoring the type.
+    string_fmt = string_format.StringFormat(locale)  # type: ignore
     return {
         # Missing standard functions
         "format": string_fmt.format,
