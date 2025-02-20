@@ -44,7 +44,7 @@ except protovalidate.ValidationError as e:
     # Handle failure.
 ```
 
-## Installation
+# Installation
 
 > [!TIP]
 > The easiest way to get started with Protovalidate for RPC APIs are the how-to's in Buf's documentation. There's one available for [Python and gRPC][grpc-python].
@@ -76,7 +76,7 @@ Protovalidate isn't just for Python! You might be interested in sibling reposito
 
 For a peek into how Protovalidate works, you might also want to check out [`protovalidate's core repository`](https://github.com/bufbuild/protovalidate), where `validate.proto` defines the entire cross-language API.
 
-## Related Sites
+# Related Sites
 
 - [Buf][buf] - Enterprise-grade Kafka and gRPC for the modern age
 - [Common Expression Language (CEL)][cel] - The open-source technology at the core of Protovalidate
