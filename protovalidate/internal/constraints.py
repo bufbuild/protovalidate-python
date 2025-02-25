@@ -36,14 +36,14 @@ def make_duration(msg: message.Message) -> celtypes.DurationType:
 
 
 def make_timestamp(msg: message.Message) -> celtypes.TimestampType:
-    return make_duration(msg) + celtypes.TimestampType(1970, 1, 1)
+    return celtypes.TimestampType(1970, 1, 1) + make_duration(msg)
 
 
 def unwrap(msg: message.Message) -> celtypes.Value:
     return _field_to_cel(msg, msg.DESCRIPTOR.fields_by_name["value"])
 
 
-_MSG_TYPE_URL_TO_CTOR = {
+_MSG_TYPE_URL_TO_CTOR: dict[str, typing.Callable[..., celtypes.Value]] = {
     "google.protobuf.Duration": make_duration,
     "google.protobuf.Timestamp": make_timestamp,
     "google.protobuf.StringValue": unwrap,
@@ -89,7 +89,7 @@ def _msg_to_cel(msg: message.Message) -> celtypes.Value:
     return MessageType(msg)
 
 
-_TYPE_TO_CTOR = {
+_TYPE_TO_CTOR: dict[str, typing.Callable[..., celtypes.Value]] = {
     descriptor.FieldDescriptor.TYPE_MESSAGE: _msg_to_cel,
     descriptor.FieldDescriptor.TYPE_GROUP: _msg_to_cel,
     descriptor.FieldDescriptor.TYPE_ENUM: celtypes.IntType,
