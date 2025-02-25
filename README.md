@@ -44,7 +44,7 @@ except protovalidate.ValidationError as e:
     # Handle failure.
 ```
 
-# Installation
+## Installation
 
 > [!TIP]
 > The easiest way to get started with Protovalidate for RPC APIs are the how-to's in Buf's documentation. There's one available for [Python and gRPC][grpc-python].
@@ -55,7 +55,7 @@ To install the package, use `pip`:
 pip install protovalidate
 ```
 
-# Documentation
+## Documentation
 
 Comprehensive documentation for Protovalidate is available in [Buf's documentation library][protovalidate]. 
 
@@ -65,7 +65,7 @@ Highlights for Python developers include:
 * A comprehensive RPC how-to for [Python and gRPC][grpc-python]
 * A [migration guide for protoc-gen-validate][migration-guide] users
 
-# Additional Languages and Repositories
+## Additional Languages and Repositories
 
 Protovalidate isn't just for Python! You might be interested in sibling repositories for other languages: 
 
@@ -80,19 +80,19 @@ Additionally, [protovalidate's core repository](https://github.com/bufbuild/prot
 - [Example][examples] `.proto` files using `protovalidate`
 - [Conformance testing utilities][conformance] for acceptance testing of `protovalidate` implementations
 
-# Contribution
+## Contribution
 
 We genuinely appreciate any help! If you'd like to contribute, the following will be of interest:
 
 - [Contributing Guidelines][contributing]: Guidelines to make your contribution process straightforward and meaningful
 - [Conformance testing utilities](https://github.com/bufbuild/protovalidate/tree/main/docs/conformance.md): Utilities providing acceptance testing of `protovalidate` implementations
 
-# Related Sites
+## Related Sites
 
 - [Buf][buf]: Enterprise-grade Kafka and gRPC for the modern age
 - [Common Expression Language (CEL)][cel]: The open-source technology at the core of Protovalidate
 
-# Legal
+## Legal
 
 Offered under the [Apache 2 license][license].
 
