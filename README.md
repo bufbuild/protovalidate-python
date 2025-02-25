@@ -1,4 +1,6 @@
-# [![The Buf logo](.github/buf-logo.svg)][buf] protovalidate-python
+[![The Buf logo](.github/buf-logo.svg)][buf] 
+
+# protovalidate-python
 
 [![CI](https://github.com/bufbuild/protovalidate-python/actions/workflows/ci.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-python/actions/workflows/ci.yaml)
 [![Conformance](https://github.com/bufbuild/protovalidate-python/actions/workflows/conformance.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-python/actions/workflows/conformance.yaml)
