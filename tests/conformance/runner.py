@@ -15,7 +15,7 @@
 import sys
 import typing
 
-import celpy  # type: ignore
+import celpy
 from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
 
 import protovalidate
