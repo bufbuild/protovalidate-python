@@ -58,11 +58,6 @@ lint: install ## Lint code
 	pipenv run ruff check protovalidate tests
 	pipenv verify
 
-.PHONY: lint-fix
-lint-fix: install ## Lint code
-	pipenv run ruff format protovalidate tests
-	pipenv run ruff check --fix protovalidate tests
-
 .PHONY: install
 install: ## Install dependencies
 	$(PYTHON) -m pip install --upgrade pip pipenv
