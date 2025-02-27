@@ -15,7 +15,7 @@ CONFORMANCE_ARGS ?= --strict --strict_message --expected_failures=tests/conforma
 ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "2023"
+		--year-range "2023-2025"
 PROTOVALIDATE_VERSION ?= v0.10.0
 
 .PHONY: help
