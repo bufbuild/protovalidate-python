@@ -16,8 +16,8 @@ import dataclasses
 import datetime
 import typing
 
-import celpy  # type: ignore
-from celpy import celtypes  # type: ignore
+import celpy
+from celpy import celtypes
 from google.protobuf import any_pb2, descriptor, message, message_factory
 
 from buf.validate import validate_pb2  # type: ignore

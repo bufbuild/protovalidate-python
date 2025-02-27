@@ -17,8 +17,8 @@
 
 from decimal import Decimal
 
-import celpy  # type: ignore
-from celpy import celtypes  # type: ignore
+import celpy
+from celpy import celtypes
 
 QUOTE_TRANS = str.maketrans(
     {

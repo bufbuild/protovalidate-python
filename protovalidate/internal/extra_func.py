@@ -18,8 +18,8 @@ from email.utils import parseaddr
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
 
-import celpy  # type: ignore
-from celpy import celtypes  # type: ignore
+import celpy
+from celpy import celtypes
 
 from protovalidate.internal import string_format
 
