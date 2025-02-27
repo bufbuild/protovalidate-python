@@ -35,7 +35,7 @@ generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license header
 	rm -rf gen
 	buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
 	buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
-	$(ADD_LICENSE_HEADER) --ignore __init__.py
+	$(ADD_LICENSE_HEADER)
 
 .PHONY: format
 format: install $(BIN)/license-header ## Format code
