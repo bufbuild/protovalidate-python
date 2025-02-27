@@ -247,7 +247,7 @@ class Violation:
 class ConstraintContext:
     """The state associated with a single constraint evaluation."""
 
-    def __init__(self, fail_fast: bool = False, violations: typing.Optional[list[Violation]] = None):  # noqa: FBT001, FBT002
+    def __init__(self, *, fail_fast: bool = False, violations: typing.Optional[list[Violation]] = None):
         self._fail_fast = fail_fast
         if violations is None:
             violations = []
@@ -283,13 +283,13 @@ class ConstraintContext:
         return len(self._violations) > 0
 
     def sub_context(self):
-        return ConstraintContext(self._fail_fast)
+        return ConstraintContext(fail_fast=self._fail_fast)
 
 
 class ConstraintRules:
     """The constraints associated with a single 'rules' message."""
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):  # noqa: ARG002
+    def validate(self, ctx: ConstraintContext, _: message.Message):
         """Validate the message against the rules in this constraint."""
         ctx.add(Violation(constraint_id="unimplemented", message="Unimplemented"))
 
@@ -541,9 +541,6 @@ class FieldConstraintRules(CelConstraintRules):
 class AnyConstraintRules(FieldConstraintRules):
     """Rules for an Any field."""
 
-    _in: list[str] = []  # noqa: RUF012
-    _not_in: list[str] = []  # noqa: RUF012
-
     _in_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
         elements=[
             _field_to_element(validate_pb2.AnyRules.DESCRIPTOR.fields_by_number[validate_pb2.AnyRules.IN_FIELD_NUMBER]),
@@ -576,8 +573,10 @@ class AnyConstraintRules(FieldConstraintRules):
         field_level: validate_pb2.FieldConstraints,
     ):
         super().__init__(env, funcs, field, field_level)
+        self._in = []
         if getattr(field_level.any, "in"):
             self._in = getattr(field_level.any, "in")
+        self._not_in = []
         if field_level.any.not_in:
             self._not_in = field_level.any.not_in
 

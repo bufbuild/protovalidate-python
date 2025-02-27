@@ -190,8 +190,3 @@ class StringFormat:
 
     def _format_duration(self, arg: celtypes.DurationType) -> celpy.Result:
         return f"{arg.seconds + Decimal(arg.microseconds) / Decimal(1_000_000):f}s"
-
-
-_default_format = StringFormat("en_US")
-format = _default_format.format  # noqa: A001
-format_value = _default_format.format_value
