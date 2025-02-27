@@ -1,4 +1,4 @@
-# Copyright 2023 Buf Technologies, Inc.
+# Copyright 2023-2025 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 
 from decimal import Decimal
 
-import celpy  # type: ignore
-from celpy import celtypes  # type: ignore
+import celpy
+from celpy import celtypes
 
 QUOTE_TRANS = str.maketrans(
     {
@@ -190,8 +190,3 @@ class StringFormat:
 
     def _format_duration(self, arg: celtypes.DurationType) -> celpy.Result:
         return f"{arg.seconds + Decimal(arg.microseconds) / Decimal(1_000_000):f}s"
-
-
-_default_format = StringFormat("en_US")
-format = _default_format.format  # noqa: A001
-format_value = _default_format.format_value

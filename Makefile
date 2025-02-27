@@ -15,7 +15,7 @@ CONFORMANCE_ARGS ?= --strict --strict_message --expected_failures=tests/conforma
 ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "2023"
+		--year-range "2023-2025"
 PROTOVALIDATE_VERSION ?= v0.10.0
 
 .PHONY: help
@@ -35,7 +35,7 @@ generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license header
 	rm -rf gen
 	buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
 	buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
-	$(ADD_LICENSE_HEADER) --ignore __init__.py
+	$(ADD_LICENSE_HEADER)
 
 .PHONY: format
 format: install $(BIN)/license-header ## Format code
@@ -57,11 +57,6 @@ lint: install ## Lint code
 	pipenv run mypy protovalidate
 	pipenv run ruff check protovalidate tests
 	pipenv verify
-
-.PHONY: lint-fix
-lint-fix: install ## Lint code
-	pipenv run ruff format protovalidate tests
-	pipenv run ruff check --fix protovalidate tests
 
 .PHONY: install
 install: ## Install dependencies
