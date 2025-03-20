@@ -35,6 +35,7 @@ from buf.validate.conformance.cases import (
     ignore_proto3_pb2,  # noqa: F401
     ignore_proto_editions_pb2,  # noqa: F401
     kitchen_sink_pb2,  # noqa: F401
+    library_pb2,  # noqa: F401
     maps_pb2,  # noqa: F401
     messages_pb2,  # noqa: F401
     numbers_pb2,  # noqa: F401
