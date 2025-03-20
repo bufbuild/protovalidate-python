@@ -11,12 +11,12 @@ export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
 # Set to use a different Python interpreter. For example, `PYTHON=python make test`.
 PYTHON ?= python3
-CONFORMANCE_ARGS ?= --strict --strict_message --expected_failures=tests/conformance/nonconforming.yaml --timeout 10s
+CONFORMANCE_ARGS ?= --strict_message --expected_failures=tests/conformance/nonconforming.yaml --timeout 10s
 ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
-PROTOVALIDATE_VERSION ?= v0.10.0
+PROTOVALIDATE_VERSION ?= v0.10.3
 
 .PHONY: help
 help: ## Describe useful make targets

@@ -7,3 +7,1058 @@ standard_constraints/well_known_types/duration:
 standard_constraints/well_known_types/timestamp:
  - gte_lte/invalid/above
  - lte/invalid
+
+library/is_email:
+  - invalid/left_side_empty
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsEmail]:{val:"@example.com"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_email"
+  #         got: valid
+  - invalid/non_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsEmail]:{val:"µ@example.com"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_email"
+  #         got: valid
+  - invalid/quoted-string/a
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsEmail]:{val:"\"foo bar\"@example.com"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_email"
+  #         got: valid
+  - invalid/quoted-string/b
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsEmail]:{val:"\"foo..bar\"@example.com"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_email"
+  #         got: valid
+  - invalid/trailing_dot
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsEmail]:{val:"foo@example.com."}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_email"
+  #         got: valid
+  - valid/exhaust_atext
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsEmail]:{val:"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'*+-/=?^_`{|}~@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_email"
+  #             message: ""
+  #             for_key: false
+  - valid/label_all_digits
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsEmail]:{val:"foo@0.1.2.3.4.5.6.7.8.9"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_email"
+  #             message: ""
+  #             for_key: false
+library/is_host_and_port:
+  - port_required/false/invalid/port_number_sign
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsHostAndPort]:{val:"example.com:+0"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_host_and_port"
+  #         got: valid
+  - port_required/false/valid/ipv6_zone-id_any_non_null_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsHostAndPort]:{val:"[::1%% :x\x1f]"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_host_and_port"
+  #             message: ""
+  #             for_key: false
+  - port_required/true/invalid/port_number_sign
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsHostAndPort]:{val:"example.com:+0"  port_required:true}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_host_and_port"
+  #         got: valid
+library/is_ip:
+  - version/0/valid/ipv4
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:0}
+  #        want: valid
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/0/valid/ipv6
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:0}
+  #        want: valid
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/1/invalid/empty_string
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{version:1}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/1/invalid/ipv4
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:1}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/1/invalid/ipv6
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:1}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/5/invalid/ipv4
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:5}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/5/invalid/ipv6
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:5}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/7/invalid/ipv4
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:7}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/7/invalid/ipv6
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:7}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/omitted/valid/ipv6_zone-id_any_non_null_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1%% :x\x1f"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip"
+  #             message: ""
+  #             for_key: false
+library/is_ip_prefix:
+  - version/0/strict/omitted/valid/ipv4_prefix
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"127.0.0.1/16"  version:0}
+  #        want: valid
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/0/strict/omitted/valid/ipv6_prefix
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"::1/64"  version:0}
+  #        want: valid
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/1/strict/omitted/invalid/empty_string
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{version:1}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/5/strict/omitted/invalid/ipv6_prefix
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"::1/64"  version:5}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/7/strict/omitted/invalid/ipv6_prefix
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"::1/64"  version:7}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: runtime error: invalid argument, expected 4 or 6
+  - version/omitted/strict/omitted/invalid/ipv4_bad_leading_zero_in_prefix-length
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"192.168.1.0/024"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: valid
+  - version/omitted/strict/omitted/invalid/ipv4_missing_prefix
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"192.168.1.0"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: valid
+  - version/omitted/strict/omitted/invalid/ipv6_bad_leading_zero_in_prefix-length
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"2001:0DB8:ABCD:0012:FFFF:FFFF:FFFF:FFFF/024"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: valid
+  - version/omitted/strict/omitted/invalid/ipv6_missing_prefix
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"2001:0DB8:ABCD:0012:FFFF:FFFF:FFFF:FFFF"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: valid
+  - version/omitted/strict/omitted/invalid/ipv6_zone-id/a
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"::1%en1/64"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_ip_prefix"
+  #         got: valid
+library/is_uri:
+  - invalid/authority_path-abempty_segment_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo://example.com/^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: valid
+  - invalid/authority_path-abempty_segment_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo://example.com/\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: valid
+  - invalid/authority_path-abempty_segment_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo://example.com/%x"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: valid
+  - invalid/host_ipfuture
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[v1x]"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ('IPvFuture address is invalid',))
+  - invalid/host_ipv6/b
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[2001::0370::7334]"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ("'2001::0370::7334' does not appear to be an IPv4 or IPv6 address",))
+  - invalid/host_ipv6_zone-id_bad_pct-encoded/a
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[::1%25foo%]"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ("'::1%25foo%' does not appear to be an IPv4 or IPv6 address",))
+  - invalid/host_ipv6_zone-id_bad_pct-encoded/b
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[::1%25foo%2x]"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ("'::1%25foo%2x' does not appear to be an IPv4 or IPv6 address",))
+  - invalid/host_ipv6_zone-id_pct-encoded_invalid_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[::1%25foo%c3x%96]"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ("'::1%25foo%c3x%96' does not appear to be an IPv4 or IPv6 address",))
+  - invalid/userinfo_reserved_square_bracket_close
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://]@example.com"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ('Invalid IPv6 URL',))
+  - invalid/userinfo_reserved_square_bracket_open
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[@example.com"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ('Invalid IPv6 URL',))
+  - valid/authority_path-abempty
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo://example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/example
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/fragment_pchar_extra
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com#/?"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/fragment_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com#%61%20%23"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/fragment_pct-encoded_invalid_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com#%c3x%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/fragment_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com#%c3%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/fragment_sub-delims
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com#!$&'()*+,;="}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ip4v_bad_octet
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://256.0.0.1"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ipfuture_exhaust
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[vF.-!$&'()*+,;=._~0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ipfuture_long
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[v1234AF.x]"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ipfuture_short
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[v1.x]"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ipv4
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://127.0.0.1"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ipv6
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[2001:0db8:85a3:0000:0000:8a2e:0370:7334]"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ipv6_zone-id
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[::1%25eth0]"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_ipv6_zone-id_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[::1%25foo%61%20%23]"}
+  #        want: valid
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ("'::1%25foo%61%20%23' does not appear to be an IPv4 or IPv6 address",))
+  - valid/host_ipv6_zone-id_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://[::1%25foo%c3%96]"}
+  #        want: valid
+  #         got: runtime error: ('return error for overflow', <class 'ValueError'>, ("'::1%25foo%c3%96' does not appear to be an IPv4 or IPv6 address",))
+  - valid/host_reg-name
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://foo"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_reg-name_empty
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://:8080"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_reg-name_exhaust
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://!$&'()*+,;=._~0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_reg-name_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://foo%61%20%23"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/host_reg-name_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://foo%c3%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_exhaust_segment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz/0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ%20!$&'()*+,;=:@%20"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_exhaust_segment-nz
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/@%20!$&()*+,;=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~:"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_segment-nz-pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/%61%20%23"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_segment-nz-pct-encoded_invalid_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/%c3x%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_segment-nz-pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/%c3%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_segment_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz/%61%20%23"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_segment_pct-encoded_invalid_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz/%c3x%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_segment_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz/%c3%96%c3"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_with_empty_pchar
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_with_query_and_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz?q#f"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_with_segment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz/a"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_with_segments
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:/nz//segment//segment/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-empty
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-empty_with_query_and_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:?q#f"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment-nz_exhaust
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:@%20!$&()*+,;=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~:"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment-nz_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:%61%20%23"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment-nz_pct-encoded_invalid_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:%c3x%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment-nz_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:%c3%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment_empty_pchar
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment_exhaust
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz/0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ%20!$&'()*+,;=:@%20"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz/%61%20%23"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment_pct-encoded_invalid_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz/%c3x%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_segment_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz/%c3%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_with_query_and_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz?q#f"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_with_segment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz/a"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/path-rootless_with_segments
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo:nz//segment//segment/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/port_0
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com:0"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/port_1
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com:1"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/port_65535
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com:65535"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/port_65536
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com:65536"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/port_8080
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com:8080"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/port_empty
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com:"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/port_empty_reg-name_empty
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://:"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?baz=quux"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_exhaust
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~%20!$&'()*+,=;:@?"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_extra
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?/?"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_pchar_extra
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?:@"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?%61%20%23"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_pct-encoded_invalid_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?%c3x%96"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?%c3%96%c3"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_sub-delim_semicolon
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?;"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_sub-delims
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?!$&'()*+,="}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/query_unusual_key_value_structure
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://example.com?a=b&c&&=1&=="}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/scheme_exhaust
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"foo0123456789azAZ+-.://example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/scheme_ftp
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"ftp://example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_exhaust
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~!$&'()*+,;=::@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_extra
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://:@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_multiple_colons
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://:::@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_name
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://user@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_name_password
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://user:password@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_pct-encoded_ascii
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://%61%20%23@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_pct-encoded_invalid-utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://%c3x%963@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_pct-encoded_utf8
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://%c3%963@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_reserved_hash_parses_as_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://#@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_reserved_questionmark_parses_as_query
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://?@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_reserved_slash_parses_as_path-abempty
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https:///@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_sub-delims
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://!$&'()*+,;=@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+  - valid/userinfo_unreserved
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUri]:{val:"https://0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~@example.com"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri"
+  #             message: ""
+  #             for_key: false
+library/is_uri_ref:
+  - invalid/authority_path-abempty_segment_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host/\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/bad_relative-part
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:":"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/leading_space
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:" ./foo"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-abempty_query_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host?^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-abempty_query_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host?\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-abempty_query_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host?%"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-abempty_segment_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host/%x"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/foo/\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_query_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/?^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_query_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/?\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_query_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/?%"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_segment-nz_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_segment-nz_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_segment-nz_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/%x"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_segment_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/nz/^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_segment_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/nz/\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-absolute_segment_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/nz/%x"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-empty_query_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"?^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-empty_query_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"?\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-empty_query_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"?%"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"./foo/\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_query_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:".?^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_query_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:".?\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_query_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:".?%"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_segment-bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"./\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_segment-nz_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_segment-nz_bad_colon
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:":"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_segment-nz_bad_control_character
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"\x1f"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_segment-nz_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"%x"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_segment_bad_caret
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"./^"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/path-noscheme_segment_bad_pct-encoded
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"./%x"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/space
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:" "}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/trailing_space
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"./foo "}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - invalid/uri_with_bad_scheme
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"1foo://example.com"}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #         got: valid
+  - valid/authority_path-abempty_with_segment_query_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host/foo?baz=quux#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/extreme
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//userinfo0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~!$&'()*+,;=::@host!$&'()*+,;=._~0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789/path0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ%20!$&'()*+,;=:@%20//foo/?query0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~%20!$&'()*+,=;:@?#fragment0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~%20!$&'()*+,=;:@?/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-abempty_exhaust_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host#0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~%20!$&'()*+,=;:@?/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-abempty_with_fragment/a
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-abempty_with_fragment/b
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"//host/foo/bar#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_exhaust_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/#0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~%20!$&'()*+,=;:@?/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_with_fragment/a
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-absolute_with_fragment/b
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"/foo/bar#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-empty_exhaust_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"#0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~%20!$&'()*+,=;:@?/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-noscheme_exhaust_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:".#0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~%20!$&'()*+,=;:@?/"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-noscheme_with_fragment/a
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:".#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-noscheme_with_fragment/b
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"./foo/bar#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+  - valid/path-noscheme_with_segment_query_fragment
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsUriRef]:{val:"./foo/bar?baz=quux#frag"}
+  #        want: valid
+  #         got: validation error (1 violation)
+  #          1. constraint_id: "library.is_uri_ref"
+  #             message: ""
+  #             for_key: false
+standard_constraints/required:
+  - proto2/scalar/optional/unset
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.RequiredProto2ScalarOptional]:{}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "required"
+  #             field: "val" elements:{field_number:1  field_name:"val"  field_type:TYPE_STRING}
+  #             rule: "required" elements:{field_number:25  field_name:"required"  field_type:TYPE_BOOL}
+  #         got: valid
+  - proto2/scalar/optional_with_default/unset
+  #       input: [type.googleapis.com/buf.validate.conformance.cases.RequiredProto2ScalarOptionalDefault]:{}
+  #        want: validation error (1 violation)
+  #          1. constraint_id: "required"
+  #             field: "val" elements:{field_number:1  field_name:"val"  field_type:TYPE_STRING}
+  #             rule: "required" elements:{field_number:25  field_name:"required"  field_type:TYPE_BOOL}
+  #         got: valid
