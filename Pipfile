@@ -10,10 +10,10 @@ protobuf = "==6.*"
 [dev-packages]
 pytest = "*"
 mypy = "*"
+ruff = "*"
 types-protobuf = "*"
 exceptiongroup = "*"
 tomli = "*"
-ruff = "*"
 
 [requires]
 python_version = "3.9"
