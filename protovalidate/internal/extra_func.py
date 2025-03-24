@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import math
+import re
 import typing
-from email.utils import parseaddr
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
 
@@ -22,6 +22,11 @@ import celpy
 from celpy import celtypes
 
 from protovalidate.internal import string_format
+
+# See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
+_email_regex = re.compile(
+    r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+)
 
 
 def _validate_hostname(host):
@@ -47,23 +52,6 @@ def _validate_hostname(host):
                 return False
             all_digits = all_digits and "0" <= r <= "9"
     return not all_digits
-
-
-def validate_email(addr):
-    parts = parseaddr(addr)
-    if addr != parts[1]:
-        return False
-
-    addr = parts[1]
-    if len(addr) > 254:
-        return False
-
-    parts = addr.split("@")
-    if len(parts) != 2:
-        return False
-    if len(parts[0]) > 64:
-        return False
-    return _validate_hostname(parts[1])
 
 
 def validate_host_and_port(string: str, *, port_required: bool) -> bool:
@@ -157,10 +145,19 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
 
 
 def is_email(string: celtypes.Value) -> celpy.Result:
+    """Returns true if the string is an email address, for example "foo@example.com".
+
+    Conforms to the definition for a valid email address from the HTML standard.
+    Note that this standard willfully deviates from RFC 5322, which allows many
+    unexpected forms of email addresses and will easily match a typographical
+    error.
+    """
+
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(validate_email(string))
+    m = _email_regex.match(string) is not None
+    return celtypes.BoolType(m)
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
