@@ -145,6 +145,14 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
 
 
 def is_email(string: celtypes.Value) -> celpy.Result:
+    """Returns true if the string is an email address, for example "foo@example.com".
+
+    Conforms to the definition for a valid email address from the HTML standard.
+    Note that this standard willfully deviates from RFC 5322, which allows many
+    unexpected forms of email addresses and will easily match a typographical
+    error.
+    """
+
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
