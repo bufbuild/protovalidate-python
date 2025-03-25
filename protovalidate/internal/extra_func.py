@@ -161,11 +161,13 @@ def is_email(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
+    """is_uri validates whether string is a valid URI."""
     valid = Uri(str(string)).uri()
     return celtypes.BoolType(valid)
 
 
 def is_uri_ref(string: celtypes.Value) -> celpy.Result:
+    """is_uri_reference validates whether string is a valid URI reference."""
     valid = Uri(str(string)).uri_reference()
     return celtypes.BoolType(valid)
 
