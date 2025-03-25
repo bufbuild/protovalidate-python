@@ -14,7 +14,6 @@
 
 import math
 import re
-import sys
 import typing
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
@@ -236,9 +235,6 @@ class Uri:
     _index: int
     _pct_encoded_found: bool
 
-    def log(self, string: str):
-        print("index is {} -- {}".format(self._index, string), file=sys.stderr)
-
     def __init__(self, string: str):
         """Initialize a URI validation class with a given string
 
@@ -295,8 +291,6 @@ class Uri:
             return True
 
         self._index = start
-
-        self.log("made it here, which is bad")
 
         return self.__path_absolute() or self.__path_rootless() or self.__path_empty()
 
@@ -379,7 +373,6 @@ class Uri:
         if self.__userinfo():
             if not self.__take("@"):
                 self._index = start
-                self.log("done with userinfo")
                 return False
 
         if not self.__host():
@@ -634,7 +627,6 @@ class Uri:
         while self.__take("/") and self.__segment():
             pass
 
-        self.log("done with segment loop")
         if self.__is_path_end():
             return True
 
