@@ -221,6 +221,17 @@ def unique(val: celtypes.Value) -> celpy.Result:
 
 
 class Uri:
+    """Uri is a class used to validate a given string to determine if it is a valid URI or URI reference.
+
+    Callers can validate a string by constructing an instance of this class and then calling one of its
+    public methods:
+        uri()
+        uri_reference()
+
+    Each method will return True or False depending on whether it passes validation.
+
+    """
+
     _string: str
     _index: int
     _pct_encoded_found: bool
@@ -229,6 +240,11 @@ class Uri:
         print("index is {} -- {}".format(self._index, string), file=sys.stderr)
 
     def __init__(self, string: str):
+        """Initialize a URI validation class with a given string
+
+        Args:
+            string (str): String to validate as a URI or URI reference.
+        """
         super().__init__()
         self._string = string
         self._index = 0
@@ -366,10 +382,8 @@ class Uri:
                 self.log("done with userinfo")
                 return False
 
-        self.log("checking host")
         if not self.__host():
             self._index = start
-            self.log("not a host")
             return False
 
         if self.__take(":"):
@@ -377,13 +391,10 @@ class Uri:
                 self._index = start
                 return False
 
-        self.log("is auth end check")
         if not self.__is_authority_end():
-            self.log("not a auth end")
             self._index = start
             return False
 
-        self.log("we passed")
         return True
 
     def __is_authority_end(self) -> bool:
