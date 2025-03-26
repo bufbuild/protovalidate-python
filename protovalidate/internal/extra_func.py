@@ -15,7 +15,7 @@
 import math
 import re
 import typing
-from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
+from ipaddress import IPv4Network, IPv6Network, ip_network
 from urllib import parse as urlparse
 
 import celpy
@@ -63,17 +63,17 @@ def validate_host_and_port(string: str, *, port_required: bool) -> bool:
         end = string.find("]")
         after_end = end + 1
         if after_end == len(string):  # no port
-            return not port_required and validate_ip(string[1:end], 6)
+            return not port_required and _is_ip(string[1:end], 6)
         if after_end == split_idx:  # port
-            return validate_ip(string[1:end]) and validate_port(string[split_idx + 1 :])
+            return _is_ip(string[1:end]) and validate_port(string[split_idx + 1 :])
         return False  # malformed
 
     if split_idx == -1:
-        return not port_required and (_validate_hostname(string) or validate_ip(string, 4))
+        return not port_required and (_validate_hostname(string) or _is_ip(string, 4))
 
     host = string[:split_idx]
     port = string[split_idx + 1 :]
-    return (_validate_hostname(host) or validate_ip(host, 4)) and validate_port(port)
+    return (_validate_hostname(host) or _is_ip(host, 4)) and validate_port(port)
 
 
 def validate_port(val: str) -> bool:
@@ -84,30 +84,25 @@ def validate_port(val: str) -> bool:
         return False
 
 
-def validate_ip(val: typing.Union[str, bytes], version: typing.Optional[int] = None) -> bool:
-    try:
-        if version is None:
-            ip_address(val)
-        elif version == 4:
-            IPv4Address(val)
-        elif version == 6:
-            IPv6Address(val)
-        else:
-            msg = "invalid argument, expected 4 or 6"
-            raise celpy.CELEvalError(msg)
-        return True
-    except ValueError:
-        return False
-
-
-def is_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) -> celpy.Result:
-    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
-        msg = "invalid argument, expected string or bytes"
+def validate_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+    if not isinstance(val, celtypes.StringType):
+        msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
     if not isinstance(version, celtypes.IntType) and version is not None:
         msg = "invalid argument, expected int"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(validate_ip(val, version))
+    return celtypes.BoolType(_is_ip(val, version))
+
+
+def _is_ip(val: str, version: typing.Optional[int] = None) -> bool:
+    if version is None or version == 0:
+        return Ipv4(val).address() or Ipv6(val).address()
+    elif version == 4:
+        return Ipv4(val).address()
+    elif version == 6:
+        return Ipv6(val).address()
+    else:
+        return False
 
 
 def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
@@ -160,16 +155,28 @@ def is_email(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(m)
 
 
-def is_uri(string: celtypes.Value) -> celpy.Result:
+def validate_uri(string: celtypes.Value) -> celpy.Result:
+    if not isinstance(string, celtypes.StringType):
+        msg = "invalid argument, expected string"
+        raise celpy.CELEvalError(msg)
+    return celtypes.BoolType(_is_uri(string))
+
+
+def _is_uri(string: str) -> bool:
     """is_uri validates whether string is a valid URI."""
-    valid = Uri(str(string)).uri()
-    return celtypes.BoolType(valid)
+    return Uri(str(string)).uri()
 
 
-def is_uri_ref(string: celtypes.Value) -> celpy.Result:
+def validate_uri_ref(string: celtypes.Value) -> celpy.Result:
+    if not isinstance(string, celtypes.StringType):
+        msg = "invalid argument, expected string"
+        raise celpy.CELEvalError(msg)
+    return celtypes.BoolType(_is_uri_ref(string))
+
+
+def _is_uri_ref(string: celtypes.Value) -> bool:
     """is_uri_reference validates whether string is a valid URI reference."""
-    valid = Uri(str(string)).uri_reference()
-    return celtypes.BoolType(valid)
+    return Uri(str(string)).uri_reference()
 
 
 def is_hostname(string: celtypes.Value) -> celpy.Result:
@@ -219,6 +226,231 @@ def unique(val: celtypes.Value) -> celpy.Result:
         msg = "invalid argument, expected list"
         raise celpy.CELEvalError(msg)
     return celtypes.BoolType(len(val) == len(set(val)))
+
+
+class Ipv4:
+    """a class"""
+
+    _string: str
+    _index: int
+    _octets: bytearray
+    _prefix_len: int
+
+    def __init__(self, string: str):
+        """ipv4
+
+        Args:
+        """
+
+        super().__init__()
+        self._string = string
+        self._index = 0
+        self._octets = bytearray()
+        self._prefix_len = 0
+
+    def address(self) -> bool:
+        """Parses an IPv4 Address in dotted decimal notation."""
+        return self.__address_part() and self._index == len(self._string)
+
+    def address_prefix(self) -> bool:
+        """Parses an IPv4 Address prefix."""
+        return (
+            self.__address_part() and self.__take("/") and self.__prefix_length() and self._index == len(self._string)
+        )
+
+    def __get_bits(self) -> int:
+        """Get the bits of an address parsed through address() or address_prefix()
+
+        Returns:
+            The 32-bit value if address was parsed successfully. 0 if not successful.
+        """
+        if len(self._octets) != 4:
+            return 0
+
+        return (self._octets[0] << 24) | (self._octets[1] << 16) | (self._octets[2] << 8) | self._octets[3]
+
+    def __is_prefix_only(self) -> bool:
+        """Determines TODO
+
+        Behavior is undefined if address_prefix() has not been called before or has returned false.
+
+        Returns:
+            True if all bits to the right of the prefix-length are all zeros. False otherwise.
+        """
+        bits = self.__get_bits()
+
+        mask: int
+        if self._prefix_len == 32:
+            mask = 0xFFFFFFFF
+        else:
+            mask = ~(0xFFFFFFFF >> self._prefix_len)
+
+        masked = bits & mask
+
+        return bits == masked
+
+    def __prefix_length(self) -> bool:
+        start = self._index
+
+        while True:
+            if self._index >= len(self._string) or not self.__digit():
+                break
+
+            if self._index - start > 2:
+                # max prefix-length is 32 bits, so anything more than 2 digits is invalid
+                return False
+
+        string = self._string[start : self._index]
+        if len(string) == 0:
+            # too short
+            return False
+
+        if len(string) > 1 and string[0] == "0":
+            # bad leading 0
+            return False
+
+        try:
+            value = int(string)
+
+            if value > 32:
+                # max 32 bits
+                return False
+
+            self._prefix_len = value
+
+            return True
+
+        except ValueError:
+            # Error converting to number
+            return False
+
+    def __address_part(self) -> bool:
+        start = self._index
+
+        if (
+            self.__dec_octet()
+            and self.__take(".")
+            and self.__dec_octet()
+            and self.__take(".")
+            and self.__dec_octet()
+            and self.__take(".")
+            and self.__dec_octet()
+        ):
+            return True
+
+        self._index = start
+
+        return False
+
+    def __dec_octet(self) -> bool:
+        start = self._index
+
+        while True:
+            if self._index >= len(self._string) or not self.__digit():
+                break
+
+            if self._index - start > 3:
+                # decimal octet can be three characters at most
+                return False
+
+        string = self._string[start : self._index]
+
+        if len(string) == 0:
+            # too short
+            return False
+
+        if len(string) > 1 and string[0] == "0":
+            # bad leading 0
+            return False
+
+        try:
+            value = int(string)
+
+            if value > 255:
+                return False
+
+            self._octets.append(value)
+
+            return True
+
+        except ValueError:
+            # Error converting to number
+            return False
+
+    def __digit(self) -> bool:
+        """Reports whether the current position is a digit.
+
+        Method parses the rule:
+
+        DIGIT = %x30-39  ; 0-9
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        c = self._string[self._index]
+        if "0" <= c <= "9":
+            self._index += 1
+            return True
+
+        return False
+
+    def __take(self, char: str) -> bool:
+        """Take the given char at the current index.
+
+        If char is at the current index, increment the index.
+
+        Returns:
+            True if char is at the current index. False if char is not at the
+            current index or the end of string has been reached.
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        if self._string[self._index] == char:
+            self._index += 1
+            return True
+
+        return False
+
+
+class Ipv6:
+    """a class"""
+
+    _string: str
+    _index: int
+    _pieces: list[int]
+    _double_colon_at: int
+    _double_colon_seen: bool
+    _dotted_raw: str
+    _dotted_addr: typing.Optional[Ipv4]
+    _zone_id_found: bool
+    _prefix_len: int
+
+    def __init__(self, string: str):
+        """ipv6
+
+        Args:
+
+        Attributes:
+            _string (str): The string to parse.
+            _index (int): The index.
+            _pieces (list[int]): 16-bit pieces found.
+            _double_colon_at (bool): Number of 16-bit pieces found when double colon was found.
+            _double_colon_seen (bool): Whether a double colon has been seen in string.
+            _dotted_raw (str): Dotted notation for right-most 32 bits.
+            _dotted_addr (typing.Optional[Ipv4]): Dotted notation successfully parsed as Ipv4.
+            _zone_id_found (bool): Whether a zone ID has been found in string.
+            _prefix_len (int): 0 - 128
+        """
+
+        super().__init__()
+        self._string = string
+        self._double_colon_at = -1
+
+    def address(self) -> bool:
+        return True
 
 
 class Uri:
@@ -525,14 +757,14 @@ class Uri:
 
         Method parses the rule "IPv6address".
 
-        Relies on the implementation of validate_ip.
+        Relies on the implementation of _is_ip.
         """
 
         start = self._index
         while self.__hex_dig() or self.__take(":"):
             pass
 
-        if validate_ip(self._string[start : self._index], 6):
+        if _is_ip(self._string[start : self._index], 6):
             return True
 
         self._index = start
@@ -962,11 +1194,11 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         # protovalidate specific functions
         "isNan": is_nan,
         "isInf": is_inf,
-        "isIp": is_ip,
+        "isIp": validate_ip,
         "isIpPrefix": is_ip_prefix,
         "isEmail": is_email,
-        "isUri": is_uri,
-        "isUriRef": is_uri_ref,
+        "isUri": validate_uri,
+        "isUriRef": validate_uri_ref,
         "isHostname": is_hostname,
         "isHostAndPort": is_host_and_port,
         "unique": unique,
