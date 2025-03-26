@@ -145,12 +145,21 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
 
 
 def is_email(string: celtypes.Value) -> celpy.Result:
-    """Returns true if the string is an email address, for example "foo@example.com".
+    """Validate whether string is a valid email address.
 
     Conforms to the definition for a valid email address from the HTML standard.
     Note that this standard willfully deviates from RFC 5322, which allows many
     unexpected forms of email addresses and will easily match a typographical
     error.
+
+    Args:
+        string (celTypes.Value): The string to validate.
+
+    Returns:
+        True if the string is an email address, for example "foo@example.com". False otherwise.
+
+    Raises:
+        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
     """
 
     if not isinstance(string, celtypes.StringType):
@@ -161,28 +170,50 @@ def is_email(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
-    url = urlparse.urlparse(str(string))
-    # urlparse correctly reads the scheme from URNs but parses everything
-    # after (except the query string) as the path.
-    if url.scheme == "urn":
-        if not (url.path):
-            return celtypes.BoolType(False)
-    elif not all([url.scheme, url.netloc, url.path]):
-        return celtypes.BoolType(False)
+    """Validate whether string is a valid URI.
 
-    # If the query string contains percent-encoding, then try to decode it.
-    # unquote will return the same string if it is improperly encoded.
-    if "%" in url.query:
-        return celtypes.BoolType(urlparse.unquote(url.query) != url.query)
+    URI is defined in the internet standard RFC 3986.
+    Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
-    return celtypes.BoolType(True)
+    Args:
+        string (celTypes.Value): The string to validate.
+
+    Returns:
+        True if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag". False otherwise.
+
+    Raises:
+        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
+    """
+
+    if not isinstance(string, celtypes.StringType):
+        msg = "invalid argument, expected string"
+        raise celpy.CELEvalError(msg)
+    valid = Uri(str(string)).uri()
+    return celtypes.BoolType(valid)
 
 
 def is_uri_ref(string: celtypes.Value) -> celpy.Result:
-    url = urlparse.urlparse(str(string))
-    if not all([url.scheme, url.path]) and url.fragment:
-        return celtypes.BoolType(False)
-    return celtypes.BoolType(True)
+    """Validate whether string is a valid URI reference.
+
+    URI, URI Reference, and Relative Reference are defined in the internet standard RFC 3986.
+    Zone Identifiers in IPv6 address literals are supported (RFC 6874).
+
+    Args:
+        string (celTypes.Value): The string to validate.
+
+    Returns:
+        True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag"
+        or a Relative Reference such as "./foo/bar?query". False otherwise.
+
+    Raises:
+        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
+    """
+
+    if not isinstance(string, celtypes.StringType):
+        msg = "invalid argument, expected string"
+        raise celpy.CELEvalError(msg)
+    valid = Uri(str(string)).uri_reference()
+    return celtypes.BoolType(valid)
 
 
 def is_hostname(string: celtypes.Value) -> celpy.Result:
@@ -232,6 +263,771 @@ def unique(val: celtypes.Value) -> celpy.Result:
         msg = "invalid argument, expected list"
         raise celpy.CELEvalError(msg)
     return celtypes.BoolType(len(val) == len(set(val)))
+
+
+class Uri:
+    """Uri is a class used to parse a given string to determine if it is a valid URI or URI reference.
+
+    Callers can validate a string by constructing an instance of this class and then calling one of its
+    public methods:
+        uri()
+        uri_reference()
+
+    Each method will return True or False depending on whether it passes validation.
+    """
+
+    _string: str
+    _index: int
+    _pct_encoded_found: bool
+
+    def __init__(self, string: str):
+        """Initialize a URI validation class with a given string
+
+        Args:
+            string (str): String to validate as a URI or URI reference.
+        """
+
+        super().__init__()
+        self._string = string
+        self._index = 0
+
+    def uri(self) -> bool:
+        """Determine whether string is a valid URI.
+
+        Method parses the rule:
+
+        URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+        """
+
+        start = self._index
+        if not (self.__scheme() and self.__take(":") and self.__hier_part()):
+            self._index = start
+            return False
+
+        if self.__take("?") and not self.__query():
+            return False
+
+        if self.__take("#") and not self.__fragment():
+            return False
+
+        if self._index != len(self._string):
+            self._index = start
+            return False
+
+        return True
+
+    def uri_reference(self) -> bool:
+        """Determine whether string is a valid URI reference.
+
+        Method parses the rule:
+
+        URI-reference = URI / relative-ref
+        """
+
+        return self.uri() or self.__relative_ref()
+
+    def __hier_part(self) -> bool:
+        """Determine whether string contains a valid hier-part.
+
+        Method parses the rule:
+
+        hier-part = "//" authority path-abempty.
+                  / path-absolute
+                  / path-rootless
+                  / path-empty
+        """
+
+        start = self._index
+        if self.__take("/") and self.__take("/") and self.__authority() and self.__path_abempty():
+            return True
+
+        self._index = start
+
+        return self.__path_absolute() or self.__path_rootless() or self.__path_empty()
+
+    def __relative_ref(self) -> bool:
+        """Determine whether string contains a valid relative reference.
+
+        Method parses the rule:
+
+        relative-ref = relative-part [ "?" query ] [ "#" fragment ]
+        """
+
+        start = self._index
+        if not self.__relative_part():
+            return False
+
+        if self.__take("?") and not self.__query():
+            self._index = start
+            return False
+
+        if self.__take("#") and not self.__fragment():
+            self._index = start
+            return False
+
+        if self._index != len(self._string):
+            self._index = start
+            return False
+
+        return True
+
+    def __relative_part(self) -> bool:
+        """Determine whether string contains a valid relative part.
+
+        Method parses the rule:
+
+        relative-part = "//" authority path-abempty
+                      / path-absolute
+                      / path-noscheme
+                      / path-empty
+        """
+
+        start = self._index
+        if self.__take("/") and self.__take("/") and self.__authority() and self.__path_abempty():
+            return True
+
+        self._index = start
+
+        return self.__path_absolute() or self.__path_noscheme() or self.__path_empty()
+
+    def __scheme(self) -> bool:
+        """Determine whether string contains a valid scheme.
+
+        Method parses the rule:
+
+        scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+
+        Terminated by ":".
+        """
+
+        start = self._index
+        if self.__alpha():
+            while self.__alpha() or self.__digit() or self.__take("+") or self.__take("-") or self.__take("."):
+                pass
+
+            if self._string[self._index] == ":":
+                return True
+
+        self._index = start
+        return False
+
+    def __authority(self) -> bool:
+        """Determine whether string contains a valid authority.
+
+        Method parses the rule:
+
+        authority = [ userinfo "@" ] host [ ":" port ]
+
+        Lead by double slash ("") and terminated by "/", "?", "#", or end of URI.
+        """
+
+        start = self._index
+        if self.__userinfo():
+            if not self.__take("@"):
+                self._index = start
+                return False
+
+        if not self.__host():
+            self._index = start
+            return False
+
+        if self.__take(":"):
+            if not self.__port():
+                self._index = start
+                return False
+
+        if not self.__is_authority_end():
+            self._index = start
+            return False
+
+        return True
+
+    def __is_authority_end(self) -> bool:
+        """Report whether the current position is the end of the authority.
+
+        The authority component [...] is terminated by the next slash ("/"),
+        question mark ("?"), or number sign ("#") character, or by the
+        end of the URI.
+        """
+
+        return (
+            self._index >= len(self._string)
+            or self._string[self._index] == "?"
+            or self._string[self._index] == "#"
+            or self._string[self._index] == "/"
+        )
+
+    def __userinfo(self) -> bool:
+        """Determine whether string contains a valid userinfo.
+
+        Method parses the rule:
+
+        userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+
+        Terminated by "@" in authority.
+        """
+
+        start = self._index
+        while True:
+            if self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":"):
+                continue
+
+            if self._index < len(self._string):
+                if self._string[self._index] == "@":
+                    return True
+
+            self._index = start
+            return False
+
+    def __check_host_pct_encoded(self, string: str) -> bool:
+        """Verify that string is correctly percent-encoded"""
+        try:
+            # unquote defaults to 'UTF-8' encoding.
+            urlparse.unquote(string, errors="strict")
+        except UnicodeError:
+            return False
+
+        return True
+
+    def __host(self) -> bool:
+        """Determine whether string contains a valid host.
+
+        Method parses the rule:
+
+        host = IP-literal / IPv4address / reg-name.
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        start = self._index
+        self._pct_encoded_found = False
+
+        # Note: IPv4address is a subset of reg-name
+        if (self._string[self._index] == "[" and self.__ip_literal()) or self.__reg_name():
+            if self._pct_encoded_found:
+                raw_host = self._string[start : self._index]
+                # RFC 3986:
+                # > URI producing applications must not use percent-encoding in host
+                # > unless it is used to represent a UTF-8 character sequence.
+                if not self.__check_host_pct_encoded(raw_host):
+                    return False
+
+            return True
+
+        return False
+
+    def __port(self) -> bool:
+        """Determine whether string contains a valid port.
+
+        Method parses the rule:
+
+        port = *DIGIT
+
+        Terminated by end of authority.
+        """
+
+        start = self._index
+        while True:
+            if self.__digit():
+                continue
+
+            if self.__is_authority_end():
+                return True
+
+            self._index = start
+            return False
+
+    def __ip_literal(self) -> bool:
+        """Determine whether string contains a valid port.
+
+        Method parses the rule from RFC 6874:
+
+        IP-literal = "[" ( IPv6address / IPv6addrz / IPvFuture  ) "]"
+        """
+
+        start = self._index
+
+        if self.__take("["):
+            curr_idx = self._index
+            if self.__ipv6_address() and self.__take("]"):
+                return True
+
+            self._index = curr_idx
+
+            if self.__ipv6_addrz() and self.__take("]"):
+                return True
+
+            self._index = curr_idx
+
+            if self.__ip_vfuture() and self.__take("]"):
+                return True
+
+        self._index = start
+        return False
+
+    def __ipv6_address(self) -> bool:
+        """Determine whether string contains a valid ipv6 address.
+
+        Method parses the rule "IPv6address".
+
+        Relies on the implementation of validate_ip.
+        """
+
+        start = self._index
+        while self.__hex_dig() or self.__take(":"):
+            pass
+
+        if validate_ip(self._string[start : self._index], 6):
+            return True
+
+        self._index = start
+        return False
+
+    def __ipv6_addrz(self) -> bool:
+        """Determine whether string contains a valid IPv6addrz.
+
+        Method parses the rule from RFC 6874:
+
+        IPv6addrz = IPv6address "%25" ZoneID
+        """
+
+        start = self._index
+        if self.__ipv6_address() and self.__take("%") and self.__take("2") and self.__take("5") and self.__zone_id():
+            return True
+
+        self._index = start
+
+        return False
+
+    def __zone_id(self) -> bool:
+        """Determine whether string contains a valid zone ID.
+
+        Method parses the rule from RFC 6874:
+
+        ZoneID = 1*( unreserved / pct-encoded )
+        """
+
+        start = self._index
+        while self.__unreserved() or self.__pct_encoded():
+            pass
+
+        if self._index - start > 0:
+            return True
+
+        self._index = start
+
+        return False
+
+    def __ip_vfuture(self) -> bool:
+        """Determine whether string contains a valid ipvFuture.
+
+        Method parses the rule:
+
+        IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+        """
+
+        start = self._index
+
+        if self.__take("v") and self.__hex_dig():
+            while self.__hex_dig():
+                pass
+
+            if self.__take("."):
+                j = 0
+                while self.__unreserved() or self.__sub_delims() or self.__take(":"):
+                    j += 1
+
+                if j >= 1:
+                    return True
+
+        self._index = start
+
+        return False
+
+    def __reg_name(self) -> bool:
+        """Determine whether string contains a valid reg-name.
+
+        Method parses the rule:
+
+        reg-name = *( unreserved / pct-encoded / sub-delims )
+
+        Terminates on start of port (":") or end of authority.
+        """
+
+        start = self._index
+        while True:
+            if self.__unreserved() or self.__pct_encoded() or self.__sub_delims():
+                continue
+
+            if self.__is_authority_end():
+                # End of authority
+                return True
+
+            if self._string[self._index] == ":":
+                return True
+
+            self._index = start
+
+            return False
+
+    def __is_path_end(self) -> bool:
+        """Determine whether the current index has reached the end of path.
+
+        > The path is terminated by the first question mark ("?") or
+        > number sign ("#") character, or by the end of the URI.
+        """
+
+        return self._index >= len(self._string) or self._string[self._index] == "?" or self._string[self._index] == "#"
+
+    def __path_abempty(self) -> bool:
+        """Determine whether string contains a path-abempty.
+
+        Method parses the rule:
+
+        path-abempty = *( "/" segment )
+
+        Terminated by end of path: "?", "#", or end of URI.
+        """
+
+        start = self._index
+        while self.__take("/") and self.__segment():
+            pass
+
+        if self.__is_path_end():
+            return True
+
+        self._index = start
+
+        return False
+
+    def __path_absolute(self) -> bool:
+        """Determine whether string contains a path-absolute.
+
+        Method parses the rule:
+
+        path-absolute = "/" [ segment-nz *( "/" segment ) ]
+
+        Terminated by end of path: "?", "#", or end of URI.
+        """
+
+        start = self._index
+
+        if self.__take("/"):
+            if self.__segment_nz():
+                while self.__take("/") and self.__segment():
+                    pass
+
+            if self.__is_path_end():
+                return True
+
+        self._index = start
+
+        return False
+
+    def __path_noscheme(self) -> bool:
+        """Determine whether string contains a path-noscheme.
+
+        Method parses the rule:
+
+        path-noscheme = segment-nz-nc *( "/" segment )
+
+        Terminated by end of path: "?", "#", or end of URI.
+        """
+
+        start = self._index
+        if self.__segment_nz_nc():
+            while self.__take("/") and self.__segment():
+                pass
+
+            if self.__is_path_end():
+                return True
+
+        self._index = start
+
+        return True
+
+    def __path_rootless(self) -> bool:
+        """Determine whether string contains a path-rootless.
+
+        Method parses the rule:
+
+        path-rootless = segment-nz *( "/" segment )
+
+        Terminated by end of path: "?", "#", or end of URI.
+        """
+
+        start = self._index
+
+        if self.__segment_nz():
+            while self.__take("/") and self.__segment():
+                pass
+
+            if self.__is_path_end():
+                return True
+
+        self._index = start
+
+        return True
+
+    def __path_empty(self) -> bool:
+        """Determine whether string contains a path-empty.
+
+        Method parses the rule:
+
+        path-empty = 0<pchar>
+
+        Terminated by end of path: "?", "#", or end of URI.
+        """
+
+        return self.__is_path_end()
+
+    def __segment(self) -> bool:
+        """Determine whether string contains a segment.
+
+        Method parses the rule:
+
+        segment = *pchar
+        """
+
+        while self.__pchar():
+            pass
+
+        return True
+
+    def __segment_nz(self) -> bool:
+        """Determine whether string contains a segment-nz.
+
+        Method parses the rule:
+
+        segment-nz = 1*pchar
+        """
+
+        start = self._index
+
+        if self.__pchar():
+            while self.__pchar():
+                pass
+
+            return True
+
+        self._index = start
+
+        return False
+
+    def __segment_nz_nc(self) -> bool:
+        """Determine whether string contains a segment-nz-nc.
+
+        Method parses the rule:
+
+        segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+                      ; non-zero-length segment without any colon ":"
+        """
+
+        start = self._index
+
+        while self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take("@"):
+            pass
+
+        if self._index - start > 0:
+            return True
+
+        self._index = start
+
+        return False
+
+    def __pchar(self) -> bool:
+        """Report whether the current position is a pchar.
+
+        Method parses the rule:
+
+        pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+        """
+
+        return (
+            self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":") or self.__take("@")
+        )
+
+    def __query(self) -> bool:
+        """Determine whether string contains a valid query.
+
+        Method parses the rule:
+
+        query = *( pchar / "/" / "?" )
+
+        Terminated by "#" or end of URI.
+        """
+
+        start = self._index
+
+        while True:
+            if self.__pchar() or self.__take("/") or self.__take("?"):
+                continue
+
+            if self._index == len(self._string) or self._string[self._index] == "#":
+                return True
+
+            self._index = start
+
+            return False
+
+    def __fragment(self) -> bool:
+        """Determine whether string contains a valid fragment.
+
+        Method parses the rule:
+
+        fragment = *( pchar / "/" / "?" )
+
+        Terminated by end of URI.
+        """
+
+        start = self._index
+
+        while True:
+            if self.__pchar() or self.__take("/") or self.__take("?"):
+                continue
+
+            if self._index == len(self._string):
+                return True
+
+            self._index = start
+
+            return False
+
+    def __pct_encoded(self) -> bool:
+        """Determine whether string contains a valid percent encoding.
+
+        Method parses the rule:
+
+        pct-encoded = "%" HEXDIG HEXDIG
+
+        Sets `_pct_encoded_found` to true if a valid triplet was found
+        """
+
+        start = self._index
+
+        if self.__take("%") and self.__hex_dig() and self.__hex_dig():
+            self._pct_encoded_found = True
+            return True
+
+        self._index = start
+
+        return False
+
+    def __unreserved(self) -> bool:
+        """Report whether the current position is an unreserved character.
+
+        Method parses the rule:
+
+        unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+        """
+
+        return (
+            self.__alpha()
+            or self.__digit()
+            or self.__take("-")
+            or self.__take("_")
+            or self.__take(".")
+            or self.__take("~")
+        )
+
+    def __sub_delims(self) -> bool:
+        """Report whether the current position is a sub-delim.
+
+        Method parses the rule:
+
+        sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+                    / "*" / "+" / "," / ";" / "="
+        """
+
+        return (
+            self.__take("!")
+            or self.__take("$")
+            or self.__take("&")
+            or self.__take("'")
+            or self.__take("(")
+            or self.__take(")")
+            or self.__take("*")
+            or self.__take("+")
+            or self.__take(",")
+            or self.__take(";")
+            or self.__take("=")
+        )
+
+    def __alpha(self) -> bool:
+        """Report whether the current position is an alpha character.
+
+        Method parses the rule:
+
+        ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        c = self._string[self._index]
+        if ("A" <= c <= "Z") or ("a" <= c <= "z"):
+            self._index += 1
+            return True
+
+        return False
+
+    def __digit(self) -> bool:
+        """Report whether the current position is a digit.
+
+        Method parses the rule:
+
+        DIGIT = %x30-39  ; 0-9
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        c = self._string[self._index]
+        if "0" <= c <= "9":
+            self._index += 1
+            return True
+
+        return False
+
+    def __hex_dig(self) -> bool:
+        """Report whether the current position is a hex digit.
+
+        Method parses the rule:
+
+        HEXDIG =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        c = self._string[self._index]
+
+        if ("0" <= c <= "9") or ("a" <= c <= "f") or ("A" <= c <= "F") or ("0" <= c <= "9"):
+            self._index += 1
+
+            return True
+
+        return False
+
+    def __take(self, char: str) -> bool:
+        """Take the given char at the current index.
+
+        If char is at the current index, increment the index.
+
+        Returns:
+            True if char is at the current index. False if char is not at the
+            current index or the end of string has been reached.
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        if self._string[self._index] == char:
+            self._index += 1
+            return True
+
+        return False
 
 
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
