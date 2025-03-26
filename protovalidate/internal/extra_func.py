@@ -140,12 +140,21 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
 
 
 def is_email(string: celtypes.Value) -> celpy.Result:
-    """Returns true if the string is an email address, for example "foo@example.com".
+    """Validate whether string is a valid email address.
 
     Conforms to the definition for a valid email address from the HTML standard.
     Note that this standard willfully deviates from RFC 5322, which allows many
     unexpected forms of email addresses and will easily match a typographical
     error.
+
+    Args:
+        string (celTypes.Value): The string to validate.
+
+    Returns:
+        True if the string is an email address, for example "foo@example.com". False otherwise.
+
+    Raises:
+        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
     """
 
     if not isinstance(string, celtypes.StringType):
@@ -155,28 +164,51 @@ def is_email(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(m)
 
 
-def validate_uri(string: celtypes.Value) -> celpy.Result:
+def is_uri(string: celtypes.Value) -> celpy.Result:
+    """Validate whether string is a valid URI.
+
+    URI is defined in the internet standard RFC 3986.
+    Zone Identifiers in IPv6 address literals are supported (RFC 6874).
+
+    Args:
+        string (celTypes.Value): The string to validate.
+
+    Returns:
+        True if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag". False otherwise.
+
+    Raises:
+        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
+    """
+
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(_is_uri(string))
+    valid = Uri(str(string)).uri()
+    return celtypes.BoolType(valid)
 
 
-def _is_uri(string: str) -> bool:
-    """is_uri validates whether string is a valid URI."""
-    return Uri(str(string)).uri()
+def is_uri_ref(string: celtypes.Value) -> celpy.Result:
+    """Validate whether string is a valid URI reference.
 
+    URI, URI Reference, and Relative Reference are defined in the internet standard RFC 3986.
+    Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
-def validate_uri_ref(string: celtypes.Value) -> celpy.Result:
+    Args:
+        string (celTypes.Value): The string to validate.
+
+    Returns:
+        True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag"
+        or a Relative Reference such as "./foo/bar?query". False otherwise.
+
+    Raises:
+        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
+    """
+
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(_is_uri_ref(string))
-
-
-def _is_uri_ref(string: celtypes.Value) -> bool:
-    """is_uri_reference validates whether string is a valid URI reference."""
-    return Uri(str(string)).uri_reference()
+    valid = Uri(str(string)).uri_reference()
+    return celtypes.BoolType(valid)
 
 
 def is_hostname(string: celtypes.Value) -> celpy.Result:
@@ -449,8 +481,74 @@ class Ipv6:
         self._string = string
         self._double_colon_at = -1
 
-    def address(self) -> bool:
+    def __get_bits(self) -> int:
+        """Get the bits of an address parsed through address() or address_prefix() as a 128-bit integer.
+
+        Returns:
+            The 128-bit value if address was parsed successfully. 0 if no address was parsed successfully.
+        """
+
+        p16 = self._pieces
+
+        # Handle dotted decimal, add to p16
+        if self._dotted_addr is not None:
+            # Right-most 32 bits
+            dotted32 = self._dotted_addr.__get_bits()
+            # High 16 bits
+            p16.append(dotted32 >> 16)
+            # Low 16 bits
+            p16.append(dotted32)
+
+        # Handle double colon, fill pieces with 0
+        if self._double_colon_seen:
+            while True:
+                if len(p16) >= 8:
+                    break
+
+                # Delete 0 entries at pos, insert a 0
+                p16.insert(self._double_colon_at, 0x00000000)
+
+        if len(p16) != 8:
+            return 0
+
+        return (
+            p16[0] << 112
+            | p16[1] << 96
+            | p16[2] << 80
+            | p16[3] << 64
+            | p16[4] << 48
+            | p16[5] << 32
+            | p16[6] << 16
+            | p16[7]
+        )
+
+    def __is_prefix_only(self) -> bool:
+        """Determine whether string is an ipv6 prefix only.
+
+        Behavior is undefined if address_prefix() has not been called before.
+
+        Returns:
+            True if all bits to the right of the prefix-length are all zeros. False otherwise.
+        """
+        bits = self.__get_bits()
+        mask: int
+        if self._prefix_len >= 128:
+            mask = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        elif self._prefix_len < 0:
+            mask = 0x00000000000000000000000000000000
+        else:
+            mask = ~(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF >> self._prefix_len)
+
+        masked = bits & mask
+        if bits != masked:
+            return False
+
         return True
+
+    def address(self) -> bool:
+        """Parse an IPv6 Address following RFC 4291, with optional zone id following RFC 4007."""
+
+        return self.__address_part() and self._index == len(self._string)
 
 
 class Uri:
@@ -480,9 +578,10 @@ class Uri:
         self._index = 0
 
     def uri(self) -> bool:
-        """Determines whether string is a valid URI.
+        """Determine whether string is a valid URI.
 
         Method parses the rule:
+
         URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
         """
 
@@ -504,16 +603,17 @@ class Uri:
         return True
 
     def uri_reference(self) -> bool:
-        """Determines whether string is a valid URI reference.
+        """Determine whether string is a valid URI reference.
 
         Method parses the rule:
+
         URI-reference = URI / relative-ref
         """
 
         return self.uri() or self.__relative_ref()
 
     def __hier_part(self) -> bool:
-        """Determines whether string contains a valid hier-part.
+        """Determine whether string contains a valid hier-part.
 
         Method parses the rule:
 
@@ -532,7 +632,7 @@ class Uri:
         return self.__path_absolute() or self.__path_rootless() or self.__path_empty()
 
     def __relative_ref(self) -> bool:
-        """Determines whether string contains a valid relative reference.
+        """Determine whether string contains a valid relative reference.
 
         Method parses the rule:
 
@@ -558,7 +658,7 @@ class Uri:
         return True
 
     def __relative_part(self) -> bool:
-        """Determines whether string contains a valid relative part.
+        """Determine whether string contains a valid relative part.
 
         Method parses the rule:
 
@@ -577,7 +677,7 @@ class Uri:
         return self.__path_absolute() or self.__path_noscheme() or self.__path_empty()
 
     def __scheme(self) -> bool:
-        """Determines whether string contains a valid scheme.
+        """Determine whether string contains a valid scheme.
 
         Method parses the rule:
 
@@ -598,7 +698,7 @@ class Uri:
         return False
 
     def __authority(self) -> bool:
-        """Determines whether string contains a valid authority.
+        """Determine whether string contains a valid authority.
 
         Method parses the rule:
 
@@ -629,7 +729,7 @@ class Uri:
         return True
 
     def __is_authority_end(self) -> bool:
-        """Reports whether the current position is the end of the authority.
+        """Report whether the current position is the end of the authority.
 
         The authority component [...] is terminated by the next slash ("/"),
         question mark ("?"), or number sign ("#") character, or by the
@@ -644,7 +744,7 @@ class Uri:
         )
 
     def __userinfo(self) -> bool:
-        """Determines whether string contains a valid userinfo.
+        """Determine whether string contains a valid userinfo.
 
         Method parses the rule:
 
@@ -666,7 +766,7 @@ class Uri:
             return False
 
     def __check_host_pct_encoded(self, string: str) -> bool:
-        """Verifies that string is correctly percent-encoded"""
+        """Verify that string is correctly percent-encoded"""
         try:
             # unquote defaults to 'UTF-8' encoding.
             urlparse.unquote(string, errors="strict")
@@ -676,9 +776,9 @@ class Uri:
         return True
 
     def __host(self) -> bool:
-        """Determines whether string contains a valid host.
+        """Determine whether string contains a valid host.
 
-        host parses the rule:
+        Method parses the rule:
 
         host = IP-literal / IPv4address / reg-name.
         """
@@ -704,7 +804,7 @@ class Uri:
         return False
 
     def __port(self) -> bool:
-        """Determines whether string contains a valid port.
+        """Determine whether string contains a valid port.
 
         Method parses the rule:
 
@@ -725,7 +825,7 @@ class Uri:
             return False
 
     def __ip_literal(self) -> bool:
-        """Determines whether string contains a valid port.
+        """Determine whether string contains a valid port.
 
         Method parses the rule from RFC 6874:
 
@@ -753,7 +853,7 @@ class Uri:
         return False
 
     def __ipv6_address(self) -> bool:
-        """Determines whether string contains a valid ipv6 address.
+        """Determine whether string contains a valid ipv6 address.
 
         Method parses the rule "IPv6address".
 
@@ -771,9 +871,9 @@ class Uri:
         return False
 
     def __ipv6_addrz(self) -> bool:
-        """Determines whether string contains a valid IPv6addrz.
+        """Determine whether string contains a valid IPv6addrz.
 
-        RFC 6874:
+        Method parses the rule from RFC 6874:
 
         IPv6addrz = IPv6address "%25" ZoneID
         """
@@ -787,9 +887,9 @@ class Uri:
         return False
 
     def __zone_id(self) -> bool:
-        """Determines whether string contains a valid zone ID.
+        """Determine whether string contains a valid zone ID.
 
-        RFC 6874:
+        Method parses the rule from RFC 6874:
 
         ZoneID = 1*( unreserved / pct-encoded )
         """
@@ -806,7 +906,9 @@ class Uri:
         return False
 
     def __ip_vfuture(self) -> bool:
-        """Determines whether string contains a valid ipvFuture.
+        """Determine whether string contains a valid ipvFuture.
+
+        Method parses the rule:
 
         IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
         """
@@ -830,7 +932,9 @@ class Uri:
         return False
 
     def __reg_name(self) -> bool:
-        """Determines whether string contains a valid reg-name.
+        """Determine whether string contains a valid reg-name.
+
+        Method parses the rule:
 
         reg-name = *( unreserved / pct-encoded / sub-delims )
 
@@ -854,7 +958,7 @@ class Uri:
             return False
 
     def __is_path_end(self) -> bool:
-        """Determines whether the current index has reached the end of path.
+        """Determine whether the current index has reached the end of path.
 
         > The path is terminated by the first question mark ("?") or
         > number sign ("#") character, or by the end of the URI.
@@ -863,7 +967,9 @@ class Uri:
         return self._index >= len(self._string) or self._string[self._index] == "?" or self._string[self._index] == "#"
 
     def __path_abempty(self) -> bool:
-        """Determines whether string contains a path-abempty.
+        """Determine whether string contains a path-abempty.
+
+        Method parses the rule:
 
         path-abempty = *( "/" segment )
 
@@ -882,7 +988,9 @@ class Uri:
         return False
 
     def __path_absolute(self) -> bool:
-        """Determines whether string contains a path-absolute.
+        """Determine whether string contains a path-absolute.
+
+        Method parses the rule:
 
         path-absolute = "/" [ segment-nz *( "/" segment ) ]
 
@@ -904,7 +1012,9 @@ class Uri:
         return False
 
     def __path_noscheme(self) -> bool:
-        """Determines whether string contains a path-noscheme.
+        """Determine whether string contains a path-noscheme.
+
+        Method parses the rule:
 
         path-noscheme = segment-nz-nc *( "/" segment )
 
@@ -924,7 +1034,9 @@ class Uri:
         return True
 
     def __path_rootless(self) -> bool:
-        """Determines whether string contains a path-rootless.
+        """Determine whether string contains a path-rootless.
+
+        Method parses the rule:
 
         path-rootless = segment-nz *( "/" segment )
 
@@ -945,7 +1057,9 @@ class Uri:
         return True
 
     def __path_empty(self) -> bool:
-        """Determines whether string contains a path-empty.
+        """Determine whether string contains a path-empty.
+
+        Method parses the rule:
 
         path-empty = 0<pchar>
 
@@ -955,7 +1069,9 @@ class Uri:
         return self.__is_path_end()
 
     def __segment(self) -> bool:
-        """Determines whether string contains a segment.
+        """Determine whether string contains a segment.
+
+        Method parses the rule:
 
         segment = *pchar
         """
@@ -966,7 +1082,9 @@ class Uri:
         return True
 
     def __segment_nz(self) -> bool:
-        """Determines whether string contains a segment-nz.
+        """Determine whether string contains a segment-nz.
+
+        Method parses the rule:
 
         segment-nz = 1*pchar
         """
@@ -984,7 +1102,9 @@ class Uri:
         return False
 
     def __segment_nz_nc(self) -> bool:
-        """Determines whether string contains a segment-nz-nc.
+        """Determine whether string contains a segment-nz-nc.
+
+        Method parses the rule:
 
         segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
                       ; non-zero-length segment without any colon ":"
@@ -1003,7 +1123,9 @@ class Uri:
         return False
 
     def __pchar(self) -> bool:
-        """Reports whether the current position is a pchar.
+        """Report whether the current position is a pchar.
+
+        Method parses the rule:
 
         pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
         """
@@ -1013,7 +1135,9 @@ class Uri:
         )
 
     def __query(self) -> bool:
-        """Determines whether string contains a valid query.
+        """Determine whether string contains a valid query.
+
+        Method parses the rule:
 
         query = *( pchar / "/" / "?" )
 
@@ -1034,7 +1158,9 @@ class Uri:
             return False
 
     def __fragment(self) -> bool:
-        """Determines whether string contains a valid fragment.
+        """Determine whether string contains a valid fragment.
+
+        Method parses the rule:
 
         fragment = *( pchar / "/" / "?" )
 
@@ -1055,7 +1181,9 @@ class Uri:
             return False
 
     def __pct_encoded(self) -> bool:
-        """Determines whether string contains a valid percent encoding.
+        """Determine whether string contains a valid percent encoding.
+
+        Method parses the rule:
 
         pct-encoded = "%" HEXDIG HEXDIG
 
@@ -1073,7 +1201,9 @@ class Uri:
         return False
 
     def __unreserved(self) -> bool:
-        """Reports whether the current position is an unreserved character.
+        """Report whether the current position is an unreserved character.
+
+        Method parses the rule:
 
         unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
         """
@@ -1088,7 +1218,9 @@ class Uri:
         )
 
     def __sub_delims(self) -> bool:
-        """Reports whether the current position is a sub-delim.
+        """Report whether the current position is a sub-delim.
+
+        Method parses the rule:
 
         sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
                     / "*" / "+" / "," / ";" / "="
@@ -1109,7 +1241,7 @@ class Uri:
         )
 
     def __alpha(self) -> bool:
-        """Reports whether the current position is an alpha character.
+        """Report whether the current position is an alpha character.
 
         Method parses the rule:
 
@@ -1127,7 +1259,7 @@ class Uri:
         return False
 
     def __digit(self) -> bool:
-        """Reports whether the current position is a digit.
+        """Report whether the current position is a digit.
 
         Method parses the rule:
 
@@ -1145,7 +1277,7 @@ class Uri:
         return False
 
     def __hex_dig(self) -> bool:
-        """Reports whether the current position is a hex digit.
+        """Report whether the current position is a hex digit.
 
         Method parses the rule:
 
@@ -1197,8 +1329,8 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         "isIp": validate_ip,
         "isIpPrefix": is_ip_prefix,
         "isEmail": is_email,
-        "isUri": validate_uri,
-        "isUriRef": validate_uri_ref,
+        "isUri": is_uri,
+        "isUriRef": is_uri_ref,
         "isHostname": is_hostname,
         "isHostAndPort": is_host_and_port,
         "unique": unique,
