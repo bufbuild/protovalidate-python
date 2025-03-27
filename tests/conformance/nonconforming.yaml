@@ -1,10 +1,10 @@
 # celpy doesn't support nano seconds
 # ref: https://github.com/cloud-custodian/cel-python/issues/43
-standard_constraints/well_known_types/duration:
+standard_rules/well_known_types/duration:
  - gte_lte/invalid/above
  - lte/invalid
  - not in/valid
-standard_constraints/well_known_types/timestamp:
+standard_rules/well_known_types/timestamp:
  - gte_lte/invalid/above
  - lte/invalid
 
@@ -12,19 +12,19 @@ library/is_host_and_port:
   - port_required/false/invalid/port_number_sign
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsHostAndPort]:{val:"example.com:+0"}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_host_and_port"
+  #          1. rule_id: "library.is_host_and_port"
   #         got: valid
   - port_required/false/valid/ipv6_zone-id_any_non_null_character
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsHostAndPort]:{val:"[::1%% :x\x1f]"}
   #        want: valid
   #         got: validation error (1 violation)
-  #          1. constraint_id: "library.is_host_and_port"
+  #          1. rule_id: "library.is_host_and_port"
   #             message: ""
   #             for_key: false
   - port_required/true/invalid/port_number_sign
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsHostAndPort]:{val:"example.com:+0"  port_required:true}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_host_and_port"
+  #          1. rule_id: "library.is_host_and_port"
   #         got: valid
 library/is_ip:
   - version/0/valid/ipv4
@@ -38,43 +38,43 @@ library/is_ip:
   - version/1/invalid/empty_string
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{version:1}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/1/invalid/ipv4
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:1}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/1/invalid/ipv6
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:1}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/5/invalid/ipv4
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:5}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/5/invalid/ipv6
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:5}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/7/invalid/ipv4
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:7}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/7/invalid/ipv6
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:7}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/omitted/valid/ipv6_zone-id_any_non_null_character
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1%% :x\x1f"}
   #        want: valid
   #         got: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
+  #          1. rule_id: "library.is_ip"
   #             message: ""
   #             for_key: false
 library/is_ip_prefix:
@@ -89,55 +89,55 @@ library/is_ip_prefix:
   - version/1/strict/omitted/invalid/empty_string
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{version:1}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/5/strict/omitted/invalid/ipv6_prefix
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"::1/64"  version:5}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/7/strict/omitted/invalid/ipv6_prefix
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"::1/64"  version:7}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: runtime error: invalid argument, expected 4 or 6
   - version/omitted/strict/omitted/invalid/ipv4_bad_leading_zero_in_prefix-length
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"192.168.1.0/024"}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: valid
   - version/omitted/strict/omitted/invalid/ipv4_missing_prefix
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"192.168.1.0"}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: valid
   - version/omitted/strict/omitted/invalid/ipv6_bad_leading_zero_in_prefix-length
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"2001:0DB8:ABCD:0012:FFFF:FFFF:FFFF:FFFF/024"}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: valid
   - version/omitted/strict/omitted/invalid/ipv6_missing_prefix
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"2001:0DB8:ABCD:0012:FFFF:FFFF:FFFF:FFFF"}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: valid
   - version/omitted/strict/omitted/invalid/ipv6_zone-id/a
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"::1%en1/64"}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
+  #          1. rule_id: "library.is_ip_prefix"
   #         got: valid
-standard_constraints/required:
+standard_rules/required:
   - proto2/scalar/optional/unset
   #       input: [type.googleapis.com/buf.validate.conformance.cases.RequiredProto2ScalarOptional]:{}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "required"
+  #          1. rule_id: "required"
   #             field: "val" elements:{field_number:1  field_name:"val"  field_type:TYPE_STRING}
   #             rule: "required" elements:{field_number:25  field_name:"required"  field_type:TYPE_BOOL}
   #         got: valid
   - proto2/scalar/optional_with_default/unset
   #       input: [type.googleapis.com/buf.validate.conformance.cases.RequiredProto2ScalarOptionalDefault]:{}
   #        want: validation error (1 violation)
-  #          1. constraint_id: "required"
+  #          1. rule_id: "required"
   #             field: "val" elements:{field_number:1  field_name:"val"  field_type:TYPE_STRING}
   #             rule: "required" elements:{field_number:25  field_name:"required"  field_type:TYPE_BOOL}
   #         got: valid
