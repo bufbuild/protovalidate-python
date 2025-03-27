@@ -26,47 +26,8 @@ library/is_host_and_port:
   #        want: validation error (1 violation)
   #          1. constraint_id: "library.is_host_and_port"
   #         got: valid
-library/is_ip:
-  - version/0/valid/ipv4
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:0}
-  #        want: valid
-  #         got: runtime error: invalid argument, expected 4 or 6
-  - version/0/valid/ipv6
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:0}
-  #        want: valid
-  #         got: runtime error: invalid argument, expected 4 or 6
   - version/1/invalid/empty_string
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{version:1}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
-  #         got: runtime error: invalid argument, expected 4 or 6
-  - version/1/invalid/ipv4
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:1}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
-  #         got: runtime error: invalid argument, expected 4 or 6
-  - version/1/invalid/ipv6
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:1}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
-  #         got: runtime error: invalid argument, expected 4 or 6
-  - version/5/invalid/ipv4
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:5}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
-  #         got: runtime error: invalid argument, expected 4 or 6
-  - version/5/invalid/ipv6
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:5}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
-  #         got: runtime error: invalid argument, expected 4 or 6
-  - version/7/invalid/ipv4
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"127.0.0.1"  version:7}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip"
-  #         got: runtime error: invalid argument, expected 4 or 6
-  - version/7/invalid/ipv6
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIp]:{val:"::1"  version:7}
   #        want: validation error (1 violation)
   #          1. constraint_id: "library.is_ip"
   #         got: runtime error: invalid argument, expected 4 or 6
@@ -106,18 +67,8 @@ library/is_ip_prefix:
   #        want: validation error (1 violation)
   #          1. constraint_id: "library.is_ip_prefix"
   #         got: valid
-  - version/omitted/strict/omitted/invalid/ipv4_missing_prefix
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"192.168.1.0"}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
-  #         got: valid
   - version/omitted/strict/omitted/invalid/ipv6_bad_leading_zero_in_prefix-length
   #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"2001:0DB8:ABCD:0012:FFFF:FFFF:FFFF:FFFF/024"}
-  #        want: validation error (1 violation)
-  #          1. constraint_id: "library.is_ip_prefix"
-  #         got: valid
-  - version/omitted/strict/omitted/invalid/ipv6_missing_prefix
-  #       input: [type.googleapis.com/buf.validate.conformance.cases.IsIpPrefix]:{val:"2001:0DB8:ABCD:0012:FFFF:FFFF:FFFF:FFFF"}
   #        want: validation error (1 violation)
   #          1. constraint_id: "library.is_ip_prefix"
   #         got: valid
