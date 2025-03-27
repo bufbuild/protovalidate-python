@@ -5,7 +5,7 @@
 [![PyPI version](https://badge.fury.io/py/protovalidate.svg)](https://badge.fury.io/py/protovalidate)
 
 `protovalidate-python` is the Python implementation of [`protovalidate`](https://github.com/bufbuild/protovalidate),
-designed to validate Protobuf messages at runtime based on user-defined validation constraints. Powered by Google's
+designed to validate Protobuf messages at runtime based on user-defined validation rules. Powered by Google's
 Common Expression Language ([CEL](https://github.com/google/cel-spec)), it provides a flexible and efficient foundation
 for defining and evaluating custom validation rules. The primary goal of `protovalidate` is to help developers ensure
 data consistency and integrity across the network without requiring generated code.
@@ -15,7 +15,7 @@ data consistency and integrity across the network without requiring generated co
 Head over to the core [`protovalidate`](https://github.com/bufbuild/protovalidate/) repository for:
 
 - [The API definition](https://github.com/bufbuild/protovalidate/tree/main/proto/protovalidate/buf/validate/validate.proto):
-  used to describe validation constraints
+  used to describe validation rules.
 - [Documentation](https://github.com/bufbuild/protovalidate/tree/main/docs): how to apply `protovalidate` effectively
 - [Migration tooling](https://github.com/bufbuild/protovalidate/tree/main/docs/migrate.md): incrementally migrate
   from `protoc-gen-validate`
@@ -45,9 +45,9 @@ project's [PyPI page](https://pypi.org/project/protovalidate/).
 
 ## Usage
 
-### Implementing validation constraints
+### Implementing validation rules
 
-Validation constraints are defined directly within `.proto` files. Documentation for adding constraints can be found in
+Validation rules are defined directly within `.proto` files. Documentation for adding rules can be found in
 the `protovalidate` project [README](https://github.com/bufbuild/protovalidate) and
 its [comprehensive docs](https://github.com/bufbuild/protovalidate/tree/main/docs).
 

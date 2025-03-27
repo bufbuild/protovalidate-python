@@ -24,7 +24,7 @@ class TestValidate(unittest.TestCase):
         msg.val = float("-inf")
         violations = protovalidate.collect_violations(msg)
         self.assertEqual(len(violations), 1)
-        self.assertEqual(violations[0].proto.constraint_id, "double.finite")
+        self.assertEqual(violations[0].proto.rule_id, "double.finite")
         self.assertEqual(violations[0].field_value, msg.val)
         self.assertEqual(violations[0].rule_value, True)
 

@@ -54,7 +54,7 @@ from buf.validate.conformance.cases import (
     wkt_timestamp_pb2,  # noqa: F401
     wkt_wrappers_pb2,  # noqa: F401
 )
-from buf.validate.conformance.cases.custom_constraints import custom_constraints_pb2  # noqa: F401
+from buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401
 from buf.validate.conformance.harness import harness_pb2
 
 
