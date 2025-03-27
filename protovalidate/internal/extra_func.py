@@ -193,10 +193,10 @@ def _is_hostname(val: str) -> bool:
     if len(val) > 253:
         return False
 
-    if val.endswith(val.lower()):
-        string = val[0 : len(val) - 1]
+    if val.endswith("."):
+        string = val[0 : len(val) - 1].lower()
     else:
-        string = val
+        string = val.lower()
 
     all_digits = False
     parts = string.lower().split(sep=".")
@@ -265,6 +265,7 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
         return False
 
     split_idx = val.rfind(":")
+
     if val[0] == "[":
         end = val.rfind("]")
         end_plus = end + 1
@@ -646,7 +647,7 @@ class Ipv6:
                 break
 
             # dotted notation for right-most 32 bits, e.g. 0:0:0:0:0:ffff:192.1.56.10
-            if self._double_colon_seen or (len(self._pieces) == 6 and self.__dotted()):
+            if (self._double_colon_seen or len(self._pieces) == 6) and self.__dotted():
                 dotted = Ipv4(self._dotted_raw)
 
                 if dotted.address():
