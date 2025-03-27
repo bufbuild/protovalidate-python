@@ -145,7 +145,7 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
 
 
 def is_email(string: celtypes.Value) -> celpy.Result:
-    """Validate whether string is a valid email address.
+    """Return true if the string is an email address, for example "foo@example.com".
 
     Conforms to the definition for a valid email address from the HTML standard.
     Note that this standard willfully deviates from RFC 5322, which allows many
@@ -161,7 +161,7 @@ def is_email(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
-    """Validate whether string is a valid URI.
+    """Return true if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag".
 
     URI is defined in the internet standard RFC 3986.
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
@@ -175,7 +175,8 @@ def is_uri(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri_ref(string: celtypes.Value) -> celpy.Result:
-    """Validate whether string is a valid URI reference.
+    """Return true if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
+    a Relative Reference such as "./foo/bar?query".
 
     URI, URI Reference, and Relative Reference are defined in the internet standard RFC 3986.
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
