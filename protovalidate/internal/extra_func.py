@@ -118,23 +118,14 @@ def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
 
 
 def is_email(string: celtypes.Value) -> celpy.Result:
-    """Validate whether string is a valid email address.
+    """Return true if the string is an email address, for example "foo@example.com".
 
     Conforms to the definition for a valid email address from the HTML standard.
     Note that this standard willfully deviates from RFC 5322, which allows many
     unexpected forms of email addresses and will easily match a typographical
     error.
 
-    Args:
-        string (celTypes.Value): The string to validate.
-
-    Returns:
-        True if the string is an email address, for example "foo@example.com". False otherwise.
-
-    Raises:
-        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
     """
-
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
@@ -143,21 +134,12 @@ def is_email(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri(string: celtypes.Value) -> celpy.Result:
-    """Validate whether string is a valid URI.
+    """Return true if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag".
 
     URI is defined in the internet standard RFC 3986.
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
-    Args:
-        string (celTypes.Value): The string to validate.
-
-    Returns:
-        True if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag". False otherwise.
-
-    Raises:
-        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
     """
-
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
@@ -166,22 +148,13 @@ def is_uri(string: celtypes.Value) -> celpy.Result:
 
 
 def is_uri_ref(string: celtypes.Value) -> celpy.Result:
-    """Validate whether string is a valid URI reference.
+    """Return true if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
+    a Relative Reference such as "./foo/bar?query".
 
     URI, URI Reference, and Relative Reference are defined in the internet standard RFC 3986.
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
-    Args:
-        string (celTypes.Value): The string to validate.
-
-    Returns:
-        True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag"
-        or a Relative Reference such as "./foo/bar?query". False otherwise.
-
-    Raises:
-        celpy.CELEvalError: If string is not an instance of celtypes.StringType.
     """
-
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
@@ -846,27 +819,14 @@ class Ipv6:
 
 
 class Uri:
-    """Uri is a class used to parse a given string to determine if it is a valid URI or URI reference.
-
-    Callers can validate a string by constructing an instance of this class and then calling one of its
-    public methods:
-        uri()
-        uri_reference()
-
-    Each method will return True or False depending on whether it passes validation.
-    """
+    """Uri is a class used to parse a given string to determine if it is a valid URI or URI reference."""
 
     _string: str
     _index: int
     _pct_encoded_found: bool
 
     def __init__(self, string: str):
-        """Initialize a URI validation class with a given string
-
-        Args:
-            string (str): String to validate as a URI or URI reference.
-        """
-
+        """Initialize a URI validation class with a given string."""
         super().__init__()
         self._string = string
         self._index = 0
@@ -876,9 +836,9 @@ class Uri:
 
         Method parses the rule:
 
-        URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
-        """
+            URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 
+        """
         start = self._index
         if not (self.__scheme() and self.__take(":") and self.__hier_part()):
             self._index = start
@@ -901,9 +861,9 @@ class Uri:
 
         Method parses the rule:
 
-        URI-reference = URI / relative-ref
-        """
+            URI-reference = URI / relative-ref
 
+        """
         return self.uri() or self.__relative_ref()
 
     def __hier_part(self) -> bool:
@@ -911,12 +871,12 @@ class Uri:
 
         Method parses the rule:
 
-        hier-part = "//" authority path-abempty.
-                  / path-absolute
-                  / path-rootless
-                  / path-empty
-        """
+            hier-part = "//" authority path-abempty.
+                      / path-absolute
+                      / path-rootless
+                      / path-empty
 
+        """
         start = self._index
         if self.__take("/") and self.__take("/") and self.__authority() and self.__path_abempty():
             return True
@@ -930,9 +890,9 @@ class Uri:
 
         Method parses the rule:
 
-        relative-ref = relative-part [ "?" query ] [ "#" fragment ]
-        """
+            relative-ref = relative-part [ "?" query ] [ "#" fragment ]
 
+        """
         start = self._index
         if not self.__relative_part():
             return False
@@ -956,12 +916,12 @@ class Uri:
 
         Method parses the rule:
 
-        relative-part = "//" authority path-abempty
-                      / path-absolute
-                      / path-noscheme
-                      / path-empty
-        """
+            relative-part = "//" authority path-abempty
+                          / path-absolute
+                          / path-noscheme
+                          / path-empty
 
+        """
         start = self._index
         if self.__take("/") and self.__take("/") and self.__authority() and self.__path_abempty():
             return True
@@ -975,11 +935,11 @@ class Uri:
 
         Method parses the rule:
 
-        scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+            scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 
         Terminated by ":".
-        """
 
+        """
         start = self._index
         if self.__alpha():
             while self.__alpha() or self.__digit() or self.__take("+") or self.__take("-") or self.__take("."):
@@ -996,11 +956,11 @@ class Uri:
 
         Method parses the rule:
 
-        authority = [ userinfo "@" ] host [ ":" port ]
+            authority = [ userinfo "@" ] host [ ":" port ]
 
         Lead by double slash ("") and terminated by "/", "?", "#", or end of URI.
-        """
 
+        """
         start = self._index
         if self.__userinfo():
             if not self.__take("@"):
@@ -1028,8 +988,8 @@ class Uri:
         The authority component [...] is terminated by the next slash ("/"),
         question mark ("?"), or number sign ("#") character, or by the
         end of the URI.
-        """
 
+        """
         return (
             self._index >= len(self._string)
             or self._string[self._index] == "?"
@@ -1042,11 +1002,11 @@ class Uri:
 
         Method parses the rule:
 
-        userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+            userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 
         Terminated by "@" in authority.
-        """
 
+        """
         start = self._index
         while True:
             if self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":"):
@@ -1060,7 +1020,7 @@ class Uri:
             return False
 
     def __check_host_pct_encoded(self, string: str) -> bool:
-        """Verify that string is correctly percent-encoded"""
+        """Verify that string is correctly percent-encoded."""
         try:
             # unquote defaults to 'UTF-8' encoding.
             urlparse.unquote(string, errors="strict")
@@ -1074,9 +1034,9 @@ class Uri:
 
         Method parses the rule:
 
-        host = IP-literal / IPv4address / reg-name.
-        """
+            host = IP-literal / IPv4address / reg-name.
 
+        """
         if self._index >= len(self._string):
             return False
 
@@ -1102,11 +1062,11 @@ class Uri:
 
         Method parses the rule:
 
-        port = *DIGIT
+            port = *DIGIT
 
         Terminated by end of authority.
-        """
 
+        """
         start = self._index
         while True:
             if self.__digit():
@@ -1123,9 +1083,9 @@ class Uri:
 
         Method parses the rule from RFC 6874:
 
-        IP-literal = "[" ( IPv6address / IPv6addrz / IPvFuture  ) "]"
-        """
+            IP-literal = "[" ( IPv6address / IPv6addrz / IPvFuture  ) "]"
 
+        """
         start = self._index
 
         if self.__take("["):
@@ -1152,8 +1112,8 @@ class Uri:
         Method parses the rule "IPv6address".
 
         Relies on the implementation of _is_ip.
-        """
 
+        """
         start = self._index
         while self.__hex_dig() or self.__take(":"):
             pass
@@ -1169,9 +1129,9 @@ class Uri:
 
         Method parses the rule from RFC 6874:
 
-        IPv6addrz = IPv6address "%25" ZoneID
-        """
+            IPv6addrz = IPv6address "%25" ZoneID
 
+        """
         start = self._index
         if self.__ipv6_address() and self.__take("%") and self.__take("2") and self.__take("5") and self.__zone_id():
             return True
@@ -1185,9 +1145,9 @@ class Uri:
 
         Method parses the rule from RFC 6874:
 
-        ZoneID = 1*( unreserved / pct-encoded )
-        """
+            ZoneID = 1*( unreserved / pct-encoded )
 
+        """
         start = self._index
         while self.__unreserved() or self.__pct_encoded():
             pass
@@ -1204,9 +1164,9 @@ class Uri:
 
         Method parses the rule:
 
-        IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
-        """
+            IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
 
+        """
         start = self._index
 
         if self.__take("v") and self.__hex_dig():
@@ -1230,11 +1190,11 @@ class Uri:
 
         Method parses the rule:
 
-        reg-name = *( unreserved / pct-encoded / sub-delims )
+            reg-name = *( unreserved / pct-encoded / sub-delims )
 
         Terminates on start of port (":") or end of authority.
-        """
 
+        """
         start = self._index
         while True:
             if self.__unreserved() or self.__pct_encoded() or self.__sub_delims():
@@ -1256,8 +1216,8 @@ class Uri:
 
         > The path is terminated by the first question mark ("?") or
         > number sign ("#") character, or by the end of the URI.
-        """
 
+        """
         return self._index >= len(self._string) or self._string[self._index] == "?" or self._string[self._index] == "#"
 
     def __path_abempty(self) -> bool:
@@ -1265,11 +1225,11 @@ class Uri:
 
         Method parses the rule:
 
-        path-abempty = *( "/" segment )
+            path-abempty = *( "/" segment )
 
         Terminated by end of path: "?", "#", or end of URI.
-        """
 
+        """
         start = self._index
         while self.__take("/") and self.__segment():
             pass
@@ -1286,11 +1246,11 @@ class Uri:
 
         Method parses the rule:
 
-        path-absolute = "/" [ segment-nz *( "/" segment ) ]
+            path-absolute = "/" [ segment-nz *( "/" segment ) ]
 
         Terminated by end of path: "?", "#", or end of URI.
-        """
 
+        """
         start = self._index
 
         if self.__take("/"):
@@ -1310,11 +1270,11 @@ class Uri:
 
         Method parses the rule:
 
-        path-noscheme = segment-nz-nc *( "/" segment )
+            path-noscheme = segment-nz-nc *( "/" segment )
 
         Terminated by end of path: "?", "#", or end of URI.
-        """
 
+        """
         start = self._index
         if self.__segment_nz_nc():
             while self.__take("/") and self.__segment():
@@ -1332,11 +1292,11 @@ class Uri:
 
         Method parses the rule:
 
-        path-rootless = segment-nz *( "/" segment )
+            path-rootless = segment-nz *( "/" segment )
 
         Terminated by end of path: "?", "#", or end of URI.
-        """
 
+        """
         start = self._index
 
         if self.__segment_nz():
@@ -1355,11 +1315,11 @@ class Uri:
 
         Method parses the rule:
 
-        path-empty = 0<pchar>
+            path-empty = 0<pchar>
 
         Terminated by end of path: "?", "#", or end of URI.
-        """
 
+        """
         return self.__is_path_end()
 
     def __segment(self) -> bool:
@@ -1367,9 +1327,9 @@ class Uri:
 
         Method parses the rule:
 
-        segment = *pchar
-        """
+            segment = *pchar
 
+        """
         while self.__pchar():
             pass
 
@@ -1380,9 +1340,9 @@ class Uri:
 
         Method parses the rule:
 
-        segment-nz = 1*pchar
-        """
+            segment-nz = 1*pchar
 
+        """
         start = self._index
 
         if self.__pchar():
@@ -1400,10 +1360,10 @@ class Uri:
 
         Method parses the rule:
 
-        segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
-                      ; non-zero-length segment without any colon ":"
-        """
+            segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+                          ; non-zero-length segment without any colon ":"
 
+        """
         start = self._index
 
         while self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take("@"):
@@ -1421,9 +1381,9 @@ class Uri:
 
         Method parses the rule:
 
-        pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
-        """
+            pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
 
+        """
         return (
             self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":") or self.__take("@")
         )
@@ -1433,11 +1393,11 @@ class Uri:
 
         Method parses the rule:
 
-        query = *( pchar / "/" / "?" )
+            query = *( pchar / "/" / "?" )
 
         Terminated by "#" or end of URI.
-        """
 
+        """
         start = self._index
 
         while True:
@@ -1456,11 +1416,11 @@ class Uri:
 
         Method parses the rule:
 
-        fragment = *( pchar / "/" / "?" )
+            fragment = *( pchar / "/" / "?" )
 
         Terminated by end of URI.
-        """
 
+        """
         start = self._index
 
         while True:
@@ -1479,11 +1439,11 @@ class Uri:
 
         Method parses the rule:
 
-        pct-encoded = "%" HEXDIG HEXDIG
+            pct-encoded = "%" HEXDIG HEXDIG
 
         Sets `_pct_encoded_found` to true if a valid triplet was found
-        """
 
+        """
         start = self._index
 
         if self.__take("%") and self.__hex_dig() and self.__hex_dig():
@@ -1499,9 +1459,9 @@ class Uri:
 
         Method parses the rule:
 
-        unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
-        """
+            unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
+        """
         return (
             self.__alpha()
             or self.__digit()
@@ -1516,10 +1476,10 @@ class Uri:
 
         Method parses the rule:
 
-        sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
-                    / "*" / "+" / "," / ";" / "="
-        """
+            sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+                        / "*" / "+" / "," / ";" / "="
 
+        """
         return (
             self.__take("!")
             or self.__take("$")
@@ -1539,9 +1499,9 @@ class Uri:
 
         Method parses the rule:
 
-        ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z
-        """
+            ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z
 
+        """
         if self._index >= len(self._string):
             return False
 
@@ -1557,9 +1517,9 @@ class Uri:
 
         Method parses the rule:
 
-        DIGIT = %x30-39  ; 0-9
-        """
+            DIGIT = %x30-39  ; 0-9
 
+        """
         if self._index >= len(self._string):
             return False
 
@@ -1575,9 +1535,9 @@ class Uri:
 
         Method parses the rule:
 
-        HEXDIG =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
-        """
+            HEXDIG =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
+        """
         if self._index >= len(self._string):
             return False
 
@@ -1594,12 +1554,7 @@ class Uri:
         """Take the given char at the current index.
 
         If char is at the current index, increment the index.
-
-        Returns:
-            True if char is at the current index. False if char is not at the
-            current index or the end of string has been reached.
         """
-
         if self._index >= len(self._string):
             return False
 
