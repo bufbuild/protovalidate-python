@@ -74,7 +74,7 @@ Protovalidate isn't just for Python! You might be interested in sibling reposito
 - [`protovalidate-go`][pv-go] (Go)
 - [`protovalidate-java`][pv-java] (Java)
 - [`protovalidate-cc`][pv-cc] (C++)
-- `protovalidate-ts` (TypeScript, coming soon!)
+- `protovalidate-es` (TypeScript and JavaScript, coming soon!)
 
 Additionally, [protovalidate's core repository](https://github.com/bufbuild/protovalidate) provides:
 
