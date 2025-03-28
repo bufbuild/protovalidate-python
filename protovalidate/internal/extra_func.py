@@ -15,7 +15,6 @@
 import math
 import re
 import typing
-from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from urllib import parse as urlparse
 
 import celpy
@@ -29,92 +28,70 @@ _email_regex = re.compile(
 )
 
 
-def _validate_hostname(host):
-    if not host:
-        return False
-    if len(host) > 253:
-        return False
+def cel_is_ip(val: celtypes.Value, ver: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+    """Return True if the string is an IPv4 or IPv6 address, optionally limited to a specific version.
 
-    if host[-1] == ".":
-        host = host[:-1]
+    Version 0 or None means either 4 or 6. Passing a version other than 0, 4, or 6 always returns False.
 
-    all_digits = True
-    for part in host.split("."):
-        if len(part) == 0 or len(part) > 63:
-            return False
+    IPv4 addresses are expected in the dotted decimal format, for example "192.168.5.21".
+    IPv6 addresses are expected in their text representation, for example "::1" or "2001:0DB8:ABCD:0012::0".
 
-        # Host names cannot begin or end with hyphens
-        if part[0] == "-" or part[-1] == "-":
-            return False
-        all_digits = True
-        for r in part:
-            if (r < "A" or r > "Z") and (r < "a" or r > "z") and (r < "0" or r > "9") and r != "-":
-                return False
-            all_digits = all_digits and "0" <= r <= "9"
-    return not all_digits
+    Both formats are well-defined in the internet standard RFC 3986. Zone
+    identifiers for IPv6 addresses (for example "fe80::a%en1") are supported.
 
-
-def validate_host_and_port(string: str, *, port_required: bool) -> bool:
-    if not string:
-        return False
-
-    split_idx = string.rfind(":")
-    if string[0] == "[":
-        end = string.find("]")
-        after_end = end + 1
-        if after_end == len(string):  # no port
-            return not port_required and validate_ip(string[1:end], 6)
-        if after_end == split_idx:  # port
-            return validate_ip(string[1:end]) and validate_port(string[split_idx + 1 :])
-        return False  # malformed
-
-    if split_idx == -1:
-        return not port_required and (_validate_hostname(string) or validate_ip(string, 4))
-
-    host = string[:split_idx]
-    port = string[split_idx + 1 :]
-    return (_validate_hostname(host) or validate_ip(host, 4)) and validate_port(port)
-
-
-def validate_port(val: str) -> bool:
-    try:
-        port = int(val)
-        return port <= 65535
-    except ValueError:
-        return False
-
-
-def validate_ip(val: typing.Union[str, bytes], version: typing.Optional[int] = None) -> bool:
-    try:
-        if version is None:
-            ip_address(val)
-        elif version == 4:
-            IPv4Address(val)
-        elif version == 6:
-            IPv6Address(val)
-        else:
-            msg = "invalid argument, expected 4 or 6"
-            raise celpy.CELEvalError(msg)
-        return True
-    except ValueError:
-        return False
-
-
-def is_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) -> celpy.Result:
-    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
-        msg = "invalid argument, expected string or bytes"
+    """
+    if not isinstance(val, celtypes.StringType):
+        msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
-    if not isinstance(version, celtypes.IntType) and version is not None:
+    if not isinstance(ver, celtypes.IntType) and ver is not None:
         msg = "invalid argument, expected int"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(validate_ip(val, version))
+
+    if ver is None:
+        version = 0
+    else:
+        version = ver
+
+    return celtypes.BoolType(_is_ip(val, version))
 
 
-def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
-    if not isinstance(val, (celtypes.BytesType, celtypes.StringType)):
+def _is_ip(string: str, version: int) -> bool:
+    """Internal implementation"""
+    valid = False
+    if version == 6:
+        valid = Ipv6(string).address()
+    elif version == 4:
+        valid = Ipv4(string).address()
+    elif version == 0:
+        valid = Ipv4(string).address() or Ipv6(string).address()
+
+    return valid
+
+
+def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
+    """Return True if the string is a valid IP with prefix length, optionally
+     limited to a specific version (v4 or v6), and optionally requiring the host
+     portion to be all zeros.
+
+    An address prefix divides an IP address into a network portion, and a host portion.
+    The prefix length specifies how many bits the network portion has.
+    For example, the IPv6 prefix "2001:db8:abcd:0012::0/64" designates the
+    left-most 64 bits as the network prefix. The range of the network is 2**64
+    addresses, from 2001:db8:abcd:0012::0 to 2001:db8:abcd:0012:ffff:ffff:ffff:ffff.
+
+    An address prefix may include a specific host address, for example
+    "2001:db8:abcd:0012::1f/64". With strict = true, this is not permitted. The
+    host portion must be all zeros, as in "2001:db8:abcd:0012::0/64".
+
+    The same principle applies to IPv4 addresses. "192.168.1.0/24" designates
+    the first 24 bits of the 32-bit IPv4 as the network prefix.
+
+    """
+
+    if not isinstance(val, celtypes.StringType):
         msg = "invalid argument, expected string or bytes"
         raise celpy.CELEvalError(msg)
-    version = None
+    version = 0
     strict = celtypes.BoolType(False)
     if len(args) == 1 and isinstance(args[0], celtypes.BoolType):
         strict = args[0]
@@ -129,23 +106,27 @@ def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
     elif len(args) == 2 and (not isinstance(args[0], celtypes.IntType) or not isinstance(args[1], celtypes.BoolType)):
         msg = "invalid argument, expected int and bool"
         raise celpy.CELEvalError(msg)
-    try:
-        if version is None:
-            ip_network(val, strict=bool(strict))
-        elif version == 4:
-            IPv4Network(val, strict=bool(strict))
-        elif version == 6:
-            IPv6Network(val, strict=bool(strict))
-        else:
-            msg = "invalid argument, expected 4 or 6"
-            raise celpy.CELEvalError(msg)
-        return celtypes.BoolType(True)
-    except ValueError:
-        return celtypes.BoolType(False)
+
+    return celtypes.BoolType(_is_ip_prefix(val, version, strict=strict))
 
 
-def is_email(string: celtypes.Value) -> celpy.Result:
-    """Return true if the string is an email address, for example "foo@example.com".
+def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
+    """Internal implementation"""
+    valid = False
+    if version == 6:
+        v6 = Ipv6(string)
+        valid = v6.address_prefix() and (not strict or v6.is_prefix_only())
+    elif version == 4:
+        v4 = Ipv4(string)
+        valid = v4.address_prefix() and (not strict or v4.is_prefix_only())
+    elif version == 0:
+        valid = _is_ip_prefix(string, 6, strict=strict) or _is_ip_prefix(string, 4, strict=strict)
+
+    return valid
+
+
+def cel_is_email(string: celtypes.Value) -> celpy.Result:
+    """Return True if the string is an email address, for example "foo@example.com".
 
     Conforms to the definition for a valid email address from the HTML standard.
     Note that this standard willfully deviates from RFC 5322, which allows many
@@ -160,8 +141,8 @@ def is_email(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(m)
 
 
-def is_uri(string: celtypes.Value) -> celpy.Result:
-    """Return true if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag".
+def cel_is_uri(string: celtypes.Value) -> celpy.Result:
+    """Return True if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag".
 
     URI is defined in the internet standard RFC 3986.
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
@@ -174,8 +155,8 @@ def is_uri(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(valid)
 
 
-def is_uri_ref(string: celtypes.Value) -> celpy.Result:
-    """Return true if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
+def cel_is_uri_ref(string: celtypes.Value) -> celpy.Result:
+    """Return True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
     a Relative Reference such as "./foo/bar?query".
 
     URI, URI Reference, and Relative Reference are defined in the internet standard RFC 3986.
@@ -189,31 +170,131 @@ def is_uri_ref(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(valid)
 
 
-def is_hostname(string: celtypes.Value) -> celpy.Result:
-    if not isinstance(string, celtypes.StringType):
+def cel_is_hostname(val: celtypes.Value) -> celpy.Result:
+    """Returns True if the string is a valid hostname, for example "foo.example.com".
+
+    A valid hostname follows the rules below:
+    - The name consists of one or more labels, separated by a dot (".").
+    - Each label can be 1 to 63 alphanumeric characters.
+    - A label can contain hyphens ("-"), but must not start or end with a hyphen.
+    - The right-most label must not be digits only.
+    - The name can have a trailing dot, for example "foo.example.com.".
+    - The name can be 253 characters at most, excluding the optional trailing dot.
+
+    """
+    if not isinstance(val, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(_validate_hostname(string))
+    return celtypes.BoolType(_is_hostname(val))
 
 
-def is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) -> celpy.Result:
+def _is_hostname(val: str) -> bool:
+    """Internal implementation"""
+    if len(val) > 253:
+        return False
+
+    if val.endswith("."):
+        string = val[0 : len(val) - 1].lower()
+    else:
+        string = val.lower()
+
+    all_digits = False
+    parts = string.lower().split(sep=".")
+
+    # split hostname on '.' and validate each part
+    for part in parts:
+        all_digits = True
+
+        # if part is empty, longer than 63 chars, or starts/ends with '-', it is invalid
+        part_len = len(part)
+
+        if part_len == 0 or part_len > 63 or part.startswith("-") or part.endswith("-"):
+            return False
+
+        for c in part:
+            # if the character is not a-z, 0-9, or '-', it is invalid
+            if (c < "a" or c > "z") and (c < "0" or c > "9") and c != "-":
+                return False
+
+            all_digits = all_digits and c >= "0" and c <= "9"
+
+    # the last part cannot be all numbers
+    return not all_digits
+
+
+def _is_port(val: str) -> bool:
+    if len(val) == 0:
+        return False
+
+    for c in val:
+        if c < "0" or c > "9":
+            return False
+
+    try:
+        return int(val) <= 65535
+
+    except ValueError:
+        # Error converting to number
+        return False
+
+
+def cel_is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) -> celpy.Result:
+    """Return True if the string is a valid host/port pair, for example "example.com:8080".
+
+     If the argument `port_required` is True, the port is required. If the argument
+     is False, the port is optional.
+
+    The host can be one of:
+     - An IPv4 address in dotted decimal format, for example "192.168.0.1".
+     - An IPv6 address enclosed in square brackets, for example "[::1]".
+     - A hostname, for example "example.com".
+
+    The port is separated by a colon. It must be non-empty, with a decimal number in the range of 0-65535, inclusive.
+    """
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
     if not isinstance(port_required, celtypes.BoolType):
         msg = "invalid argument, expected bool"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(validate_host_and_port(string, port_required=bool(port_required)))
+    return celtypes.BoolType(_is_host_and_port(string, port_required=bool(port_required)))
 
 
-def is_nan(val: celtypes.Value) -> celpy.Result:
+def _is_host_and_port(val: str, *, port_required=False) -> bool:
+    if len(val) == 0:
+        return False
+
+    split_idx = val.rfind(":")
+
+    if val[0] == "[":
+        end = val.rfind("]")
+        end_plus = end + 1
+
+        if end_plus == len(val):
+            return not port_required and _is_ip(val[1:end], 6)
+        elif end_plus == split_idx:
+            return _is_ip(val[1:end], 6) and _is_port(val[split_idx + 1 :])
+        else:
+            # malformed
+            return False
+
+    if split_idx < 0:
+        return not port_required and (_is_hostname(val) or _is_ip(val, 4))
+
+    host = val[0:split_idx]
+    port = val[split_idx + 1 :]
+
+    return (_is_hostname(host) or _is_ip(host, 4)) and _is_port(port)
+
+
+def cel_is_nan(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
         raise celpy.CELEvalError(msg)
     return celtypes.BoolType(math.isnan(val))
 
 
-def is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+def cel_is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
         raise celpy.CELEvalError(msg)
@@ -231,11 +312,513 @@ def is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) ->
         return celtypes.BoolType(math.isinf(val))
 
 
-def unique(val: celtypes.Value) -> celpy.Result:
+def cel_unique(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.ListType):
         msg = "invalid argument, expected list"
         raise celpy.CELEvalError(msg)
     return celtypes.BoolType(len(val) == len(set(val)))
+
+
+class Ipv4:
+    """Ipv4 is a class used to parse a given string to determine if it is a valid IPv4 address or address prefix."""
+
+    _string: str
+    _index: int
+    _octets: bytearray
+    _prefix_len: int
+
+    def __init__(self, string: str):
+        """Initialize an Ipv4 validation class with a given string."""
+
+        super().__init__()
+        self._string = string
+        self._index = 0
+        self._octets = bytearray()
+        self._prefix_len = 0
+
+    def address(self) -> bool:
+        """Parses an IPv4 Address in dotted decimal notation."""
+        return self.__address_part() and self._index == len(self._string)
+
+    def address_prefix(self) -> bool:
+        """Parses an IPv4 Address prefix."""
+        return (
+            self.__address_part() and self.__take("/") and self.__prefix_length() and self._index == len(self._string)
+        )
+
+    def get_bits(self) -> int:
+        """Return the 32-bit value of an address parsed through address() or address_prefix().
+
+        Return -1 if no address was parsed successfully.
+
+        """
+        if len(self._octets) != 4:
+            return -1
+
+        return (self._octets[0] << 24) | (self._octets[1] << 16) | (self._octets[2] << 8) | self._octets[3]
+
+    def is_prefix_only(self) -> bool:
+        """Return True if all bits to the right of the prefix-length are all zeros.
+
+        Behavior is undefined if address_prefix() has not been called before, or has returned False.
+
+        """
+        bits = self.get_bits()
+
+        mask: int
+        if self._prefix_len == 32:
+            mask = 0xFFFFFFFF
+        else:
+            mask = ~(0xFFFFFFFF >> self._prefix_len)
+
+        masked = bits & mask
+
+        return bits == masked
+
+    def __prefix_length(self) -> bool:
+        """Store value in `prefix_len`"""
+
+        start = self._index
+
+        while True:
+            if self._index >= len(self._string) or not self.__digit():
+                break
+
+            if self._index - start > 2:
+                # max prefix-length is 32 bits, so anything more than 2 digits is invalid
+                return False
+
+        string = self._string[start : self._index]
+        if len(string) == 0:
+            # too short
+            return False
+
+        if len(string) > 1 and string[0] == "0":
+            # bad leading 0
+            return False
+
+        try:
+            value = int(string)
+
+            if value > 32:
+                # max 32 bits
+                return False
+
+            self._prefix_len = value
+
+            return True
+
+        except ValueError:
+            # Error converting to number
+            return False
+
+    def __address_part(self) -> bool:
+        start = self._index
+
+        if (
+            self.__dec_octet()
+            and self.__take(".")
+            and self.__dec_octet()
+            and self.__take(".")
+            and self.__dec_octet()
+            and self.__take(".")
+            and self.__dec_octet()
+        ):
+            return True
+
+        self._index = start
+
+        return False
+
+    def __dec_octet(self) -> bool:
+        start = self._index
+
+        while True:
+            if self._index >= len(self._string) or not self.__digit():
+                break
+
+            if self._index - start > 3:
+                # decimal octet can be three characters at most
+                return False
+
+        string = self._string[start : self._index]
+
+        if len(string) == 0:
+            # too short
+            return False
+
+        if len(string) > 1 and string[0] == "0":
+            # bad leading 0
+            return False
+
+        try:
+            value = int(string)
+
+            if value > 255:
+                return False
+
+            self._octets.append(value)
+
+            return True
+
+        except ValueError:
+            # Error converting to number
+            return False
+
+    def __digit(self) -> bool:
+        """Report whether the current position is a digit.
+
+        Method parses the rule:
+
+            DIGIT = %x30-39  ; 0-9
+
+        """
+
+        if self._index >= len(self._string):
+            return False
+
+        c = self._string[self._index]
+        if "0" <= c <= "9":
+            self._index += 1
+            return True
+
+        return False
+
+    def __take(self, char: str) -> bool:
+        """Take the given char at the current index.
+
+        If char is at the current index, increment the index.
+
+        """
+        if self._index >= len(self._string):
+            return False
+
+        if self._string[self._index] == char:
+            self._index += 1
+            return True
+
+        return False
+
+
+class Ipv6:
+    """Ipv6 is a class used to parse a given string to determine if it is a valid IPv6 address or address prefix."""
+
+    _string: str
+    _index: int
+    _pieces: list[int]  # 16-bit pieces found
+    _double_colon_at: int  # Number of 16-bit pieces found when double colon was found.
+    _double_colon_seen: bool
+    _dotted_raw: str  # Dotted notation for right-most 32 bits.
+    _dotted_addr: typing.Optional[Ipv4]  # Dotted notation successfully parsed as Ipv4.
+    _zone_id_found: bool
+    _prefix_len: int  # 0 -128
+
+    def __init__(self, string: str):
+        """Initialize a URI validation class with a given string."""
+
+        super().__init__()
+        self._string = string
+        self._index = 0
+        self._pieces = []
+        self._double_colon_at = -1
+        self._double_colon_seen = False
+        self._dotted_raw = ""
+        self._dotted_addr = None
+        self._zone_id_found = False
+
+    def get_bits(self) -> int:
+        """Return the 128-bit value of an address parsed through address() or address_prefix().
+
+        Return 0 if no address was parsed successfully.
+
+        """
+        p16 = self._pieces
+
+        # Handle dotted decimal, add to p16
+        if self._dotted_addr is not None:
+            # Right-most 32 bits
+            dotted32 = self._dotted_addr.get_bits()
+            # High 16 bits
+            p16.append(dotted32 >> 16)
+            # Low 16 bits
+            p16.append(dotted32)
+
+        # Handle double colon, fill pieces with 0
+        if self._double_colon_seen:
+            while True:
+                if len(p16) >= 8:
+                    break
+
+                # Delete 0 entries at pos, insert a 0
+                p16.insert(self._double_colon_at, 0x00000000)
+
+        if len(p16) != 8:
+            return 0
+
+        return (
+            p16[0] << 112
+            | p16[1] << 96
+            | p16[2] << 80
+            | p16[3] << 64
+            | p16[4] << 48
+            | p16[5] << 32
+            | p16[6] << 16
+            | p16[7]
+        )
+
+    def is_prefix_only(self) -> bool:
+        """Return True if all bits to the right of the prefix-length are all zeros.
+
+        Behavior is undefined if address_prefix() has not been called before, or has returned False.
+
+        """
+        bits = self.get_bits()
+        mask: int
+        if self._prefix_len >= 128:
+            mask = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        elif self._prefix_len < 0:
+            mask = 0x00000000000000000000000000000000
+        else:
+            mask = ~(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF >> self._prefix_len)
+
+        masked = bits & mask
+        if bits != masked:
+            return False
+
+        return True
+
+    def address(self) -> bool:
+        """Parse an IPv6 Address following RFC 4291, with optional zone id following RFC 4007."""
+
+        return self.__address_part() and self._index == len(self._string)
+
+    def address_prefix(self) -> bool:
+        """Parse an IPv6 Address Prefix following RFC 4291. Zone id is not permitted."""
+
+        return (
+            self.__address_part()
+            and not self._zone_id_found
+            and self.__take("/")
+            and self.__prefix_length()
+            and self._index == len(self._string)
+        )
+
+    def __prefix_length(self) -> bool:
+        """Store value in `prefix_len`."""
+        start = self._index
+
+        while True:
+            if self._index >= len(self._string) or not self.__digit():
+                break
+
+            if self._index - start > 3:
+                return False
+
+        string = self._string[start : self._index]
+
+        if len(string) == 0:
+            # too short
+            return False
+
+        if len(string) > 1 and string[0] == "0":
+            # bad leading 0
+            return False
+
+        try:
+            value = int(string)
+
+            if value > 128:
+                # max 128 bits
+                return False
+
+            self._prefix_len = value
+
+            return True
+
+        except ValueError:
+            # Error converting to number
+            return False
+
+    def __address_part(self) -> bool:
+        """Store dotted notation for right-most 32 bits in dotted_raw / dotted_addr if found."""
+
+        while True:
+            if self._index >= len(self._string):
+                break
+
+            # dotted notation for right-most 32 bits, e.g. 0:0:0:0:0:ffff:192.1.56.10
+            if (self._double_colon_seen or len(self._pieces) == 6) and self.__dotted():
+                dotted = Ipv4(self._dotted_raw)
+
+                if dotted.address():
+                    self._dotted_addr = dotted
+                    return True
+
+                return False
+
+            if self.__h16():
+                continue
+
+            if self.__take(":"):
+                if self.__take(":"):
+                    if self._double_colon_seen:
+                        return False
+
+                    self._double_colon_seen = True
+                    self._double_colon_at = len(self._pieces)
+
+                    if self.__take(":"):
+                        return False
+
+                continue
+
+            if self._string[self._index] == "%" and not self.__zone_id():
+                return False
+
+            break
+
+        return self._double_colon_seen or len(self._pieces) == 8
+
+    def __zone_id(self) -> bool:
+        """Determine whether string contains a zoneID.
+
+        There is no definition for the character set allowed in the zone
+        identifier. RFC 4007 permits basically any non-null string.
+
+            RFC 6874: ZoneID = 1*( unreserved / pct-encoded )
+
+        """
+        start = self._index
+
+        if self.__take("%"):
+            if len(self._string) - self._index > 0:
+                # permit any non-null string
+                self._index = len(self._string)
+                self._zone_id_found = True
+
+                return True
+
+        self._index = start
+        self._zone_id_found = False
+
+        return False
+
+    def __dotted(self) -> bool:
+        """Determine whether string contains a dotted address.
+
+        Method parses the rule:
+
+            1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT
+
+        Stores match in _dotted_raw.
+        """
+
+        start = self._index
+        self._dotted_raw = ""
+
+        while True:
+            if self._index < len(self._string) and (self.__digit() or self.__take(".")):
+                continue
+
+            break
+
+        if self._index - start >= 7:
+            self._dotted_raw = self._string[start : self._index]
+            return True
+
+        self._index = start
+
+        return False
+
+    def __h16(self) -> bool:
+        """Determine whether string contains an h16.
+
+        Method parses the rule:
+
+            h16 = 1*4HEXDIG
+
+        Stores 16-bit value in _pieces.
+        """
+
+        start = self._index
+
+        while True:
+            if self._index >= len(self._string) or not self.__hex_dig():
+                break
+
+        string = self._string[start : self._index]
+
+        if len(string) == 0:
+            # too short
+            return False
+
+        if len(string) > 4:
+            # too long
+            return False
+
+        try:
+            value = int(string, 16)
+
+            self._pieces.append(value)
+
+            return True
+
+        except ValueError:
+            # Error converting to number
+            return False
+
+    def __hex_dig(self) -> bool:
+        """Report whether the current position is a hex digit.
+
+        Method parses the rule:
+
+            HEXDIG =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+
+        """
+        if self._index >= len(self._string):
+            return False
+
+        c = self._string[self._index]
+
+        if ("0" <= c <= "9") or ("a" <= c <= "f") or ("A" <= c <= "F") or ("0" <= c <= "9"):
+            self._index += 1
+
+            return True
+
+        return False
+
+    def __digit(self) -> bool:
+        """Report whether the current position is a digit.
+
+        Method parses the rule:
+
+            DIGIT = %x30-39  ; 0-9
+
+        """
+        if self._index >= len(self._string):
+            return False
+
+        c = self._string[self._index]
+        if "0" <= c <= "9":
+            self._index += 1
+            return True
+
+        return False
+
+    def __take(self, char: str) -> bool:
+        """Take the given char at the current index.
+
+        If char is at the current index, increment the index.
+
+        """
+        if self._index >= len(self._string):
+            return False
+
+        if self._string[self._index] == char:
+            self._index += 1
+            return True
+
+        return False
 
 
 class Uri:
@@ -531,14 +1114,14 @@ class Uri:
 
         Method parses the rule "IPv6address".
 
-        Relies on the implementation of validate_ip.
+        Relies on the implementation of _is_ip.
 
         """
         start = self._index
         while self.__hex_dig() or self.__take(":"):
             pass
 
-        if validate_ip(self._string[start : self._index], 6):
+        if _is_ip(self._string[start : self._index], 6):
             return True
 
         self._index = start
@@ -861,7 +1444,7 @@ class Uri:
 
             pct-encoded = "%" HEXDIG HEXDIG
 
-        Sets `_pct_encoded_found` to true if a valid triplet was found
+        Sets `_pct_encoded_found` to True if a valid triplet was found
 
         """
         start = self._index
@@ -974,6 +1557,7 @@ class Uri:
         """Take the given char at the current index.
 
         If char is at the current index, increment the index.
+
         """
         if self._index >= len(self._string):
             return False
@@ -993,16 +1577,16 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         # Missing standard functions
         "format": string_fmt.format,
         # protovalidate specific functions
-        "isNan": is_nan,
-        "isInf": is_inf,
-        "isIp": is_ip,
-        "isIpPrefix": is_ip_prefix,
-        "isEmail": is_email,
-        "isUri": is_uri,
-        "isUriRef": is_uri_ref,
-        "isHostname": is_hostname,
-        "isHostAndPort": is_host_and_port,
-        "unique": unique,
+        "isNan": cel_is_nan,
+        "isInf": cel_is_inf,
+        "isIp": cel_is_ip,
+        "isIpPrefix": cel_is_ip_prefix,
+        "isEmail": cel_is_email,
+        "isUri": cel_is_uri,
+        "isUriRef": cel_is_uri_ref,
+        "isHostname": cel_is_hostname,
+        "isHostAndPort": cel_is_host_and_port,
+        "unique": cel_unique,
     }
 
 
