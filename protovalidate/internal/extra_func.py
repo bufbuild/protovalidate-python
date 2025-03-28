@@ -28,7 +28,7 @@ _email_regex = re.compile(
 )
 
 
-def is_ip(val: celtypes.Value, ver: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+def cel_is_ip(val: celtypes.Value, ver: typing.Optional[celtypes.Value] = None) -> celpy.Result:
     """Return True if the string is an IPv4 or IPv6 address, optionally limited to a specific version.
 
     Version 0 or None means either 4 or 6. Passing a version other than 0, 4, or 6 always returns False.
@@ -68,7 +68,7 @@ def _is_ip(string: str, version: int) -> bool:
     return valid
 
 
-def is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
+def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
     """Return True if the string is a valid IP with prefix length, optionally
      limited to a specific version (v4 or v6), and optionally requiring the host
      portion to be all zeros.
@@ -125,7 +125,7 @@ def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
     return valid
 
 
-def is_email(string: celtypes.Value) -> celpy.Result:
+def cel_is_email(string: celtypes.Value) -> celpy.Result:
     """Return True if the string is an email address, for example "foo@example.com".
 
     Conforms to the definition for a valid email address from the HTML standard.
@@ -141,7 +141,7 @@ def is_email(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(m)
 
 
-def is_uri(string: celtypes.Value) -> celpy.Result:
+def cel_is_uri(string: celtypes.Value) -> celpy.Result:
     """Return True if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag".
 
     URI is defined in the internet standard RFC 3986.
@@ -155,7 +155,7 @@ def is_uri(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(valid)
 
 
-def is_uri_ref(string: celtypes.Value) -> celpy.Result:
+def cel_is_uri_ref(string: celtypes.Value) -> celpy.Result:
     """Return True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
     a Relative Reference such as "./foo/bar?query".
 
@@ -170,7 +170,7 @@ def is_uri_ref(string: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(valid)
 
 
-def is_hostname(val: celtypes.Value) -> celpy.Result:
+def cel_is_hostname(val: celtypes.Value) -> celpy.Result:
     """Returns True if the string is a valid hostname, for example "foo.example.com".
 
     A valid hostname follows the rules below:
@@ -238,7 +238,7 @@ def _is_port(val: str) -> bool:
         return False
 
 
-def is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) -> celpy.Result:
+def cel_is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) -> celpy.Result:
     """Return True if the string is a valid host/port pair, for example "example.com:8080".
 
      If the argument `port_required` is True, the port is required. If the argument
@@ -287,14 +287,14 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
     return (_is_hostname(host) or _is_ip(host, 4)) and _is_port(port)
 
 
-def is_nan(val: celtypes.Value) -> celpy.Result:
+def cel_is_nan(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
         raise celpy.CELEvalError(msg)
     return celtypes.BoolType(math.isnan(val))
 
 
-def is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+def cel_is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
         raise celpy.CELEvalError(msg)
@@ -312,7 +312,7 @@ def is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) ->
         return celtypes.BoolType(math.isinf(val))
 
 
-def unique(val: celtypes.Value) -> celpy.Result:
+def cel_unique(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.ListType):
         msg = "invalid argument, expected list"
         raise celpy.CELEvalError(msg)
@@ -766,8 +766,6 @@ class Ipv6:
         except ValueError:
             # Error converting to number
             return False
-
-        return True
 
     def __hex_dig(self) -> bool:
         """Report whether the current position is a hex digit.
@@ -1579,16 +1577,16 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         # Missing standard functions
         "format": string_fmt.format,
         # protovalidate specific functions
-        "isNan": is_nan,
-        "isInf": is_inf,
-        "isIp": is_ip,
-        "isIpPrefix": is_ip_prefix,
-        "isEmail": is_email,
-        "isUri": is_uri,
-        "isUriRef": is_uri_ref,
-        "isHostname": is_hostname,
-        "isHostAndPort": is_host_and_port,
-        "unique": unique,
+        "isNan": cel_is_nan,
+        "isInf": cel_is_inf,
+        "isIp": cel_is_ip,
+        "isIpPrefix": cel_is_ip_prefix,
+        "isEmail": cel_is_email,
+        "isUri": cel_is_uri,
+        "isUriRef": cel_is_uri_ref,
+        "isHostname": cel_is_hostname,
+        "isHostAndPort": cel_is_host_and_port,
+        "unique": cel_unique,
     }
 
 
