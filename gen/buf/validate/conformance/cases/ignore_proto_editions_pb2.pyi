@@ -1,4 +1,4 @@
-# Copyright 2023 Buf Technologies, Inc.
+# Copyright 2023-2025 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,6 +56,18 @@ class EditionsScalarExplicitPresenceIgnoreDefaultWithDefault(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
+class EditionsScalarExplicitPresenceIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class EditionsScalarExplicitPresenceIgnoreAlwaysWithDefault(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
 class EditionsScalarImplicitPresenceIgnoreUnspecified(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -69,6 +81,12 @@ class EditionsScalarImplicitPresenceIgnoreEmpty(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class EditionsScalarImplicitPresenceIgnoreDefault(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class EditionsScalarImplicitPresenceIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -105,6 +123,18 @@ class EditionsScalarLegacyRequiredIgnoreDefault(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class EditionsScalarLegacyRequiredIgnoreDefaultWithDefault(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class EditionsScalarLegacyRequiredIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class EditionsScalarLegacyRequiredIgnoreAlwaysWithDefault(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -176,6 +206,28 @@ class EditionsMessageExplicitPresenceDelimitedIgnoreDefault(_message.Message):
     val: EditionsMessageExplicitPresenceDelimitedIgnoreDefault.Msg
     def __init__(self, val: _Optional[_Union[EditionsMessageExplicitPresenceDelimitedIgnoreDefault.Msg, _Mapping]] = ...) -> None: ...
 
+class EditionsMessageExplicitPresenceIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: str
+        def __init__(self, val: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: EditionsMessageExplicitPresenceIgnoreAlways.Msg
+    def __init__(self, val: _Optional[_Union[EditionsMessageExplicitPresenceIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+
+class EditionsMessageExplicitPresenceDelimitedIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: str
+        def __init__(self, val: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: EditionsMessageExplicitPresenceDelimitedIgnoreAlways.Msg
+    def __init__(self, val: _Optional[_Union[EditionsMessageExplicitPresenceDelimitedIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+
 class EditionsMessageLegacyRequiredIgnoreUnspecified(_message.Message):
     __slots__ = ("val",)
     class Msg(_message.Message):
@@ -242,6 +294,28 @@ class EditionsMessageLegacyRequiredDelimitedIgnoreDefault(_message.Message):
     val: EditionsMessageLegacyRequiredDelimitedIgnoreDefault.Msg
     def __init__(self, val: _Optional[_Union[EditionsMessageLegacyRequiredDelimitedIgnoreDefault.Msg, _Mapping]] = ...) -> None: ...
 
+class EditionsMessageLegacyRequiredIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: str
+        def __init__(self, val: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: EditionsMessageLegacyRequiredIgnoreAlways.Msg
+    def __init__(self, val: _Optional[_Union[EditionsMessageLegacyRequiredIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+
+class EditionsMessageLegacyRequiredDelimitedIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: str
+        def __init__(self, val: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: EditionsMessageLegacyRequiredDelimitedIgnoreAlways.Msg
+    def __init__(self, val: _Optional[_Union[EditionsMessageLegacyRequiredDelimitedIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+
 class EditionsOneofIgnoreUnspecified(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -273,6 +347,18 @@ class EditionsOneofIgnoreDefault(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class EditionsOneofIgnoreDefaultWithDefault(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class EditionsOneofIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class EditionsOneofIgnoreAlwaysWithDefault(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -314,6 +400,18 @@ class EditionsRepeatedExpandedIgnoreDefault(_message.Message):
     val: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
 
+class EditionsRepeatedIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class EditionsRepeatedExpandedIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
+
 class EditionsMapIgnoreUnspecified(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
@@ -341,6 +439,19 @@ class EditionsMapIgnoreEmpty(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
 
 class EditionsMapIgnoreDefault(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class EditionsMapIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
         __slots__ = ("key", "value")
@@ -389,6 +500,18 @@ class EditionsRepeatedExpandedItemIgnoreDefault(_message.Message):
     val: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
 
+class EditionsRepeatedItemIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class EditionsRepeatedExpandedItemIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
+
 class EditionsMapKeyIgnoreUnspecified(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
@@ -428,6 +551,19 @@ class EditionsMapKeyIgnoreDefault(_message.Message):
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
 
+class EditionsMapKeyIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
 class EditionsMapValueIgnoreUnspecified(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
@@ -455,6 +591,19 @@ class EditionsMapValueIgnoreEmpty(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
 
 class EditionsMapValueIgnoreDefault(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class EditionsMapValueIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
         __slots__ = ("key", "value")

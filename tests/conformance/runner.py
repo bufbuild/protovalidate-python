@@ -1,4 +1,4 @@
-# Copyright 2023 Buf Technologies, Inc.
+# Copyright 2023-2025 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 import sys
 import typing
 
-import celpy  # type: ignore
+import celpy
 from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
 
 import protovalidate
@@ -35,6 +35,7 @@ from buf.validate.conformance.cases import (
     ignore_proto3_pb2,  # noqa: F401
     ignore_proto_editions_pb2,  # noqa: F401
     kitchen_sink_pb2,  # noqa: F401
+    library_pb2,  # noqa: F401
     maps_pb2,  # noqa: F401
     messages_pb2,  # noqa: F401
     numbers_pb2,  # noqa: F401

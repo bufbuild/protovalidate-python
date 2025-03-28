@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 cel-python = "==0.2.*"
-protobuf = "==5.*"
+protobuf = "==6.*"
 
 [dev-packages]
 pytest = "*"

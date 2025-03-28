@@ -1,4 +1,4 @@
-# Copyright 2023 Buf Technologies, Inc.
+# Copyright 2023-2025 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
 # limitations under the License.
 
 from buf.validate import validate_pb2 as _validate_pb2
+from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -63,23 +64,6 @@ class MessageExpressions(_message.Message):
     f: MessageExpressions.Nested
     def __init__(self, a: _Optional[int] = ..., b: _Optional[int] = ..., c: _Optional[_Union[Enum, str]] = ..., d: _Optional[_Union[Enum, str]] = ..., e: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ..., f: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ...) -> None: ...
 
-class FieldExpressions(_message.Message):
-    __slots__ = ("a", "b", "c", "d")
-    class Nested(_message.Message):
-        __slots__ = ("a",)
-        A_FIELD_NUMBER: _ClassVar[int]
-        a: int
-        def __init__(self, a: _Optional[int] = ...) -> None: ...
-    A_FIELD_NUMBER: _ClassVar[int]
-    B_FIELD_NUMBER: _ClassVar[int]
-    C_FIELD_NUMBER: _ClassVar[int]
-    D_FIELD_NUMBER: _ClassVar[int]
-    a: int
-    b: Enum
-    c: FieldExpressions.Nested
-    d: int
-    def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[Enum, str]] = ..., c: _Optional[_Union[FieldExpressions.Nested, _Mapping]] = ..., d: _Optional[int] = ...) -> None: ...
-
 class MissingField(_message.Message):
     __slots__ = ("a",)
     A_FIELD_NUMBER: _ClassVar[int]
@@ -101,3 +85,191 @@ class DynRuntimeError(_message.Message):
 class NowEqualsNow(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
+
+class FieldExpressionMultipleScalar(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class FieldExpressionNestedScalar(_message.Message):
+    __slots__ = ("nested",)
+    NESTED_FIELD_NUMBER: _ClassVar[int]
+    nested: FieldExpressionScalar
+    def __init__(self, nested: _Optional[_Union[FieldExpressionScalar, _Mapping]] = ...) -> None: ...
+
+class FieldExpressionOptionalScalar(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class FieldExpressionScalar(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
+
+class FieldExpressionEnum(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: Enum
+    def __init__(self, val: _Optional[_Union[Enum, str]] = ...) -> None: ...
+
+class FieldExpressionMessage(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("a",)
+        A_FIELD_NUMBER: _ClassVar[int]
+        a: int
+        def __init__(self, a: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: FieldExpressionMessage.Msg
+    def __init__(self, val: _Optional[_Union[FieldExpressionMessage.Msg, _Mapping]] = ...) -> None: ...
+
+class FieldExpressionMapScalar(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class FieldExpressionMapEnum(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: Enum
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[Enum, str]] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, Enum]
+    def __init__(self, val: _Optional[_Mapping[int, Enum]] = ...) -> None: ...
+
+class FieldExpressionMapMessage(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: FieldExpressionMapMessage.Msg
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[FieldExpressionMapMessage.Msg, _Mapping]] = ...) -> None: ...
+    class Msg(_message.Message):
+        __slots__ = ("a",)
+        A_FIELD_NUMBER: _ClassVar[int]
+        a: int
+        def __init__(self, a: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.MessageMap[int, FieldExpressionMapMessage.Msg]
+    def __init__(self, val: _Optional[_Mapping[int, FieldExpressionMapMessage.Msg]] = ...) -> None: ...
+
+class FieldExpressionMapKeys(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class FieldExpressionMapScalarValues(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class FieldExpressionMapEnumValues(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: Enum
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[Enum, str]] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, Enum]
+    def __init__(self, val: _Optional[_Mapping[int, Enum]] = ...) -> None: ...
+
+class FieldExpressionMapMessageValues(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: FieldExpressionMapMessageValues.Msg
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[FieldExpressionMapMessageValues.Msg, _Mapping]] = ...) -> None: ...
+    class Msg(_message.Message):
+        __slots__ = ("a",)
+        A_FIELD_NUMBER: _ClassVar[int]
+        a: int
+        def __init__(self, a: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.MessageMap[int, FieldExpressionMapMessageValues.Msg]
+    def __init__(self, val: _Optional[_Mapping[int, FieldExpressionMapMessageValues.Msg]] = ...) -> None: ...
+
+class FieldExpressionRepeatedScalar(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class FieldExpressionRepeatedEnum(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[Enum]
+    def __init__(self, val: _Optional[_Iterable[_Union[Enum, str]]] = ...) -> None: ...
+
+class FieldExpressionRepeatedMessage(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("a",)
+        A_FIELD_NUMBER: _ClassVar[int]
+        a: int
+        def __init__(self, a: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[FieldExpressionRepeatedMessage.Msg]
+    def __init__(self, val: _Optional[_Iterable[_Union[FieldExpressionRepeatedMessage.Msg, _Mapping]]] = ...) -> None: ...
+
+class FieldExpressionRepeatedScalarItems(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class FieldExpressionRepeatedEnumItems(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[Enum]
+    def __init__(self, val: _Optional[_Iterable[_Union[Enum, str]]] = ...) -> None: ...
+
+class FieldExpressionRepeatedMessageItems(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("a",)
+        A_FIELD_NUMBER: _ClassVar[int]
+        a: int
+        def __init__(self, a: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedCompositeFieldContainer[FieldExpressionRepeatedMessageItems.Msg]
+    def __init__(self, val: _Optional[_Iterable[_Union[FieldExpressionRepeatedMessageItems.Msg, _Mapping]]] = ...) -> None: ...
