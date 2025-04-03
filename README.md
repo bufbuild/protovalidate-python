@@ -79,7 +79,6 @@ Protovalidate isn't just for Python! You might be interested in sibling reposito
 Additionally, [protovalidate's core repository](https://github.com/bufbuild/protovalidate) provides:
 
 - [Protovalidate's Protobuf API][validate-proto]
-- [Example][examples] `.proto` files using `protovalidate`
 - [Conformance testing utilities][conformance] for acceptance testing of `protovalidate` implementations
 
 ## Contribution
