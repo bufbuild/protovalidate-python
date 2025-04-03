@@ -49,7 +49,7 @@ except protovalidate.ValidationError as e:
 ## Installation
 
 > [!TIP]
-> The easiest way to get started with Protovalidate for RPC APIs are the how-to's in Buf's documentation. There's one available for [Python and gRPC][grpc-python].
+> The easiest way to get started with Protovalidate for RPC APIs are the quickstarts in Buf's documentation. There's one available for [Python and gRPC][grpc-python].
 
 To install the package, use `pip`:
 
@@ -64,7 +64,7 @@ Comprehensive documentation for Protovalidate is available in [Buf's documentati
 Highlights for Python developers include:
 
 * The [developer quickstart][quickstart]
-* A comprehensive RPC how-to for [Python and gRPC][grpc-python]
+* A comprehensive RPC quickstart for [Python and gRPC][grpc-python]
 * A [migration guide for protoc-gen-validate][migration-guide] users
 
 ## Additional Languages and Repositories
@@ -111,12 +111,12 @@ Offered under the [Apache 2 license][license].
 
 [protoc-gen-validate]: https://github.com/bufbuild/protoc-gen-validate
 
-[protovalidate]: https://buf.build/docs/protovalidate/overview/
+[protovalidate]: https://buf.build/docs/protovalidate
 [quickstart]: https://buf.build/docs/protovalidate/quickstart/
-[connect-go]: https://buf.build/docs/protovalidate/how-to/connect-go/
-[grpc-go]: https://buf.build/docs/protovalidate/how-to/grpc-go/
-[grpc-java]: https://buf.build/docs/protovalidate/how-to/grpc-java/
-[grpc-python]: https://buf.build/docs/protovalidate/how-to/grpc-python/
+[connect-go]: https://buf.build/docs/protovalidate/quickstart/connect-go/
+[grpc-go]: https://buf.build/docs/protovalidate/quickstart/grpc-go/
+[grpc-java]: https://buf.build/docs/protovalidate/quickstart/grpc-java/
+[grpc-python]: https://buf.build/docs/protovalidate/quickstart/grpc-python/
 [migration-guide]: https://buf.build/docs/migration-guides/migrate-from-protoc-gen-validate/
 [conformance-executable]: ./internal/cmd/protovalidate-conformance-go/README.md
 [pkg-go]: https://pkg.go.dev/github.com/bufbuild/protovalidate-go
