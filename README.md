@@ -1,165 +1,127 @@
+[![The Buf logo](.github/buf-logo.svg)][buf] 
+
 # protovalidate-python
 
 [![CI](https://github.com/bufbuild/protovalidate-python/actions/workflows/ci.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-python/actions/workflows/ci.yaml)
 [![Conformance](https://github.com/bufbuild/protovalidate-python/actions/workflows/conformance.yaml/badge.svg)](https://github.com/bufbuild/protovalidate-python/actions/workflows/conformance.yaml)
 [![PyPI version](https://badge.fury.io/py/protovalidate.svg)](https://badge.fury.io/py/protovalidate)
 
-`protovalidate-python` is the Python implementation of [`protovalidate`](https://github.com/bufbuild/protovalidate),
-designed to validate Protobuf messages at runtime based on user-defined validation constraints. Powered by Google's
-Common Expression Language ([CEL](https://github.com/google/cel-spec)), it provides a flexible and efficient foundation
-for defining and evaluating custom validation rules. The primary goal of `protovalidate` is to help developers ensure
-data consistency and integrity across the network without requiring generated code.
+[Protovalidate][protovalidate] provides standard annotations to validate common constraints on messages and fields, as well as the ability to use [CEL][cel] to write custom constraints. It's the next generation of [protoc-gen-validate][protoc-gen-validate], the only widely used validation library for Protobuf.
 
-## The `protovalidate` project
+With Protovalidate, you can annotate your Protobuf messages with both standard and custom validation rules:
 
-Head over to the core [`protovalidate`](https://github.com/bufbuild/protovalidate/) repository for:
+```protobuf
+syntax = "proto3";
 
-- [The API definition](https://github.com/bufbuild/protovalidate/tree/main/proto/protovalidate/buf/validate/validate.proto):
-  used to describe validation constraints
-- [Documentation](https://github.com/bufbuild/protovalidate/tree/main/docs): how to apply `protovalidate` effectively
-- [Migration tooling](https://github.com/bufbuild/protovalidate/tree/main/docs/migrate.md): incrementally migrate
-  from `protoc-gen-validate`
-- [Conformance testing utilities](https://github.com/bufbuild/protovalidate/tree/main/docs/conformance.md): for
-  acceptance testing of `protovalidate` implementations
+package banking.v1;
 
-Other `protovalidate` runtime implementations include:
+import "buf/validate/validate.proto";
 
-- Go: [`protovalidate-go`](https://github.com/bufbuild/protovalidate-go)
-- C++: [`protovalidate-cc`](https://github.com/bufbuild/protovalidate-cc)
-- Java: [`protovalidate-java`](https://github.com/bufbuild/protovalidate-java)
+message MoneyTransfer {
+  string to_account_id = 1 [
+    // Standard rule: `to_account_id` must be a UUID
+    (buf.validate.field).string.uuid = true
+  ];
 
-And others coming soon:
+  string from_account_id = 2 [
+    // Standard rule: `from_account_id` must be a UUID
+    (buf.validate.field).string.uuid = true
+  ];
 
-- TypeScript: `protovalidate-ts`
+  // Custom rule: `to_account_id` and `from_account_id` can't be the same.
+  option (buf.validate.message).cel = {
+    id: "to_account_id.not.from_account_id"
+    message: "to_account_id and from_account_id should not be the same value"
+    expression: "this.to_account_id != this.from_account_id"
+  };
+}
+```
+
+Once you've added `protovalidate-python` to your project, validation is idiomatic Python:
+
+```python
+try:
+    protovalidate.validate(message)
+except protovalidate.ValidationError as e:
+    # Handle failure.
+```
 
 ## Installation
 
-To install the package, use pip:
+> [!TIP]
+> The easiest way to get started with Protovalidate for RPC APIs are the quickstarts in Buf's documentation. There's one available for [Python and gRPC][grpc-python].
+
+To install the package, use `pip`:
 
 ```shell
 pip install protovalidate
 ```
 
-Make sure you have the latest version of `protovalidate-python` by checking the
-project's [PyPI page](https://pypi.org/project/protovalidate/).
+## Documentation
 
-## Usage
+Comprehensive documentation for Protovalidate is available in [Buf's documentation library][protovalidate]. 
 
-### Implementing validation constraints
+Highlights for Python developers include:
 
-Validation constraints are defined directly within `.proto` files. Documentation for adding constraints can be found in
-the `protovalidate` project [README](https://github.com/bufbuild/protovalidate) and
-its [comprehensive docs](https://github.com/bufbuild/protovalidate/tree/main/docs).
+* The [developer quickstart][quickstart]
+* A comprehensive RPC quickstart for [Python and gRPC][grpc-python]
+* A [migration guide for protoc-gen-validate][migration-guide] users
 
-```protobuf
-syntax = "proto3";
+## Additional Languages and Repositories
 
-package my.package;
+Protovalidate isn't just for Python! You might be interested in sibling repositories for other languages: 
 
-import "google/protobuf/timestamp.proto";
-import "buf/validate/validate.proto";
+- [`protovalidate-go`][pv-go] (Go)
+- [`protovalidate-java`][pv-java] (Java)
+- [`protovalidate-cc`][pv-cc] (C++)
+- `protovalidate-es` (TypeScript and JavaScript, coming soon!)
 
-message Transaction {
-  uint64 id = 1 [(buf.validate.field).uint64.gt = 999];
-  google.protobuf.Timestamp purchase_date = 2;
-  google.protobuf.Timestamp delivery_date = 3;
+Additionally, [protovalidate's core repository](https://github.com/bufbuild/protovalidate) provides:
 
-  string price = 4 [(buf.validate.field).cel = {
-    id: "transaction.price",
-    message: "price must be positive and include a valid currency symbol ($ or £)",
-    expression: "(this.startsWith('$') || this.startsWith('£')) && double(this.substring(1)) > 0"
-  }];
+- [Protovalidate's Protobuf API][validate-proto]
+- [Conformance testing utilities][conformance] for acceptance testing of `protovalidate` implementations
 
-  option (buf.validate.message).cel = {
-    id: "transaction.delivery_date",
-    message: "delivery date must be after purchase date",
-    expression: "this.delivery_date > this.purchase_date"
-  };
-}
-```
+## Contribution
 
-### Generating Code with `buf`
+We genuinely appreciate any help! If you'd like to contribute, check out these resources:
 
-When using the runtime library after installing it with `pip`, it's necessary to generate the Python code for the core `buf.protovalidate` Protobuf package. `buf` provides an efficient method for this:
+- [Contributing Guidelines][contributing]: Guidelines to make your contribution process straightforward and meaningful
+- [Conformance testing utilities](https://github.com/bufbuild/protovalidate/tree/main/docs/conformance.md): Utilities providing acceptance testing of `protovalidate` implementations
 
-1. **Initialize a New Configuration File**:
-   ```shell
-   buf config init
-   ```
-   This initializes the `buf.yaml` configuration file at the root of the Protobuf source files.
+## Related Sites
 
-2. **Module Configuration and Dependencies**:
-   ```yaml
-   # buf.yaml
-   version: v2
-   deps:
-     - buf.build/bufbuild/protovalidate
-   ```
-
-   Ensure your dependencies are up-to-date with:
-   ```shell
-   buf dep update
-   ```
-
-3. **Setup Code Generation**:
-   ```yaml
-   # buf.gen.yaml
-   version: v2
-   plugins:
-     - remote: buf.build/protocolbuffers/python
-       out: gen
-   ```
-
-4. **Generate Code**:
-   To generate the required Python code:
-   ```shell
-   buf generate --include-imports
-   ```
-
-5. **Specify import paths**:
-   Ensure that the generated code is importable by setting the `PYTHONPATH` environment variable:
-   ```shell
-   export PYTHONPATH=$PYTHONPATH:gen
-   ```
-
-If your goal is to generate code specifically for the `buf.protovalidate` Protobuf package, run:
-```shell
-buf generate buf.build/bufbuild/protovalidate
-```
-
-> **Note:** For users familiar with `protoc`, while it's an alternative to `buf`, it is recommended to use tooling or frameworks like Bazel for direct code generation, as it provides an encapsulated environment for such tasks.
-
-### Example
-
-```python
-import protovalidate
-from google.protobuf.timestamp_pb2 import Timestamp
-from my.package import Transaction
-
-transaction = Transaction()
-transaction.id = 1234
-transaction.price = "$5.67"
-transaction.purchase_date.CopyFrom(Timestamp())
-transaction.delivery_date.CopyFrom(Timestamp())
-
-try:
-    protovalidate.validate(transaction)
-except protovalidate.ValidationError as e:
-# Report the violations
-```
-
-### Ecosystem
-
-- [`protovalidate`](https://github.com/bufbuild/protovalidate) core repository
-- [Buf](https://buf.build)
-- [CEL Spec](https://github.com/google/cel-spec)
+- [Buf][buf]: Enterprise-grade Kafka and gRPC for the modern age
+- [Common Expression Language (CEL)][cel]: The open-source technology at the core of Protovalidate
 
 ## Legal
 
 Offered under the [Apache 2 license][license].
 
-[license]: LICENSE
 [buf]: https://buf.build
+[cel]: https://cel.dev
+
+[pv-go]: https://github.com/bufbuild/protovalidate-go
+[pv-java]: https://github.com/bufbuild/protovalidate-java
+[pv-python]: https://github.com/bufbuild/protovalidate-python
+[pv-cc]: https://github.com/bufbuild/protovalidate-cc
+
 [buf-mod]: https://buf.build/bufbuild/protovalidate
-[cel-go]: https://github.com/google/cel-go
-[cel-spec]: https://github.com/google/cel-spec
+[license]: LICENSE
+[contributing]: .github/CONTRIBUTING.md
+
+[protoc-gen-validate]: https://github.com/bufbuild/protoc-gen-validate
+
+[protovalidate]: https://buf.build/docs/protovalidate
+[quickstart]: https://buf.build/docs/protovalidate/quickstart/
+[connect-go]: https://buf.build/docs/protovalidate/quickstart/connect-go/
+[grpc-go]: https://buf.build/docs/protovalidate/quickstart/grpc-go/
+[grpc-java]: https://buf.build/docs/protovalidate/quickstart/grpc-java/
+[grpc-python]: https://buf.build/docs/protovalidate/quickstart/grpc-python/
+[migration-guide]: https://buf.build/docs/migration-guides/migrate-from-protoc-gen-validate/
+[conformance-executable]: ./internal/cmd/protovalidate-conformance-go/README.md
+[pkg-go]: https://pkg.go.dev/github.com/bufbuild/protovalidate-go
+
+[validate-proto]: https://buf.build/bufbuild/protovalidate/docs/main:buf.validate
+[conformance]: https://github.com/bufbuild/protovalidate/blob/main/docs/conformance.md
+[examples]: https://github.com/bufbuild/protovalidate/tree/main/examples
+[migrate]: https://buf.build/docs/migration-guides/migrate-from-protoc-gen-validate/
