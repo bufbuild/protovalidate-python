@@ -867,7 +867,7 @@ class Uri:
         return self.uri() or self.__relative_ref()
 
     def __hier_part(self) -> bool:
-        """Determine whether the current position has a hier-part.
+        """Determine whether the current position is a hier-part.
 
         Parses the rule:
 
