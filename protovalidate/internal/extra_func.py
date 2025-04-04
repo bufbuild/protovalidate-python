@@ -376,7 +376,7 @@ class Ipv4:
         return bits == masked
 
     def __prefix_length(self) -> bool:
-        """Store value in `prefix_len`"""
+        """Store value in prefix_len"""
 
         start = self._index
 
@@ -468,7 +468,7 @@ class Ipv4:
     def __digit(self) -> bool:
         """Report whether the current position is a digit.
 
-        Method parses the rule:
+        Parses the rule:
 
             DIGIT = %x30-39  ; 0-9
 
@@ -485,11 +485,8 @@ class Ipv4:
         return False
 
     def __take(self, char: str) -> bool:
-        """Take the given char at the current index.
+        """Take the given char at the current position, incrementing the index if necessary."""
 
-        If char is at the current index, increment the index.
-
-        """
         if self._index >= len(self._string):
             return False
 
@@ -501,7 +498,7 @@ class Ipv4:
 
 
 class Ipv6:
-    """Ipv6 is a class used to parse a given string to determine if it is a valid IPv6 address or address prefix."""
+    """Ipv6 is a class used to parse a given string to determine if it is a IPv6 address or address prefix."""
 
     _string: str
     _index: int
@@ -604,7 +601,7 @@ class Ipv6:
         )
 
     def __prefix_length(self) -> bool:
-        """Store value in `prefix_len`."""
+        """Store value in prefix_len."""
         start = self._index
 
         while True:
@@ -680,7 +677,7 @@ class Ipv6:
         return self._double_colon_seen or len(self._pieces) == 8
 
     def __zone_id(self) -> bool:
-        """Determine whether string contains a zoneID.
+        """Determine whether the current position is a zoneID.
 
         There is no definition for the character set allowed in the zone
         identifier. RFC 4007 permits basically any non-null string.
@@ -704,9 +701,9 @@ class Ipv6:
         return False
 
     def __dotted(self) -> bool:
-        """Determine whether string contains a dotted address.
+        """Determine whether the current position is a dotted address.
 
-        Method parses the rule:
+        Parses the rule:
 
             1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT
 
@@ -731,9 +728,9 @@ class Ipv6:
         return False
 
     def __h16(self) -> bool:
-        """Determine whether string contains an h16.
+        """Determine whether the current position is a h16.
 
-        Method parses the rule:
+        Parses the rule:
 
             h16 = 1*4HEXDIG
 
@@ -768,9 +765,9 @@ class Ipv6:
             return False
 
     def __hex_dig(self) -> bool:
-        """Report whether the current position is a hex digit.
+        """Determine whether the current position is a hex digit.
 
-        Method parses the rule:
+        Parses the rule:
 
             HEXDIG =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
@@ -788,9 +785,9 @@ class Ipv6:
         return False
 
     def __digit(self) -> bool:
-        """Report whether the current position is a digit.
+        """Determine whether the current position is a digit.
 
-        Method parses the rule:
+        Parses the rule:
 
             DIGIT = %x30-39  ; 0-9
 
@@ -835,9 +832,9 @@ class Uri:
         self._index = 0
 
     def uri(self) -> bool:
-        """Determine whether string is a valid URI.
+        """Determine whether _string is a URI.
 
-        Method parses the rule:
+        Parses the rule:
 
             URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 
@@ -860,9 +857,9 @@ class Uri:
         return True
 
     def uri_reference(self) -> bool:
-        """Determine whether string is a valid URI reference.
+        """Determine whether _string is a URI reference.
 
-        Method parses the rule:
+        Parses the rule:
 
             URI-reference = URI / relative-ref
 
@@ -870,9 +867,9 @@ class Uri:
         return self.uri() or self.__relative_ref()
 
     def __hier_part(self) -> bool:
-        """Determine whether string contains a valid hier-part.
+        """Determine whether the current position has a hier-part.
 
-        Method parses the rule:
+        Parses the rule:
 
             hier-part = "//" authority path-abempty.
                       / path-absolute
@@ -889,9 +886,9 @@ class Uri:
         return self.__path_absolute() or self.__path_rootless() or self.__path_empty()
 
     def __relative_ref(self) -> bool:
-        """Determine whether string contains a valid relative reference.
+        """Determine whether the current position is a relative reference.
 
-        Method parses the rule:
+        Parses the rule:
 
             relative-ref = relative-part [ "?" query ] [ "#" fragment ]
 
@@ -915,9 +912,9 @@ class Uri:
         return True
 
     def __relative_part(self) -> bool:
-        """Determine whether string contains a valid relative part.
+        """Determine whether the current position is a relative part.
 
-        Method parses the rule:
+        Parses the rule:
 
             relative-part = "//" authority path-abempty
                           / path-absolute
@@ -934,9 +931,9 @@ class Uri:
         return self.__path_absolute() or self.__path_noscheme() or self.__path_empty()
 
     def __scheme(self) -> bool:
-        """Determine whether string contains a valid scheme.
+        """Determine whether the current position is a scheme.
 
-        Method parses the rule:
+        Parses the rule:
 
             scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 
@@ -955,9 +952,9 @@ class Uri:
         return False
 
     def __authority(self) -> bool:
-        """Determine whether string contains a valid authority.
+        """Determine whether the current position is an authority.
 
-        Method parses the rule:
+        Parses the rule:
 
             authority = [ userinfo "@" ] host [ ":" port ]
 
@@ -1001,9 +998,9 @@ class Uri:
         )
 
     def __userinfo(self) -> bool:
-        """Determine whether string contains a valid userinfo.
+        """Determine whether the current position is a userinfo.
 
-        Method parses the rule:
+        Parses the rule:
 
             userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 
@@ -1033,9 +1030,9 @@ class Uri:
         return True
 
     def __host(self) -> bool:
-        """Determine whether string contains a valid host.
+        """Determine whether the current position is a host.
 
-        Method parses the rule:
+        Parses the rule:
 
             host = IP-literal / IPv4address / reg-name.
 
@@ -1061,9 +1058,9 @@ class Uri:
         return False
 
     def __port(self) -> bool:
-        """Determine whether string contains a valid port.
+        """Determine whether the current position is a port.
 
-        Method parses the rule:
+        Parses the rule:
 
             port = *DIGIT
 
@@ -1082,9 +1079,9 @@ class Uri:
             return False
 
     def __ip_literal(self) -> bool:
-        """Determine whether string contains a valid port.
+        """Determine whether the current position is a IP-literal.
 
-        Method parses the rule from RFC 6874:
+        Parses the rule from RFC 6874:
 
             IP-literal = "[" ( IPv6address / IPv6addrz / IPvFuture  ) "]"
 
@@ -1110,9 +1107,9 @@ class Uri:
         return False
 
     def __ipv6_address(self) -> bool:
-        """Determine whether string contains a valid ipv6 address.
+        """Determine whether the current position is a IPv6address.
 
-        Method parses the rule "IPv6address".
+        Parses the rule "IPv6address".
 
         Relies on the implementation of _is_ip.
 
@@ -1128,9 +1125,9 @@ class Uri:
         return False
 
     def __ipv6_addrz(self) -> bool:
-        """Determine whether string contains a valid IPv6addrz.
+        """Determine whether the current position is a IPv6addrz.
 
-        Method parses the rule from RFC 6874:
+        Parses the rule from RFC 6874:
 
             IPv6addrz = IPv6address "%25" ZoneID
 
@@ -1144,9 +1141,9 @@ class Uri:
         return False
 
     def __zone_id(self) -> bool:
-        """Determine whether string contains a valid zone ID.
+        """Determine whether the current position is a ZoneID.
 
-        Method parses the rule from RFC 6874:
+        Parses the rule from RFC 6874:
 
             ZoneID = 1*( unreserved / pct-encoded )
 
@@ -1163,9 +1160,9 @@ class Uri:
         return False
 
     def __ip_vfuture(self) -> bool:
-        """Determine whether string contains a valid ipvFuture.
+        """Determine whether the current position is a IPvFuture.
 
-        Method parses the rule:
+        Parses the rule:
 
             IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
 
@@ -1189,9 +1186,9 @@ class Uri:
         return False
 
     def __reg_name(self) -> bool:
-        """Determine whether string contains a valid reg-name.
+        """Determine whether the current position is a reg-name.
 
-        Method parses the rule:
+        Parses the rule:
 
             reg-name = *( unreserved / pct-encoded / sub-delims )
 
@@ -1224,9 +1221,9 @@ class Uri:
         return self._index >= len(self._string) or self._string[self._index] == "?" or self._string[self._index] == "#"
 
     def __path_abempty(self) -> bool:
-        """Determine whether string contains a path-abempty.
+        """Determine whether the current position is a path-abempty.
 
-        Method parses the rule:
+        Parses the rule:
 
             path-abempty = *( "/" segment )
 
@@ -1245,9 +1242,9 @@ class Uri:
         return False
 
     def __path_absolute(self) -> bool:
-        """Determine whether string contains a path-absolute.
+        """Determine whether the current position is a path-absolute.
 
-        Method parses the rule:
+        Parses the rule:
 
             path-absolute = "/" [ segment-nz *( "/" segment ) ]
 
@@ -1269,9 +1266,9 @@ class Uri:
         return False
 
     def __path_noscheme(self) -> bool:
-        """Determine whether string contains a path-noscheme.
+        """Determine whether the current position is a path-noscheme.
 
-        Method parses the rule:
+        Parses the rule:
 
             path-noscheme = segment-nz-nc *( "/" segment )
 
@@ -1291,9 +1288,9 @@ class Uri:
         return True
 
     def __path_rootless(self) -> bool:
-        """Determine whether string contains a path-rootless.
+        """Determine whether the current position is a path-rootless.
 
-        Method parses the rule:
+        Parses the rule:
 
             path-rootless = segment-nz *( "/" segment )
 
@@ -1314,9 +1311,9 @@ class Uri:
         return True
 
     def __path_empty(self) -> bool:
-        """Determine whether string contains a path-empty.
+        """Determine whether the current position is a path-empty.
 
-        Method parses the rule:
+        Parses the rule:
 
             path-empty = 0<pchar>
 
@@ -1326,9 +1323,9 @@ class Uri:
         return self.__is_path_end()
 
     def __segment(self) -> bool:
-        """Determine whether string contains a segment.
+        """Determine whether the current position is a segment.
 
-        Method parses the rule:
+        Parses the rule:
 
             segment = *pchar
 
@@ -1339,9 +1336,9 @@ class Uri:
         return True
 
     def __segment_nz(self) -> bool:
-        """Determine whether string contains a segment-nz.
+        """Determine whether the current position is a segment-nz.
 
-        Method parses the rule:
+        Parses the rule:
 
             segment-nz = 1*pchar
 
@@ -1359,9 +1356,9 @@ class Uri:
         return False
 
     def __segment_nz_nc(self) -> bool:
-        """Determine whether string contains a segment-nz-nc.
+        """Determine whether the current position is a segment-nz-nc.
 
-        Method parses the rule:
+        Parses the rule:
 
             segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
                           ; non-zero-length segment without any colon ":"
@@ -1380,9 +1377,9 @@ class Uri:
         return False
 
     def __pchar(self) -> bool:
-        """Report whether the current position is a pchar.
+        """Determine whether the current position is a pchar.
 
-        Method parses the rule:
+        Parses the rule:
 
             pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
 
@@ -1392,9 +1389,9 @@ class Uri:
         )
 
     def __query(self) -> bool:
-        """Determine whether string contains a valid query.
+        """Determine whether the current position is a valid query.
 
-        Method parses the rule:
+        Parses the rule:
 
             query = *( pchar / "/" / "?" )
 
@@ -1415,9 +1412,9 @@ class Uri:
             return False
 
     def __fragment(self) -> bool:
-        """Determine whether string contains a valid fragment.
+        """Determine whether the current position is a fragment.
 
-        Method parses the rule:
+        Parses the rule:
 
             fragment = *( pchar / "/" / "?" )
 
@@ -1438,9 +1435,9 @@ class Uri:
             return False
 
     def __pct_encoded(self) -> bool:
-        """Determine whether string contains a valid percent encoding.
+        """Determine whether the current position is a pct-encoded.
 
-        Method parses the rule:
+        Parses the rule:
 
             pct-encoded = "%" HEXDIG HEXDIG
 
@@ -1458,9 +1455,9 @@ class Uri:
         return False
 
     def __unreserved(self) -> bool:
-        """Report whether the current position is an unreserved character.
+        """Determine whether the current position is a unreserved character.
 
-        Method parses the rule:
+        Parses the rule:
 
             unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
 
@@ -1475,9 +1472,9 @@ class Uri:
         )
 
     def __sub_delims(self) -> bool:
-        """Report whether the current position is a sub-delim.
+        """Determine whether the current position is a sub-delim.
 
-        Method parses the rule:
+        Parses the rule:
 
             sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
                         / "*" / "+" / "," / ";" / "="
@@ -1498,9 +1495,9 @@ class Uri:
         )
 
     def __alpha(self) -> bool:
-        """Report whether the current position is an alpha character.
+        """Determine whether the current position is an alpha character.
 
-        Method parses the rule:
+        Parses the rule:
 
             ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z
 
@@ -1516,9 +1513,9 @@ class Uri:
         return False
 
     def __digit(self) -> bool:
-        """Report whether the current position is a digit.
+        """Determine whether the current position is a digit.
 
-        Method parses the rule:
+        Parses the rule:
 
             DIGIT = %x30-39  ; 0-9
 
@@ -1534,9 +1531,9 @@ class Uri:
         return False
 
     def __hex_dig(self) -> bool:
-        """Report whether the current position is a hex digit.
+        """Determine whether the current position is a hex digit.
 
-        Method parses the rule:
+        Parses the rule:
 
             HEXDIG =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
