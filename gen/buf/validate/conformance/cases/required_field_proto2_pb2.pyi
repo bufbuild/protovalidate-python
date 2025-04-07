@@ -26,7 +26,19 @@ class RequiredProto2ScalarOptional(_message.Message):
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
+class RequiredProto2ScalarOptionalIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
 class RequiredProto2ScalarOptionalDefault(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class RequiredProto2ScalarOptionalDefaultIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: str
@@ -49,7 +61,26 @@ class RequiredProto2Message(_message.Message):
     val: RequiredProto2Message.Msg
     def __init__(self, val: _Optional[_Union[RequiredProto2Message.Msg, _Mapping]] = ...) -> None: ...
 
+class RequiredProto2MessageIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: str
+        def __init__(self, val: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: RequiredProto2MessageIgnoreAlways.Msg
+    def __init__(self, val: _Optional[_Union[RequiredProto2MessageIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+
 class RequiredProto2Oneof(_message.Message):
+    __slots__ = ("a", "b")
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    a: str
+    b: str
+    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ...) -> None: ...
+
+class RequiredProto2OneofIgnoreAlways(_message.Message):
     __slots__ = ("a", "b")
     A_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
@@ -63,7 +94,26 @@ class RequiredProto2Repeated(_message.Message):
     val: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...
 
+class RequiredProto2RepeatedIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class RequiredProto2Map(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[str, str]
+    def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class RequiredProto2MapIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
         __slots__ = ("key", "value")

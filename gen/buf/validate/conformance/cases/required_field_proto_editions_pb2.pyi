@@ -26,13 +26,31 @@ class RequiredEditionsScalarExplicitPresence(_message.Message):
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
+class RequiredEditionsScalarExplicitPresenceIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
 class RequiredEditionsScalarExplicitPresenceDefault(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
+class RequiredEditionsScalarExplicitPresenceDefaultIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
 class RequiredEditionsScalarImplicitPresence(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class RequiredEditionsScalarImplicitPresenceIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: str
@@ -55,6 +73,17 @@ class RequiredEditionsMessageExplicitPresence(_message.Message):
     val: RequiredEditionsMessageExplicitPresence.Msg
     def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresence.Msg, _Mapping]] = ...) -> None: ...
 
+class RequiredEditionsMessageExplicitPresenceIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: str
+        def __init__(self, val: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: RequiredEditionsMessageExplicitPresenceIgnoreAlways.Msg
+    def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+
 class RequiredEditionsMessageExplicitPresenceDelimited(_message.Message):
     __slots__ = ("val",)
     class Msg(_message.Message):
@@ -65,6 +94,17 @@ class RequiredEditionsMessageExplicitPresenceDelimited(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredEditionsMessageExplicitPresenceDelimited.Msg
     def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceDelimited.Msg, _Mapping]] = ...) -> None: ...
+
+class RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    class Msg(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: str
+        def __init__(self, val: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways.Msg
+    def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
 
 class RequiredEditionsMessageLegacyRequired(_message.Message):
     __slots__ = ("val",)
@@ -96,7 +136,21 @@ class RequiredEditionsOneof(_message.Message):
     b: str
     def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ...) -> None: ...
 
+class RequiredEditionsOneofIgnoreAlways(_message.Message):
+    __slots__ = ("a", "b")
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    a: str
+    b: str
+    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ...) -> None: ...
+
 class RequiredEditionsRepeated(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class RequiredEditionsRepeatedIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[str]
@@ -108,7 +162,26 @@ class RequiredEditionsRepeatedExpanded(_message.Message):
     val: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...
 
+class RequiredEditionsRepeatedExpandedIgnoreAlways(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class RequiredEditionsMap(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[str, str]
+    def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class RequiredEditionsMapIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
         __slots__ = ("key", "value")
