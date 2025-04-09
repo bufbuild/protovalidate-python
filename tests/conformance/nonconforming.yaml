@@ -7,14 +7,3 @@ standard_constraints/well_known_types/duration:
 standard_constraints/well_known_types/timestamp:
  - gte_lte/invalid/above
  - lte/invalid
-
-standard_constraints/required:
-  # The below tests are failing due to a bug in the conformance runner. These
-  # proto messages are marked as IGNORE_ALWAYS which means they should always
-  # pass, which this implementation does correctly. However, the runner is
-  # expecting them to fail.
-  # See:
-  # https://github.com/bufbuild/protovalidate/blob/main/proto/protovalidate-testing/buf/validate/conformance/cases/required_field_proto2.proto#L24
-  # https://github.com/bufbuild/protovalidate/blob/main/proto/protovalidate-testing/buf/validate/conformance/cases/required_field_proto2.proto#L31
-  - proto2/scalar/optional/unset
-  - proto2/scalar/optional_with_default/unset
