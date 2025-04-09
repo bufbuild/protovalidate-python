@@ -767,7 +767,7 @@ class Ipv6:
             # four valid hex digits, which is invalid in ipv6 addresses.
             raise ValueError
 
-        # Note that this will throw a ValueError also if string cannot be
+        # Note that this will raise a ValueError also if string cannot be
         # converted to an int.
         value = int(string, 16)
 
