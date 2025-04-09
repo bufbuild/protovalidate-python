@@ -653,8 +653,11 @@ class Ipv6:
 
                 return False
 
-            if self.__h16():
-                continue
+            try:
+                if self.__h16():
+                    continue
+            except ValueError:
+                return False
 
             if self.__take(":"):
                 if self.__take(":"):
@@ -666,6 +669,9 @@ class Ipv6:
 
                     if self.__take(":"):
                         return False
+                elif self._index == 1 or self._index == len(self._string):
+                    # invalid - string cannot start or end on single colon
+                    return False
 
                 continue
 
@@ -734,7 +740,11 @@ class Ipv6:
 
             h16 = 1*4HEXDIG
 
-        Stores 16-bit value in _pieces.
+        If 1-4 hex digits are found, the parsed 16-bit unsigned integer is stored
+        in pieces and True is returned.
+        If 0 hex digits are found, returns False.
+        If more than 4 hex digits are found or the found hex digits cannot be
+        converted to an int, a ValueError is raised.
         """
 
         start = self._index
@@ -746,23 +756,24 @@ class Ipv6:
         string = self._string[start : self._index]
 
         if len(string) == 0:
-            # too short
+            # too short, just return false
+            # this is not an error condition, it just means we didn't find any
+            # hex digits at the current position.
             return False
 
         if len(string) > 4:
             # too long
-            return False
+            # this is an error condition, it means we found a string of more than
+            # four valid hex digits, which is invalid in ipv6 addresses.
+            raise ValueError
 
-        try:
-            value = int(string, 16)
+        # Note that this will raise a ValueError also if string cannot be
+        # converted to an int.
+        value = int(string, 16)
 
-            self._pieces.append(value)
+        self._pieces.append(value)
 
-            return True
-
-        except ValueError:
-            # Error converting to number
-            return False
+        return True
 
     def __hex_dig(self) -> bool:
         """Determine whether the current position is a hex digit.
