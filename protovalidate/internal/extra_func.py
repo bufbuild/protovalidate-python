@@ -788,7 +788,7 @@ class Ipv6:
 
         c = self._string[self._index]
 
-        if ("0" <= c <= "9") or ("a" <= c <= "f") or ("A" <= c <= "F") or ("0" <= c <= "9"):
+        if ("0" <= c <= "9") or ("a" <= c <= "f") or ("A" <= c <= "F"):
             self._index += 1
 
             return True
