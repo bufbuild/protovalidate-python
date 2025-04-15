@@ -379,11 +379,9 @@ class Ipv4:
         start = self._index
 
         while self.__digit():
-            pass
-
-        if self._index - start > 2:
-            # max prefix-length is 32 bits, so anything more than 2 digits is invalid
-            return False
+            if self._index - start > 2:
+                # max prefix-length is 32 bits, so anything more than 2 digits is invalid
+                return False
 
         string = self._string[start : self._index]
         if len(string) == 0:
@@ -430,11 +428,9 @@ class Ipv4:
         start = self._index
 
         while self.__digit():
-            pass
-
-        if self._index - start > 3:
-            # decimal octet can be three characters at most
-            return False
+            if self._index - start > 3:
+                # decimal octet can be three characters at most
+                return False
 
         string = self._string[start : self._index]
 
@@ -597,10 +593,8 @@ class Ipv6:
         start = self._index
 
         while self.__digit():
-            pass
-
-        if self._index - start > 3:
-            return False
+            if self._index - start > 3:
+                return False
 
         string = self._string[start : self._index]
 
