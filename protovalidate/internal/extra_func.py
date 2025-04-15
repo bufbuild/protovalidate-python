@@ -225,14 +225,13 @@ def _is_hostname(val: str) -> bool:
 def _is_port(val: str) -> bool:
     if len(val) == 0:
         return False
-
+    if len(val) > 1 and val[0] == "0":
+        return False
     for c in val:
         if c < "0" or c > "9":
             return False
-
     try:
         return int(val) <= 65535
-
     except ValueError:
         # Error converting to number
         return False
