@@ -137,7 +137,7 @@ def cel_is_email(string: celtypes.Value) -> celpy.Result:
     if not isinstance(string, celtypes.StringType):
         msg = "invalid argument, expected string"
         raise celpy.CELEvalError(msg)
-    m = _email_regex.match(string) is not None
+    m = _email_regex.fullmatch(string) is not None
     return celtypes.BoolType(m)
 
 
