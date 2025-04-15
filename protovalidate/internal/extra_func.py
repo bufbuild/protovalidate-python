@@ -216,7 +216,7 @@ def _is_hostname(val: str) -> bool:
             if (c < "a" or c > "z") and (c < "0" or c > "9") and c != "-":
                 return False
 
-            all_digits = all_digits and c >= "0" and c <= "9"
+            all_digits = all_digits and "0" <= c <= "9"
 
     # the last part cannot be all numbers
     return not all_digits
@@ -272,11 +272,10 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
 
         if end_plus == len(val):
             return not port_required and _is_ip(val[1:end], 6)
-        elif end_plus == split_idx:
+        if end_plus == split_idx:
             return _is_ip(val[1:end], 6) and _is_port(val[split_idx + 1 :])
-        else:
-            # malformed
-            return False
+        # malformed
+        return False
 
     if split_idx < 0:
         return not port_required and (_is_hostname(val) or _is_ip(val, 4))
@@ -306,10 +305,9 @@ def cel_is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None
         raise celpy.CELEvalError(msg)
     if sign > 0:
         return celtypes.BoolType(math.isinf(val) and val > 0)
-    elif sign < 0:
+    if sign < 0:
         return celtypes.BoolType(math.isinf(val) and val < 0)
-    else:
-        return celtypes.BoolType(math.isinf(val))
+    return celtypes.BoolType(math.isinf(val))
 
 
 def cel_unique(val: celtypes.Value) -> celpy.Result:
@@ -380,13 +378,12 @@ class Ipv4:
 
         start = self._index
 
-        while True:
-            if self._index >= len(self._string) or not self.__digit():
-                break
+        while self.__digit():
+            pass
 
-            if self._index - start > 2:
-                # max prefix-length is 32 bits, so anything more than 2 digits is invalid
-                return False
+        if self._index - start > 2:
+            # max prefix-length is 32 bits, so anything more than 2 digits is invalid
+            return False
 
         string = self._string[start : self._index]
         if len(string) == 0:
@@ -427,19 +424,17 @@ class Ipv4:
             return True
 
         self._index = start
-
         return False
 
     def __dec_octet(self) -> bool:
         start = self._index
 
-        while True:
-            if self._index >= len(self._string) or not self.__digit():
-                break
+        while self.__digit():
+            pass
 
-            if self._index - start > 3:
-                # decimal octet can be three characters at most
-                return False
+        if self._index - start > 3:
+            # decimal octet can be three characters at most
+            return False
 
         string = self._string[start : self._index]
 
@@ -542,10 +537,7 @@ class Ipv6:
 
         # Handle double colon, fill pieces with 0
         if self._double_colon_seen:
-            while True:
-                if len(p16) >= 8:
-                    break
-
+            while len(p16) < 8:
                 # Delete 0 entries at pos, insert a 0
                 p16.insert(self._double_colon_at, 0x00000000)
 
@@ -572,11 +564,11 @@ class Ipv6:
         bits = self.get_bits()
         mask: int
         if self._prefix_len >= 128:
-            mask = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            mask = 0xFFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFF
         elif self._prefix_len < 0:
-            mask = 0x00000000000000000000000000000000
+            mask = 0x00000000_00000000_00000000_00000000
         else:
-            mask = ~(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF >> self._prefix_len)
+            mask = ~(0xFFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFF >> self._prefix_len)
 
         masked = bits & mask
         if bits != masked:
@@ -604,12 +596,11 @@ class Ipv6:
         """Store value in prefix_len."""
         start = self._index
 
-        while True:
-            if self._index >= len(self._string) or not self.__digit():
-                break
+        while self.__digit():
+            pass
 
-            if self._index - start > 3:
-                return False
+        if self._index - start > 3:
+            return False
 
         string = self._string[start : self._index]
 
@@ -639,10 +630,7 @@ class Ipv6:
     def __address_part(self) -> bool:
         """Store dotted notation for right-most 32 bits in dotted_raw / dotted_addr if found."""
 
-        while True:
-            if self._index >= len(self._string):
-                break
-
+        while self._index < len(self._string):
             # dotted notation for right-most 32 bits, e.g. 0:0:0:0:0:ffff:192.1.56.10
             if (self._double_colon_seen or len(self._pieces) == 6) and self.__dotted():
                 dotted = Ipv4(self._dotted_raw)
@@ -703,7 +691,6 @@ class Ipv6:
 
         self._index = start
         self._zone_id_found = False
-
         return False
 
     def __dotted(self) -> bool:
@@ -719,18 +706,14 @@ class Ipv6:
         start = self._index
         self._dotted_raw = ""
 
-        while True:
-            if self._index < len(self._string) and (self.__digit() or self.__take(".")):
-                continue
-
-            break
+        while self.__digit() or self.__take("."):
+            pass
 
         if self._index - start >= 7:
             self._dotted_raw = self._string[start : self._index]
             return True
 
         self._index = start
-
         return False
 
     def __h16(self) -> bool:
@@ -749,9 +732,8 @@ class Ipv6:
 
         start = self._index
 
-        while True:
-            if self._index >= len(self._string) or not self.__hex_dig():
-                break
+        while self.__hex_dig():
+            pass
 
         string = self._string[start : self._index]
 
@@ -893,7 +875,6 @@ class Uri:
             return True
 
         self._index = start
-
         return self.__path_absolute() or self.__path_rootless() or self.__path_empty()
 
     def __relative_ref(self) -> bool:
@@ -938,7 +919,6 @@ class Uri:
             return True
 
         self._index = start
-
         return self.__path_absolute() or self.__path_noscheme() or self.__path_empty()
 
     def __scheme(self) -> bool:
@@ -1019,18 +999,18 @@ class Uri:
 
         """
         start = self._index
-        while True:
-            if self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":"):
-                continue
+        while self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":"):
+            pass
 
-            if self._index < len(self._string):
-                if self._string[self._index] == "@":
-                    return True
+        if self._index < len(self._string):
+            if self._string[self._index] == "@":
+                return True
 
-            self._index = start
-            return False
+        self._index = start
+        return False
 
-    def __check_host_pct_encoded(self, string: str) -> bool:
+    @staticmethod
+    def __check_host_pct_encoded(string: str) -> bool:
         """Verify that string is correctly percent-encoded."""
         try:
             # unquote defaults to 'UTF-8' encoding.
@@ -1079,15 +1059,14 @@ class Uri:
 
         """
         start = self._index
-        while True:
-            if self.__digit():
-                continue
+        while self.__digit():
+            pass
 
-            if self.__is_authority_end():
-                return True
+        if self.__is_authority_end():
+            return True
 
-            self._index = start
-            return False
+        self._index = start
+        return False
 
     def __ip_literal(self) -> bool:
         """Determine whether the current position is a IP-literal.
@@ -1207,20 +1186,18 @@ class Uri:
 
         """
         start = self._index
-        while True:
-            if self.__unreserved() or self.__pct_encoded() or self.__sub_delims():
-                continue
+        while self.__unreserved() or self.__pct_encoded() or self.__sub_delims():
+            pass
 
-            if self.__is_authority_end():
-                # End of authority
-                return True
+        if self.__is_authority_end():
+            # End of authority
+            return True
 
-            if self._string[self._index] == ":":
-                return True
+        if self._string[self._index] == ":":
+            return True
 
-            self._index = start
-
-            return False
+        self._index = start
+        return False
 
     def __is_path_end(self) -> bool:
         """Determine whether the current index has reached the end of path.
@@ -1249,7 +1226,6 @@ class Uri:
             return True
 
         self._index = start
-
         return False
 
     def __path_absolute(self) -> bool:
@@ -1273,7 +1249,6 @@ class Uri:
                 return True
 
         self._index = start
-
         return False
 
     def __path_noscheme(self) -> bool:
@@ -1295,7 +1270,6 @@ class Uri:
                 return True
 
         self._index = start
-
         return True
 
     def __path_rootless(self) -> bool:
@@ -1318,7 +1292,6 @@ class Uri:
                 return True
 
         self._index = start
-
         return True
 
     def __path_empty(self) -> bool:
@@ -1363,7 +1336,6 @@ class Uri:
             return True
 
         self._index = start
-
         return False
 
     def __segment_nz_nc(self) -> bool:
@@ -1384,7 +1356,6 @@ class Uri:
             return True
 
         self._index = start
-
         return False
 
     def __pchar(self) -> bool:
@@ -1411,16 +1382,14 @@ class Uri:
         """
         start = self._index
 
-        while True:
-            if self.__pchar() or self.__take("/") or self.__take("?"):
-                continue
+        while self.__pchar() or self.__take("/") or self.__take("?"):
+            pass
 
-            if self._index == len(self._string) or self._string[self._index] == "#":
-                return True
+        if self._index == len(self._string) or self._string[self._index] == "#":
+            return True
 
-            self._index = start
-
-            return False
+        self._index = start
+        return False
 
     def __fragment(self) -> bool:
         """Determine whether the current position is a fragment.
@@ -1434,16 +1403,14 @@ class Uri:
         """
         start = self._index
 
-        while True:
-            if self.__pchar() or self.__take("/") or self.__take("?"):
-                continue
+        while self.__pchar() or self.__take("/") or self.__take("?"):
+            pass
 
-            if self._index == len(self._string):
-                return True
+        if self._index == len(self._string):
+            return True
 
-            self._index = start
-
-            return False
+        self._index = start
+        return False
 
     def __pct_encoded(self) -> bool:
         """Determine whether the current position is a pct-encoded.
@@ -1554,9 +1521,8 @@ class Uri:
 
         c = self._string[self._index]
 
-        if ("0" <= c <= "9") or ("a" <= c <= "f") or ("A" <= c <= "F") or ("0" <= c <= "9"):
+        if ("0" <= c <= "9") or ("a" <= c <= "f") or ("A" <= c <= "F"):
             self._index += 1
-
             return True
 
         return False
