@@ -272,10 +272,11 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
 
         if end_plus == len(val):
             return not port_required and _is_ip(val[1:end], 6)
-        if end_plus == split_idx:
+        elif end_plus == split_idx:
             return _is_ip(val[1:end], 6) and _is_port(val[split_idx + 1 :])
-        # malformed
-        return False
+        else:
+            # malformed
+            return False
 
     if split_idx < 0:
         return not port_required and (_is_hostname(val) or _is_ip(val, 4))
@@ -305,9 +306,10 @@ def cel_is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None
         raise celpy.CELEvalError(msg)
     if sign > 0:
         return celtypes.BoolType(math.isinf(val) and val > 0)
-    if sign < 0:
+    elif sign < 0:
         return celtypes.BoolType(math.isinf(val) and val < 0)
-    return celtypes.BoolType(math.isinf(val))
+    else:
+        return celtypes.BoolType(math.isinf(val))
 
 
 def cel_unique(val: celtypes.Value) -> celpy.Result:
