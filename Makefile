@@ -33,8 +33,9 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate
 	$(ADD_LICENSE_HEADER)
 
 .PHONY: format
@@ -44,7 +45,7 @@ format: install $(BIN)/license-header ## Format code
 	pipenv run ruff check --fix protovalidate tests
 
 .PHONY: test
-test: $(BIN)/protovalidate-conformance generate install ## Run unit tests
+test: generate install ## Run unit tests
 	pipenv run pytest
 
 .PHONY: conformance
