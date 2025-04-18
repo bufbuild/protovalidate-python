@@ -39,12 +39,11 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nAbuf/validate/conformance/cases/subdirectory/in_subdirectory.proto\x12+buf.validate.conformance.cases.subdirectory\x1a\x1b\x62uf/validate/validate.protoB\x98\x02\n/com.buf.validate.conformance.cases.subdirectoryB\x13InSubdirectoryProtoP\x01\xa2\x02\x05\x42VCCS\xaa\x02+Buf.Validate.Conformance.Cases.Subdirectory\xca\x02+Buf\\Validate\\Conformance\\Cases\\Subdirectory\xe2\x02\x37\x42uf\\Validate\\Conformance\\Cases\\Subdirectory\\GPBMetadata\xea\x02/Buf::Validate::Conformance::Cases::Subdirectoryb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\nAbuf/validate/conformance/cases/subdirectory/in_subdirectory.proto\x12+buf.validate.conformance.cases.subdirectory\x1a\x1b\x62uf/validate/validate.protob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'buf.validate.conformance.cases.subdirectory.in_subdirectory_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  _globals['DESCRIPTOR']._loaded_options = None
-  _globals['DESCRIPTOR']._serialized_options = b'\n/com.buf.validate.conformance.cases.subdirectoryB\023InSubdirectoryProtoP\001\242\002\005BVCCS\252\002+Buf.Validate.Conformance.Cases.Subdirectory\312\002+Buf\\Validate\\Conformance\\Cases\\Subdirectory\342\0027Buf\\Validate\\Conformance\\Cases\\Subdirectory\\GPBMetadata\352\002/Buf::Validate::Conformance::Cases::Subdirectory'
+  DESCRIPTOR._loaded_options = None
 # @@protoc_insertion_point(module_scope)
