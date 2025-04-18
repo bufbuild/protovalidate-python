@@ -40,13 +40,14 @@ from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,buf/validate/conformance/cases/wkt_any.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\x1a\x19google/protobuf/any.proto\"1\n\x07\x41nyNone\x12&\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyR\x03val\"=\n\x0b\x41nyRequired\x12.\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyB\x06\xbaH\x03\xc8\x01\x01R\x03val\"e\n\x05\x41nyIn\x12\\\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyB4\xbaH1\xa2\x01.\x12,type.googleapis.com/google.protobuf.DurationR\x03val\"i\n\x08\x41nyNotIn\x12]\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyB5\xbaH2\xa2\x01/\x1a-type.googleapis.com/google.protobuf.TimestampR\x03valb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,buf/validate/conformance/cases/wkt_any.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\x1a\x19google/protobuf/any.proto\"1\n\x07\x41nyNone\x12&\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyR\x03val\"=\n\x0b\x41nyRequired\x12.\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyB\x06\xbaH\x03\xc8\x01\x01R\x03val\"e\n\x05\x41nyIn\x12\\\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyB4\xbaH1\xa2\x01.\x12,type.googleapis.com/google.protobuf.DurationR\x03val\"i\n\x08\x41nyNotIn\x12]\n\x03val\x18\x01 \x01(\x0b\x32\x14.google.protobuf.AnyB5\xbaH2\xa2\x01/\x1a-type.googleapis.com/google.protobuf.TimestampR\x03valB\xcd\x01\n\"com.buf.validate.conformance.casesB\x0bWktAnyProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'buf.validate.conformance.cases.wkt_any_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
+  _globals['DESCRIPTOR']._loaded_options = None
+  _globals['DESCRIPTOR']._serialized_options = b'\n\"com.buf.validate.conformance.casesB\013WktAnyProtoP\001\242\002\004BVCC\252\002\036Buf.Validate.Conformance.Cases\312\002\036Buf\\Validate\\Conformance\\Cases\342\002*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\352\002!Buf::Validate::Conformance::Cases'
   _globals['_ANYREQUIRED'].fields_by_name['val']._loaded_options = None
   _globals['_ANYREQUIRED'].fields_by_name['val']._serialized_options = b'\272H\003\310\001\001'
   _globals['_ANYIN'].fields_by_name['val']._loaded_options = None

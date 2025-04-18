@@ -39,13 +39,14 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/buf/validate/conformance/cases/wkt_nested.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x84\x02\n\x0bWktLevelOne\x12Q\n\x03two\x18\x01 \x01(\x0b\x32\x37.buf.validate.conformance.cases.WktLevelOne.WktLevelTwoB\x06\xbaH\x03\xc8\x01\x01R\x03two\x1a\xa1\x01\n\x0bWktLevelTwo\x12\x63\n\x05three\x18\x01 \x01(\x0b\x32\x45.buf.validate.conformance.cases.WktLevelOne.WktLevelTwo.WktLevelThreeB\x06\xbaH\x03\xc8\x01\x01R\x05three\x1a-\n\rWktLevelThree\x12\x1c\n\x04uuid\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xb0\x01\x01R\x04uuidb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n/buf/validate/conformance/cases/wkt_nested.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x84\x02\n\x0bWktLevelOne\x12Q\n\x03two\x18\x01 \x01(\x0b\x32\x37.buf.validate.conformance.cases.WktLevelOne.WktLevelTwoB\x06\xbaH\x03\xc8\x01\x01R\x03two\x1a\xa1\x01\n\x0bWktLevelTwo\x12\x63\n\x05three\x18\x01 \x01(\x0b\x32\x45.buf.validate.conformance.cases.WktLevelOne.WktLevelTwo.WktLevelThreeB\x06\xbaH\x03\xc8\x01\x01R\x05three\x1a-\n\rWktLevelThree\x12\x1c\n\x04uuid\x18\x01 \x01(\tB\x08\xbaH\x05r\x03\xb0\x01\x01R\x04uuidB\xd0\x01\n\"com.buf.validate.conformance.casesB\x0eWktNestedProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'buf.validate.conformance.cases.wkt_nested_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
+  _globals['DESCRIPTOR']._loaded_options = None
+  _globals['DESCRIPTOR']._serialized_options = b'\n\"com.buf.validate.conformance.casesB\016WktNestedProtoP\001\242\002\004BVCC\252\002\036Buf.Validate.Conformance.Cases\312\002\036Buf\\Validate\\Conformance\\Cases\342\002*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\352\002!Buf::Validate::Conformance::Cases'
   _globals['_WKTLEVELONE_WKTLEVELTWO_WKTLEVELTHREE'].fields_by_name['uuid']._loaded_options = None
   _globals['_WKTLEVELONE_WKTLEVELTWO_WKTLEVELTHREE'].fields_by_name['uuid']._serialized_options = b'\272H\005r\003\260\001\001'
   _globals['_WKTLEVELONE_WKTLEVELTWO'].fields_by_name['three']._loaded_options = None
