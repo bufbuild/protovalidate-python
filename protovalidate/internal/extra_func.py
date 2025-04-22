@@ -22,6 +22,7 @@ import celpy
 from celpy import celtypes
 
 from protovalidate.internal import string_format
+from protovalidate.internal.constraints import MessageType, field_to_cel
 
 
 def _validate_hostname(host):
@@ -110,6 +111,19 @@ def validate_ip(val: typing.Union[str, bytes], version: typing.Optional[int] = N
         return True
     except ValueError:
         return False
+
+
+def get_field(message: celtypes.Value, field_name: celtypes.Value) -> celpy.Result:
+    if not isinstance(message, MessageType):
+        msg = "invalid argument, expected message"
+        raise celpy.CELEvalError(msg)
+    if not isinstance(field_name, celtypes.StringType):
+        msg = "invalid argument, expected string"
+        raise celpy.CELEvalError(msg)
+    if field_name not in message.desc.fields_by_name:
+        msg = f"no such field: {field_name}"
+        raise celpy.CELEvalError(msg)
+    return field_to_cel(message.msg, message.desc.fields_by_name[field_name])
 
 
 def is_ip(val: celtypes.Value, version: typing.Optional[celtypes.Value] = None) -> celpy.Result:
@@ -245,6 +259,7 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         # Missing standard functions
         "format": string_fmt.format,
         # protovalidate specific functions
+        "getField": get_field,
         "isNan": is_nan,
         "isInf": is_inf,
         "isIp": is_ip,

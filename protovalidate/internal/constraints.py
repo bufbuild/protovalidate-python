@@ -40,7 +40,7 @@ def make_timestamp(msg: message.Message) -> celtypes.TimestampType:
 
 
 def unwrap(msg: message.Message) -> celtypes.Value:
-    return _field_to_cel(msg, msg.DESCRIPTOR.fields_by_name["value"])
+    return field_to_cel(msg, msg.DESCRIPTOR.fields_by_name["value"])
 
 
 _MSG_TYPE_URL_TO_CTOR: dict[str, typing.Callable[..., celtypes.Value]] = {
@@ -70,7 +70,7 @@ class MessageType(celtypes.MapType):
         for field in self.desc.fields:
             if field.containing_oneof is not None and not self.msg.HasField(field.name):
                 continue
-            self[field.name] = _field_to_cel(self.msg, field)
+            self[field.name] = field_to_cel(self.msg, field)
 
     def __getitem__(self, name):
         field = self.desc.fields_by_name[name]
@@ -175,7 +175,7 @@ def _map_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -
     return _map_field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
-def _field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
     if field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
         return _repeated_field_to_cel(msg, field)
     elif field.message_type is not None and not _proto_message_has_field(msg, field):
@@ -374,7 +374,7 @@ class CelConstraintRules(ConstraintRules):
         rule_cel = None
         if rule_field is not None and self._rules is not None:
             rule_value = _proto_message_get_field(self._rules, rule_field)
-            rule_cel = _field_to_cel(self._rules, rule_field)
+            rule_cel = field_to_cel(self._rules, rule_field)
         self._cel.append(
             CelRunner(
                 runner=prog,
