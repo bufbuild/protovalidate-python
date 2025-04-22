@@ -931,7 +931,7 @@ class Uri:
             while self.__alpha() or self.__digit() or self.__take("+") or self.__take("-") or self.__take("."):
                 pass
 
-            if self._string[self._index] == ":":
+            if self.__peek(":"):
                 return True
 
         self._index = start
@@ -997,9 +997,8 @@ class Uri:
         while self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":"):
             pass
 
-        if self._index < len(self._string):
-            if self._string[self._index] == "@":
-                return True
+        if self.__peek("@"):
+            return True
 
         self._index = start
         return False
@@ -1023,14 +1022,11 @@ class Uri:
             host = IP-literal / IPv4address / reg-name.
 
         """
-        if self._index >= len(self._string):
-            return False
-
         start = self._index
         self._pct_encoded_found = False
 
         # Note: IPv4address is a subset of reg-name
-        if (self._string[self._index] == "[" and self.__ip_literal()) or self.__reg_name():
+        if (self.__peek("[") and self.__ip_literal()) or self.__reg_name():
             if self._pct_encoded_found:
                 raw_host = self._string[start : self._index]
                 # RFC 3986:
@@ -1188,7 +1184,7 @@ class Uri:
             # End of authority
             return True
 
-        if self._string[self._index] == ":":
+        if self.__peek(":"):
             return True
 
         self._index = start
@@ -1380,7 +1376,7 @@ class Uri:
         while self.__pchar() or self.__take("/") or self.__take("?"):
             pass
 
-        if self._index == len(self._string) or self._string[self._index] == "#":
+        if self._index == len(self._string) or self.__peek("#"):
             return True
 
         self._index = start
@@ -1536,6 +1532,9 @@ class Uri:
             return True
 
         return False
+
+    def __peek(self, char: str) -> bool:
+        return self._index < len(self._string) and self._string[self._index] == char
 
 
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
