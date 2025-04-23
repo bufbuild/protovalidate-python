@@ -53,7 +53,7 @@ field: _descriptor.FieldDescriptor
 PREDEFINED_FIELD_NUMBER: _ClassVar[int]
 predefined: _descriptor.FieldDescriptor
 
-class Constraint(_message.Message):
+class Rule(_message.Message):
     __slots__ = ("id", "message", "expression")
     ID_FIELD_NUMBER: _ClassVar[int]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
@@ -63,21 +63,21 @@ class Constraint(_message.Message):
     expression: str
     def __init__(self, id: _Optional[str] = ..., message: _Optional[str] = ..., expression: _Optional[str] = ...) -> None: ...
 
-class MessageConstraints(_message.Message):
+class MessageRules(_message.Message):
     __slots__ = ("disabled", "cel")
     DISABLED_FIELD_NUMBER: _ClassVar[int]
     CEL_FIELD_NUMBER: _ClassVar[int]
     disabled: bool
-    cel: _containers.RepeatedCompositeFieldContainer[Constraint]
-    def __init__(self, disabled: bool = ..., cel: _Optional[_Iterable[_Union[Constraint, _Mapping]]] = ...) -> None: ...
+    cel: _containers.RepeatedCompositeFieldContainer[Rule]
+    def __init__(self, disabled: bool = ..., cel: _Optional[_Iterable[_Union[Rule, _Mapping]]] = ...) -> None: ...
 
-class OneofConstraints(_message.Message):
+class OneofRules(_message.Message):
     __slots__ = ("required",)
     REQUIRED_FIELD_NUMBER: _ClassVar[int]
     required: bool
     def __init__(self, required: bool = ...) -> None: ...
 
-class FieldConstraints(_message.Message):
+class FieldRules(_message.Message):
     __slots__ = ("cel", "required", "ignore", "float", "double", "int32", "int64", "uint32", "uint64", "sint32", "sint64", "fixed32", "fixed64", "sfixed32", "sfixed64", "bool", "string", "bytes", "enum", "repeated", "map", "any", "duration", "timestamp")
     CEL_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_FIELD_NUMBER: _ClassVar[int]
@@ -103,7 +103,7 @@ class FieldConstraints(_message.Message):
     ANY_FIELD_NUMBER: _ClassVar[int]
     DURATION_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
-    cel: _containers.RepeatedCompositeFieldContainer[Constraint]
+    cel: _containers.RepeatedCompositeFieldContainer[Rule]
     required: bool
     ignore: Ignore
     float: FloatRules
@@ -127,13 +127,13 @@ class FieldConstraints(_message.Message):
     any: AnyRules
     duration: DurationRules
     timestamp: TimestampRules
-    def __init__(self, cel: _Optional[_Iterable[_Union[Constraint, _Mapping]]] = ..., required: bool = ..., ignore: _Optional[_Union[Ignore, str]] = ..., float: _Optional[_Union[FloatRules, _Mapping]] = ..., double: _Optional[_Union[DoubleRules, _Mapping]] = ..., int32: _Optional[_Union[Int32Rules, _Mapping]] = ..., int64: _Optional[_Union[Int64Rules, _Mapping]] = ..., uint32: _Optional[_Union[UInt32Rules, _Mapping]] = ..., uint64: _Optional[_Union[UInt64Rules, _Mapping]] = ..., sint32: _Optional[_Union[SInt32Rules, _Mapping]] = ..., sint64: _Optional[_Union[SInt64Rules, _Mapping]] = ..., fixed32: _Optional[_Union[Fixed32Rules, _Mapping]] = ..., fixed64: _Optional[_Union[Fixed64Rules, _Mapping]] = ..., sfixed32: _Optional[_Union[SFixed32Rules, _Mapping]] = ..., sfixed64: _Optional[_Union[SFixed64Rules, _Mapping]] = ..., bool: _Optional[_Union[BoolRules, _Mapping]] = ..., string: _Optional[_Union[StringRules, _Mapping]] = ..., bytes: _Optional[_Union[BytesRules, _Mapping]] = ..., enum: _Optional[_Union[EnumRules, _Mapping]] = ..., repeated: _Optional[_Union[RepeatedRules, _Mapping]] = ..., map: _Optional[_Union[MapRules, _Mapping]] = ..., any: _Optional[_Union[AnyRules, _Mapping]] = ..., duration: _Optional[_Union[DurationRules, _Mapping]] = ..., timestamp: _Optional[_Union[TimestampRules, _Mapping]] = ...) -> None: ...
+    def __init__(self, cel: _Optional[_Iterable[_Union[Rule, _Mapping]]] = ..., required: bool = ..., ignore: _Optional[_Union[Ignore, str]] = ..., float: _Optional[_Union[FloatRules, _Mapping]] = ..., double: _Optional[_Union[DoubleRules, _Mapping]] = ..., int32: _Optional[_Union[Int32Rules, _Mapping]] = ..., int64: _Optional[_Union[Int64Rules, _Mapping]] = ..., uint32: _Optional[_Union[UInt32Rules, _Mapping]] = ..., uint64: _Optional[_Union[UInt64Rules, _Mapping]] = ..., sint32: _Optional[_Union[SInt32Rules, _Mapping]] = ..., sint64: _Optional[_Union[SInt64Rules, _Mapping]] = ..., fixed32: _Optional[_Union[Fixed32Rules, _Mapping]] = ..., fixed64: _Optional[_Union[Fixed64Rules, _Mapping]] = ..., sfixed32: _Optional[_Union[SFixed32Rules, _Mapping]] = ..., sfixed64: _Optional[_Union[SFixed64Rules, _Mapping]] = ..., bool: _Optional[_Union[BoolRules, _Mapping]] = ..., string: _Optional[_Union[StringRules, _Mapping]] = ..., bytes: _Optional[_Union[BytesRules, _Mapping]] = ..., enum: _Optional[_Union[EnumRules, _Mapping]] = ..., repeated: _Optional[_Union[RepeatedRules, _Mapping]] = ..., map: _Optional[_Union[MapRules, _Mapping]] = ..., any: _Optional[_Union[AnyRules, _Mapping]] = ..., duration: _Optional[_Union[DurationRules, _Mapping]] = ..., timestamp: _Optional[_Union[TimestampRules, _Mapping]] = ...) -> None: ...
 
-class PredefinedConstraints(_message.Message):
+class PredefinedRules(_message.Message):
     __slots__ = ("cel",)
     CEL_FIELD_NUMBER: _ClassVar[int]
-    cel: _containers.RepeatedCompositeFieldContainer[Constraint]
-    def __init__(self, cel: _Optional[_Iterable[_Union[Constraint, _Mapping]]] = ...) -> None: ...
+    cel: _containers.RepeatedCompositeFieldContainer[Rule]
+    def __init__(self, cel: _Optional[_Iterable[_Union[Rule, _Mapping]]] = ...) -> None: ...
 
 class FloatRules(_message.Message):
     __slots__ = ("const", "lt", "lte", "gt", "gte", "not_in", "finite", "example")
@@ -516,8 +516,8 @@ class RepeatedRules(_message.Message):
     min_items: int
     max_items: int
     unique: bool
-    items: FieldConstraints
-    def __init__(self, min_items: _Optional[int] = ..., max_items: _Optional[int] = ..., unique: bool = ..., items: _Optional[_Union[FieldConstraints, _Mapping]] = ...) -> None: ...
+    items: FieldRules
+    def __init__(self, min_items: _Optional[int] = ..., max_items: _Optional[int] = ..., unique: bool = ..., items: _Optional[_Union[FieldRules, _Mapping]] = ...) -> None: ...
 
 class MapRules(_message.Message):
     __slots__ = ("min_pairs", "max_pairs", "keys", "values")
@@ -528,9 +528,9 @@ class MapRules(_message.Message):
     VALUES_FIELD_NUMBER: _ClassVar[int]
     min_pairs: int
     max_pairs: int
-    keys: FieldConstraints
-    values: FieldConstraints
-    def __init__(self, min_pairs: _Optional[int] = ..., max_pairs: _Optional[int] = ..., keys: _Optional[_Union[FieldConstraints, _Mapping]] = ..., values: _Optional[_Union[FieldConstraints, _Mapping]] = ...) -> None: ...
+    keys: FieldRules
+    values: FieldRules
+    def __init__(self, min_pairs: _Optional[int] = ..., max_pairs: _Optional[int] = ..., keys: _Optional[_Union[FieldRules, _Mapping]] = ..., values: _Optional[_Union[FieldRules, _Mapping]] = ...) -> None: ...
 
 class AnyRules(_message.Message):
     __slots__ = ("not_in",)
@@ -589,18 +589,18 @@ class Violations(_message.Message):
     def __init__(self, violations: _Optional[_Iterable[_Union[Violation, _Mapping]]] = ...) -> None: ...
 
 class Violation(_message.Message):
-    __slots__ = ("field", "rule", "constraint_id", "message", "for_key")
+    __slots__ = ("field", "rule", "rule_id", "message", "for_key")
     FIELD_FIELD_NUMBER: _ClassVar[int]
     RULE_FIELD_NUMBER: _ClassVar[int]
-    CONSTRAINT_ID_FIELD_NUMBER: _ClassVar[int]
+    RULE_ID_FIELD_NUMBER: _ClassVar[int]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
     FOR_KEY_FIELD_NUMBER: _ClassVar[int]
     field: FieldPath
     rule: FieldPath
-    constraint_id: str
+    rule_id: str
     message: str
     for_key: bool
-    def __init__(self, field: _Optional[_Union[FieldPath, _Mapping]] = ..., rule: _Optional[_Union[FieldPath, _Mapping]] = ..., constraint_id: _Optional[str] = ..., message: _Optional[str] = ..., for_key: bool = ...) -> None: ...
+    def __init__(self, field: _Optional[_Union[FieldPath, _Mapping]] = ..., rule: _Optional[_Union[FieldPath, _Mapping]] = ..., rule_id: _Optional[str] = ..., message: _Optional[str] = ..., for_key: bool = ...) -> None: ...
 
 class FieldPath(_message.Message):
     __slots__ = ("elements",)
