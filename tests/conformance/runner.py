@@ -72,6 +72,8 @@ def run_test_case(tc: typing.Any, result: typing.Optional[harness_pb2.TestResult
         result.runtime_error = str(e)
     except protovalidate.CompilationError as e:
         result.compilation_error = str(e)
+    except Exception as e:
+        result.unexpected_error = str(e)
     return result
 
 
