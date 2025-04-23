@@ -21,11 +21,25 @@ import celpy
 from celpy import celtypes
 
 from protovalidate.internal import string_format
+from protovalidate.internal.constraints import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
 _email_regex = re.compile(
     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 )
+
+
+def cel_get_field(message: celtypes.Value, field_name: celtypes.Value) -> celpy.Result:
+    if not isinstance(message, MessageType):
+        msg = "invalid argument, expected message"
+        raise celpy.CELEvalError(msg)
+    if not isinstance(field_name, celtypes.StringType):
+        msg = "invalid argument, expected string"
+        raise celpy.CELEvalError(msg)
+    if field_name not in message.desc.fields_by_name:
+        msg = f"no such field: {field_name}"
+        raise celpy.CELEvalError(msg)
+    return field_to_cel(message.msg, message.desc.fields_by_name[field_name])
 
 
 def cel_is_ip(val: celtypes.Value, ver: typing.Optional[celtypes.Value] = None) -> celpy.Result:
@@ -1545,6 +1559,7 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         # Missing standard functions
         "format": string_fmt.format,
         # protovalidate specific functions
+        "getField": cel_get_field,
         "isNan": cel_is_nan,
         "isInf": cel_is_inf,
         "isIp": cel_is_ip,
