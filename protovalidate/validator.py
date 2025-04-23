@@ -17,8 +17,8 @@ import typing
 from google.protobuf import message
 
 from buf.validate import validate_pb2  # type: ignore
-from protovalidate.internal import rules as _rules
 from protovalidate.internal import extra_func
+from protovalidate.internal import rules as _rules
 
 CompilationError = _rules.CompilationError
 Violations = validate_pb2.Violations

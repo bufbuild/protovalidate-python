@@ -286,7 +286,7 @@ class RuleContext:
         return RuleContext(fail_fast=self._fail_fast)
 
 
-class RuleRules:
+class Rules:
     """The rules associated with a single 'rules' message."""
 
     def validate(self, ctx: RuleContext, _: message.Message):
@@ -303,7 +303,7 @@ class CelRunner:
     rule_path: typing.Optional[validate_pb2.FieldPath] = None
 
 
-class CelRuleRules(RuleRules):
+class CelRules(Rules):
     """A rule that has rules written in CEL."""
 
     _cel: list[CelRunner]
@@ -386,7 +386,7 @@ class CelRuleRules(RuleRules):
         )
 
 
-class MessageRuleRules(CelRuleRules):
+class MessageRules(CelRules):
     """Message-level rules."""
 
     def validate(self, ctx: RuleContext, message: message.Message):
@@ -420,7 +420,7 @@ def _zero_value(field: descriptor.FieldDescriptor):
         return _field_value_to_cel(field.default_value, field)
 
 
-class FieldRuleRules(CelRuleRules):
+class FieldRules(CelRules):
     """Field-level rules."""
 
     _ignore_empty = False
@@ -505,7 +505,7 @@ class FieldRuleRules(CelRuleRules):
                                 _field_to_element(self._field),
                             ],
                         ),
-                        rule=FieldRuleRules._required_rule_path,
+                        rule=FieldRules._required_rule_path,
                         rule_value=self._required,
                         rule_id="required",
                         message="value is required",
@@ -534,7 +534,7 @@ class FieldRuleRules(CelRuleRules):
         pass
 
 
-class AnyRuleRules(FieldRuleRules):
+class AnyRules(FieldRules):
     """Rules for an Any field."""
 
     _in_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
@@ -577,7 +577,7 @@ class AnyRuleRules(FieldRuleRules):
             if value.type_url not in self._in:
                 ctx.add(
                     Violation(
-                        rule=AnyRuleRules._in_rule_path,
+                        rule=AnyRules._in_rule_path,
                         rule_value=self._in,
                         rule_id="any.in",
                         message="type URL must be in the allow list",
@@ -587,7 +587,7 @@ class AnyRuleRules(FieldRuleRules):
         if value.type_url in self._not_in:
             ctx.add(
                 Violation(
-                    rule=AnyRuleRules._not_in_rule_path,
+                    rule=AnyRules._not_in_rule_path,
                     rule_value=self._not_in,
                     rule_id="any.not_in",
                     message="type URL must not be in the block list",
@@ -596,7 +596,7 @@ class AnyRuleRules(FieldRuleRules):
             )
 
 
-class EnumRuleRules(FieldRuleRules):
+class EnumRules(FieldRules):
     """Rules for an enum field."""
 
     _defined_only = False
@@ -639,7 +639,7 @@ class EnumRuleRules(FieldRuleRules):
                                 _field_to_element(self._field),
                             ],
                         ),
-                        rule=EnumRuleRules._defined_only_rule_path,
+                        rule=EnumRules._defined_only_rule_path,
                         rule_value=self._defined_only,
                         rule_id="enum.defined_only",
                         message="value must be one of the defined enum values",
@@ -647,10 +647,10 @@ class EnumRuleRules(FieldRuleRules):
                 )
 
 
-class RepeatedRuleRules(FieldRuleRules):
+class RepeatedRules(FieldRules):
     """Rules for a repeated field."""
 
-    _item_rules: typing.Optional[FieldRuleRules] = None
+    _item_rules: typing.Optional[FieldRules] = None
 
     _items_rules_suffix: typing.ClassVar[list[validate_pb2.FieldPathElement]] = [
         _field_to_element(
@@ -667,7 +667,7 @@ class RepeatedRuleRules(FieldRuleRules):
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
-        item_rules: typing.Optional[FieldRuleRules],
+        item_rules: typing.Optional[FieldRules],
     ):
         super().__init__(env, funcs, field, field_level)
         if item_rules is not None:
@@ -688,17 +688,17 @@ class RepeatedRuleRules(FieldRuleRules):
                     element = _field_to_element(self._field)
                     element.index = i
                     sub_ctx.add_field_path_element(element)
-                    sub_ctx.add_rule_path_elements(RepeatedRuleRules._items_rules_suffix)
+                    sub_ctx.add_rule_path_elements(RepeatedRules._items_rules_suffix)
                     ctx.add_errors(sub_ctx)
                 if ctx.done:
                     return
 
 
-class MapRuleRules(FieldRuleRules):
+class MapRules(FieldRules):
     """Rules for a map field."""
 
-    _key_rules: typing.Optional[FieldRuleRules] = None
-    _value_rules: typing.Optional[FieldRuleRules] = None
+    _key_rules: typing.Optional[FieldRules] = None
+    _value_rules: typing.Optional[FieldRules] = None
 
     _key_rules_suffix: typing.ClassVar[list[validate_pb2.FieldPathElement]] = [
         _field_to_element(validate_pb2.MapRules.DESCRIPTOR.fields_by_number[validate_pb2.MapRules.KEYS_FIELD_NUMBER]),
@@ -720,8 +720,8 @@ class MapRuleRules(FieldRuleRules):
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
-        key_rules: typing.Optional[FieldRuleRules],
-        value_rules: typing.Optional[FieldRuleRules],
+        key_rules: typing.Optional[FieldRules],
+        value_rules: typing.Optional[FieldRules],
     ):
         super().__init__(env, funcs, field, field_level)
         if key_rules is not None:
@@ -740,13 +740,13 @@ class MapRuleRules(FieldRuleRules):
                 if not self._key_rules._ignore_empty or k:
                     self._key_rules.validate_item(key_ctx, k, for_key=True)
                     if key_ctx.has_errors():
-                        key_ctx.add_rule_path_elements(MapRuleRules._key_rules_suffix)
+                        key_ctx.add_rule_path_elements(MapRules._key_rules_suffix)
             map_ctx = ctx.sub_context()
             if self._value_rules is not None:
                 if not self._value_rules._ignore_empty or v:
                     self._value_rules.validate_item(map_ctx, v)
                     if map_ctx.has_errors():
-                        map_ctx.add_rule_path_elements(MapRuleRules._value_rules_suffix)
+                        map_ctx.add_rule_path_elements(MapRules._value_rules_suffix)
             map_ctx.add_errors(key_ctx)
             if map_ctx.has_errors():
                 element = _field_to_element(self._field)
@@ -757,7 +757,7 @@ class MapRuleRules(FieldRuleRules):
                 ctx.add_errors(map_ctx)
 
 
-class OneofRuleRules(RuleRules):
+class OneofRules(Rules):
     """Rules for a oneof definition."""
 
     required = True
@@ -787,14 +787,14 @@ class RuleFactory:
 
     _env: celpy.Environment
     _funcs: dict[str, celpy.CELFunction]
-    _cache: dict[descriptor.Descriptor, typing.Union[list[RuleRules], Exception]]
+    _cache: dict[descriptor.Descriptor, typing.Union[list[Rules], Exception]]
 
     def __init__(self, funcs: dict[str, celpy.CELFunction]):
         self._env = celpy.Environment(runner_class=InterpretedRunner)
         self._funcs = funcs
         self._cache = {}
 
-    def get(self, descriptor: descriptor.Descriptor) -> list[RuleRules]:
+    def get(self, descriptor: descriptor.Descriptor) -> list[Rules]:
         if descriptor not in self._cache:
             try:
                 self._cache[descriptor] = self._new_rules(descriptor)
@@ -805,8 +805,8 @@ class RuleFactory:
             raise result
         return result
 
-    def _new_message_rule(self, rules: validate_pb2.MessageRules) -> MessageRuleRules:
-        result = MessageRuleRules(rules)
+    def _new_message_rule(self, rules: validate_pb2.MessageRules) -> MessageRules:
+        result = MessageRules(rules)
         for cel in rules.cel:
             result.add_rule(self._env, self._funcs, cel)
         return result
@@ -822,23 +822,23 @@ class RuleFactory:
             return None
         type_case = field_level.WhichOneof("type")
         if type_case is None:
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "duration":
             check_field_type(field, 0, "google.protobuf.Duration")
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "timestamp":
             check_field_type(field, 0, "google.protobuf.Timestamp")
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "enum":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_ENUM)
-            result = EnumRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = EnumRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bool":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bytes":
             check_field_type(
@@ -846,15 +846,15 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_BYTES,
                 "google.protobuf.BytesValue",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED32)
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED64)
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "float":
             check_field_type(
@@ -862,7 +862,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_FLOAT,
                 "google.protobuf.FloatValue",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "double":
             check_field_type(
@@ -870,7 +870,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_DOUBLE,
                 "google.protobuf.DoubleValue",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int32":
             check_field_type(
@@ -878,7 +878,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_INT32,
                 "google.protobuf.Int32Value",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int64":
             check_field_type(
@@ -886,23 +886,23 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_INT64,
                 "google.protobuf.Int64Value",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED32)
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED64)
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT32)
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT64)
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint32":
             check_field_type(
@@ -910,7 +910,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_UINT32,
                 "google.protobuf.UInt32Value",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint64":
             check_field_type(
@@ -918,7 +918,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_UINT64,
                 "google.protobuf.UInt64Value",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "string":
             check_field_type(
@@ -926,18 +926,18 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_STRING,
                 "google.protobuf.StringValue",
             )
-            result = FieldRuleRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "any":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any")
-            result = AnyRuleRules(self._env, self._funcs, field, field_level)
+            result = AnyRules(self._env, self._funcs, field, field_level)
             return result
 
     def _new_field_rule(
         self,
         field: descriptor.FieldDescriptor,
         rules: validate_pb2.FieldRules,
-    ) -> FieldRuleRules:
+    ) -> FieldRules:
         if field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
             return self._new_scalar_field_rule(field, rules)
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
@@ -949,15 +949,15 @@ class RuleFactory:
             if rules.map.HasField("values"):
                 value_field = field.message_type.fields_by_name["value"]
                 value_rules = self._new_scalar_field_rule(value_field, rules.map.values, for_items=True)
-            return MapRuleRules(self._env, self._funcs, field, rules, key_rules, value_rules)
+            return MapRules(self._env, self._funcs, field, rules, key_rules, value_rules)
         item_rule = None
         if rules.repeated.HasField("items"):
             item_rule = self._new_scalar_field_rule(field, rules.repeated.items)
-        return RepeatedRuleRules(self._env, self._funcs, field, rules, item_rule)
+        return RepeatedRules(self._env, self._funcs, field, rules, item_rule)
 
-    def _new_rules(self, desc: descriptor.Descriptor) -> list[RuleRules]:
-        result: list[RuleRules] = []
-        rule: typing.Optional[RuleRules] = None
+    def _new_rules(self, desc: descriptor.Descriptor) -> list[Rules]:
+        result: list[Rules] = []
+        rule: typing.Optional[Rules] = None
         if validate_pb2.message in desc.GetOptions().Extensions:
             message_level = desc.GetOptions().Extensions[validate_pb2.message]
             if message_level.disabled:
@@ -967,7 +967,7 @@ class RuleFactory:
 
         for oneof in desc.oneofs:
             if validate_pb2.oneof in oneof.GetOptions().Extensions:
-                if rule := OneofRuleRules(oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]):
+                if rule := OneofRules(oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]):
                     result.append(rule)
 
         for field in desc.fields:
@@ -993,7 +993,7 @@ class RuleFactory:
         return result
 
 
-class SubMsgRule(RuleRules):
+class SubMsgRule(Rules):
     def __init__(
         self,
         factory: RuleFactory,
@@ -1018,7 +1018,7 @@ class SubMsgRule(RuleRules):
             ctx.add_errors(sub_ctx)
 
 
-class MapValMsgRule(RuleRules):
+class MapValMsgRule(Rules):
     def __init__(
         self,
         factory: RuleFactory,
@@ -1049,7 +1049,7 @@ class MapValMsgRule(RuleRules):
                 ctx.add_errors(sub_ctx)
 
 
-class RepeatedMsgRule(RuleRules):
+class RepeatedMsgRule(Rules):
     def __init__(
         self,
         factory: RuleFactory,
