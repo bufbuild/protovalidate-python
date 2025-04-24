@@ -128,7 +128,7 @@ class FieldExpressionMessage(_message.Message):
     val: FieldExpressionMessage.Msg
     def __init__(self, val: _Optional[_Union[FieldExpressionMessage.Msg, _Mapping]] = ...) -> None: ...
 
-class FieldExpressionMapScalar(_message.Message):
+class FieldExpressionMapInt32(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
         __slots__ = ("key", "value")
@@ -140,6 +140,71 @@ class FieldExpressionMapScalar(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class FieldExpressionMapInt64(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class FieldExpressionMapUint32(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class FieldExpressionMapUint64(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: int
+        value: int
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[int, int]
+    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
+
+class FieldExpressionMapBool(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: bool
+        value: bool
+        def __init__(self, key: bool = ..., value: bool = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[bool, bool]
+    def __init__(self, val: _Optional[_Mapping[bool, bool]] = ...) -> None: ...
+
+class FieldExpressionMapString(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[str, str]
+    def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class FieldExpressionMapEnum(_message.Message):
     __slots__ = ("val",)

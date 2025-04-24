@@ -21,7 +21,7 @@ import celpy
 from celpy import celtypes
 
 from protovalidate.internal import string_format
-from protovalidate.internal.constraints import MessageType, field_to_cel
+from protovalidate.internal.rules import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
 _email_regex = re.compile(

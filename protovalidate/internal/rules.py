@@ -232,7 +232,7 @@ def _set_path_element_map_key(
 
 
 class Violation:
-    """A singular constraint violation."""
+    """A singular rule violation."""
 
     proto: validate_pb2.Violation
     field_value: typing.Any
@@ -244,8 +244,8 @@ class Violation:
         self.rule_value = rule_value
 
 
-class ConstraintContext:
-    """The state associated with a single constraint evaluation."""
+class RuleContext:
+    """The state associated with a single rule evaluation."""
 
     def __init__(self, *, fail_fast: bool = False, violations: typing.Optional[list[Violation]] = None):
         self._fail_fast = fail_fast
@@ -283,28 +283,28 @@ class ConstraintContext:
         return len(self._violations) > 0
 
     def sub_context(self):
-        return ConstraintContext(fail_fast=self._fail_fast)
+        return RuleContext(fail_fast=self._fail_fast)
 
 
-class ConstraintRules:
-    """The constraints associated with a single 'rules' message."""
+class Rules:
+    """The rules associated with a single 'rules' message."""
 
-    def validate(self, ctx: ConstraintContext, _: message.Message):
-        """Validate the message against the rules in this constraint."""
-        ctx.add(Violation(constraint_id="unimplemented", message="Unimplemented"))
+    def validate(self, ctx: RuleContext, _: message.Message):
+        """Validate the message against the rules in this rule."""
+        ctx.add(Violation(rule_id="unimplemented", message="Unimplemented"))
 
 
 @dataclasses.dataclass
 class CelRunner:
     runner: celpy.Runner
-    constraint: validate_pb2.Constraint
+    rule: validate_pb2.Rule
     rule_value: typing.Optional[typing.Any] = None
     rule_cel: typing.Optional[celtypes.Value] = None
     rule_path: typing.Optional[validate_pb2.FieldPath] = None
 
 
-class CelConstraintRules(ConstraintRules):
-    """A constraint that has rules written in CEL."""
+class CelRules(Rules):
+    """A rule that has rules written in CEL."""
 
     _cel: list[CelRunner]
     _rules: typing.Optional[message.Message] = None
@@ -318,7 +318,7 @@ class CelConstraintRules(ConstraintRules):
 
     def _validate_cel(
         self,
-        ctx: ConstraintContext,
+        ctx: RuleContext,
         *,
         this_value: typing.Optional[typing.Any] = None,
         this_cel: typing.Optional[celtypes.Value] = None,
@@ -339,8 +339,8 @@ class CelConstraintRules(ConstraintRules):
                             field_value=this_value,
                             rule=cel.rule_path,
                             rule_value=cel.rule_value,
-                            constraint_id=cel.constraint.id,
-                            message=cel.constraint.message,
+                            rule_id=cel.rule.id,
+                            message=cel.rule.message,
                             for_key=for_key,
                         ),
                     )
@@ -351,7 +351,7 @@ class CelConstraintRules(ConstraintRules):
                             field_value=this_value,
                             rule=cel.rule_path,
                             rule_value=cel.rule_value,
-                            constraint_id=cel.constraint.id,
+                            rule_id=cel.rule.id,
                             message=result,
                             for_key=for_key,
                         ),
@@ -363,7 +363,7 @@ class CelConstraintRules(ConstraintRules):
         self,
         env: celpy.Environment,
         funcs: dict[str, celpy.CELFunction],
-        rules: validate_pb2.Constraint,
+        rules: validate_pb2.Rule,
         *,
         rule_field: typing.Optional[descriptor.FieldDescriptor] = None,
         rule_path: typing.Optional[validate_pb2.FieldPath] = None,
@@ -378,7 +378,7 @@ class CelConstraintRules(ConstraintRules):
         self._cel.append(
             CelRunner(
                 runner=prog,
-                constraint=rules,
+                rule=rules,
                 rule_value=rule_value,
                 rule_cel=rule_cel,
                 rule_path=rule_path,
@@ -386,10 +386,10 @@ class CelConstraintRules(ConstraintRules):
         )
 
 
-class MessageConstraintRules(CelConstraintRules):
+class MessageRules(CelRules):
     """Message-level rules."""
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         self._validate_cel(ctx, this_cel=_msg_to_cel(message))
 
 
@@ -420,7 +420,7 @@ def _zero_value(field: descriptor.FieldDescriptor):
         return _field_value_to_cel(field.default_value, field)
 
 
-class FieldConstraintRules(CelConstraintRules):
+class FieldRules(CelRules):
     """Field-level rules."""
 
     _ignore_empty = False
@@ -431,9 +431,7 @@ class FieldConstraintRules(CelConstraintRules):
     _required_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
         elements=[
             _field_to_element(
-                validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
-                    validate_pb2.FieldConstraints.REQUIRED_FIELD_NUMBER
-                ]
+                validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.REQUIRED_FIELD_NUMBER]
             )
         ]
     )
@@ -441,9 +439,7 @@ class FieldConstraintRules(CelConstraintRules):
     _cel_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
         elements=[
             _field_to_element(
-                validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
-                    validate_pb2.FieldConstraints.CEL_FIELD_NUMBER
-                ]
+                validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.CEL_FIELD_NUMBER]
             )
         ]
     )
@@ -453,7 +449,7 @@ class FieldConstraintRules(CelConstraintRules):
         env: celpy.Environment,
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
-        field_level: validate_pb2.FieldConstraints,
+        field_level: validate_pb2.FieldRules,
         *,
         for_items: bool = False,
     ):
@@ -474,7 +470,7 @@ class FieldConstraintRules(CelConstraintRules):
         type_case = field_level.WhichOneof("type")
         if type_case is not None:
             rules: message.Message = getattr(field_level, type_case)
-            # For each set field in the message, look for the private constraint
+            # For each set field in the message, look for the private rule
             # extension.
             for list_field, _ in rules.ListFields():
                 if validate_pb2.predefined in list_field.GetOptions().Extensions:
@@ -499,7 +495,7 @@ class FieldConstraintRules(CelConstraintRules):
             rule_path.elements[0].index = i
             self.add_rule(env, funcs, cel, rule_path=rule_path)
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         if _is_empty_field(message, self._field):
             if self._required:
                 ctx.add(
@@ -509,9 +505,9 @@ class FieldConstraintRules(CelConstraintRules):
                                 _field_to_element(self._field),
                             ],
                         ),
-                        rule=FieldConstraintRules._required_rule_path,
+                        rule=FieldRules._required_rule_path,
                         rule_value=self._required,
-                        constraint_id="required",
+                        rule_id="required",
                         message="value is required",
                     ),
                 )
@@ -530,24 +526,22 @@ class FieldConstraintRules(CelConstraintRules):
             sub_ctx.add_field_path_element(element)
             ctx.add_errors(sub_ctx)
 
-    def validate_item(self, ctx: ConstraintContext, val: typing.Any, *, for_key: bool = False):
+    def validate_item(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
         self._validate_value(ctx, val, for_key=for_key)
         self._validate_cel(ctx, this_value=val, this_cel=_scalar_field_value_to_cel(val, self._field), for_key=for_key)
 
-    def _validate_value(self, ctx: ConstraintContext, val: typing.Any, *, for_key: bool = False):
+    def _validate_value(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
         pass
 
 
-class AnyConstraintRules(FieldConstraintRules):
+class AnyRules(FieldRules):
     """Rules for an Any field."""
 
     _in_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
         elements=[
             _field_to_element(validate_pb2.AnyRules.DESCRIPTOR.fields_by_number[validate_pb2.AnyRules.IN_FIELD_NUMBER]),
             _field_to_element(
-                validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
-                    validate_pb2.FieldConstraints.ANY_FIELD_NUMBER
-                ]
+                validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.ANY_FIELD_NUMBER]
             ),
         ],
     )
@@ -558,9 +552,7 @@ class AnyConstraintRules(FieldConstraintRules):
                 validate_pb2.AnyRules.DESCRIPTOR.fields_by_number[validate_pb2.AnyRules.NOT_IN_FIELD_NUMBER]
             ),
             _field_to_element(
-                validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
-                    validate_pb2.FieldConstraints.ANY_FIELD_NUMBER
-                ]
+                validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.ANY_FIELD_NUMBER]
             ),
         ],
     )
@@ -570,7 +562,7 @@ class AnyConstraintRules(FieldConstraintRules):
         env: celpy.Environment,
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
-        field_level: validate_pb2.FieldConstraints,
+        field_level: validate_pb2.FieldRules,
     ):
         super().__init__(env, funcs, field, field_level)
         self._in = []
@@ -580,14 +572,14 @@ class AnyConstraintRules(FieldConstraintRules):
         if field_level.any.not_in:
             self._not_in = field_level.any.not_in
 
-    def _validate_value(self, ctx: ConstraintContext, value: any_pb2.Any, *, for_key: bool = False):
+    def _validate_value(self, ctx: RuleContext, value: any_pb2.Any, *, for_key: bool = False):
         if len(self._in) > 0:
             if value.type_url not in self._in:
                 ctx.add(
                     Violation(
-                        rule=AnyConstraintRules._in_rule_path,
+                        rule=AnyRules._in_rule_path,
                         rule_value=self._in,
-                        constraint_id="any.in",
+                        rule_id="any.in",
                         message="type URL must be in the allow list",
                         for_key=for_key,
                     )
@@ -595,16 +587,16 @@ class AnyConstraintRules(FieldConstraintRules):
         if value.type_url in self._not_in:
             ctx.add(
                 Violation(
-                    rule=AnyConstraintRules._not_in_rule_path,
+                    rule=AnyRules._not_in_rule_path,
                     rule_value=self._not_in,
-                    constraint_id="any.not_in",
+                    rule_id="any.not_in",
                     message="type URL must not be in the block list",
                     for_key=for_key,
                 )
             )
 
 
-class EnumConstraintRules(FieldConstraintRules):
+class EnumRules(FieldRules):
     """Rules for an enum field."""
 
     _defined_only = False
@@ -615,9 +607,7 @@ class EnumConstraintRules(FieldConstraintRules):
                 validate_pb2.EnumRules.DESCRIPTOR.fields_by_number[validate_pb2.EnumRules.DEFINED_ONLY_FIELD_NUMBER]
             ),
             _field_to_element(
-                validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
-                    validate_pb2.FieldConstraints.ENUM_FIELD_NUMBER
-                ]
+                validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.ENUM_FIELD_NUMBER]
             ),
         ],
     )
@@ -627,7 +617,7 @@ class EnumConstraintRules(FieldConstraintRules):
         env: celpy.Environment,
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
-        field_level: validate_pb2.FieldConstraints,
+        field_level: validate_pb2.FieldRules,
         *,
         for_items: bool = False,
     ):
@@ -635,7 +625,7 @@ class EnumConstraintRules(FieldConstraintRules):
         if field_level.enum.defined_only:
             self._defined_only = True
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -649,27 +639,25 @@ class EnumConstraintRules(FieldConstraintRules):
                                 _field_to_element(self._field),
                             ],
                         ),
-                        rule=EnumConstraintRules._defined_only_rule_path,
+                        rule=EnumRules._defined_only_rule_path,
                         rule_value=self._defined_only,
-                        constraint_id="enum.defined_only",
+                        rule_id="enum.defined_only",
                         message="value must be one of the defined enum values",
                     ),
                 )
 
 
-class RepeatedConstraintRules(FieldConstraintRules):
+class RepeatedRules(FieldRules):
     """Rules for a repeated field."""
 
-    _item_rules: typing.Optional[FieldConstraintRules] = None
+    _item_rules: typing.Optional[FieldRules] = None
 
     _items_rules_suffix: typing.ClassVar[list[validate_pb2.FieldPathElement]] = [
         _field_to_element(
             validate_pb2.RepeatedRules.DESCRIPTOR.fields_by_number[validate_pb2.RepeatedRules.ITEMS_FIELD_NUMBER]
         ),
         _field_to_element(
-            validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[
-                validate_pb2.FieldConstraints.REPEATED_FIELD_NUMBER
-            ]
+            validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.REPEATED_FIELD_NUMBER]
         ),
     ]
 
@@ -678,14 +666,14 @@ class RepeatedConstraintRules(FieldConstraintRules):
         env: celpy.Environment,
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
-        field_level: validate_pb2.FieldConstraints,
-        item_rules: typing.Optional[FieldConstraintRules],
+        field_level: validate_pb2.FieldRules,
+        item_rules: typing.Optional[FieldRules],
     ):
         super().__init__(env, funcs, field, field_level)
         if item_rules is not None:
             self._item_rules = item_rules
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -700,29 +688,29 @@ class RepeatedConstraintRules(FieldConstraintRules):
                     element = _field_to_element(self._field)
                     element.index = i
                     sub_ctx.add_field_path_element(element)
-                    sub_ctx.add_rule_path_elements(RepeatedConstraintRules._items_rules_suffix)
+                    sub_ctx.add_rule_path_elements(RepeatedRules._items_rules_suffix)
                     ctx.add_errors(sub_ctx)
                 if ctx.done:
                     return
 
 
-class MapConstraintRules(FieldConstraintRules):
+class MapRules(FieldRules):
     """Rules for a map field."""
 
-    _key_rules: typing.Optional[FieldConstraintRules] = None
-    _value_rules: typing.Optional[FieldConstraintRules] = None
+    _key_rules: typing.Optional[FieldRules] = None
+    _value_rules: typing.Optional[FieldRules] = None
 
     _key_rules_suffix: typing.ClassVar[list[validate_pb2.FieldPathElement]] = [
         _field_to_element(validate_pb2.MapRules.DESCRIPTOR.fields_by_number[validate_pb2.MapRules.KEYS_FIELD_NUMBER]),
         _field_to_element(
-            validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[validate_pb2.FieldConstraints.MAP_FIELD_NUMBER]
+            validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.MAP_FIELD_NUMBER]
         ),
     ]
 
     _value_rules_suffix: typing.ClassVar[list[validate_pb2.FieldPathElement]] = [
         _field_to_element(validate_pb2.MapRules.DESCRIPTOR.fields_by_number[validate_pb2.MapRules.VALUES_FIELD_NUMBER]),
         _field_to_element(
-            validate_pb2.FieldConstraints.DESCRIPTOR.fields_by_number[validate_pb2.FieldConstraints.MAP_FIELD_NUMBER]
+            validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.MAP_FIELD_NUMBER]
         ),
     ]
 
@@ -731,9 +719,9 @@ class MapConstraintRules(FieldConstraintRules):
         env: celpy.Environment,
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
-        field_level: validate_pb2.FieldConstraints,
-        key_rules: typing.Optional[FieldConstraintRules],
-        value_rules: typing.Optional[FieldConstraintRules],
+        field_level: validate_pb2.FieldRules,
+        key_rules: typing.Optional[FieldRules],
+        value_rules: typing.Optional[FieldRules],
     ):
         super().__init__(env, funcs, field, field_level)
         if key_rules is not None:
@@ -741,7 +729,7 @@ class MapConstraintRules(FieldConstraintRules):
         if value_rules is not None:
             self._value_rules = value_rules
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -752,13 +740,13 @@ class MapConstraintRules(FieldConstraintRules):
                 if not self._key_rules._ignore_empty or k:
                     self._key_rules.validate_item(key_ctx, k, for_key=True)
                     if key_ctx.has_errors():
-                        key_ctx.add_rule_path_elements(MapConstraintRules._key_rules_suffix)
+                        key_ctx.add_rule_path_elements(MapRules._key_rules_suffix)
             map_ctx = ctx.sub_context()
             if self._value_rules is not None:
                 if not self._value_rules._ignore_empty or v:
                     self._value_rules.validate_item(map_ctx, v)
                     if map_ctx.has_errors():
-                        map_ctx.add_rule_path_elements(MapConstraintRules._value_rules_suffix)
+                        map_ctx.add_rule_path_elements(MapRules._value_rules_suffix)
             map_ctx.add_errors(key_ctx)
             if map_ctx.has_errors():
                 element = _field_to_element(self._field)
@@ -769,17 +757,17 @@ class MapConstraintRules(FieldConstraintRules):
                 ctx.add_errors(map_ctx)
 
 
-class OneofConstraintRules(ConstraintRules):
+class OneofRules(Rules):
     """Rules for a oneof definition."""
 
     required = True
 
-    def __init__(self, oneof: descriptor.OneofDescriptor, rules: validate_pb2.OneofConstraints):
+    def __init__(self, oneof: descriptor.OneofDescriptor, rules: validate_pb2.OneofRules):
         self._oneof = oneof
         if not rules.required:
             self.required = False
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         if not message.WhichOneof(self._oneof.name):
             if self.required:
                 ctx.add(
@@ -787,29 +775,29 @@ class OneofConstraintRules(ConstraintRules):
                         field=validate_pb2.FieldPath(
                             elements=[_oneof_to_element(self._oneof)],
                         ),
-                        constraint_id="required",
+                        rule_id="required",
                         message="exactly one field is required in oneof",
                     )
                 )
             return
 
 
-class ConstraintFactory:
-    """Factory for creating and caching constraints."""
+class RuleFactory:
+    """Factory for creating and caching rules."""
 
     _env: celpy.Environment
     _funcs: dict[str, celpy.CELFunction]
-    _cache: dict[descriptor.Descriptor, typing.Union[list[ConstraintRules], Exception]]
+    _cache: dict[descriptor.Descriptor, typing.Union[list[Rules], Exception]]
 
     def __init__(self, funcs: dict[str, celpy.CELFunction]):
         self._env = celpy.Environment(runner_class=InterpretedRunner)
         self._funcs = funcs
         self._cache = {}
 
-    def get(self, descriptor: descriptor.Descriptor) -> list[ConstraintRules]:
+    def get(self, descriptor: descriptor.Descriptor) -> list[Rules]:
         if descriptor not in self._cache:
             try:
-                self._cache[descriptor] = self._new_constraints(descriptor)
+                self._cache[descriptor] = self._new_rules(descriptor)
             except Exception as e:
                 self._cache[descriptor] = e
         result = self._cache[descriptor]
@@ -817,16 +805,16 @@ class ConstraintFactory:
             raise result
         return result
 
-    def _new_message_constraint(self, rules: validate_pb2.MessageConstraints) -> MessageConstraintRules:
-        result = MessageConstraintRules(rules)
+    def _new_message_rule(self, rules: validate_pb2.MessageRules) -> MessageRules:
+        result = MessageRules(rules)
         for cel in rules.cel:
             result.add_rule(self._env, self._funcs, cel)
         return result
 
-    def _new_scalar_field_constraint(
+    def _new_scalar_field_rule(
         self,
         field: descriptor.FieldDescriptor,
-        field_level: validate_pb2.FieldConstraints,
+        field_level: validate_pb2.FieldRules,
         *,
         for_items: bool = False,
     ):
@@ -834,23 +822,23 @@ class ConstraintFactory:
             return None
         type_case = field_level.WhichOneof("type")
         if type_case is None:
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "duration":
             check_field_type(field, 0, "google.protobuf.Duration")
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "timestamp":
             check_field_type(field, 0, "google.protobuf.Timestamp")
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "enum":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_ENUM)
-            result = EnumConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = EnumRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bool":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bytes":
             check_field_type(
@@ -858,15 +846,15 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_BYTES,
                 "google.protobuf.BytesValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED32)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED64)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "float":
             check_field_type(
@@ -874,7 +862,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_FLOAT,
                 "google.protobuf.FloatValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "double":
             check_field_type(
@@ -882,7 +870,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_DOUBLE,
                 "google.protobuf.DoubleValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int32":
             check_field_type(
@@ -890,7 +878,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_INT32,
                 "google.protobuf.Int32Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int64":
             check_field_type(
@@ -898,23 +886,23 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_INT64,
                 "google.protobuf.Int64Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED32)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED64)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT32)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT64)
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint32":
             check_field_type(
@@ -922,7 +910,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_UINT32,
                 "google.protobuf.UInt32Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint64":
             check_field_type(
@@ -930,7 +918,7 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_UINT64,
                 "google.protobuf.UInt64Value",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "string":
             check_field_type(
@@ -938,56 +926,56 @@ class ConstraintFactory:
                 descriptor.FieldDescriptor.TYPE_STRING,
                 "google.protobuf.StringValue",
             )
-            result = FieldConstraintRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "any":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any")
-            result = AnyConstraintRules(self._env, self._funcs, field, field_level)
+            result = AnyRules(self._env, self._funcs, field, field_level)
             return result
 
-    def _new_field_constraint(
+    def _new_field_rule(
         self,
         field: descriptor.FieldDescriptor,
-        rules: validate_pb2.FieldConstraints,
-    ) -> FieldConstraintRules:
+        rules: validate_pb2.FieldRules,
+    ) -> FieldRules:
         if field.label != descriptor.FieldDescriptor.LABEL_REPEATED:
-            return self._new_scalar_field_constraint(field, rules)
+            return self._new_scalar_field_rule(field, rules)
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
             key_rules = None
             if rules.map.HasField("keys"):
                 key_field = field.message_type.fields_by_name["key"]
-                key_rules = self._new_scalar_field_constraint(key_field, rules.map.keys, for_items=True)
+                key_rules = self._new_scalar_field_rule(key_field, rules.map.keys, for_items=True)
             value_rules = None
             if rules.map.HasField("values"):
                 value_field = field.message_type.fields_by_name["value"]
-                value_rules = self._new_scalar_field_constraint(value_field, rules.map.values, for_items=True)
-            return MapConstraintRules(self._env, self._funcs, field, rules, key_rules, value_rules)
+                value_rules = self._new_scalar_field_rule(value_field, rules.map.values, for_items=True)
+            return MapRules(self._env, self._funcs, field, rules, key_rules, value_rules)
         item_rule = None
         if rules.repeated.HasField("items"):
-            item_rule = self._new_scalar_field_constraint(field, rules.repeated.items)
-        return RepeatedConstraintRules(self._env, self._funcs, field, rules, item_rule)
+            item_rule = self._new_scalar_field_rule(field, rules.repeated.items)
+        return RepeatedRules(self._env, self._funcs, field, rules, item_rule)
 
-    def _new_constraints(self, desc: descriptor.Descriptor) -> list[ConstraintRules]:
-        result: list[ConstraintRules] = []
-        constraint: typing.Optional[ConstraintRules] = None
+    def _new_rules(self, desc: descriptor.Descriptor) -> list[Rules]:
+        result: list[Rules] = []
+        rule: typing.Optional[Rules] = None
         if validate_pb2.message in desc.GetOptions().Extensions:
             message_level = desc.GetOptions().Extensions[validate_pb2.message]
             if message_level.disabled:
                 return []
-            if constraint := self._new_message_constraint(message_level):
-                result.append(constraint)
+            if rule := self._new_message_rule(message_level):
+                result.append(rule)
 
         for oneof in desc.oneofs:
             if validate_pb2.oneof in oneof.GetOptions().Extensions:
-                if constraint := OneofConstraintRules(oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]):
-                    result.append(constraint)
+                if rule := OneofRules(oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]):
+                    result.append(rule)
 
         for field in desc.fields:
             if validate_pb2.field in field.GetOptions().Extensions:
                 field_level = field.GetOptions().Extensions[validate_pb2.field]
                 if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
                     continue
-                result.append(self._new_field_constraint(field, field_level))
+                result.append(self._new_field_rule(field, field_level))
                 if field_level.repeated.items.ignore == validate_pb2.IGNORE_ALWAYS:
                     continue
             if field.message_type is None:
@@ -997,43 +985,43 @@ class ConstraintFactory:
                 value_field = field.message_type.fields_by_name["value"]
                 if value_field.type != descriptor.FieldDescriptor.TYPE_MESSAGE:
                     continue
-                result.append(MapValMsgConstraint(self, field, key_field, value_field))
+                result.append(MapValMsgRule(self, field, key_field, value_field))
             elif field.label == descriptor.FieldDescriptor.LABEL_REPEATED:
-                result.append(RepeatedMsgConstraint(self, field))
+                result.append(RepeatedMsgRule(self, field))
             else:
-                result.append(SubMsgConstraint(self, field))
+                result.append(SubMsgRule(self, field))
         return result
 
 
-class SubMsgConstraint(ConstraintRules):
+class SubMsgRule(Rules):
     def __init__(
         self,
-        factory: ConstraintFactory,
+        factory: RuleFactory,
         field: descriptor.FieldDescriptor,
     ):
         self._factory = factory
         self._field = field
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         if not message.HasField(self._field.name):
             return
-        constraints = self._factory.get(self._field.message_type)
-        if constraints is None:
+        rules = self._factory.get(self._field.message_type)
+        if rules is None:
             return
         val = getattr(message, self._field.name)
         sub_ctx = ctx.sub_context()
-        for constraint in constraints:
-            constraint.validate(sub_ctx, val)
+        for rule in rules:
+            rule.validate(sub_ctx, val)
         if sub_ctx.has_errors():
             element = _field_to_element(self._field)
             sub_ctx.add_field_path_element(element)
             ctx.add_errors(sub_ctx)
 
 
-class MapValMsgConstraint(ConstraintRules):
+class MapValMsgRule(Rules):
     def __init__(
         self,
-        factory: ConstraintFactory,
+        factory: RuleFactory,
         field: descriptor.FieldDescriptor,
         key_field: descriptor.FieldDescriptor,
         value_field: descriptor.FieldDescriptor,
@@ -1043,17 +1031,17 @@ class MapValMsgConstraint(ConstraintRules):
         self._key_field = key_field
         self._value_field = value_field
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         val = getattr(message, self._field.name)
         if not val:
             return
-        constraints = self._factory.get(self._value_field.message_type)
-        if constraints is None:
+        rules = self._factory.get(self._value_field.message_type)
+        if rules is None:
             return
         for k, v in val.items():
             sub_ctx = ctx.sub_context()
-            for constraint in constraints:
-                constraint.validate(sub_ctx, v)
+            for rule in rules:
+                rule.validate(sub_ctx, v)
             if sub_ctx.has_errors():
                 element = _field_to_element(self._field)
                 _set_path_element_map_key(element, k, self._key_field, self._value_field)
@@ -1061,26 +1049,26 @@ class MapValMsgConstraint(ConstraintRules):
                 ctx.add_errors(sub_ctx)
 
 
-class RepeatedMsgConstraint(ConstraintRules):
+class RepeatedMsgRule(Rules):
     def __init__(
         self,
-        factory: ConstraintFactory,
+        factory: RuleFactory,
         field: descriptor.FieldDescriptor,
     ):
         self._factory = factory
         self._field = field
 
-    def validate(self, ctx: ConstraintContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):
         val = getattr(message, self._field.name)
         if not val:
             return
-        constraints = self._factory.get(self._field.message_type)
-        if constraints is None:
+        rules = self._factory.get(self._field.message_type)
+        if rules is None:
             return
         for idx, item in enumerate(val):
             sub_ctx = ctx.sub_context()
-            for constraint in constraints:
-                constraint.validate(sub_ctx, item)
+            for rule in rules:
+                rule.validate(sub_ctx, item)
             if sub_ctx.has_errors():
                 element = _field_to_element(self._field)
                 element.index = idx

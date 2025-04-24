@@ -16,7 +16,8 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
-PROTOVALIDATE_VERSION ?= v0.10.4
+# This version should be kept in sync with the version in buf.yaml
+PROTOVALIDATE_VERSION ?= v0.11.0
 
 .PHONY: help
 help: ## Describe useful make targets
