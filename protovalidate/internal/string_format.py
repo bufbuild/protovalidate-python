@@ -158,7 +158,7 @@ class StringFormat:
             # True -> true
             return celtypes.StringType(str(arg).lower())
         if isinstance(arg, celtypes.DoubleType):
-            return celtypes.StringType(f"{arg:.0f}")
+            return celtypes.StringType(f"{arg:g}")
         if isinstance(arg, celtypes.DurationType):
             return celtypes.StringType(self._format_duration(arg))
         if isinstance(arg, celtypes.TimestampType):
@@ -168,23 +168,12 @@ class StringFormat:
             return celtypes.StringType(base.removesuffix("+00:00") + "Z")
         return celtypes.StringType(arg)
 
-    def format_value(self, arg: celtypes.Value) -> celpy.Result:
-        if isinstance(arg, (celtypes.StringType, str)):
-            return celtypes.StringType(quote(arg))
-        if isinstance(arg, celtypes.UintType):
-            return celtypes.StringType(arg)
-        if isinstance(arg, celtypes.DurationType):
-            return celtypes.StringType(f'duration("{self._format_duration(arg)}")')
-        if isinstance(arg, celtypes.DoubleType):
-            return celtypes.StringType(f"{arg:f}")
-        return self.format_string(arg)
-
     def format_list(self, arg: celtypes.ListType) -> celpy.Result:
         result = "["
         for i in range(len(arg)):
             if i > 0:
                 result += ", "
-            result += self.format_value(arg[i])
+            result += self.format_string(arg[i])
         result += "]"
         return celtypes.StringType(result)
 

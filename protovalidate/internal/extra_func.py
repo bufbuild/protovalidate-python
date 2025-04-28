@@ -548,6 +548,8 @@ class Ipv6:
 
         # Handle double colon, fill pieces with 0
         if self._double_colon_seen:
+            if len(p16) >= 7:
+                return 0
             while len(p16) < 8:
                 # Delete 0 entries at pos, insert a 0
                 p16.insert(self._double_colon_at, 0x00000000)
@@ -677,7 +679,9 @@ class Ipv6:
 
             break
 
-        return self._double_colon_seen or len(self._pieces) == 8
+        if self._double_colon_seen:
+            return len(self._pieces) < 8
+        return len(self._pieces) == 8
 
     def __zone_id(self) -> bool:
         """Determine whether the current position is a zoneID.
