@@ -677,7 +677,9 @@ class Ipv6:
 
             break
 
-        return self._double_colon_seen or len(self._pieces) == 8
+        if self._double_colon_seen:
+            return len(self._pieces) < 8
+        return len(self._pieces) == 8
 
     def __zone_id(self) -> bool:
         """Determine whether the current position is a zoneID.
