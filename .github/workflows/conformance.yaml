@@ -17,7 +17,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        # Note we can't test above v3.12 because google-re2 does not have a 
+        # built wheel beyond 3.12 on PyPI
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,5 +34,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pipenv"
+      - run: ${{steps.python.outputs.python-path}}  -m pip install --upgrade pip pipenv
       - name: Test conformance
         run: make conformance PYTHON=${{ steps.python.outputs.python-path }}
