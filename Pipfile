@@ -9,6 +9,7 @@ protobuf = "==6.*"
 google-re2 = "*"
 
 [dev-packages]
+google-re2-stubs = "*"
 pytest = "*"
 mypy = "*"
 ruff = "*"
