@@ -6,7 +6,8 @@ build-backend = "hatchling.build"
 name = "protovalidate"
 description = "Protocol Buffer Validation for Python"
 readme = "README.md"
-license = { file = "LICENSE" }
+license-expression = "Apache 2.0"
+license-file = "LICENSE"
 keywords = ["validate", "protobuf", "protocol buffer"]
 requires-python = ">=3.9"
 classifiers = [
@@ -15,12 +16,11 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = ["protobuf", "cel-python"]
+dependencies = ["protobuf", "cel-python", "google-re2"]
 
 [project.urls]
 Homepage = "https://github.com/bufbuild/protovalidate-python"

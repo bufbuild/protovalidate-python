@@ -29,6 +29,19 @@ _email_regex = re2.compile(
 )
 
 
+# Currently cel-python does not support re2. So we are overriding their `matches`
+# function with our own that leverages re2. Note there is a PR in cel-python to
+# add re2 support. See https://github.com/cloud-custodian/cel-python/pull/67.
+# Once that lands, this `matches` override can be removed.
+def cel_matches(text: str, pattern: str) -> celpy.Result:
+    try:
+        m = re2.search(pattern, text)
+    except re2.error as ex:
+        msg = "match error"
+        raise celpy.CELEvalError(msg, ex.__class__, ex.args) from ex
+    return celtypes.BoolType(m is not None)
+
+
 def cel_get_field(message: celtypes.Value, field_name: celtypes.Value) -> celpy.Result:
     if not isinstance(message, MessageType):
         msg = "invalid argument, expected message"
@@ -1553,14 +1566,6 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
-def matches(text: str, pattern: str) -> celpy.Result:
-    try:
-        m = re2.search(pattern, text)
-    except re2.error as ex:
-        return celpy.CELEvalError("match error", ex.__class__, ex.args)
-    return celtypes.BoolType(m is not None)
-
-
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     # TODO(#257): Fix types and add tests for StringFormat.
     # For now, ignoring the type.
@@ -1568,7 +1573,7 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     return {
         # Missing standard functions
         "format": string_fmt.format,
-        "matches": matches,
+        "matches": cel_matches,
         # protovalidate specific functions
         "getField": cel_get_field,
         "isNan": cel_is_nan,
