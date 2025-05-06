@@ -33,8 +33,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pipenv"
-      - name: Install pipenv
-        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+      - name: Run image
+        uses: tiagovrtr/actions-pipenv@v1
+        with:
+          pipenv-version: latest
       - name: Execute tests
         run: make test PYTHON=${{ steps.python.outputs.python-path }}
       - name: Lint
