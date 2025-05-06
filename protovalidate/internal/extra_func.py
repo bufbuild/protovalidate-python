@@ -13,18 +13,18 @@
 # limitations under the License.
 
 import math
-import re
 import typing
 from urllib import parse as urlparse
 
 import celpy
+import re2
 from celpy import celtypes
 
 from protovalidate.internal import string_format
 from protovalidate.internal.rules import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
-_email_regex = re.compile(
+_email_regex = re2.compile(
     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 )
 
@@ -1553,6 +1553,14 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
+def matches(text: str, pattern: str) -> celpy.Result:
+    try:
+        m = re2.search(pattern, text)
+    except re2.error as ex:
+        return celpy.CELEvalError("match error", ex.__class__, ex.args)
+    return celtypes.BoolType(m is not None)
+
+
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     # TODO(#257): Fix types and add tests for StringFormat.
     # For now, ignoring the type.
@@ -1560,6 +1568,7 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     return {
         # Missing standard functions
         "format": string_fmt.format,
+        "matches": matches,
         # protovalidate specific functions
         "getField": cel_get_field,
         "isNan": cel_is_nan,
