@@ -35,8 +35,6 @@ jobs:
           cache: "pipenv"
       - name: Run image
         uses: tiagovrtr/actions-pipenv@v1
-        with:
-          pipenv-version: latest
       - name: Execute tests
         run: make test PYTHON=${{ steps.python.outputs.python-path }}
       - name: Lint
