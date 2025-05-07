@@ -13,33 +13,20 @@
 # limitations under the License.
 
 import math
+import re
 import typing
 from urllib import parse as urlparse
 
 import celpy
-import re2
 from celpy import celtypes
 
 from protovalidate.internal import string_format
 from protovalidate.internal.rules import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
-_email_regex = re2.compile(
+_email_regex = re.compile(
     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 )
-
-
-# Currently cel-python does not support re2. So we are overriding their `matches`
-# function with our own that leverages re2. Note there is a PR in cel-python to
-# add re2 support. See https://github.com/cloud-custodian/cel-python/pull/67.
-# Once that lands, this `matches` override can be removed.
-def cel_matches(text: str, pattern: str) -> celpy.Result:
-    try:
-        m = re2.search(pattern, text)
-    except re2.error as ex:
-        msg = "match error"
-        raise celpy.CELEvalError(msg, ex.__class__, ex.args) from ex
-    return celtypes.BoolType(m is not None)
 
 
 def cel_get_field(message: celtypes.Value, field_name: celtypes.Value) -> celpy.Result:
@@ -1573,7 +1560,6 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
     return {
         # Missing standard functions
         "format": string_fmt.format,
-        "matches": cel_matches,
         # protovalidate specific functions
         "getField": cel_get_field,
         "isNan": cel_is_nan,
