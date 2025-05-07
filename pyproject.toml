@@ -20,7 +20,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = ["protobuf", "cel-python", "google-re2"]
+dependencies = ["protobuf", "cel-python"]
 
 [project.urls]
 Homepage = "https://github.com/bufbuild/protovalidate-python"
