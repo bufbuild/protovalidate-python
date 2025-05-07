@@ -32,6 +32,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pipenv"
+      - run: ${{steps.python.outputs.python-path}}  -m pip install --upgrade pip pipenv
       - name: Execute tests
         run: make test PYTHON=${{ steps.python.outputs.python-path }}
       - name: Lint

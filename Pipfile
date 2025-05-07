@@ -11,7 +11,7 @@ protobuf = "==6.*"
 pytest = "*"
 mypy = "*"
 ruff = "*"
-types-protobuf = "*"
+types-protobuf = "==6.30.2.20250503"
 exceptiongroup = "*"
 tomli = "*"
 

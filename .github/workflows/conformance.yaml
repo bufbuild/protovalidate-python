@@ -32,5 +32,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pipenv"
+      - run: ${{steps.python.outputs.python-path}}  -m pip install --upgrade pip pipenv
       - name: Test conformance
         run: make conformance PYTHON=${{ steps.python.outputs.python-path }}
