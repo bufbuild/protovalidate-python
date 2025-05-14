@@ -19,6 +19,8 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 # This version should be kept in sync with the version in buf.yaml
 PROTOVALIDATE_VERSION ?= v0.11.0
 
+CEL_SPEC_VERSION ?= v0.24.0
+
 .PHONY: help
 help: ## Describe useful make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "%-15s %s\n", $$1, $$2}'
@@ -68,6 +70,10 @@ install: ## Install dependencies
 checkgenerate: generate
 	@# Used in CI to verify that `make generate` doesn't produce a diff.
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
+
+.PHONY: gettextproto
+gettextproto:
+	curl -fsSL -o .tmp/string_ext_$(CEL_SPEC_VERSION).textproto https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
 
 $(BIN):
 	@mkdir -p $(BIN)
