@@ -93,3 +93,9 @@ class RepeatedEmbedSkip(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[Embed]
     def __init__(self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...) -> None: ...
+
+class RepeatedItems(_message.Message):
+    __slots__ = ("items",)
+    ITEMS_FIELD_NUMBER: _ClassVar[int]
+    items: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, items: _Optional[_Iterable[int]] = ...) -> None: ...

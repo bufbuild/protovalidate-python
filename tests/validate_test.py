@@ -83,3 +83,10 @@ class TestValidate(unittest.TestCase):
 
         violations = protovalidate.collect_violations(msg)
         assert len(violations) == 0
+
+    def test_repeated_items(self):
+        msg = validations_pb2.RepeatedItems(items=[i + 1 for i in range(2000)])
+        protovalidate.validate(msg)
+
+        violations = protovalidate.collect_violations(msg)
+        assert len(violations) == 0

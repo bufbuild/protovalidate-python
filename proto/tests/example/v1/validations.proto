@@ -63,3 +63,13 @@ message Embed {
 message RepeatedEmbedSkip {
   repeated Embed val = 1 [(buf.validate.field).repeated.items.ignore = IGNORE_ALWAYS];
 }
+
+message RepeatedItems {
+  repeated int64 items = 1 [
+    (buf.validate.field).repeated = {
+      items: {
+        int64: {gt: 0}
+      }
+    }
+  ];
+}
