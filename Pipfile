@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 cel-python = "==0.2.*"
 protobuf = "==6.*"
+pytest-subtests = "*"
 
 [dev-packages]
 pytest = "*"

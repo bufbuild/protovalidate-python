@@ -82,7 +82,7 @@ class StringFormat:
                 return celpy.CELEvalError("format() incomplete format specifier")
             if fmt[i] == "f":
                 result += self.format_float(arg, precision)
-            if fmt[i] == "e":
+            elif fmt[i] == "e":
                 result += self.format_exponential(arg, precision)
             elif fmt[i] == "d":
                 result += self.format_int(arg)

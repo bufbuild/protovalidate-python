@@ -38,6 +38,7 @@ generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license header
 	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
 	$(BIN)/buf generate
 	$(ADD_LICENSE_HEADER)
 
@@ -48,7 +49,7 @@ format: install $(BIN)/license-header ## Format code
 	pipenv run ruff check --fix protovalidate tests
 
 .PHONY: test
-test: generate install ## Run unit tests
+test: generate install gettestdata ## Run unit tests
 	pipenv run pytest
 
 .PHONY: conformance
@@ -71,9 +72,10 @@ checkgenerate: generate
 	@# Used in CI to verify that `make generate` doesn't produce a diff.
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
 
-.PHONY: gettextproto
-gettextproto:
-	curl -fsSL -o .tmp/string_ext_$(CEL_SPEC_VERSION).textproto https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
+.PHONY: gettestdata
+gettestdata: generate
+	mkdir -p tests/testdata
+	curl -fsSL -o tests/testdata/string_ext_$(CEL_SPEC_VERSION).textproto https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
 
 $(BIN):
 	@mkdir -p $(BIN)
