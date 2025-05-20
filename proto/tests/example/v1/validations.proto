@@ -63,3 +63,14 @@ message Embed {
 message RepeatedEmbedSkip {
   repeated Embed val = 1 [(buf.validate.field).repeated.items.ignore = IGNORE_ALWAYS];
 }
+/* message MapInts { */
+/*   map<int64, int64> stuff = 1 [(buf.validate.field).map.(maxim) = 4]; */
+/*   map<int64, int64> stuff2 = 2 [(buf.validate.field).map.(maxim2) = 4]; */
+/*   map<int64, int64> stuff3 = 3 [(buf.validate.field).map.(maxim3) = 4]; */
+/*   map<int64, int64> stuff4 = 4 [(buf.validate.field).map.(maxim4) = 4]; */
+/*   map<int64, int64> stuff5 = 5 [(buf.validate.field).map.(maxim5) = 4]; */
+/*   map<int64, int64> stuff6 = 6 [(buf.validate.field).map.(maxim6) = 4]; */
+/*   map<int64, int64> stuff7 = 7 [(buf.validate.field).map.(maxim7) = 4]; */
+/*   map<int64, int64> stuff8 = 8 [(buf.validate.field).map.(maxim8) = 4]; */
+/*   map<int64, int64> stuff9 = 9 [(buf.validate.field).map.(maxim9) = 4]; */
+/* } */

@@ -18,8 +18,10 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--year-range "2023-2025"
 # This version should be kept in sync with the version in buf.yaml
 PROTOVALIDATE_VERSION ?= v0.11.0
-
+# Version of the cel-spec that this implementation is conformant with
+# This should be kept in sync with the version in format_test.py
 CEL_SPEC_VERSION ?= v0.24.0
+TESTDATA_FILE := tests/testdata/string_ext_$(CEL_SPEC_VERSION).textproto
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -73,9 +75,11 @@ checkgenerate: generate
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
 
 .PHONY: gettestdata
-gettestdata: generate
-	mkdir -p tests/testdata
-	curl -fsSL -o tests/testdata/string_ext_$(CEL_SPEC_VERSION).textproto https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
+gettestdata: $(TESTDATA_FILE)
+
+$(TESTDATA_FILE):
+	mkdir -p $(dir @)
+	curl -fsSL -o $@ https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
 
 $(BIN):
 	@mkdir -p $(BIN)
