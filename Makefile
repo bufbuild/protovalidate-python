@@ -18,6 +18,10 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--year-range "2023-2025"
 # This version should be kept in sync with the version in buf.yaml
 PROTOVALIDATE_VERSION ?= v0.11.0
+# Version of the cel-spec that this implementation is conformant with
+# This should be kept in sync with the version in format_test.py
+CEL_SPEC_VERSION ?= v0.24.0
+TESTDATA_FILE := tests/testdata/string_ext_$(CEL_SPEC_VERSION).textproto
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -36,6 +40,7 @@ generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license header
 	rm -rf gen
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
 	$(BIN)/buf generate
 	$(ADD_LICENSE_HEADER)
 
@@ -46,7 +51,7 @@ format: install $(BIN)/license-header ## Format code
 	pipenv run ruff check --fix protovalidate tests
 
 .PHONY: test
-test: generate install ## Run unit tests
+test: generate install gettestdata ## Run unit tests
 	pipenv run pytest
 
 .PHONY: conformance
@@ -68,6 +73,13 @@ install: ## Install dependencies
 checkgenerate: generate
 	@# Used in CI to verify that `make generate` doesn't produce a diff.
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
+
+.PHONY: gettestdata
+gettestdata: $(TESTDATA_FILE)
+
+$(TESTDATA_FILE):
+	mkdir -p $(dir @)
+	curl -fsSL -o $@ https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
 
 $(BIN):
 	@mkdir -p $(BIN)
