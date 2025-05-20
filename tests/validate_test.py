@@ -77,22 +77,6 @@ class TestValidate(unittest.TestCase):
         violations = protovalidate.collect_violations(msg)
         assert len(violations) == 1
 
-    # def test_map_max(self):
-    #     msg = validations_pb2.MapInts()
-    #     msg.stuff9[1] = 2
-    #     msg.stuff9[2] = 2
-    #     msg.stuff9[3] = 2
-    #     try:
-    #         protovalidate.validate(msg)
-    #     except protovalidate.ValidationError as e:
-    #         print(e.violations[0])
-    #         # assert len(e.violations) == 1
-    #         print(e.to_proto().violations[0])
-    #         # assert str(e) == "invalid MapInts"
-
-    #     # violations = protovalidate.collect_violations(msg)
-    #     # assert len(violations) == 1
-
     def test_timestamp(self):
         msg = validations_pb2.TimestampGTNow()
         protovalidate.validate(msg)
