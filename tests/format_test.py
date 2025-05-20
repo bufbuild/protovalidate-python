@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from typing import Any
+from typing import Any, Optional
 
 import celpy
 from celpy import celtypes
@@ -53,6 +53,32 @@ def read_textproto() -> simple_pb2.SimpleTestFile:
     return msg
 
 
+def build_binding(bindings: dict[str, eval_pb2.ExprValue]) -> dict[Any, Any]:
+    binder = {}
+    for key, value in bindings.items():
+        if value.HasField("value"):
+            val = value.value
+            if val.HasField("string_value"):
+                binder[key] = celtypes.StringType(val.string_value)
+    return binder
+
+
+def get_expected_result(test: simple_pb2.SimpleTest) -> Optional[str]:
+    if test.HasField("value"):
+        val = test.value
+        if val.HasField("string_value"):
+            return val.string_value
+    return None
+
+
+def get_eval_error_message(test: simple_pb2.SimpleTest) -> Optional[str]:
+    if test.HasField("eval_error"):
+        err_set = test.eval_error
+        if len(err_set.errors) == 1:
+            return celtypes.StringType(err_set.errors[0].message)
+    return None
+
+
 class TestFormat(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -61,69 +87,56 @@ class TestFormat(unittest.TestCase):
         cls._format_error_test_section = next((x for x in test_data.section if x.name == "format_errors"), None)
         cls._env = celpy.Environment(runner_class=InterpretedRunner)
 
-    def _binding(self, bindings: dict[str, eval_pb2.ExprValue]) -> dict[Any, Any]:
-        binder = {}
-        for key, value in bindings.items():
-            if value.HasField("value"):
-                val = value.value
-                if val.HasField("string_value"):
-                    binder[key] = celtypes.StringType(val.string_value)
-        return binder
-
-    def get_eval_error_message(self, test) -> celtypes.Value:
-        if test.HasField("eval_error"):
-            err_set = test.eval_error
-            if len(err_set.errors) == 1:
-                return celtypes.StringType(err_set.errors[0].message)
-
-        # for type_env in test.type_env:
-        #     print(type_env)
-        #     if type_env.HasField("ident"):
-        #         ident = type_env.ident
-        #         if ident.type.HasField("primitive"):
-        #             prim = ident.type.primitive
-        #             if prim == checked_pb2.Type.PrimitiveType.STRING:
-        #                 print("das string")
-        #     elif type_env.HasField("function"):
-        #         print('funker')
-        #         print(type_env.function)
-
     def test_format_successes(self):
+        """
+        Tests success scenarios for string.format
+        """
         section = self._format_test_section
         if section is None:
             return
-        print(f"Running {len(section.test)} subtests for formatting")
         for test in section.test:
             if test.name in skipped_tests:
                 continue
             ast = self._env.compile(test.expr)
             prog = self._env.program(ast, functions=extra_func.EXTRA_FUNCS)
 
-            bindings = self._binding(test.bindings)
+            bindings = build_binding(test.bindings)
+            # Ideally we should use pytest parametrize instead of subtests, but
+            # that would require refactoring other tests also.
             with self.subTest(test.name):
                 try:
                     result = prog.evaluate(bindings)
-                    if test.value.HasField("string_value"):
-                        self.assertEqual(result, test.value.string_value)
+                    expected = get_expected_result(test)
+                    if expected is not None:
+                        self.assertEqual(result, expected)
+                    else:
+                        self.fail(f"[{test.name}]: expected a success result to be defined")
                 except celpy.CELEvalError as e:
                     self.fail(e)
 
     def test_format_errors(self):
+        """
+        Tests error scenarios for string.format
+        """
         section = self._format_error_test_section
         if section is None:
             return
-        print(f"Running {len(section.test)} subtests for formatting errors")
         for test in section.test:
             if test.name in skipped_error_tests:
                 continue
             ast = self._env.compile(test.expr)
             prog = self._env.program(ast, functions=extra_func.EXTRA_FUNCS)
 
-            bindings = self._binding(test.bindings)
+            bindings = build_binding(test.bindings)
+            # Ideally we should use pytest parametrize instead of subtests, but
+            # that would require refactoring other tests also.
             with self.subTest(test.name):
                 try:
                     prog.evaluate(bindings)
-                    self.fail("expected error")
+                    self.fail(f"[{test.name}]: expected an error to be raised during evaluation")
                 except celpy.CELEvalError as e:
-                    msg = self.convert_result_matcher(test)
-                    self.assertEqual(str(e), msg)
+                    msg = get_eval_error_message(test)
+                    if msg is not None:
+                        self.assertEqual(str(e), msg)
+                    else:
+                        self.fail(f"[{test.name}]: expected an eval error to be defined")
