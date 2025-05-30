@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import math
+import re
 from decimal import Decimal
 from typing import Optional, Union
 
@@ -186,7 +187,9 @@ class StringFormat:
             # True -> true
             return str(arg).lower()
         if isinstance(arg, celtypes.BytesType):
-            return str(arg, "utf-8")
+            decoded = arg.decode("utf-8", errors="replace")
+            # Collapse any contiguous placeholders into one
+            return re.sub("\\ufffd+", "\ufffd", decoded)
         if isinstance(arg, celtypes.DoubleType):
             result = self.__validate_number(arg)
             if result is not None:
