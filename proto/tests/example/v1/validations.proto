@@ -19,6 +19,17 @@ package tests.example.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
+message DynRuntimeError {
+  option (buf.validate.message).cel = {
+      id: "dyn_runtime_err"
+          message: "dynamic type tries to use a non-existent field"
+              expression: "dyn(this).b == 'foo'"
+                };
+
+                  int32 a = 1;
+                  }
+
+
 message DoubleFinite {
   double val = 1 [(buf.validate.field).double.finite = true];
 }

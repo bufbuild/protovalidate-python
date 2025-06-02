@@ -22,6 +22,12 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class DynRuntimeError(_message.Message):
+    __slots__ = ("a",)
+    A_FIELD_NUMBER: _ClassVar[int]
+    a: int
+    def __init__(self, a: _Optional[int] = ...) -> None: ...
+
 class DoubleFinite(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]

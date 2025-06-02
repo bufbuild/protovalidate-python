@@ -14,6 +14,7 @@
 
 import unittest
 
+import celpy
 import protovalidate
 from gen.tests.example.v1 import validations_pb2
 
@@ -83,3 +84,16 @@ class TestValidate(unittest.TestCase):
 
         violations = protovalidate.collect_violations(msg)
         assert len(violations) == 0
+
+    def test_dyn(self):
+        msg = validations_pb2.DynRuntimeError()
+        try:
+            protovalidate.validate(msg)
+        except celpy.CELEvalError as e:
+            print("eval" + str(e))
+        except protovalidate.CompilationError as e:
+            print("comp" + str(e))
+        except protovalidate.ValidationError as e:
+            print("valid" + str(e))
+        except Exception as e:
+            print("rando" + str(e))
