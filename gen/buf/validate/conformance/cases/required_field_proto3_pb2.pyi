@@ -120,3 +120,35 @@ class RequiredProto3MapIgnoreAlways(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class RequiredProto3MapKey(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[str, str]
+    def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class RequiredProto3MapValue(_message.Message):
+    __slots__ = ("val",)
+    class ValEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.ScalarMap[str, str]
+    def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class RequiredProto3RepeatedItem(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, val: _Optional[_Iterable[str]] = ...) -> None: ...

@@ -14,6 +14,8 @@
 
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from collections.abc import Mapping as _Mapping
@@ -112,3 +114,32 @@ class DurationExample(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _duration_pb2.Duration
     def __init__(self, val: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+
+class DurationWrongTypeScalar(_message.Message):
+    __slots__ = ("seconds",)
+    SECONDS_FIELD_NUMBER: _ClassVar[int]
+    seconds: int
+    def __init__(self, seconds: _Optional[int] = ...) -> None: ...
+
+class DurationWrongTypeMessage(_message.Message):
+    __slots__ = ("val",)
+    class WrongType(_message.Message):
+        __slots__ = ("seconds",)
+        SECONDS_FIELD_NUMBER: _ClassVar[int]
+        seconds: int
+        def __init__(self, seconds: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: DurationWrongTypeMessage.WrongType
+    def __init__(self, val: _Optional[_Union[DurationWrongTypeMessage.WrongType, _Mapping]] = ...) -> None: ...
+
+class DurationWrongTypeWrapper(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.Int32Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+
+class DurationWrongTypeWKT(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _timestamp_pb2.Timestamp
+    def __init__(self, val: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
