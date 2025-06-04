@@ -832,7 +832,6 @@ class RuleFactory:
         if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
             return None
         type_case = field_level.WhichOneof("type")
-        # print(f"type case is {type_case}")
         if type_case is None:
             result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
