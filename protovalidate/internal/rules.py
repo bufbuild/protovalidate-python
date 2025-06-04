@@ -23,6 +23,9 @@ from google.protobuf import any_pb2, descriptor, message, message_factory
 from buf.validate import validate_pb2  # type: ignore
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
+# Convenience to stringify the type names for error messages
+FIELD_TYPE_NAMES = {v: k for k, v in vars(descriptor.FieldDescriptor).items() if k.startswith("TYPE_")}
+
 
 class CompilationError(Exception):
     pass
@@ -397,7 +400,15 @@ def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_n
     if field.type != expected and (
         field.type != descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
     ):
-        msg = f"field {field.name} has type {field.type} but expected {expected}"
+        field_type_str = FIELD_TYPE_NAMES[field.type]
+        if expected == 0:
+            if wrapper_name is not None:
+                expected_type_str = wrapper_name
+            else:
+                expected_type_str = FIELD_TYPE_NAMES[descriptor.FieldDescriptor.TYPE_MESSAGE]
+        else:
+            expected_type_str = FIELD_TYPE_NAMES[expected]
+        msg = f"field {field.name} has type {field_type_str} but expected {expected_type_str}"
         raise CompilationError(msg)
 
 
@@ -821,6 +832,7 @@ class RuleFactory:
         if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
             return None
         type_case = field_level.WhichOneof("type")
+        # print(f"type case is {type_case}")
         if type_case is None:
             result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
@@ -929,7 +941,7 @@ class RuleFactory:
             result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "any":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any")
+            check_field_type(field, 0, "google.protobuf.Any")
             result = AnyRules(self._env, self._funcs, field, field_level)
             return result
 
