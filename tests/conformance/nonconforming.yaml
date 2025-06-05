@@ -7,3 +7,6 @@ standard_rules/well_known_types/duration:
 standard_rules/well_known_types/timestamp:
  - gte_lte/invalid/above
  - lte/invalid
+custom_rules:
+ # See https://github.com/cloud-custodian/cel-python/issues/113
+ - runtime/dyn_incorrect_type

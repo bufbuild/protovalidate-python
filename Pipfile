@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-cel-python = "==0.2.*"
+cel-python = {extras = ["re2"], version = "==0.3.*"}
 protobuf = "==6.*"
 
 [dev-packages]
