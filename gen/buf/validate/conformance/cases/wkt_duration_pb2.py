@@ -38,9 +38,11 @@ _sym_db = _symbol_database.Default()
 
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 from google.protobuf import duration_pb2 as google_dot_protobuf_dot_duration__pb2
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n1buf/validate/conformance/cases/wkt_duration.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\";\n\x0c\x44urationNone\x12+\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationR\x03val\"G\n\x10\x44urationRequired\x12\x33\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\x03val\"H\n\rDurationConst\x12\x37\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04\x12\x02\x08\x03R\x03val\"J\n\nDurationIn\x12<\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0f\xbaH\x0c\xaa\x01\t:\x02\x08\x01:\x03\x10\xe8\x07R\x03val\"F\n\rDurationNotIn\x12\x35\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x08\xbaH\x05\xaa\x01\x02\x42\x00R\x03val\"C\n\nDurationLT\x12\x35\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x08\xbaH\x05\xaa\x01\x02\x1a\x00R\x03val\"F\n\x0b\x44urationLTE\x12\x37\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04\"\x02\x08\x01R\x03val\"F\n\nDurationGT\x12\x38\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0b\xbaH\x08\xaa\x01\x05*\x03\x10\xe8\x07R\x03val\"H\n\x0b\x44urationGTE\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0c\xbaH\t\xaa\x01\x06\x32\x04\x10\xc0\x84=R\x03val\"I\n\x0c\x44urationGTLT\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0c\xbaH\t\xaa\x01\x06\x1a\x02\x08\x01*\x00R\x03val\"K\n\x0e\x44urationExLTGT\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0c\xbaH\t\xaa\x01\x06\x1a\x00*\x02\x08\x01R\x03val\"N\n\x0e\x44urationGTELTE\x12<\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0f\xbaH\x0c\xaa\x01\t\"\x03\x08\x90\x1c\x32\x02\x08<R\x03val\"P\n\x10\x44urationExGTELTE\x12<\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0f\xbaH\x0c\xaa\x01\t\"\x02\x08<2\x03\x08\x90\x1cR\x03val\"\x8a\x01\n\x1c\x44urationFieldWithOtherFields\x12H\n\x0c\x64uration_val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04\"\x02\x08\x01R\x0b\x64urationVal\x12 \n\x07int_val\x18\x02 \x01(\x05\x42\x07\xbaH\x04\x1a\x02 \x10R\x06intVal\"J\n\x0f\x44urationExample\x12\x37\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04J\x02\x08\x03R\x03valB\xd2\x01\n\"com.buf.validate.conformance.casesB\x10WktDurationProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n1buf/validate/conformance/cases/wkt_duration.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\";\n\x0c\x44urationNone\x12+\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationR\x03val\"G\n\x10\x44urationRequired\x12\x33\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x06\xbaH\x03\xc8\x01\x01R\x03val\"H\n\rDurationConst\x12\x37\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04\x12\x02\x08\x03R\x03val\"J\n\nDurationIn\x12<\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0f\xbaH\x0c\xaa\x01\t:\x02\x08\x01:\x03\x10\xe8\x07R\x03val\"F\n\rDurationNotIn\x12\x35\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x08\xbaH\x05\xaa\x01\x02\x42\x00R\x03val\"C\n\nDurationLT\x12\x35\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x08\xbaH\x05\xaa\x01\x02\x1a\x00R\x03val\"F\n\x0b\x44urationLTE\x12\x37\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04\"\x02\x08\x01R\x03val\"F\n\nDurationGT\x12\x38\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0b\xbaH\x08\xaa\x01\x05*\x03\x10\xe8\x07R\x03val\"H\n\x0b\x44urationGTE\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0c\xbaH\t\xaa\x01\x06\x32\x04\x10\xc0\x84=R\x03val\"I\n\x0c\x44urationGTLT\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0c\xbaH\t\xaa\x01\x06\x1a\x02\x08\x01*\x00R\x03val\"K\n\x0e\x44urationExLTGT\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0c\xbaH\t\xaa\x01\x06\x1a\x00*\x02\x08\x01R\x03val\"N\n\x0e\x44urationGTELTE\x12<\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0f\xbaH\x0c\xaa\x01\t\"\x03\x08\x90\x1c\x32\x02\x08<R\x03val\"P\n\x10\x44urationExGTELTE\x12<\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\x0f\xbaH\x0c\xaa\x01\t\"\x02\x08<2\x03\x08\x90\x1cR\x03val\"\x8a\x01\n\x1c\x44urationFieldWithOtherFields\x12H\n\x0c\x64uration_val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04\"\x02\x08\x01R\x0b\x64urationVal\x12 \n\x07int_val\x18\x02 \x01(\x05\x42\x07\xbaH\x04\x1a\x02 \x10R\x06intVal\"J\n\x0f\x44urationExample\x12\x37\n\x03val\x18\x01 \x01(\x0b\x32\x19.google.protobuf.DurationB\n\xbaH\x07\xaa\x01\x04J\x02\x08\x03R\x03val\"?\n\x17\x44urationWrongTypeScalar\x12$\n\x07seconds\x18\x01 \x01(\x05\x42\n\xbaH\x07\xaa\x01\x04\"\x02\x08\x01R\x07seconds\"\xa3\x01\n\x18\x44urationWrongTypeMessage\x12`\n\x03val\x18\x01 \x01(\x0b\x32\x42.buf.validate.conformance.cases.DurationWrongTypeMessage.WrongTypeB\n\xbaH\x07\xaa\x01\x04\"\x02\x08\x01R\x03val\x1a%\n\tWrongType\x12\x18\n\x07seconds\x18\x01 \x01(\x05R\x07seconds\"U\n\x18\x44urationWrongTypeWrapper\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\x1b.google.protobuf.Int32ValueB\n\xbaH\x07\xaa\x01\x04J\x02\x08\x03R\x03val\"P\n\x14\x44urationWrongTypeWKT\x12\x38\n\x03val\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.TimestampB\n\xbaH\x07\xaa\x01\x04J\x02\x08\x03R\x03valB\xd2\x01\n\"com.buf.validate.conformance.casesB\x10WktDurationProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -78,34 +80,52 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_DURATIONFIELDWITHOTHERFIELDS'].fields_by_name['int_val']._serialized_options = b'\272H\004\032\002 \020'
   _globals['_DURATIONEXAMPLE'].fields_by_name['val']._loaded_options = None
   _globals['_DURATIONEXAMPLE'].fields_by_name['val']._serialized_options = b'\272H\007\252\001\004J\002\010\003'
-  _globals['_DURATIONNONE']._serialized_start=146
-  _globals['_DURATIONNONE']._serialized_end=205
-  _globals['_DURATIONREQUIRED']._serialized_start=207
-  _globals['_DURATIONREQUIRED']._serialized_end=278
-  _globals['_DURATIONCONST']._serialized_start=280
-  _globals['_DURATIONCONST']._serialized_end=352
-  _globals['_DURATIONIN']._serialized_start=354
-  _globals['_DURATIONIN']._serialized_end=428
-  _globals['_DURATIONNOTIN']._serialized_start=430
-  _globals['_DURATIONNOTIN']._serialized_end=500
-  _globals['_DURATIONLT']._serialized_start=502
-  _globals['_DURATIONLT']._serialized_end=569
-  _globals['_DURATIONLTE']._serialized_start=571
-  _globals['_DURATIONLTE']._serialized_end=641
-  _globals['_DURATIONGT']._serialized_start=643
-  _globals['_DURATIONGT']._serialized_end=713
-  _globals['_DURATIONGTE']._serialized_start=715
-  _globals['_DURATIONGTE']._serialized_end=787
-  _globals['_DURATIONGTLT']._serialized_start=789
-  _globals['_DURATIONGTLT']._serialized_end=862
-  _globals['_DURATIONEXLTGT']._serialized_start=864
-  _globals['_DURATIONEXLTGT']._serialized_end=939
-  _globals['_DURATIONGTELTE']._serialized_start=941
-  _globals['_DURATIONGTELTE']._serialized_end=1019
-  _globals['_DURATIONEXGTELTE']._serialized_start=1021
-  _globals['_DURATIONEXGTELTE']._serialized_end=1101
-  _globals['_DURATIONFIELDWITHOTHERFIELDS']._serialized_start=1104
-  _globals['_DURATIONFIELDWITHOTHERFIELDS']._serialized_end=1242
-  _globals['_DURATIONEXAMPLE']._serialized_start=1244
-  _globals['_DURATIONEXAMPLE']._serialized_end=1318
+  _globals['_DURATIONWRONGTYPESCALAR'].fields_by_name['seconds']._loaded_options = None
+  _globals['_DURATIONWRONGTYPESCALAR'].fields_by_name['seconds']._serialized_options = b'\272H\007\252\001\004\"\002\010\001'
+  _globals['_DURATIONWRONGTYPEMESSAGE'].fields_by_name['val']._loaded_options = None
+  _globals['_DURATIONWRONGTYPEMESSAGE'].fields_by_name['val']._serialized_options = b'\272H\007\252\001\004\"\002\010\001'
+  _globals['_DURATIONWRONGTYPEWRAPPER'].fields_by_name['val']._loaded_options = None
+  _globals['_DURATIONWRONGTYPEWRAPPER'].fields_by_name['val']._serialized_options = b'\272H\007\252\001\004J\002\010\003'
+  _globals['_DURATIONWRONGTYPEWKT'].fields_by_name['val']._loaded_options = None
+  _globals['_DURATIONWRONGTYPEWKT'].fields_by_name['val']._serialized_options = b'\272H\007\252\001\004J\002\010\003'
+  _globals['_DURATIONNONE']._serialized_start=211
+  _globals['_DURATIONNONE']._serialized_end=270
+  _globals['_DURATIONREQUIRED']._serialized_start=272
+  _globals['_DURATIONREQUIRED']._serialized_end=343
+  _globals['_DURATIONCONST']._serialized_start=345
+  _globals['_DURATIONCONST']._serialized_end=417
+  _globals['_DURATIONIN']._serialized_start=419
+  _globals['_DURATIONIN']._serialized_end=493
+  _globals['_DURATIONNOTIN']._serialized_start=495
+  _globals['_DURATIONNOTIN']._serialized_end=565
+  _globals['_DURATIONLT']._serialized_start=567
+  _globals['_DURATIONLT']._serialized_end=634
+  _globals['_DURATIONLTE']._serialized_start=636
+  _globals['_DURATIONLTE']._serialized_end=706
+  _globals['_DURATIONGT']._serialized_start=708
+  _globals['_DURATIONGT']._serialized_end=778
+  _globals['_DURATIONGTE']._serialized_start=780
+  _globals['_DURATIONGTE']._serialized_end=852
+  _globals['_DURATIONGTLT']._serialized_start=854
+  _globals['_DURATIONGTLT']._serialized_end=927
+  _globals['_DURATIONEXLTGT']._serialized_start=929
+  _globals['_DURATIONEXLTGT']._serialized_end=1004
+  _globals['_DURATIONGTELTE']._serialized_start=1006
+  _globals['_DURATIONGTELTE']._serialized_end=1084
+  _globals['_DURATIONEXGTELTE']._serialized_start=1086
+  _globals['_DURATIONEXGTELTE']._serialized_end=1166
+  _globals['_DURATIONFIELDWITHOTHERFIELDS']._serialized_start=1169
+  _globals['_DURATIONFIELDWITHOTHERFIELDS']._serialized_end=1307
+  _globals['_DURATIONEXAMPLE']._serialized_start=1309
+  _globals['_DURATIONEXAMPLE']._serialized_end=1383
+  _globals['_DURATIONWRONGTYPESCALAR']._serialized_start=1385
+  _globals['_DURATIONWRONGTYPESCALAR']._serialized_end=1448
+  _globals['_DURATIONWRONGTYPEMESSAGE']._serialized_start=1451
+  _globals['_DURATIONWRONGTYPEMESSAGE']._serialized_end=1614
+  _globals['_DURATIONWRONGTYPEMESSAGE_WRONGTYPE']._serialized_start=1577
+  _globals['_DURATIONWRONGTYPEMESSAGE_WRONGTYPE']._serialized_end=1614
+  _globals['_DURATIONWRONGTYPEWRAPPER']._serialized_start=1616
+  _globals['_DURATIONWRONGTYPEWRAPPER']._serialized_end=1701
+  _globals['_DURATIONWRONGTYPEWKT']._serialized_start=1703
+  _globals['_DURATIONWRONGTYPEWKT']._serialized_end=1783
 # @@protoc_insertion_point(module_scope)

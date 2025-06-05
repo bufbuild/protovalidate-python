@@ -89,26 +89,45 @@ def _msg_to_cel(msg: message.Message) -> celtypes.Value:
     return MessageType(msg)
 
 
-_TYPE_TO_CTOR: dict[str, typing.Callable[..., celtypes.Value]] = {
-    descriptor.FieldDescriptor.TYPE_MESSAGE: _msg_to_cel,
-    descriptor.FieldDescriptor.TYPE_GROUP: _msg_to_cel,
-    descriptor.FieldDescriptor.TYPE_ENUM: celtypes.IntType,
-    descriptor.FieldDescriptor.TYPE_BOOL: celtypes.BoolType,
-    descriptor.FieldDescriptor.TYPE_BYTES: celtypes.BytesType,
-    descriptor.FieldDescriptor.TYPE_STRING: celtypes.StringType,
-    descriptor.FieldDescriptor.TYPE_FLOAT: celtypes.DoubleType,
-    descriptor.FieldDescriptor.TYPE_DOUBLE: celtypes.DoubleType,
-    descriptor.FieldDescriptor.TYPE_INT32: celtypes.IntType,
-    descriptor.FieldDescriptor.TYPE_INT64: celtypes.IntType,
-    descriptor.FieldDescriptor.TYPE_UINT32: celtypes.UintType,
-    descriptor.FieldDescriptor.TYPE_UINT64: celtypes.UintType,
-    descriptor.FieldDescriptor.TYPE_SINT32: celtypes.IntType,
-    descriptor.FieldDescriptor.TYPE_SINT64: celtypes.IntType,
-    descriptor.FieldDescriptor.TYPE_FIXED32: celtypes.UintType,
-    descriptor.FieldDescriptor.TYPE_FIXED64: celtypes.UintType,
-    descriptor.FieldDescriptor.TYPE_SFIXED32: celtypes.IntType,
-    descriptor.FieldDescriptor.TYPE_SFIXED64: celtypes.IntType,
+class FieldDescMetadata(typing.TypedDict):
+    name: str
+    ctor: typing.Callable[..., celtypes.Value]
+
+
+_FIELD_DESC_METADATA_MAP: dict[typing.Any, FieldDescMetadata] = {
+    descriptor.FieldDescriptor.TYPE_MESSAGE: {"name": "message", "ctor": _msg_to_cel},
+    descriptor.FieldDescriptor.TYPE_GROUP: {"name": "group", "ctor": _msg_to_cel},
+    descriptor.FieldDescriptor.TYPE_ENUM: {"name": "enum", "ctor": celtypes.IntType},
+    descriptor.FieldDescriptor.TYPE_BOOL: {"name": "bool", "ctor": celtypes.BoolType},
+    descriptor.FieldDescriptor.TYPE_BYTES: {"name": "bytes", "ctor": celtypes.BytesType},
+    descriptor.FieldDescriptor.TYPE_STRING: {"name": "string", "ctor": celtypes.StringType},
+    descriptor.FieldDescriptor.TYPE_FLOAT: {"name": "float", "ctor": celtypes.DoubleType},
+    descriptor.FieldDescriptor.TYPE_DOUBLE: {"name": "double", "ctor": celtypes.DoubleType},
+    descriptor.FieldDescriptor.TYPE_INT32: {"name": "int32", "ctor": celtypes.IntType},
+    descriptor.FieldDescriptor.TYPE_INT64: {"name": "int64", "ctor": celtypes.IntType},
+    descriptor.FieldDescriptor.TYPE_SINT32: {"name": "sint32", "ctor": celtypes.IntType},
+    descriptor.FieldDescriptor.TYPE_SINT64: {"name": "sint64", "ctor": celtypes.IntType},
+    descriptor.FieldDescriptor.TYPE_SFIXED32: {"name": "sfixed32", "ctor": celtypes.IntType},
+    descriptor.FieldDescriptor.TYPE_SFIXED64: {"name": "sfixed64", "ctor": celtypes.IntType},
+    descriptor.FieldDescriptor.TYPE_UINT32: {"name": "uint32", "ctor": celtypes.UintType},
+    descriptor.FieldDescriptor.TYPE_UINT64: {"name": "uint64", "ctor": celtypes.UintType},
+    descriptor.FieldDescriptor.TYPE_FIXED32: {"name": "fixed32", "ctor": celtypes.UintType},
+    descriptor.FieldDescriptor.TYPE_FIXED64: {"name": "fixed64", "ctor": celtypes.UintType},
 }
+
+
+def _get_type_name(fd: typing.Any) -> str:
+    md = _FIELD_DESC_METADATA_MAP.get(fd)
+    if md is None:
+        return "unknown"
+    return md["name"]
+
+
+def _get_type_ctor(fd: typing.Any) -> typing.Optional[typing.Callable[..., celtypes.Value]]:
+    md = _FIELD_DESC_METADATA_MAP.get(fd)
+    if md is None:
+        return None
+    return md["ctor"]
 
 
 def _proto_message_has_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
@@ -126,7 +145,7 @@ def _proto_message_get_field(msg: message.Message, field: descriptor.FieldDescri
 
 
 def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    ctor = _TYPE_TO_CTOR.get(field.type)
+    ctor = _get_type_ctor(field.type)
     if ctor is None:
         msg = "unknown field type"
         raise CompilationError(msg)
@@ -397,7 +416,15 @@ def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_n
     if field.type != expected and (
         field.type != descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
     ):
-        msg = f"field {field.name} has type {field.type} but expected {expected}"
+        field_type_str = _get_type_name(field.type)
+        if expected == 0:
+            if wrapper_name is not None:
+                expected_type_str = wrapper_name
+            else:
+                expected_type_str = _get_type_name(descriptor.FieldDescriptor.TYPE_MESSAGE)
+        else:
+            expected_type_str = _get_type_name(expected)
+        msg = f"field {field.name} has type {field_type_str} but expected {expected_type_str}"
         raise CompilationError(msg)
 
 
@@ -929,7 +956,7 @@ class RuleFactory:
             result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "any":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_MESSAGE, "google.protobuf.Any")
+            check_field_type(field, 0, "google.protobuf.Any")
             result = AnyRules(self._env, self._funcs, field, field_level)
             return result
 

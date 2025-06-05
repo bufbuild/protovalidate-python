@@ -14,6 +14,8 @@
 
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import any_pb2 as _any_pb2
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from collections.abc import Mapping as _Mapping
@@ -44,3 +46,32 @@ class AnyNotIn(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _any_pb2.Any
     def __init__(self, val: _Optional[_Union[_any_pb2.Any, _Mapping]] = ...) -> None: ...
+
+class AnyWrongTypeScalar(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class AnyWrongTypeMessage(_message.Message):
+    __slots__ = ("val",)
+    class WrongType(_message.Message):
+        __slots__ = ("val",)
+        VAL_FIELD_NUMBER: _ClassVar[int]
+        val: int
+        def __init__(self, val: _Optional[int] = ...) -> None: ...
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: AnyWrongTypeMessage.WrongType
+    def __init__(self, val: _Optional[_Union[AnyWrongTypeMessage.WrongType, _Mapping]] = ...) -> None: ...
+
+class AnyWrongTypeWrapper(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _wrappers_pb2.Int32Value
+    def __init__(self, val: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+
+class AnyWrongTypeWKT(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: _timestamp_pb2.Timestamp
+    def __init__(self, val: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
