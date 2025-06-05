@@ -58,6 +58,30 @@ _MSG_TYPE_URL_TO_CTOR: dict[str, typing.Callable[..., celtypes.Value]] = {
 }
 
 
+class MessageType(celtypes.MapType):
+    msg: message.Message
+    desc: descriptor.Descriptor
+
+    def __init__(self, msg: message.Message):
+        super().__init__()
+        self.msg = msg
+        self.desc = msg.DESCRIPTOR
+        field: descriptor.FieldDescriptor
+        for field in self.desc.fields:
+            if field.containing_oneof is not None and not self.msg.HasField(field.name):
+                continue
+            self[field.name] = field_to_cel(self.msg, field)
+
+    def __getitem__(self, name):
+        field = self.desc.fields_by_name[name]
+        if field.has_presence and not self.msg.HasField(name):
+            if in_has():
+                raise KeyError()
+            else:
+                return _zero_value(field)
+        return super().__getitem__(name)
+
+
 def _msg_to_cel(msg: message.Message) -> celtypes.Value:
     ctor = _MSG_TYPE_URL_TO_CTOR.get(msg.DESCRIPTOR.full_name)
     if ctor is not None:
@@ -224,30 +248,6 @@ def _set_path_element_map_key(
     else:
         msg = "unexpected map type"
         raise CompilationError(msg)
-
-
-class MessageType(celtypes.MapType):
-    msg: message.Message
-    desc: descriptor.Descriptor
-
-    def __init__(self, msg: message.Message):
-        super().__init__()
-        self.msg = msg
-        self.desc = msg.DESCRIPTOR
-        field: descriptor.FieldDescriptor
-        for field in self.desc.fields:
-            if field.containing_oneof is not None and not self.msg.HasField(field.name):
-                continue
-            self[field.name] = field_to_cel(self.msg, field)
-
-    def __getitem__(self, name):
-        field = self.desc.fields_by_name[name]
-        if field.has_presence and not self.msg.HasField(name):
-            if in_has():
-                raise KeyError()
-            else:
-                return _zero_value(field)
-        return super().__getitem__(name)
 
 
 class Violation:
