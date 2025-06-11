@@ -13,11 +13,10 @@
 # limitations under the License.
 
 import math
-import re
-import sys
-from functools import reduce
 import operator
+import re
 import typing
+from functools import reduce
 from urllib import parse as urlparse
 
 import celpy
@@ -1571,17 +1570,14 @@ invalid_patterns = [
     r"\[\\b.*\]",  # Backspace eg: [\b]
 ]
 
-flag_pattern = re.compile(r"^\(\?(?P<flags>[ims\-]+)\)");
-
+flag_pattern = re.compile(r"^\(\?(?P<flags>[ims\-]+)\)")
 flag_mapping = {
-        "a": re.A,
-        "i": re.I,
-        "l": re.L,
-        "m": re.M,
+    "a": re.A,
+    "i": re.I,
+    "l": re.L,
+    "m": re.M,
 }
 
-def flags_from_letters(letters: str) -> int:
-        return reduce(operator.or_, (flag_mapping[c] for c in letters if c in flag_mapping), 0)
 
 def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
     if not isinstance(text, celtypes.StringType):
@@ -1591,41 +1587,42 @@ def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
         msg = "invalid argument for pattern, expected string"
         raise celpy.CELEvalError(msg)
 
+    # Simulate re2 by failing on any patterns not compatible with re2 syntax
     for invalid_pattern in invalid_patterns:
         r = re.search(invalid_pattern, pattern)
         if r is not None:
             msg = f"error evaluating pattern {pattern}, invalid RE2 syntax"
             raise celpy.CELEvalError(msg)
-        # CEL uses RE2 syntax which is a subset of Python re except for
-        # the flags and the ability to change the flags mid sequence.
-        #
-        # The conformance tests use flags at the very beginning of the sequence, which
-        # is likely the most common place where this rare feature will be used.
-        #
-        # Instead of importing an RE2 engine to be able to support this niche, we
-        # can instead just check for the flags at the very beginning and apply them.
-        #
-        # Unsupported flags and flags mid sequence will fail to compile the regex.
-        #
-        # Users can choose to override this function and provide an RE2 engine if they really need to.
+
+    # CEL uses RE2 syntax which is a subset of Python re except for
+    # the flags and the ability to change the flags mid sequence.
+    #
+    # The conformance tests use flags at the very beginning of the sequence, which
+    # is likely the most common place where this rare feature will be used.
+    #
+    # Instead of importing an RE2 engine to be able to support this niche, we
+    # can instead just check for the flags at the very beginning and apply them.
+    #
+    # Unsupported flags and flags mid sequence will fail to compile the regex.
+    #
+    # Users can choose to override this function and provide an RE2 engine if they really need to.
     flags = ""
     flag_matches = re.match(flag_pattern, pattern)
-    pattern_str = pattern
     if flag_matches is not None:
-        ms = flag_matches.groupdict()
-        flagsies = ms["flags"]
-        for fl in flagsies:
+        flag_group = flag_matches.groupdict()["flags"]
+        for fl in flag_group:
+            # Flag removal, don't include it in the output
             if fl == "-":
                 continue
             flags += fl
-
-        pattern_str = pattern[len(flag_matches[0]):]
-    flags_enums = flags_from_letters(flags)
-
-    expresh = re.compile(pattern_str, flags=flags_enums)
+        pattern_str = pattern[len(flag_matches[0]) :]
+        flags_enums = reduce(operator.or_, (flag_mapping[c] for c in flags if c in flag_mapping), 0)
+        exp = re.compile(pattern_str, flags=flags_enums)
+    else:
+        exp = re.compile(pattern)
 
     try:
-        m = re.search(expresh, text)
+        m = re.search(exp, text)
     except re.error as ex:
         return celpy.CELEvalError("match error", ex.__class__, ex.args)
 

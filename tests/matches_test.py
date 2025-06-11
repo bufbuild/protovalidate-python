@@ -46,5 +46,3 @@ class TestMatches(unittest.TestCase):
     def test_flags(self) -> None:
         result = extra_func.cel_matches(celtypes.StringType("!@#$%^&*()"), celtypes.StringType("(?i)^[a-z0-9]+$"))
         self.assertFalse(result)
-
-
