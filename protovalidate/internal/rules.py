@@ -408,7 +408,7 @@ class CelRules(Rules):
 class MessageOneofRule(Rules):
     """Validates a single buf.validate.MessageOneofRule given via the message option (buf.validate.message).oneof"""
 
-    def __init__(self, fields: typing.List[descriptor.FieldDescriptor], required: bool):
+    def __init__(self, fields: list[descriptor.FieldDescriptor], required: bool):
         self._fields = fields
         self._required = required
 
@@ -460,7 +460,7 @@ class MessageRules(CelRules):
             else:
                 msg = f'field "{name}" not found in message {self._desc.full_name}'
                 raise CompilationError(msg)
-        self._oneofs.append(MessageOneofRule(fields, rule.required))
+        self._oneofs.append(MessageOneofRule(fields, required=rule.required))
 
 
 def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: typing.Optional[str] = None):
