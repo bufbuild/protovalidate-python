@@ -408,7 +408,7 @@ class CelRules(Rules):
 class MessageOneofRule(Rules):
     """Validates a single buf.validate.MessageOneofRule given via the message option (buf.validate.message).oneof"""
 
-    def __init__(self, fields: list[descriptor.FieldDescriptor], required: bool):
+    def __init__(self, fields: list[descriptor.FieldDescriptor], *, required: bool):
         self._fields = fields
         self._required = required
 
