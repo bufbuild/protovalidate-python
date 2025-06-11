@@ -83,3 +83,33 @@ class MessageRequiredOneof(_message.Message):
 class MessageWith3dInside(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
+
+class MessageOneofSingleField(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
+class MessageOneofMultipleFields(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
+class MessageOneofMultipleFieldsRequired(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
+class MessageOneofUnknownFieldName(_message.Message):
+    __slots__ = ("str_field",)
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    def __init__(self, str_field: _Optional[str] = ...) -> None: ...
