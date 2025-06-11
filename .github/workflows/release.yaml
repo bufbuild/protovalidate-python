@@ -20,8 +20,6 @@ jobs:
           VERSION=${{github.head_ref}}
           echo "VERSION=${VERSION##*/}" >> $GITHUB_ENV
       - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
       - name: Build release
         run: |
           uv build
