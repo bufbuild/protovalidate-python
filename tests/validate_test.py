@@ -57,6 +57,39 @@ class TestValidate(unittest.TestCase):
         protovalidate.collect_violations(msg2, into=violations)
         assert len(violations) == 0
 
+    def test_protovalidate_oneof_valid(self):
+        msg = validations_pb2.ProtovalidateOneof()
+        msg.a = "A"
+        protovalidate.validate(msg)
+        violations = protovalidate.collect_violations(msg)
+        assert len(violations) == 0
+
+    def test_protovalidate_oneof_violation(self):
+        msg = validations_pb2.ProtovalidateOneof()
+        msg.a = "A"
+        msg.b = "B"
+        with self.assertRaises(protovalidate.ValidationError) as cm:
+            protovalidate.validate(msg)
+        e = cm.exception
+        assert str(e) == "invalid ProtovalidateOneof"
+        assert len(e.violations) == 1
+        assert e.to_proto().violations[0].message == "only one of a, b can be set"
+
+    def test_protovalidate_oneof_required_violation(self):
+        msg = validations_pb2.ProtovalidateOneofRequired()
+        with self.assertRaises(protovalidate.ValidationError) as cm:
+            protovalidate.validate(msg)
+        e = cm.exception
+        assert str(e) == "invalid ProtovalidateOneofRequired"
+        assert len(e.violations) == 1
+        assert e.to_proto().violations[0].message == "one of a, b must be set"
+
+    def test_protovalidate_oneof_unknown_field_name(self):
+        msg = validations_pb2.ProtovalidateOneofUnknownFieldName()
+        with self.assertRaises(protovalidate.CompilationError) as cm:
+            protovalidate.validate(msg)
+        assert str(cm.exception) == "field \"xxx\" not found in message tests.example.v1.ProtovalidateOneofUnknownFieldName"
+
     def test_repeated(self):
         msg = validations_pb2.RepeatedEmbedSkip()
         msg.val.add(val=-1)
@@ -67,12 +100,12 @@ class TestValidate(unittest.TestCase):
 
     def test_maps(self):
         msg = validations_pb2.MapMinMax()
-        try:
+        with self.assertRaises(protovalidate.ValidationError) as cm:
             protovalidate.validate(msg)
-        except protovalidate.ValidationError as e:
-            assert len(e.violations) == 1
-            assert len(e.to_proto().violations) == 1
-            assert str(e) == "invalid MapMinMax"
+        e = cm.exception
+        assert len(e.violations) == 1
+        assert len(e.to_proto().violations) == 1
+        assert str(e) == "invalid MapMinMax"
 
         violations = protovalidate.collect_violations(msg)
         assert len(violations) == 1
