@@ -407,6 +407,7 @@ class CelRules(Rules):
 
 class MessageOneofRule(Rules):
     """Validates a single buf.validate.MessageOneofRule given via the message option (buf.validate.message).oneof"""
+
     def __init__(self, fields: typing.List[descriptor.FieldDescriptor], required: bool):
         self._fields = fields
         self._required = required
@@ -417,14 +418,14 @@ class MessageOneofRule(Rules):
             ctx.add(
                 Violation(
                     rule_id="message.oneof",
-                    message=f"only one of {", ".join([field.name for field in self._fields])} can be set",
+                    message=f"only one of {', '.join([field.name for field in self._fields])} can be set",
                 )
             )
         if self._required and num_set_fields == 0:
             ctx.add(
                 Violation(
                     rule_id="message.oneof",
-                    message=f"one of {", ".join([field.name for field in self._fields])} must be set",
+                    message=f"one of {', '.join([field.name for field in self._fields])} must be set",
                 )
             )
 
@@ -457,7 +458,7 @@ class MessageRules(CelRules):
             if name in self._desc.fields_by_name:
                 fields.append(self._desc.fields_by_name[name])
             else:
-                msg = f"field \"{name}\" not found in message {self._desc.full_name}"
+                msg = f'field "{name}" not found in message {self._desc.full_name}'
                 raise CompilationError(msg)
         self._oneofs.append(MessageOneofRule(fields, rule.required))
 

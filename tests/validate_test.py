@@ -88,7 +88,9 @@ class TestValidate(unittest.TestCase):
         msg = validations_pb2.ProtovalidateOneofUnknownFieldName()
         with self.assertRaises(protovalidate.CompilationError) as cm:
             protovalidate.validate(msg)
-        assert str(cm.exception) == "field \"xxx\" not found in message tests.example.v1.ProtovalidateOneofUnknownFieldName"
+        assert (
+            str(cm.exception) == 'field "xxx" not found in message tests.example.v1.ProtovalidateOneofUnknownFieldName'
+        )
 
     def test_repeated(self):
         msg = validations_pb2.RepeatedEmbedSkip()
