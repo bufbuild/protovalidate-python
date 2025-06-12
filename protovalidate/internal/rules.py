@@ -454,9 +454,18 @@ class MessageRules(CelRules):
         rule: validate_pb2.MessageOneofRule,
     ):
         fields = []
+        seen = set()
+        if len(rule.fields) == 0:
+            msg = f"at least one field must be specified in oneof rule for the message {self._desc.full_name}"
+            raise CompilationError(msg)
+
         for name in rule.fields:
             if name in self._desc.fields_by_name:
+                if name in seen:
+                    msg = f"duplicate {name} in oneof rule for the message {self._desc.full_name}"
+                    raise CompilationError(msg)
                 fields.append(self._desc.fields_by_name[name])
+                seen.add(name)
             else:
                 msg = f'field "{name}" not found in message {self._desc.full_name}'
                 raise CompilationError(msg)
