@@ -44,5 +44,11 @@ class TestMatches(unittest.TestCase):
                 self.assertEqual(str(e), f"error evaluating pattern {cel_pattern}, invalid RE2 syntax")
 
     def test_flags(self) -> None:
-        result = extra_func.cel_matches(celtypes.StringType("!@#$%^&*()"), celtypes.StringType("(?i)^[a-z0-9]+$"))
-        self.assertFalse(result)
+        self.assertTrue(extra_func.cel_matches(celtypes.StringType("foobar"), celtypes.StringType("(?i:foo)(?-i:bar)")))
+        self.assertTrue(extra_func.cel_matches(celtypes.StringType("FOObar"), celtypes.StringType("(?i:foo)(?-i:bar)")))
+        self.assertFalse(
+            extra_func.cel_matches(celtypes.StringType("fooBAR"), celtypes.StringType("(?i:foo)(?-i:bar)"))
+        )
+        self.assertFalse(
+            extra_func.cel_matches(celtypes.StringType("FOOBAR"), celtypes.StringType("(?i:foo)(?-i:bar)"))
+        )
