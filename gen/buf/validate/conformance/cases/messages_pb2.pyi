@@ -92,6 +92,14 @@ class MessageOneofSingleField(_message.Message):
     bool_field: bool
     def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
 
+class MessageOneofSingleFieldRequired(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
 class MessageOneofMultipleFields(_message.Message):
     __slots__ = ("str_field", "bool_field")
     STR_FIELD_FIELD_NUMBER: _ClassVar[int]
@@ -108,8 +116,44 @@ class MessageOneofMultipleFieldsRequired(_message.Message):
     bool_field: bool
     def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
 
+class MessageOneofMultipleSharedFields(_message.Message):
+    __slots__ = ("str_field", "bool_field", "int_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    INT_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    int_field: int
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ..., int_field: _Optional[int] = ...) -> None: ...
+
 class MessageOneofUnknownFieldName(_message.Message):
     __slots__ = ("str_field",)
     STR_FIELD_FIELD_NUMBER: _ClassVar[int]
     str_field: str
     def __init__(self, str_field: _Optional[str] = ...) -> None: ...
+
+class MessageOneofDuplicateField(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
+class MessageOneofZeroFields(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
+class MessageOneofUnsatisfiable(_message.Message):
+    __slots__ = ("a", "b", "c")
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    C_FIELD_NUMBER: _ClassVar[int]
+    a: bool
+    b: bool
+    c: bool
+    def __init__(self, a: bool = ..., b: bool = ..., c: bool = ...) -> None: ...
