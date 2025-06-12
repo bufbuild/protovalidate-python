@@ -59,9 +59,6 @@ def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
 
     Instead of foisting this issue on users, we instead mimic re2 syntax by failing
     to compile the regex for patterns not compatible with re2.
-
-    If users really want a pure re2 engine, they can provide their own via a config
-    parameter when creating a validator.
     """
     if not isinstance(text, celtypes.StringType):
         msg = "invalid argument for text, expected string"
