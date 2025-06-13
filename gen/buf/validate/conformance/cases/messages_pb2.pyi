@@ -157,3 +157,27 @@ class MessageOneofUnsatisfiable(_message.Message):
     b: bool
     c: bool
     def __init__(self, a: bool = ..., b: bool = ..., c: bool = ...) -> None: ...
+
+class MessageOneofIgnoreUnpopulated(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
+class MessageOneofIgnoreUnpopulatedRequired(_message.Message):
+    __slots__ = ("str_field", "bool_field")
+    STR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    str_field: str
+    bool_field: bool
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ...) -> None: ...
+
+class MessageOneofIgnoreOverride(_message.Message):
+    __slots__ = ("msg_field", "bool_field")
+    MSG_FIELD_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_FIELD_NUMBER: _ClassVar[int]
+    msg_field: TestMsg
+    bool_field: bool
+    def __init__(self, msg_field: _Optional[_Union[TestMsg, _Mapping]] = ..., bool_field: bool = ...) -> None: ...
