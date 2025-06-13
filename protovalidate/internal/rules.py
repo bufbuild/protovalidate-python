@@ -1062,13 +1062,13 @@ class RuleFactory:
                 if rule := OneofRules(oneof, oneof.GetOptions().Extensions[validate_pb2.oneof]):
                     result.append(rule)
 
-        for field in desc.fields:        
+        for field in desc.fields:
             if validate_pb2.field in field.GetOptions().Extensions:
                 field_level = field.GetOptions().Extensions[validate_pb2.field]
-                if not field_level.HasField("ignore") and field.name in all_msg_oneof_fields :
-                    field_level_override = validate_pb2.FieldRules()   
+                if not field_level.HasField("ignore") and field.name in all_msg_oneof_fields:
+                    field_level_override = validate_pb2.FieldRules()
                     field_level_override.CopyFrom(field_level)
-                    field_level_override.ignore = validate_pb2.IGNORE_IF_UNPOPULATED                 
+                    field_level_override.ignore = validate_pb2.IGNORE_IF_UNPOPULATED
                     field_level = field_level_override
                 if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
                     continue
