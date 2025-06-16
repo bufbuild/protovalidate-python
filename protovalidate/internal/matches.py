@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import operator
 import re
-from functools import reduce
 
 import celpy
 from celpy import celtypes
@@ -33,20 +31,6 @@ invalid_patterns = [
     r"\\0(?!\d)",  # NUL
     r"\[\\b.*\]",  # Backspace eg: [\b]
 ]
-
-# Regex for searching a regex pattern for flags.
-flag_pattern = re.compile(r"^\(\?(?P<flags>[ims\-]+)\)")
-
-# See https://docs.python.org/3/library/re.html#flags
-flag_mapping = {
-    "a": re.A,
-    "i": re.I,
-    "L": re.L,
-    "m": re.M,
-    "s": re.S,
-    "u": re.U,
-    "x": re.X,
-}
 
 
 def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
@@ -73,30 +57,9 @@ def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
         if r is not None:
             msg = f"error evaluating pattern {pattern}, invalid RE2 syntax"
             raise celpy.CELEvalError(msg)
-    # The conformance tests use flags at the very beginning of the sequence, which
-    # is likely the most common place where this rare feature will be used.
-    #
-    # So we check for the flags at the very beginning and if present, apply them
-    # using Python re enums.
-    flags = ""
-    flag_matches = re.match(flag_pattern, pattern)
-    if flag_matches is not None:
-        flag_group = flag_matches.groupdict()["flags"]
-        for fl in flag_group:
-            # Flag removal, don't include it in the output
-            if fl == "-":
-                continue
-            flags += fl
-        # Grab the rest of the expression minus the flags
-        pattern_str = pattern[len(flag_matches[0]) :]
-        # Convert a string of flags (i.e. aiLm) into the actual re.A, re.I enums
-        flags_enums = reduce(operator.or_, (flag_mapping[c] for c in flags if c in flag_mapping), 0)
-        exp = re.compile(pattern_str, flags=flags_enums)
-    else:
-        exp = re.compile(pattern)
 
     try:
-        m = re.search(exp, text)
+        m = re.search(pattern, text)
     except re.error as ex:
         return celpy.CELEvalError("match error", ex.__class__, ex.args)
 

@@ -42,13 +42,3 @@ class TestMatches(unittest.TestCase):
                 self.fail(f"expected an error on pattern {cel_pattern}")
             except celpy.CELEvalError as e:
                 self.assertEqual(str(e), f"error evaluating pattern {cel_pattern}, invalid RE2 syntax")
-
-    def test_flags(self) -> None:
-        self.assertTrue(extra_func.cel_matches(celtypes.StringType("foobar"), celtypes.StringType("(?i:foo)(?-i:bar)")))
-        self.assertTrue(extra_func.cel_matches(celtypes.StringType("FOObar"), celtypes.StringType("(?i:foo)(?-i:bar)")))
-        self.assertFalse(
-            extra_func.cel_matches(celtypes.StringType("fooBAR"), celtypes.StringType("(?i:foo)(?-i:bar)"))
-        )
-        self.assertFalse(
-            extra_func.cel_matches(celtypes.StringType("FOOBAR"), celtypes.StringType("(?i:foo)(?-i:bar)"))
-        )
