@@ -21,6 +21,7 @@ from celpy import celtypes
 from google.protobuf import any_pb2, descriptor, message, message_factory
 
 from buf.validate import validate_pb2  # type: ignore
+from protovalidate.internal import config as _config
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
 
@@ -266,15 +267,17 @@ class Violation:
 class RuleContext:
     """The state associated with a single rule evaluation."""
 
-    def __init__(self, *, fail_fast: bool = False, violations: typing.Optional[list[Violation]] = None):
-        self._fail_fast = fail_fast
+    _cfg: _config.Config
+
+    def __init__(self, *, config: _config.Config, violations: typing.Optional[list[Violation]] = None):
+        self._cfg = config
         if violations is None:
             violations = []
         self._violations = violations
 
     @property
     def fail_fast(self) -> bool:
-        return self._fail_fast
+        return self._cfg.fail_fast
 
     @property
     def violations(self) -> list[Violation]:
@@ -296,13 +299,13 @@ class RuleContext:
 
     @property
     def done(self) -> bool:
-        return self._fail_fast and self.has_errors()
+        return self.fail_fast and self.has_errors()
 
     def has_errors(self) -> bool:
         return len(self._violations) > 0
 
     def sub_context(self):
-        return RuleContext(fail_fast=self._fail_fast)
+        return RuleContext(config=self._cfg)
 
 
 class Rules:

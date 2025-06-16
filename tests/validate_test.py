@@ -16,6 +16,7 @@ import unittest
 
 import protovalidate
 from gen.tests.example.v1 import validations_pb2
+from protovalidate.internal import config
 
 
 class TestValidate(unittest.TestCase):
@@ -114,7 +115,21 @@ class TestValidate(unittest.TestCase):
 
     def test_timestamp(self):
         msg = validations_pb2.TimestampGTNow()
-        protovalidate.validate(msg)
-
         violations = protovalidate.collect_violations(msg)
         assert len(violations) == 0
+
+    def test_multiple_validations(self):
+        msg = validations_pb2.MultipleValidations()
+        msg.title = "bar"
+        msg.name = "blah"
+        violations = protovalidate.collect_violations(msg)
+        assert len(violations) == 2
+
+    def test_fail_fast(self):
+        msg = validations_pb2.MultipleValidations()
+        msg.title = "bar"
+        msg.name = "blah"
+        cfg = config.Config(fail_fast=True)
+        validator = protovalidate.Validator(config=cfg)
+        violations = validator.collect_violations(msg)
+        assert len(violations) == 1
