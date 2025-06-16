@@ -40,7 +40,7 @@ from buf.validate.conformance.cases.other_package import embed_pb2 as buf_dot_va
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-buf/validate/conformance/cases/messages.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x38\x62uf/validate/conformance/cases/other_package/embed.proto\x1a\x1b\x62uf/validate/validate.proto\"l\n\x07TestMsg\x12 \n\x05\x63onst\x18\x01 \x01(\tB\n\xbaH\x07r\x05\n\x03\x66ooR\x05\x63onst\x12?\n\x06nested\x18\x02 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgR\x06nested\"_\n\x0bMessageNone\x12\x45\n\x03val\x18\x01 \x01(\x0b\x32\x33.buf.validate.conformance.cases.MessageNone.NoneMsgR\x03val\x1a\t\n\x07NoneMsg\"3\n\x0fMessageDisabled\x12\x19\n\x03val\x18\x01 \x01(\x04\x42\x07\xbaH\x04\x32\x02 {R\x03val:\x05\xbaH\x02\x08\x01\"D\n\x07Message\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgR\x03val\"\\\n\x13MessageCrossPackage\x12\x45\n\x03val\x18\x01 \x01(\x0b\x32\x33.buf.validate.conformance.cases.other_package.EmbedR\x03val\"P\n\x0bMessageSkip\x12\x41\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xd8\x01\x03R\x03val\"T\n\x0fMessageRequired\x12\x41\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xc8\x01\x01R\x03val\"l\n\x1aMessageRequiredButOptional\x12\x46\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xc8\x01\x01H\x00R\x03val\x88\x01\x01\x42\x06\n\x04_val\"i\n\x14MessageRequiredOneof\x12\x43\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xc8\x01\x01H\x00R\x03valB\x0c\n\x03one\x12\x05\xbaH\x02\x08\x01\"\x15\n\x13MessageWith3dInsideB\xcf\x01\n\"com.buf.validate.conformance.casesB\rMessagesProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n-buf/validate/conformance/cases/messages.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x38\x62uf/validate/conformance/cases/other_package/embed.proto\x1a\x1b\x62uf/validate/validate.proto\"l\n\x07TestMsg\x12 \n\x05\x63onst\x18\x01 \x01(\tB\n\xbaH\x07r\x05\n\x03\x66ooR\x05\x63onst\x12?\n\x06nested\x18\x02 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgR\x06nested\"_\n\x0bMessageNone\x12\x45\n\x03val\x18\x01 \x01(\x0b\x32\x33.buf.validate.conformance.cases.MessageNone.NoneMsgR\x03val\x1a\t\n\x07NoneMsg\"3\n\x0fMessageDisabled\x12\x19\n\x03val\x18\x01 \x01(\x04\x42\x07\xbaH\x04\x32\x02 {R\x03val:\x05\xbaH\x02\x08\x01\"D\n\x07Message\x12\x39\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgR\x03val\"\\\n\x13MessageCrossPackage\x12\x45\n\x03val\x18\x01 \x01(\x0b\x32\x33.buf.validate.conformance.cases.other_package.EmbedR\x03val\"P\n\x0bMessageSkip\x12\x41\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xd8\x01\x03R\x03val\"T\n\x0fMessageRequired\x12\x41\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xc8\x01\x01R\x03val\"l\n\x1aMessageRequiredButOptional\x12\x46\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xc8\x01\x01H\x00R\x03val\x88\x01\x01\x42\x06\n\x04_val\"i\n\x14MessageRequiredOneof\x12\x43\n\x03val\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xc8\x01\x01H\x00R\x03valB\x0c\n\x03one\x12\x05\xbaH\x02\x08\x01\"\x15\n\x13MessageWith3dInside\"g\n\x17MessageOneofSingleField\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField:\x10\xbaH\r\"\x0b\n\tstr_field\"q\n\x1fMessageOneofSingleFieldRequired\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField:\x12\xbaH\x0f\"\r\n\tstr_field\x10\x01\"v\n\x1aMessageOneofMultipleFields\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField:\x1c\xbaH\x19\"\x17\n\tstr_field\n\nbool_field\"\x80\x01\n\"MessageOneofMultipleFieldsRequired\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField:\x1e\xbaH\x1b\"\x19\n\tstr_field\n\nbool_field\x10\x01\"\xb5\x01\n MessageOneofMultipleSharedFields\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField\x12\x1b\n\tint_field\x18\x03 \x01(\x05R\x08intField:8\xbaH5\"\x19\n\tstr_field\n\nbool_field\x10\x01\"\x18\n\tstr_field\n\tint_field\x10\x01\"G\n\x1cMessageOneofUnknownFieldName\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField:\n\xbaH\x07\"\x05\n\x03xxx\"\x81\x01\n\x1aMessageOneofDuplicateField\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField:\'\xbaH$\"\"\n\tstr_field\n\nbool_field\n\tstr_field\"[\n\x16MessageOneofZeroFields\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField:\x05\xbaH\x02\"\x00\"h\n\x19MessageOneofUnsatisfiable\x12\x0c\n\x01\x61\x18\x01 \x01(\x08R\x01\x61\x12\x0c\n\x01\x62\x18\x02 \x01(\x08R\x01\x62\x12\x0c\n\x01\x63\x18\x03 \x01(\x08R\x01\x63:!\xbaH\x1e\"\x08\n\x01\x61\n\x01\x62\x10\x01\"\x08\n\x01\x62\n\x01\x63\x10\x01\"\x08\n\x01\x61\n\x01\x63\x10\x01\"\x82\x01\n\x1dMessageOneofIgnoreUnpopulated\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12&\n\nbool_field\x18\x02 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\tboolField:\x1c\xbaH\x19\"\x17\n\tstr_field\n\nbool_field\"\x8c\x01\n%MessageOneofIgnoreUnpopulatedRequired\x12\x1b\n\tstr_field\x18\x01 \x01(\tR\x08strField\x12&\n\nbool_field\x18\x02 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\tboolField:\x1e\xbaH\x1b\"\x19\n\tstr_field\n\nbool_field\x10\x01\"\xa7\x01\n\x1aMessageOneofIgnoreOverride\x12L\n\tmsg_field\x18\x01 \x01(\x0b\x32\'.buf.validate.conformance.cases.TestMsgB\x06\xbaH\x03\xd8\x01\x03R\x08msgField\x12\x1d\n\nbool_field\x18\x02 \x01(\x08R\tboolField:\x1c\xbaH\x19\"\x17\n\tmsg_field\n\nbool_fieldB\xcf\x01\n\"com.buf.validate.conformance.casesB\rMessagesProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -64,6 +64,36 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MESSAGEREQUIREDONEOF'].oneofs_by_name['one']._serialized_options = b'\272H\002\010\001'
   _globals['_MESSAGEREQUIREDONEOF'].fields_by_name['val']._loaded_options = None
   _globals['_MESSAGEREQUIREDONEOF'].fields_by_name['val']._serialized_options = b'\272H\003\310\001\001'
+  _globals['_MESSAGEONEOFSINGLEFIELD']._loaded_options = None
+  _globals['_MESSAGEONEOFSINGLEFIELD']._serialized_options = b'\272H\r\"\013\n\tstr_field'
+  _globals['_MESSAGEONEOFSINGLEFIELDREQUIRED']._loaded_options = None
+  _globals['_MESSAGEONEOFSINGLEFIELDREQUIRED']._serialized_options = b'\272H\017\"\r\n\tstr_field\020\001'
+  _globals['_MESSAGEONEOFMULTIPLEFIELDS']._loaded_options = None
+  _globals['_MESSAGEONEOFMULTIPLEFIELDS']._serialized_options = b'\272H\031\"\027\n\tstr_field\n\nbool_field'
+  _globals['_MESSAGEONEOFMULTIPLEFIELDSREQUIRED']._loaded_options = None
+  _globals['_MESSAGEONEOFMULTIPLEFIELDSREQUIRED']._serialized_options = b'\272H\033\"\031\n\tstr_field\n\nbool_field\020\001'
+  _globals['_MESSAGEONEOFMULTIPLESHAREDFIELDS']._loaded_options = None
+  _globals['_MESSAGEONEOFMULTIPLESHAREDFIELDS']._serialized_options = b'\272H5\"\031\n\tstr_field\n\nbool_field\020\001\"\030\n\tstr_field\n\tint_field\020\001'
+  _globals['_MESSAGEONEOFUNKNOWNFIELDNAME']._loaded_options = None
+  _globals['_MESSAGEONEOFUNKNOWNFIELDNAME']._serialized_options = b'\272H\007\"\005\n\003xxx'
+  _globals['_MESSAGEONEOFDUPLICATEFIELD']._loaded_options = None
+  _globals['_MESSAGEONEOFDUPLICATEFIELD']._serialized_options = b'\272H$\"\"\n\tstr_field\n\nbool_field\n\tstr_field'
+  _globals['_MESSAGEONEOFZEROFIELDS']._loaded_options = None
+  _globals['_MESSAGEONEOFZEROFIELDS']._serialized_options = b'\272H\002\"\000'
+  _globals['_MESSAGEONEOFUNSATISFIABLE']._loaded_options = None
+  _globals['_MESSAGEONEOFUNSATISFIABLE']._serialized_options = b'\272H\036\"\010\n\001a\n\001b\020\001\"\010\n\001b\n\001c\020\001\"\010\n\001a\n\001c\020\001'
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATED'].fields_by_name['bool_field']._loaded_options = None
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATED'].fields_by_name['bool_field']._serialized_options = b'\272H\004j\002\010\001'
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATED']._loaded_options = None
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATED']._serialized_options = b'\272H\031\"\027\n\tstr_field\n\nbool_field'
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATEDREQUIRED'].fields_by_name['bool_field']._loaded_options = None
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATEDREQUIRED'].fields_by_name['bool_field']._serialized_options = b'\272H\004j\002\010\001'
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATEDREQUIRED']._loaded_options = None
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATEDREQUIRED']._serialized_options = b'\272H\033\"\031\n\tstr_field\n\nbool_field\020\001'
+  _globals['_MESSAGEONEOFIGNOREOVERRIDE'].fields_by_name['msg_field']._loaded_options = None
+  _globals['_MESSAGEONEOFIGNOREOVERRIDE'].fields_by_name['msg_field']._serialized_options = b'\272H\003\330\001\003'
+  _globals['_MESSAGEONEOFIGNOREOVERRIDE']._loaded_options = None
+  _globals['_MESSAGEONEOFIGNOREOVERRIDE']._serialized_options = b'\272H\031\"\027\n\tmsg_field\n\nbool_field'
   _globals['_TESTMSG']._serialized_start=168
   _globals['_TESTMSG']._serialized_end=276
   _globals['_MESSAGENONE']._serialized_start=278
@@ -86,4 +116,28 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MESSAGEREQUIREDONEOF']._serialized_end=975
   _globals['_MESSAGEWITH3DINSIDE']._serialized_start=977
   _globals['_MESSAGEWITH3DINSIDE']._serialized_end=998
+  _globals['_MESSAGEONEOFSINGLEFIELD']._serialized_start=1000
+  _globals['_MESSAGEONEOFSINGLEFIELD']._serialized_end=1103
+  _globals['_MESSAGEONEOFSINGLEFIELDREQUIRED']._serialized_start=1105
+  _globals['_MESSAGEONEOFSINGLEFIELDREQUIRED']._serialized_end=1218
+  _globals['_MESSAGEONEOFMULTIPLEFIELDS']._serialized_start=1220
+  _globals['_MESSAGEONEOFMULTIPLEFIELDS']._serialized_end=1338
+  _globals['_MESSAGEONEOFMULTIPLEFIELDSREQUIRED']._serialized_start=1341
+  _globals['_MESSAGEONEOFMULTIPLEFIELDSREQUIRED']._serialized_end=1469
+  _globals['_MESSAGEONEOFMULTIPLESHAREDFIELDS']._serialized_start=1472
+  _globals['_MESSAGEONEOFMULTIPLESHAREDFIELDS']._serialized_end=1653
+  _globals['_MESSAGEONEOFUNKNOWNFIELDNAME']._serialized_start=1655
+  _globals['_MESSAGEONEOFUNKNOWNFIELDNAME']._serialized_end=1726
+  _globals['_MESSAGEONEOFDUPLICATEFIELD']._serialized_start=1729
+  _globals['_MESSAGEONEOFDUPLICATEFIELD']._serialized_end=1858
+  _globals['_MESSAGEONEOFZEROFIELDS']._serialized_start=1860
+  _globals['_MESSAGEONEOFZEROFIELDS']._serialized_end=1951
+  _globals['_MESSAGEONEOFUNSATISFIABLE']._serialized_start=1953
+  _globals['_MESSAGEONEOFUNSATISFIABLE']._serialized_end=2057
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATED']._serialized_start=2060
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATED']._serialized_end=2190
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATEDREQUIRED']._serialized_start=2193
+  _globals['_MESSAGEONEOFIGNOREUNPOPULATEDREQUIRED']._serialized_end=2333
+  _globals['_MESSAGEONEOFIGNOREOVERRIDE']._serialized_start=2336
+  _globals['_MESSAGEONEOFIGNOREOVERRIDE']._serialized_end=2503
 # @@protoc_insertion_point(module_scope)

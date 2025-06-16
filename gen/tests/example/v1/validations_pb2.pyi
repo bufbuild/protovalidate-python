@@ -50,6 +50,36 @@ class Oneof(_message.Message):
     z: TestOneofMsg
     def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...) -> None: ...
 
+class ProtovalidateOneof(_message.Message):
+    __slots__ = ("a", "b", "unrelated")
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    UNRELATED_FIELD_NUMBER: _ClassVar[int]
+    a: str
+    b: str
+    unrelated: bool
+    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ..., unrelated: bool = ...) -> None: ...
+
+class ProtovalidateOneofRequired(_message.Message):
+    __slots__ = ("a", "b", "unrelated")
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    UNRELATED_FIELD_NUMBER: _ClassVar[int]
+    a: str
+    b: str
+    unrelated: bool
+    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ..., unrelated: bool = ...) -> None: ...
+
+class ProtovalidateOneofUnknownFieldName(_message.Message):
+    __slots__ = ("a", "b", "unrelated")
+    A_FIELD_NUMBER: _ClassVar[int]
+    B_FIELD_NUMBER: _ClassVar[int]
+    UNRELATED_FIELD_NUMBER: _ClassVar[int]
+    a: str
+    b: str
+    unrelated: bool
+    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ..., unrelated: bool = ...) -> None: ...
+
 class TimestampGTNow(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]

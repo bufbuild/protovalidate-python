@@ -405,11 +405,71 @@ class CelRules(Rules):
         )
 
 
+class MessageOneofRule(Rules):
+    """Validates a single buf.validate.MessageOneofRule given via the message option (buf.validate.message).oneof"""
+
+    def __init__(self, fields: list[descriptor.FieldDescriptor], *, required: bool):
+        self._fields = fields
+        self._required = required
+
+    def validate(self, ctx: RuleContext, msg: message.Message):
+        num_set_fields = sum(1 for field in self._fields if not _is_empty_field(msg, field))
+        if num_set_fields > 1:
+            ctx.add(
+                Violation(
+                    rule_id="message.oneof",
+                    message=f"only one of {', '.join([field.name for field in self._fields])} can be set",
+                )
+            )
+        if self._required and num_set_fields == 0:
+            ctx.add(
+                Violation(
+                    rule_id="message.oneof",
+                    message=f"one of {', '.join([field.name for field in self._fields])} must be set",
+                )
+            )
+
+
 class MessageRules(CelRules):
     """Message-level rules."""
 
+    _oneofs: list[MessageOneofRule]
+
+    def __init__(self, rules: typing.Optional[message.Message], desc: descriptor.Descriptor):
+        super().__init__(rules)
+        self._oneofs = []
+        self._desc = desc
+
     def validate(self, ctx: RuleContext, message: message.Message):
         self._validate_cel(ctx, this_cel=_msg_to_cel(message))
+        if ctx.done:
+            return
+        for oneof in self._oneofs:
+            oneof.validate(ctx, message)
+            if ctx.done:
+                return
+
+    def add_oneof(
+        self,
+        rule: validate_pb2.MessageOneofRule,
+    ):
+        fields = []
+        seen = set()
+        if len(rule.fields) == 0:
+            msg = f"at least one field must be specified in oneof rule for the message {self._desc.full_name}"
+            raise CompilationError(msg)
+
+        for name in rule.fields:
+            if name in self._desc.fields_by_name:
+                if name in seen:
+                    msg = f"duplicate {name} in oneof rule for the message {self._desc.full_name}"
+                    raise CompilationError(msg)
+                fields.append(self._desc.fields_by_name[name])
+                seen.add(name)
+            else:
+                msg = f'field "{name}" not found in message {self._desc.full_name}'
+                raise CompilationError(msg)
+        self._oneofs.append(MessageOneofRule(fields, required=rule.required))
 
 
 def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: typing.Optional[str] = None):
@@ -832,8 +892,10 @@ class RuleFactory:
             raise result
         return result
 
-    def _new_message_rule(self, rules: validate_pb2.MessageRules) -> MessageRules:
-        result = MessageRules(rules)
+    def _new_message_rule(self, rules: validate_pb2.MessageRules, desc: descriptor.Descriptor) -> MessageRules:
+        result = MessageRules(rules, desc)
+        for oneof in rules.oneof:
+            result.add_oneof(oneof)
         for cel in rules.cel:
             result.add_rule(self._env, self._funcs, cel)
         return result
@@ -985,11 +1047,14 @@ class RuleFactory:
     def _new_rules(self, desc: descriptor.Descriptor) -> list[Rules]:
         result: list[Rules] = []
         rule: typing.Optional[Rules] = None
+        all_msg_oneof_fields = set()
         if validate_pb2.message in desc.GetOptions().Extensions:
             message_level = desc.GetOptions().Extensions[validate_pb2.message]
             if message_level.disabled:
                 return []
-            if rule := self._new_message_rule(message_level):
+            for oneof in message_level.oneof:
+                all_msg_oneof_fields.update(oneof.fields)
+            if rule := self._new_message_rule(message_level, desc):
                 result.append(rule)
 
         for oneof in desc.oneofs:
@@ -1000,6 +1065,11 @@ class RuleFactory:
         for field in desc.fields:
             if validate_pb2.field in field.GetOptions().Extensions:
                 field_level = field.GetOptions().Extensions[validate_pb2.field]
+                if not field_level.HasField("ignore") and field.name in all_msg_oneof_fields:
+                    field_level_override = validate_pb2.FieldRules()
+                    field_level_override.CopyFrom(field_level)
+                    field_level_override.ignore = validate_pb2.IGNORE_IF_UNPOPULATED
+                    field_level = field_level_override
                 if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
                     continue
                 result.append(self._new_field_rule(field, field_level))
