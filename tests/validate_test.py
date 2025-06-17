@@ -18,7 +18,8 @@ from google.protobuf import message
 
 import protovalidate
 from gen.tests.example.v1 import validations_pb2
-from protovalidate.internal import config, rules
+from protovalidate.config import Config
+from protovalidate.internal import rules
 
 
 def get_default_validator():
@@ -32,7 +33,7 @@ def get_default_validator():
     return [
         ("module singleton", protovalidate),
         ("no config", protovalidate.Validator()),
-        ("with default config", protovalidate.Validator(config.Config())),
+        ("with default config", protovalidate.Validator(Config())),
     ]
 
 
@@ -194,7 +195,7 @@ class TestCollectViolations(unittest.TestCase):
         expected_violation.field_value = msg.title
         expected_violation.rule_value = "foo"
 
-        cfg = config.Config(fail_fast=True)
+        cfg = Config(fail_fast=True)
         validator = protovalidate.Validator(config=cfg)
 
         # Test validate

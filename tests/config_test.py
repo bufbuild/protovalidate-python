@@ -14,10 +14,10 @@
 
 import unittest
 
-from protovalidate.internal import config
+from protovalidate.config import Config
 
 
 class TestConfig(unittest.TestCase):
     def test_defaults(self):
-        cfg = config.Config()
+        cfg = Config()
         self.assertFalse(cfg.fail_fast)

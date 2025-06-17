@@ -17,7 +17,7 @@ import typing
 from google.protobuf import message
 
 from buf.validate import validate_pb2  # type: ignore
-from protovalidate.internal import config as _config
+from protovalidate.config import Config
 from protovalidate.internal import extra_func
 from protovalidate.internal import rules as _rules
 
@@ -36,11 +36,11 @@ class Validator:
     """
 
     _factory: _rules.RuleFactory
-    _cfg: _config.Config
+    _cfg: Config
 
     def __init__(self, config=None):
         self._factory = _rules.RuleFactory(extra_func.EXTRA_FUNCS)
-        self._cfg = config if config is not None else _config.Config()
+        self._cfg = config if config is not None else Config()
 
     def validate(
         self,
