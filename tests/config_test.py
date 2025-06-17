@@ -14,7 +14,7 @@
 
 import unittest
 
-from protovalidate.config import Config
+from protovalidate import Config
 
 
 class TestConfig(unittest.TestCase):
