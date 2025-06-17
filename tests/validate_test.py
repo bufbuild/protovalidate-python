@@ -253,13 +253,15 @@ class TestCollectViolations(unittest.TestCase):
         """
         for label, v in get_default_validator():
             with self.subTest(label=label):
-                with self.assertRaises(protovalidate.CompilationError) as cvce:
-                    v.collect_violations(msg)
-                    assert str(cvce.exception) == expected
-
+                # Test validate
                 with self.assertRaises(protovalidate.CompilationError) as vce:
                     v.validate(msg)
                     assert str(vce.exception) == expected
+
+                # Test collect_violations
+                with self.assertRaises(protovalidate.CompilationError) as cvce:
+                    v.collect_violations(msg)
+                    assert str(cvce.exception) == expected
 
     def _compare_violations(self, actual: list[rules.Violation], expected: list[rules.Violation]) -> None:
         """Compares two lists of violations. The violations are expected to be in the expected order also."""
