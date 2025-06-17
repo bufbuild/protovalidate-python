@@ -6,8 +6,8 @@ build-backend = "hatchling.build"
 name = "protovalidate"
 description = "Protocol Buffer Validation for Python"
 readme = "README.md"
-license-expression = "Apache 2.0"
-license-file = "LICENSE"
+license = "Apache 2.0"
+license-files = ["LICENSE"]
 keywords = ["validate", "protobuf", "protocol buffer"]
 requires-python = ">=3.9"
 classifiers = [
