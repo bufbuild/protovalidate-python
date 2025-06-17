@@ -17,6 +17,7 @@ import typing
 from google.protobuf import message
 
 from buf.validate import validate_pb2  # type: ignore
+from protovalidate.config import Config
 from protovalidate.internal import extra_func
 from protovalidate.internal import rules as _rules
 
@@ -35,15 +36,15 @@ class Validator:
     """
 
     _factory: _rules.RuleFactory
+    _cfg: Config
 
-    def __init__(self):
+    def __init__(self, config=None):
         self._factory = _rules.RuleFactory(extra_func.EXTRA_FUNCS)
+        self._cfg = config if config is not None else Config()
 
     def validate(
         self,
         message: message.Message,
-        *,
-        fail_fast: bool = False,
     ):
         """
         Validates the given message against the static rules defined in
@@ -51,12 +52,12 @@ class Validator:
 
         Parameters:
             message: The message to validate.
-            fail_fast: If true, validation will stop after the first violation.
         Raises:
             CompilationError: If the static rules could not be compiled.
-            ValidationError: If the message is invalid.
+            ValidationError: If the message is invalid. The violations raised as part of this error should
+            always be equal to the list of violations returned by `collect_violations`.
         """
-        violations = self.collect_violations(message, fail_fast=fail_fast)
+        violations = self.collect_violations(message)
         if len(violations) > 0:
             msg = f"invalid {message.DESCRIPTOR.name}"
             raise ValidationError(msg, violations)
@@ -65,24 +66,25 @@ class Validator:
         self,
         message: message.Message,
         *,
-        fail_fast: bool = False,
         into: typing.Optional[list[Violation]] = None,
     ) -> list[Violation]:
         """
         Validates the given message against the static rules defined in
-        the message's descriptor. Compared to validate, collect_violations is
-        faster but puts the burden of raising an appropriate exception on the
-        caller.
+        the message's descriptor. Compared to `validate`, `collect_violations` simply
+        returns the violations as a list and puts the burden of raising an appropriate
+        exception on the caller.
+
+        The violations returned from this method should always be equal to the violations
+        raised as part of the ValidationError in the call to `validate`.
 
         Parameters:
             message: The message to validate.
-            fail_fast: If true, validation will stop after the first violation.
             into: If provided, any violations will be appended to the
                 Violations object and the same object will be returned.
         Raises:
             CompilationError: If the static rules could not be compiled.
         """
-        ctx = _rules.RuleContext(fail_fast=fail_fast, violations=into)
+        ctx = _rules.RuleContext(config=self._cfg, violations=into)
         for rule in self._factory.get(message.DESCRIPTOR):
             rule.validate(ctx, message)
             if ctx.done:

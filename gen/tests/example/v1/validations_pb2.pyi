@@ -22,6 +22,14 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class MultipleValidations(_message.Message):
+    __slots__ = ("title", "name")
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    title: str
+    name: str
+    def __init__(self, title: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
+
 class DoubleFinite(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]

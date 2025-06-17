@@ -19,6 +19,11 @@ package tests.example.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
+message MultipleValidations {
+  string title = 1 [(buf.validate.field).string.prefix = "foo"];
+  string name = 2 [(buf.validate.field).string.min_len = 5];
+}
+
 message DoubleFinite {
   double val = 1 [(buf.validate.field).double.finite = true];
 }
