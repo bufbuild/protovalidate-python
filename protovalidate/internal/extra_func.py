@@ -21,6 +21,7 @@ import celpy
 from celpy import celtypes
 
 from protovalidate.internal import string_format
+from protovalidate.internal.matches import cel_matches
 from protovalidate.internal.rules import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
@@ -1554,12 +1555,13 @@ class Uri:
 
 
 def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
-    # TODO(#257): Fix types and add tests for StringFormat.
     # For now, ignoring the type.
     string_fmt = string_format.StringFormat(locale)  # type: ignore
     return {
         # Missing standard functions
         "format": string_fmt.format,
+        # Overridden standard functions
+        "matches": cel_matches,
         # protovalidate specific functions
         "getField": cel_get_field,
         "isNan": cel_is_nan,
