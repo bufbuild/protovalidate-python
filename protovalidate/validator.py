@@ -54,7 +54,8 @@ class Validator:
             message: The message to validate.
         Raises:
             CompilationError: If the static rules could not be compiled.
-            ValidationError: If the message is invalid.
+            ValidationError: If the message is invalid. The violations raised as part of this error should
+            always be equal to the list of violations returned by `collect_violations`.
         """
         violations = self.collect_violations(message)
         if len(violations) > 0:
@@ -69,9 +70,12 @@ class Validator:
     ) -> list[Violation]:
         """
         Validates the given message against the static rules defined in
-        the message's descriptor. Compared to validate, collect_violations is
-        faster but puts the burden of raising an appropriate exception on the
-        caller.
+        the message's descriptor. Compared to `validate`, `collect_violations` simply
+        returns the violations as a list and puts the burden of raising an appropriate
+        exception on the caller.
+
+        The violations returned from this method should always be equal to the violations
+        raised as part of the ValidationError in the call to `validate`.
 
         Parameters:
             message: The message to validate.
