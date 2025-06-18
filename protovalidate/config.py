@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -21,6 +23,10 @@ class Config:
 
     Attributes:
         fail_fast (bool): If true, validation will stop after the first violation. Defaults to False.
+        regex_matches_func: An optional regex matcher to use. If specified, this will be used to match
+                            on regex expressions instead of this library's `matches` logic.
     """
 
     fail_fast: bool = False
+
+    regex_matches_func: Optional[Callable[[str, str], bool]] = None

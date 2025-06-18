@@ -15,9 +15,8 @@
 import unittest
 
 import celpy
-from celpy import celtypes
 
-from protovalidate.internal import extra_func
+from protovalidate.internal.matches import matches
 
 invalid_patterns = [
     r"\1",
@@ -30,15 +29,15 @@ invalid_patterns = [
     r"\u0041",
     r"\0 \01 \0a \012",
     r"[\b]",
+    r"^\Z",
 ]
 
 
 class TestMatches(unittest.TestCase):
     def test_invalid_re2_syntax(self):
         for pattern in invalid_patterns:
-            cel_pattern = celtypes.StringType(pattern)
             try:
-                extra_func.cel_matches(celtypes.StringType("test"), cel_pattern)
-                self.fail(f"expected an error on pattern {cel_pattern}")
+                matches("test", pattern)
+                self.fail(f"expected an error on pattern {pattern}")
             except celpy.CELEvalError as e:
-                self.assertEqual(str(e), f"error evaluating pattern {cel_pattern}, invalid RE2 syntax")
+                self.assertEqual(str(e), f"error evaluating pattern {pattern}, invalid RE2 syntax")

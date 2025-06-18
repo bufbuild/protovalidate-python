@@ -39,8 +39,9 @@ class Validator:
     _cfg: Config
 
     def __init__(self, config=None):
-        self._factory = _rules.RuleFactory(extra_func.EXTRA_FUNCS)
         self._cfg = config if config is not None else Config()
+        funcs = extra_func.make_extra_funcs(self._cfg)
+        self._factory = _rules.RuleFactory(funcs)
 
     def validate(
         self,

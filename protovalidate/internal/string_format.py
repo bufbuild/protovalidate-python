@@ -24,8 +24,7 @@ from celpy import celtypes
 class StringFormat:
     """An implementation of string.format() in CEL."""
 
-    def __init__(self, locale: str):
-        self.locale = locale
+    def __init__(self):
         self.fmt = None
 
     def format(self, fmt: celtypes.Value, args: celtypes.Value) -> celpy.Result:

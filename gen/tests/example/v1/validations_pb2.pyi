@@ -131,3 +131,9 @@ class RepeatedEmbedSkip(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[Embed]
     def __init__(self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...) -> None: ...
+
+class InvalidRESyntax(_message.Message):
+    __slots__ = ("value",)
+    VALUE_FIELD_NUMBER: _ClassVar[int]
+    value: str
+    def __init__(self, value: _Optional[str] = ...) -> None: ...

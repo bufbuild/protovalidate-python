@@ -15,7 +15,6 @@
 import re
 
 import celpy
-from celpy import celtypes
 
 # Patterns that are supported in Python's re package and not in re2.
 # RE2: https://github.com/google/re2/wiki/syntax
@@ -30,10 +29,11 @@ invalid_patterns = [
     r"\\u[0-9a-fA-F]{4}",  # UTF-16 code-unit
     r"\\0(?!\d)",  # NUL
     r"\[\\b.*\]",  # Backspace eg: [\b]
+    r"\\Z",  # End of text (only lowercase z is supported in re2)
 ]
 
 
-def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
+def matches(text: str, pattern: str) -> bool:
     """Return True if the given pattern matches text. False otherwise.
 
     CEL uses RE2 syntax which diverges from Python re in various ways. Ideally, we
@@ -43,14 +43,13 @@ def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
 
     Instead of foisting this issue on users, we instead mimic re2 syntax by failing
     to compile the regex for patterns not compatible with re2.
-    """
-    if not isinstance(text, celtypes.StringType):
-        msg = "invalid argument for text, expected string"
-        raise celpy.CELEvalError(msg)
-    if not isinstance(pattern, celtypes.StringType):
-        msg = "invalid argument for pattern, expected string"
-        raise celpy.CELEvalError(msg)
 
+    Users can choose to override this behavior by providing their own custom matches
+    function via the Config.
+
+    Raises:
+        celpy.CELEvalError: If pattern contains invalid re2 syntax or if an re.error is raised during matching.
+    """
     # Simulate re2 by failing on any patterns not compatible with re2 syntax
     for invalid_pattern in invalid_patterns:
         r = re.search(invalid_pattern, pattern)
@@ -61,6 +60,7 @@ def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
     try:
         m = re.search(pattern, text)
     except re.error as ex:
-        return celpy.CELEvalError("match error", ex.__class__, ex.args)
+        msg = "match error"
+        raise celpy.CELEvalError(msg, ex.__class__, ex.args) from ex
 
-    return celtypes.BoolType(m is not None)
+    return m is not None
