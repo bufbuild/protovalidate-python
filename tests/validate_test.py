@@ -302,24 +302,6 @@ class TestCollectViolations(unittest.TestCase):
                     v.collect_violations(msg)
                 self.assertEqual(str(cvce.exception), expected)
 
-    def _run_eval_error_tests(self, msg: message.Message, expected: str):
-        """A helper function for testing compilation errors when validating.
-
-        The tests are run using validators created via all possible methods and
-        validation is done via a call to `validate` as well as a call to `collect_violations`.
-        """
-        for label, v in get_default_validator():
-            with self.subTest(label=label):
-                # Test validate
-                with self.assertRaises(celpy.CELEvalError) as vce:
-                    v.validate(msg)
-                self.assertEqual(str(vce.exception), expected)
-
-                # Test collect_violations
-                with self.assertRaises(celpy.CELEvalError) as cvce:
-                    v.collect_violations(msg)
-                self.assertEqual(str(cvce.exception), expected)
-
     def _compare_violations(self, actual: list[rules.Violation], expected: list[rules.Violation]) -> None:
         """Compares two lists of violations. The violations are expected to be in the expected order also."""
         self.assertEqual(len(actual), len(expected))
