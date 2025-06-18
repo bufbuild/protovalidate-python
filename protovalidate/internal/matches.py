@@ -44,6 +44,9 @@ def matches(text: str, pattern: str) -> bool:
     Instead of foisting this issue on users, we instead mimic re2 syntax by failing
     to compile the regex for patterns not compatible with re2.
 
+    Users can choose to override this behavior by providing their own custom matches
+    function via the Config.
+
     Raises:
         celpy.CELEvalError: If pattern contains invalid re2 syntax.
     """
