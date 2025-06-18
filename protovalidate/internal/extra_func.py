@@ -20,8 +20,9 @@ from urllib import parse as urlparse
 import celpy
 from celpy import celtypes
 
+from protovalidate.config import Config
 from protovalidate.internal import string_format
-from protovalidate.internal.matches import cel_matches
+from protovalidate.internal.matches import matches as protovalidate_matches
 from protovalidate.internal.rules import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
@@ -1554,14 +1555,31 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
-def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
-    # For now, ignoring the type.
-    string_fmt = string_format.StringFormat(locale)  # type: ignore
+def get_matches_func(matcher: typing.Optional[typing.Callable[[str, str], bool]]):
+    if matcher is None:
+        matcher = protovalidate_matches
+
+    def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
+        if not isinstance(text, celtypes.StringType):
+            msg = "invalid argument for text, expected string"
+            raise celpy.CELEvalError(msg)
+        if not isinstance(pattern, celtypes.StringType):
+            msg = "invalid argument for pattern, expected string"
+            raise celpy.CELEvalError(msg)
+
+        b = matcher(text, pattern)
+        return celtypes.BoolType(b)
+
+    return cel_matches
+
+
+def make_extra_funcs(config: Config) -> dict[str, celpy.CELFunction]:
+    string_fmt = string_format.StringFormat()
     return {
         # Missing standard functions
         "format": string_fmt.format,
         # Overridden standard functions
-        "matches": cel_matches,
+        "matches": get_matches_func(config.regex_matches_func),
         # protovalidate specific functions
         "getField": cel_get_field,
         "isNan": cel_is_nan,
@@ -1575,6 +1593,3 @@ def make_extra_funcs(locale: str) -> dict[str, celpy.CELFunction]:
         "isHostAndPort": cel_is_host_and_port,
         "unique": cel_unique,
     }
-
-
-EXTRA_FUNCS = make_extra_funcs("en_US")

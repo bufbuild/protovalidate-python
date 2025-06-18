@@ -93,6 +93,11 @@ message MapKeys {
 message Embed {
   int64 val = 1 [(buf.validate.field).int64.gt = 0];
 }
+
 message RepeatedEmbedSkip {
   repeated Embed val = 1 [(buf.validate.field).repeated.items.ignore = IGNORE_ALWAYS];
+}
+
+message InvalidRESyntax {
+  string value = 1 [(buf.validate.field).string.pattern = "^\\z"];
 }
