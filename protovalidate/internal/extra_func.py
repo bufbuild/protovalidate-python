@@ -15,6 +15,7 @@
 import math
 import re
 import typing
+from collections.abc import Callable
 from urllib import parse as urlparse
 
 import celpy
@@ -1555,7 +1556,7 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
-def get_matches_func(matcher: typing.Optional[typing.Callable[[str, str], bool]]):
+def get_matches_func(matcher: typing.Optional[Callable[[str, str], bool]]):
     if matcher is None:
         matcher = protovalidate_matches
 

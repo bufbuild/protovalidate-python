@@ -15,6 +15,7 @@
 import dataclasses
 import datetime
 import typing
+from collections.abc import Callable
 
 import celpy
 from celpy import celtypes
@@ -44,7 +45,7 @@ def unwrap(msg: message.Message) -> celtypes.Value:
     return field_to_cel(msg, msg.DESCRIPTOR.fields_by_name["value"])
 
 
-_MSG_TYPE_URL_TO_CTOR: dict[str, typing.Callable[..., celtypes.Value]] = {
+_MSG_TYPE_URL_TO_CTOR: dict[str, Callable[..., celtypes.Value]] = {
     "google.protobuf.Duration": make_duration,
     "google.protobuf.Timestamp": make_timestamp,
     "google.protobuf.StringValue": unwrap,

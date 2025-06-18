@@ -48,7 +48,7 @@ def matches(text: str, pattern: str) -> bool:
     function via the Config.
 
     Raises:
-        celpy.CELEvalError: If pattern contains invalid re2 syntax.
+        celpy.CELEvalError: If pattern contains invalid re2 syntax or if an re.error is raised during matching.
     """
     # Simulate re2 by failing on any patterns not compatible with re2 syntax
     for invalid_pattern in invalid_patterns:
