@@ -21,7 +21,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "protobuf==5.*",
+    "protobuf==6.*",
     "cel-python==0.2.*",
 ]
 
