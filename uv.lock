@@ -182,7 +182,7 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
     { name = "tomli" },
-    { name = "types-protobuf" },
+    { name = "types-protobuf", specifier = "==6.30.2.20250503" },
 ]
 
 [[package]]
@@ -342,11 +342,11 @@ wheels = [
 
 [[package]]
 name = "types-protobuf"
-version = "5.29.1.20250208"
+version = "6.30.2.20250503"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ff/75/8effaebae86ae9e489d4d453b30c6da728e8a9267a261418d476c5c2fbe6/types_protobuf-5.29.1.20250208.tar.gz", hash = "sha256:c1acd6a59ab554dbe09b5d1fa7dd701e2fcfb2212937a3af1c03b736060b792a", size = 59330, upload-time = "2025-02-08T02:37:23.086Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/6b/1c384ec9746a6f2a255de6002d43591b886b5950985cb6c62713b3a2b275/types_protobuf-6.30.2.20250503.tar.gz", hash = "sha256:14ad797be85ce763c710b2d8e7cf8c4fc7972d4b986620899727c7dec1e66468", size = 59682, upload-time = "2025-05-03T02:58:07.114Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/e9/095c36efdc9dbb1df75ce42f37c0de6a6879aad937a08f0b97942b7c5968/types_protobuf-5.29.1.20250208-py3-none-any.whl", hash = "sha256:c5f8bfb4afdc1b5cbca1848f2c8b361a2090add7401f410b22b599ef647bf483", size = 73925, upload-time = "2025-02-08T02:37:21.845Z" },
+    { url = "https://files.pythonhosted.org/packages/53/49/03d14506f26c3e5a9302d6a1f0709cc6ed40b83f0088e647e3fbc0ede4a5/types_protobuf-6.30.2.20250503-py3-none-any.whl", hash = "sha256:fc78df75118155b9617c8e8c3944eaf8f537f943b2f258b00b8520162c32d829", size = 73845, upload-time = "2025-05-03T02:58:05.735Z" },
 ]
 
 [[package]]
