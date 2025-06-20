@@ -19,8 +19,12 @@ git clone git@github.com:bufbuild/protovalidate-python.git
 cd protovalidate-python
 ```
 
-Then, make any changes you'd like. We use a Makefile to test and lint our code,
-so you'll need a few non-Python tools:
+Next, install dependencies. You will need:
+
+* Python >=v3.9
+* [Pipenv](https://pipenv.pypa.io/en/latest/index.html)
+
+We use a Makefile to test and lint our code, so you'll also need a few non-Python tools:
 
 * GNU Make (to use the Makefile): part of the `build-essential` package on
   Debian-derived Linux distributions (including Ubuntu), and part of

@@ -17,46 +17,48 @@ import typing
 from google.protobuf import message
 
 from buf.validate import validate_pb2  # type: ignore
-from protovalidate.internal import constraints as _constraints
+from protovalidate.config import Config
 from protovalidate.internal import extra_func
+from protovalidate.internal import rules as _rules
 
-CompilationError = _constraints.CompilationError
+CompilationError = _rules.CompilationError
 Violations = validate_pb2.Violations
-Violation = _constraints.Violation
+Violation = _rules.Violation
 
 
 class Validator:
     """
-    Validates protobuf messages against static constraints.
+    Validates protobuf messages against static rules.
 
     Each validator instance caches internal state generated from the static
-    constraints, so reusing the same instance for multiple validations
+    rules, so reusing the same instance for multiple validations
     significantly improves performance.
     """
 
-    _factory: _constraints.ConstraintFactory
+    _factory: _rules.RuleFactory
+    _cfg: Config
 
-    def __init__(self):
-        self._factory = _constraints.ConstraintFactory(extra_func.EXTRA_FUNCS)
+    def __init__(self, config=None):
+        self._cfg = config if config is not None else Config()
+        funcs = extra_func.make_extra_funcs(self._cfg)
+        self._factory = _rules.RuleFactory(funcs)
 
     def validate(
         self,
         message: message.Message,
-        *,
-        fail_fast: bool = False,
     ):
         """
-        Validates the given message against the static constraints defined in
+        Validates the given message against the static rules defined in
         the message's descriptor.
 
         Parameters:
             message: The message to validate.
-            fail_fast: If true, validation will stop after the first violation.
         Raises:
-            CompilationError: If the static constraints could not be compiled.
-            ValidationError: If the message is invalid.
+            CompilationError: If the static rules could not be compiled.
+            ValidationError: If the message is invalid. The violations raised as part of this error should
+            always be equal to the list of violations returned by `collect_violations`.
         """
-        violations = self.collect_violations(message, fail_fast=fail_fast)
+        violations = self.collect_violations(message)
         if len(violations) > 0:
             msg = f"invalid {message.DESCRIPTOR.name}"
             raise ValidationError(msg, violations)
@@ -65,26 +67,27 @@ class Validator:
         self,
         message: message.Message,
         *,
-        fail_fast: bool = False,
         into: typing.Optional[list[Violation]] = None,
     ) -> list[Violation]:
         """
-        Validates the given message against the static constraints defined in
-        the message's descriptor. Compared to validate, collect_violations is
-        faster but puts the burden of raising an appropriate exception on the
-        caller.
+        Validates the given message against the static rules defined in
+        the message's descriptor. Compared to `validate`, `collect_violations` simply
+        returns the violations as a list and puts the burden of raising an appropriate
+        exception on the caller.
+
+        The violations returned from this method should always be equal to the violations
+        raised as part of the ValidationError in the call to `validate`.
 
         Parameters:
             message: The message to validate.
-            fail_fast: If true, validation will stop after the first violation.
             into: If provided, any violations will be appended to the
                 Violations object and the same object will be returned.
         Raises:
-            CompilationError: If the static constraints could not be compiled.
+            CompilationError: If the static rules could not be compiled.
         """
-        ctx = _constraints.ConstraintContext(fail_fast=fail_fast, violations=into)
-        for constraint in self._factory.get(message.DESCRIPTOR):
-            constraint.validate(ctx, message)
+        ctx = _rules.RuleContext(config=self._cfg, violations=into)
+        for rule in self._factory.get(message.DESCRIPTOR):
+            rule.validate(ctx, message)
             if ctx.done:
                 break
         for violation in ctx.violations:
@@ -100,9 +103,9 @@ class ValidationError(ValueError):
     An error raised when a message fails to validate.
     """
 
-    _violations: list[_constraints.Violation]
+    _violations: list[_rules.Violation]
 
-    def __init__(self, msg: str, violations: list[_constraints.Violation]):
+    def __init__(self, msg: str, violations: list[_rules.Violation]):
         super().__init__(msg)
         self._violations = violations
 

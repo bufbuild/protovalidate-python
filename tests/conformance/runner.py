@@ -35,6 +35,7 @@ from buf.validate.conformance.cases import (
     ignore_proto3_pb2,  # noqa: F401
     ignore_proto_editions_pb2,  # noqa: F401
     kitchen_sink_pb2,  # noqa: F401
+    library_pb2,  # noqa: F401
     maps_pb2,  # noqa: F401
     messages_pb2,  # noqa: F401
     numbers_pb2,  # noqa: F401
@@ -53,7 +54,7 @@ from buf.validate.conformance.cases import (
     wkt_timestamp_pb2,  # noqa: F401
     wkt_wrappers_pb2,  # noqa: F401
 )
-from buf.validate.conformance.cases.custom_constraints import custom_constraints_pb2  # noqa: F401
+from buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401
 from buf.validate.conformance.harness import harness_pb2
 
 
@@ -71,6 +72,8 @@ def run_test_case(tc: typing.Any, result: typing.Optional[harness_pb2.TestResult
         result.runtime_error = str(e)
     except protovalidate.CompilationError as e:
         result.compilation_error = str(e)
+    except Exception as e:
+        result.unexpected_error = str(e)
     return result
 
 

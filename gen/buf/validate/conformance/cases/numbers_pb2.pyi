@@ -391,7 +391,7 @@ class Int64Ignore(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class Int64BigConstraints(_message.Message):
+class Int64BigRules(_message.Message):
     __slots__ = ("lt_pos", "lt_neg", "gt_pos", "gt_neg", "lte_pos", "lte_neg", "gte_pos", "gte_neg", "constant_pos", "constant_neg", "notin")
     LT_POS_FIELD_NUMBER: _ClassVar[int]
     LT_NEG_FIELD_NUMBER: _ClassVar[int]

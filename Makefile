@@ -12,12 +12,17 @@ export GOBIN := $(abspath $(BIN))
 # Set to use a different Python interpreter. For example, `PYTHON=python make test`.
 PYTHON ?= python3
 export PYTHONPATH ?= gen
-CONFORMANCE_ARGS ?= --strict --strict_message --expected_failures=tests/conformance/nonconforming.yaml --timeout 10s
+CONFORMANCE_ARGS ?= --strict_message --expected_failures=tests/conformance/nonconforming.yaml --timeout 10s
 ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
-PROTOVALIDATE_VERSION ?= v0.10.0
+# This version should be kept in sync with the version in buf.yaml
+PROTOVALIDATE_VERSION ?= v0.13.3
+# Version of the cel-spec that this implementation is conformant with
+# This should be kept in sync with the version in format_test.py
+CEL_SPEC_VERSION ?= v0.24.0
+TESTDATA_FILE := tests/testdata/string_ext_$(CEL_SPEC_VERSION).textproto
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -34,8 +39,10 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
+	$(BIN)/buf generate
 	$(ADD_LICENSE_HEADER)
 
 .PHONY: format
@@ -45,7 +52,7 @@ format: install $(BIN)/license-header ## Format code
 	uv run -- ruff check --fix protovalidate tests
 
 .PHONY: test
-test: $(BIN)/protovalidate-conformance generate install ## Run unit tests
+test: generate install gettestdata ## Run unit tests
 	uv run -- pytest
 
 .PHONY: conformance
@@ -67,6 +74,13 @@ install: ## Install dependencies
 checkgenerate: generate
 	@# Used in CI to verify that `make generate` doesn't produce a diff.
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
+
+.PHONY: gettestdata
+gettestdata: $(TESTDATA_FILE)
+
+$(TESTDATA_FILE):
+	mkdir -p $(dir @)
+	curl -fsSL -o $@ https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
 
 $(BIN):
 	@mkdir -p $(BIN)

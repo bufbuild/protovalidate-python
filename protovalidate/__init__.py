@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from protovalidate import validator
+from protovalidate import config, validator
 
+Config = config.Config
 Validator = validator.Validator
 CompilationError = validator.CompilationError
 ValidationError = validator.ValidationError
 Violations = validator.Violations
 
-_validator = Validator()
-validate = _validator.validate
-collect_violations = _validator.collect_violations
+_default_validator = Validator()
+validate = _default_validator.validate
+collect_violations = _default_validator.collect_violations
 
-__all__ = ["CompilationError", "ValidationError", "Validator", "Violations", "collect_violations", "validate"]
+__all__ = ["CompilationError", "Config", "ValidationError", "Validator", "Violations", "collect_violations", "validate"]
