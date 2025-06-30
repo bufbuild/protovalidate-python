@@ -62,7 +62,7 @@ Highlights for Python developers include:
 * A comprehensive RPC quickstart for [Python and gRPC][grpc-python]
 * A [migration guide for protoc-gen-validate][migration-guide] users
 
-## Additional Languages and Repositories
+## Additional languages and repositories
 
 Protovalidate isn't just for Python! You might be interested in sibling repositories for other languages: 
 
