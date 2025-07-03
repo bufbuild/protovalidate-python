@@ -1,7 +1,4 @@
 version: 2
-# TODO: Remove when uv is officially supported in Dependabot.
-# See: https://github.com/dependabot/dependabot-core/issues/10478
-enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
