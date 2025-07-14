@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
+          cache: false
       - uses: astral-sh/setup-uv@v6
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
