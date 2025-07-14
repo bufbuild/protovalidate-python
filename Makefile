@@ -9,8 +9,6 @@ MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
 export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
-# Set to use a different Python interpreter. For example, `PYTHON=python make test`.
-PYTHON ?= python3
 export PYTHONPATH ?= gen
 CONFORMANCE_ARGS ?= --strict_message --expected_failures=tests/conformance/nonconforming.yaml --timeout 10s
 ADD_LICENSE_HEADER := $(BIN)/license-header \
@@ -57,7 +55,7 @@ test: generate install gettestdata ## Run unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
-	protovalidate-conformance $(CONFORMANCE_ARGS) uv -- run --python $(PYTHON) python3 -m tests.conformance.runner
+	protovalidate-conformance $(CONFORMANCE_ARGS) uv -- run python3 -m tests.conformance.runner
 
 .PHONY: lint
 lint: install ## Lint code
@@ -68,7 +66,7 @@ lint: install ## Lint code
 
 .PHONY: install
 install: ## Install dependencies
-	uv sync --python $(PYTHON) --dev
+	uv sync --dev
 
 .PHONY: checkgenerate
 checkgenerate: generate
