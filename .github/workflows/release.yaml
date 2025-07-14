@@ -19,20 +19,18 @@ jobs:
         run: |
           VERSION=${{github.head_ref}}
           echo "VERSION=${VERSION##*/}" >> $GITHUB_ENV
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - name: Install pypa/build
+      - uses: astral-sh/setup-uv@v6
+      - name: Build release
         run: |
-          python -m pip install build
-          python -m build
+          uv build
       - uses: actions/upload-artifact@v4
         with:
           name: package
           path: dist/
 
   publish:
+    # TODO: trusted publisher
+    # https://docs.astral.sh/uv/guides/publish/#publishing-your-package
     name: Publish on PyPI
     runs-on: ubuntu-latest
     environment:
