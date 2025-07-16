@@ -37,8 +37,8 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate https://github.com/bufbuild/protovalidate.git#branch=next,subdir=proto/protovalidate
+	$(BIN)/buf generate https://github.com/bufbuild/protovalidate.git#branch=next,subdir=proto/protovalidate-testing
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
 	$(BIN)/buf generate
 	$(ADD_LICENSE_HEADER)
@@ -90,4 +90,4 @@ $(BIN)/license-header: $(BIN) Makefile
 	go install github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@latest
 
 $(BIN)/protovalidate-conformance: $(BIN) Makefile
-	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)
+	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@next
