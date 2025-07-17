@@ -38,12 +38,6 @@ class MessageNone(_message.Message):
     val: MessageNone.NoneMsg
     def __init__(self, val: _Optional[_Union[MessageNone.NoneMsg, _Mapping]] = ...) -> None: ...
 
-class MessageDisabled(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
-
 class Message(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
