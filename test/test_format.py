@@ -86,9 +86,9 @@ class TestFormat(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # The test data from the cel-spec conformance tests
-        cel_test_data = load_test_data(f"tests/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
+        cel_test_data = load_test_data(f"test/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
         # Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
-        supplemental_test_data = load_test_data("tests/testdata/string_ext_supplemental.textproto")
+        supplemental_test_data = load_test_data("test/testdata/string_ext_supplemental.textproto")
 
         # Combine the test data from both files into one
         sections = cel_test_data.section
