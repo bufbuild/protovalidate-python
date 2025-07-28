@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import re
 import unittest
 
-import celpy
 from google.protobuf import message
 
 import protovalidate
@@ -210,42 +208,6 @@ class TestCollectViolations(unittest.TestCase):
         # Test collect_violations
         violations = validator.collect_violations(msg)
         self._compare_violations(violations, [expected_violation])
-
-    def test_custom_matcher(self):
-        r"""Tests usage of the custom regex_matches_func in the config
-
-        A bit of a contrived example, but this exercises the code path
-        for specifying a custom regex matches function when writing regex rules.
-
-        Usage of the pattern \z is not supported in Python's re engine, only \Z is supported.
-        However, the inverse is true with re2 (\Z is _not_ supported and \z is supported).
-
-        This test shows using a custom matcher that converts any re2-compliant usage of \z
-        to \Z so that Python's re engine can execute it.
-        """
-        msg = validations_pb2.InvalidRESyntax()
-
-        def matcher(text: str, pattern: str) -> bool:
-            pattern = pattern.replace("z", "Z")
-            try:
-                m = re.search(pattern, text)
-            except re.error as ex:
-                msg = "match error"
-                raise celpy.CELEvalError(msg, ex.__class__, ex.args) from ex
-            return m is not None
-
-        cfg = Config(regex_matches_func=matcher)
-        validator = protovalidate.Validator(config=cfg)
-
-        # Test validate
-        try:
-            validator.validate(msg)
-        except Exception:
-            self.fail("unexpected validation failure")
-
-        # Test collect_violations
-        violations = validator.collect_violations(msg)
-        self.assertEqual(len(violations), 0)
 
     def _run_valid_tests(self, msg: message.Message):
         """A helper function for testing successful validation on a given message

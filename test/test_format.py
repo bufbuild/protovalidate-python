@@ -23,7 +23,6 @@ from google.protobuf import text_format
 
 from gen.cel.expr import eval_pb2
 from gen.cel.expr.conformance.test import simple_pb2
-from protovalidate.config import Config
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
 
@@ -109,7 +108,7 @@ class TestFormat(unittest.TestCase):
             if test.name in skipped_tests:
                 continue
             ast = self._env.compile(test.expr)
-            prog = self._env.program(ast, functions=extra_func.make_extra_funcs(Config()))
+            prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
 
             bindings = build_variables(test.bindings)
             # Ideally we should use pytest parametrize instead of subtests, but
@@ -133,7 +132,7 @@ class TestFormat(unittest.TestCase):
             if test.name in skipped_error_tests:
                 continue
             ast = self._env.compile(test.expr)
-            prog = self._env.program(ast, functions=extra_func.make_extra_funcs(Config()))
+            prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
 
             bindings = build_variables(test.bindings)
             # Ideally we should use pytest parametrize instead of subtests, but

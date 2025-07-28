@@ -21,4 +21,3 @@ class TestConfig(unittest.TestCase):
     def test_defaults(self):
         cfg = Config()
         self.assertFalse(cfg.fail_fast)
-        self.assertIsNone(cfg.regex_matches_func)
