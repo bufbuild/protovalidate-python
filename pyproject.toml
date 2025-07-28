@@ -23,6 +23,7 @@ dynamic = ["version"]
 dependencies = [
     "protobuf==6.*",
     "cel-python==0.4.*",
+    "google-re2>=1.1.20250722 ; python_full_version >= '3.13'",
 ]
 
 [project.urls]
