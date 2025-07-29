@@ -19,10 +19,6 @@ import celpy
 from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
 
 import protovalidate
-
-# TODO(afuller): Use dynamic descriptor pool based on the FileDescriptorSet
-# in the TestConformanceRequest, once the Python protobuf library no longer
-# segfaults when using a dynamic descriptor pool.
 from buf.validate.conformance.cases import (
     bool_pb2,  # noqa: F401
     bytes_pb2,  # noqa: F401
@@ -93,10 +89,9 @@ def run_any_test_case(
 def run_conformance_test(
     request: harness_pb2.TestConformanceRequest,
 ) -> harness_pb2.TestConformanceResponse:
-    # pool = descriptor_pool.DescriptorPool()
-    # for fd in request.fdset.file:
-    #     pool.Add(fd)
-    pool = descriptor_pool.Default()
+    pool = descriptor_pool.DescriptorPool()
+    for fd in request.fdset.file:
+        pool.Add(fd)
     result = harness_pb2.TestConformanceResponse()
     for name, tc in request.cases.items():
         run_any_test_case(pool, tc, result.results[name])
