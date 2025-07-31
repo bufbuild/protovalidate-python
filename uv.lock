@@ -240,7 +240,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cel-python", specifier = "==0.2.*" },
-    { name = "google-re2", marker = "extra == 're2'" },
+    { name = "google-re2", marker = "extra == 're2'", specifier = "==1.*" },
     { name = "protobuf", specifier = "==6.*" },
 ]
 provides-extras = ["re2"]
