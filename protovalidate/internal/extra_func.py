@@ -25,7 +25,7 @@ from protovalidate.internal.rules import MessageType, field_to_cel
 
 _USE_RE2 = True
 try:
-    import re2  # type: ignore
+    import re2
 except ImportError:
     _USE_RE2 = False
 

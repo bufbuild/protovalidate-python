@@ -56,7 +56,7 @@ test: generate install gettestdata ## Run unit tests
 
 .PHONY: testextra
 testextra:
-	uv pip install .[re2]
+	uv sync --extra re2
 	uv run -- python -m unittest
 
 .PHONY: conformance
