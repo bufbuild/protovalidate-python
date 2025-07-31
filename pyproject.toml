@@ -24,6 +24,10 @@ dependencies = [
     "protobuf==6.*",
     "cel-python==0.2.*",
 ]
+[project.optional-dependencies]
+re2 = [
+    "google-re2",
+]
 
 [project.urls]
 Homepage = "https://github.com/bufbuild/protovalidate-python"

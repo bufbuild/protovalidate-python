@@ -52,6 +52,12 @@ format: install $(BIN)/license-header ## Format code
 .PHONY: test
 test: generate install gettestdata ## Run unit tests
 	uv run -- python -m unittest
+	$(MAKE) testextra
+
+.PHONY: testextra
+testextra:
+	uv pip install .[re2]
+	uv run -- python -m unittest
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
