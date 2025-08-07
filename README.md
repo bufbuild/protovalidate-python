@@ -54,7 +54,7 @@ pip install protovalidate
 
 ## Documentation
 
-Comprehensive documentation for Protovalidate is available in [Buf's documentation library][protovalidate]. 
+Comprehensive documentation for Protovalidate is available at [protovalidate.com][protovalidate].
 
 Highlights for Python developers include:
 
