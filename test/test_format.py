@@ -23,7 +23,6 @@ from google.protobuf import text_format
 
 from gen.cel.expr import eval_pb2
 from gen.cel.expr.conformance.test import simple_pb2
-from protovalidate.config import Config
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
 
@@ -86,9 +85,9 @@ class TestFormat(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # The test data from the cel-spec conformance tests
-        cel_test_data = load_test_data(f"tests/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
+        cel_test_data = load_test_data(f"test/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
         # Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
-        supplemental_test_data = load_test_data("tests/testdata/string_ext_supplemental.textproto")
+        supplemental_test_data = load_test_data("test/testdata/string_ext_supplemental.textproto")
 
         # Combine the test data from both files into one
         sections = cel_test_data.section
@@ -109,7 +108,7 @@ class TestFormat(unittest.TestCase):
             if test.name in skipped_tests:
                 continue
             ast = self._env.compile(test.expr)
-            prog = self._env.program(ast, functions=extra_func.make_extra_funcs(Config()))
+            prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
 
             bindings = build_variables(test.bindings)
             # Ideally we should use pytest parametrize instead of subtests, but
@@ -133,7 +132,7 @@ class TestFormat(unittest.TestCase):
             if test.name in skipped_error_tests:
                 continue
             ast = self._env.compile(test.expr)
-            prog = self._env.program(ast, functions=extra_func.make_extra_funcs(Config()))
+            prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
 
             bindings = build_variables(test.bindings)
             # Ideally we should use pytest parametrize instead of subtests, but

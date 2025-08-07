@@ -22,7 +22,7 @@ cd protovalidate-python
 Next, install dependencies. You will need:
 
 * Python >=v3.9
-* [Pipenv](https://pipenv.pypa.io/en/latest/index.html)
+* [uv](https://docs.astral.sh/uv/)
 
 We use a Makefile to test and lint our code, so you'll also need a few non-Python tools:
 
@@ -35,7 +35,7 @@ We use a Makefile to test and lint our code, so you'll also need a few non-Pytho
 
 With Go and GNU Make installed, you can verify that your changes pass tests and
 lint checks by running `make`. If your Python 3 interpreter isn't available as
-`python3`, try `PYTHON=python make`. For a list of other useful commands, run
+`python3`, try `UV_PYTHON=python make`. For a list of other useful commands, run
 `make help`.
 
 ### Reporting Bugs
@@ -67,7 +67,7 @@ better!
 
 We welcome ideas for enhancements and new features to improve `protovalidate-python`.
 If you have an idea you'd like to share, if you want to expand language
-support,  
+support,
 please read [the section below](#language-support-requirements) first.
 
 1. __Check if the enhancement is already suggested__: Before creating a new

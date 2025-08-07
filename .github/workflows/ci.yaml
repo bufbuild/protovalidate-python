@@ -27,18 +27,15 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Install Python ${{ matrix.python-version }}
-        id: python
-        uses: actions/setup-python@v5
+          cache: false
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pipenv"
-      - run: ${{steps.python.outputs.python-path}}  -m pip install --upgrade pip pipenv
       - name: Execute tests
-        run: make test PYTHON=${{ steps.python.outputs.python-path }}
+        run: make test
       - name: Lint
-        run: make lint PYTHON=${{ steps.python.outputs.python-path }}
+        run: make lint
       - name: Format
-        run: make format PYTHON=${{ steps.python.outputs.python-path }}
+        run: make format
       - name: Check generated
-        run: make checkgenerate PYTHON=${{ steps.python.outputs.python-path }}
+        run: make checkgenerate

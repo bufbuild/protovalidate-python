@@ -45,18 +45,6 @@ class Proto2ScalarOptionalIgnoreEmptyWithDefault(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class Proto2ScalarOptionalIgnoreDefault(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
-
-class Proto2ScalarOptionalIgnoreDefaultWithDefault(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
-
 class Proto2ScalarOptionalIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -88,18 +76,6 @@ class Proto2ScalarRequiredIgnoreEmpty(_message.Message):
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class Proto2ScalarRequiredIgnoreEmptyWithDefault(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
-
-class Proto2ScalarRequiredIgnoreDefault(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
-
-class Proto2ScalarRequiredIgnoreDefaultWithDefault(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
@@ -139,17 +115,6 @@ class Proto2MessageOptionalIgnoreEmpty(_message.Message):
     val: Proto2MessageOptionalIgnoreEmpty.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageOptionalIgnoreEmpty.Msg, _Mapping]] = ...) -> None: ...
 
-class Proto2MessageOptionalIgnoreDefault(_message.Message):
-    __slots__ = ("val",)
-    class Msg(_message.Message):
-        __slots__ = ("val",)
-        VAL_FIELD_NUMBER: _ClassVar[int]
-        val: str
-        def __init__(self, val: _Optional[str] = ...) -> None: ...
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: Proto2MessageOptionalIgnoreDefault.Msg
-    def __init__(self, val: _Optional[_Union[Proto2MessageOptionalIgnoreDefault.Msg, _Mapping]] = ...) -> None: ...
-
 class Proto2MessageOptionalIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     class Msg(_message.Message):
@@ -182,17 +147,6 @@ class Proto2MessageRequiredIgnoreEmpty(_message.Message):
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto2MessageRequiredIgnoreEmpty.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageRequiredIgnoreEmpty.Msg, _Mapping]] = ...) -> None: ...
-
-class Proto2MessageRequiredIgnoreDefault(_message.Message):
-    __slots__ = ("val",)
-    class Msg(_message.Message):
-        __slots__ = ("val",)
-        VAL_FIELD_NUMBER: _ClassVar[int]
-        val: str
-        def __init__(self, val: _Optional[str] = ...) -> None: ...
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: Proto2MessageRequiredIgnoreDefault.Msg
-    def __init__(self, val: _Optional[_Union[Proto2MessageRequiredIgnoreDefault.Msg, _Mapping]] = ...) -> None: ...
 
 class Proto2MessageRequiredIgnoreAlways(_message.Message):
     __slots__ = ("val",)
@@ -229,18 +183,6 @@ class Proto2OneofIgnoreEmptyWithDefault(_message.Message):
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...
 
-class Proto2OneofIgnoreDefault(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
-
-class Proto2OneofIgnoreDefaultWithDefault(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
-
 class Proto2OneofIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -260,12 +202,6 @@ class Proto2RepeatedIgnoreUnspecified(_message.Message):
     def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class Proto2RepeatedIgnoreEmpty(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
-
-class Proto2RepeatedIgnoreDefault(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[int]
@@ -303,19 +239,6 @@ class Proto2MapIgnoreEmpty(_message.Message):
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
 
-class Proto2MapIgnoreDefault(_message.Message):
-    __slots__ = ("val",)
-    class ValEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: int
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: _containers.ScalarMap[int, int]
-    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
-
 class Proto2MapIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
@@ -341,12 +264,6 @@ class Proto2RepeatedItemIgnoreEmpty(_message.Message):
     val: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
 
-class Proto2RepeatedItemIgnoreDefault(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: _containers.RepeatedScalarFieldContainer[int]
-    def __init__(self, val: _Optional[_Iterable[int]] = ...) -> None: ...
-
 class Proto2RepeatedItemIgnoreAlways(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -367,19 +284,6 @@ class Proto2MapKeyIgnoreUnspecified(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
 
 class Proto2MapKeyIgnoreEmpty(_message.Message):
-    __slots__ = ("val",)
-    class ValEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: int
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: _containers.ScalarMap[int, int]
-    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
-
-class Proto2MapKeyIgnoreDefault(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
         __slots__ = ("key", "value")
@@ -419,19 +323,6 @@ class Proto2MapValueIgnoreUnspecified(_message.Message):
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
 
 class Proto2MapValueIgnoreEmpty(_message.Message):
-    __slots__ = ("val",)
-    class ValEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: int
-        value: int
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: _containers.ScalarMap[int, int]
-    def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
-
-class Proto2MapValueIgnoreDefault(_message.Message):
     __slots__ = ("val",)
     class ValEntry(_message.Message):
         __slots__ = ("key", "value")

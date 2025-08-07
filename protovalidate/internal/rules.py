@@ -515,9 +515,7 @@ class FieldRules(CelRules):
     """Field-level rules."""
 
     _ignore_empty = False
-    _ignore_default = False
     _required = False
-    _zero = None
 
     _required_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
         elements=[
@@ -547,17 +545,11 @@ class FieldRules(CelRules):
         type_case = field_level.WhichOneof("type")
         super().__init__(None if type_case is None else getattr(field_level, type_case))
         self._field = field
-        self._ignore_empty = field_level.ignore in (
-            validate_pb2.IGNORE_IF_UNPOPULATED,
-            validate_pb2.IGNORE_IF_DEFAULT_VALUE,
-        ) or (
+        self._ignore_empty = field_level.ignore in (validate_pb2.IGNORE_IF_ZERO_VALUE,) or (
             field.has_presence  # type: ignore[attr-defined]
             and not for_items
         )
-        self._ignore_default = field.has_presence and field_level.ignore == validate_pb2.IGNORE_IF_DEFAULT_VALUE  # type: ignore[attr-defined]
         self._required = field_level.required
-        if self._ignore_default:
-            self._zero = _zero_value(field)
         type_case = field_level.WhichOneof("type")
         if type_case is not None:
             rules: message.Message = getattr(field_level, type_case)
@@ -607,8 +599,6 @@ class FieldRules(CelRules):
                 return
         val = getattr(message, self._field.name)
         cel_val = _field_value_to_cel(val, self._field)
-        if self._ignore_default and cel_val == self._zero:
-            return
         sub_ctx = ctx.sub_context()
         self._validate_value(sub_ctx, val)
         self._validate_cel(sub_ctx, this_value=_proto_message_get_field(message, self._field), this_cel=cel_val)
@@ -1054,8 +1044,6 @@ class RuleFactory:
         all_msg_oneof_fields = set()
         if validate_pb2.message in desc.GetOptions().Extensions:
             message_level = desc.GetOptions().Extensions[validate_pb2.message]
-            if message_level.disabled:
-                return []
             for oneof in message_level.oneof:
                 all_msg_oneof_fields.update(oneof.fields)
             if rule := self._new_message_rule(message_level, desc):
@@ -1072,7 +1060,7 @@ class RuleFactory:
                 if not field_level.HasField("ignore") and field.name in all_msg_oneof_fields:
                     field_level_override = validate_pb2.FieldRules()
                     field_level_override.CopyFrom(field_level)
-                    field_level_override.ignore = validate_pb2.IGNORE_IF_UNPOPULATED
+                    field_level_override.ignore = validate_pb2.IGNORE_IF_ZERO_VALUE
                     field_level = field_level_override
                 if field_level.ignore == validate_pb2.IGNORE_ALWAYS:
                     continue

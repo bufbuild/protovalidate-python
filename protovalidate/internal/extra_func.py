@@ -15,16 +15,19 @@
 import math
 import re
 import typing
-from collections.abc import Callable
 from urllib import parse as urlparse
 
 import celpy
 from celpy import celtypes
 
-from protovalidate.config import Config
 from protovalidate.internal import string_format
-from protovalidate.internal.matches import matches as protovalidate_matches
 from protovalidate.internal.rules import MessageType, field_to_cel
+
+_USE_RE2 = True
+try:
+    import re2
+except ImportError:
+    _USE_RE2 = False
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
 _email_regex = re.compile(
@@ -1556,31 +1559,34 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
-def get_matches_func(matcher: typing.Optional[Callable[[str, str], bool]]):
-    if matcher is None:
-        matcher = protovalidate_matches
+def cel_matches_re(text: str, pattern: str) -> celpy.Result:
+    try:
+        m = re.search(pattern, text)
+    except re.error as ex:
+        return celpy.CELEvalError("match error", ex.__class__, ex.args)
 
-    def cel_matches(text: celtypes.Value, pattern: celtypes.Value) -> celpy.Result:
-        if not isinstance(text, celtypes.StringType):
-            msg = "invalid argument for text, expected string"
-            raise celpy.CELEvalError(msg)
-        if not isinstance(pattern, celtypes.StringType):
-            msg = "invalid argument for pattern, expected string"
-            raise celpy.CELEvalError(msg)
-
-        b = matcher(text, pattern)
-        return celtypes.BoolType(b)
-
-    return cel_matches
+    return celtypes.BoolType(m is not None)
 
 
-def make_extra_funcs(config: Config) -> dict[str, celpy.CELFunction]:
+def cel_matches_re2(text: str, pattern: str) -> celpy.Result:
+    try:
+        m = re2.search(pattern, text)
+    except re2.error as ex:
+        return celpy.CELEvalError("match error", ex.__class__, ex.args)
+
+    return celtypes.BoolType(m is not None)
+
+
+cel_matches = cel_matches_re2 if _USE_RE2 else cel_matches_re
+
+
+def make_extra_funcs() -> dict[str, celpy.CELFunction]:
     string_fmt = string_format.StringFormat()
     return {
         # Missing standard functions
         "format": string_fmt.format,
         # Overridden standard functions
-        "matches": get_matches_func(config.regex_matches_func),
+        "matches": cel_matches,
         # protovalidate specific functions
         "getField": cel_get_field,
         "isNan": cel_is_nan,
