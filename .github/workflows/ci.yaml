@@ -39,3 +39,5 @@ jobs:
         run: make format
       - name: Check generated
         run: make checkgenerate
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}

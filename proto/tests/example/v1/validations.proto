@@ -52,7 +52,10 @@ message ProtovalidateOneof {
   string b = 2;
   bool unrelated = 3;
   option (buf.validate.message).oneof = {
-    fields: ["a", "b"]
+    fields: [
+      "a",
+      "b"
+    ]
   };
 }
 
@@ -61,7 +64,10 @@ message ProtovalidateOneofRequired {
   string b = 2;
   bool unrelated = 3;
   option (buf.validate.message).oneof = {
-    fields: ["a", "b"]
+    fields: [
+      "a",
+      "b"
+    ]
     required: true
   };
 }
@@ -71,7 +77,11 @@ message ProtovalidateOneofUnknownFieldName {
   string b = 2;
   bool unrelated = 3;
   option (buf.validate.message).oneof = {
-    fields: ["a", "b", "xxx"]
+    fields: [
+      "a",
+      "b",
+      "xxx"
+    ]
   };
 }
 
