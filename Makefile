@@ -46,6 +46,7 @@ generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license header
 .PHONY: format
 format: install $(BIN)/license-header ## Format code
 	$(ADD_LICENSE_HEADER)
+	buf format --write .
 	uv run -- ruff format protovalidate test
 	uv run -- ruff check --fix protovalidate test
 
