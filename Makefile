@@ -18,7 +18,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 # This version should be kept in sync with the version in buf.yaml
 PROTOVALIDATE_VERSION ?= v0.14.0
 # Version of the cel-spec that this implementation is conformant with
-# This should be kept in sync with the version in format_test.py
+# This should be kept in sync with the version in test/test_format.py
 CEL_SPEC_VERSION ?= v0.24.0
 TESTDATA_FILE := test/testdata/string_ext_$(CEL_SPEC_VERSION).textproto
 
@@ -44,7 +44,7 @@ generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license header
 	$(ADD_LICENSE_HEADER)
 
 .PHONY: format
-format: install $(BIN)/license-header ## Format code
+format: install $(BIN)/buf $(BIN)/license-header ## Format code
 	$(ADD_LICENSE_HEADER)
 	buf format --write .
 	uv run -- ruff format protovalidate test
@@ -65,7 +65,8 @@ conformance: $(BIN)/protovalidate-conformance generate install ## Run conformanc
 	protovalidate-conformance $(CONFORMANCE_ARGS) uv -- run python3 -m test.conformance.runner
 
 .PHONY: lint
-lint: install ## Lint code
+lint: install $(BIN)/buf ## Lint code
+	buf format -d --exit-code
 	uv run -- ruff format --check --diff protovalidate test
 	uv run -- mypy protovalidate
 	uv run -- ruff check protovalidate test
