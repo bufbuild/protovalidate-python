@@ -39,7 +39,7 @@ dev = [
 	"google-re2-stubs>=0.1.1",
 	"mypy",
 	"ruff",
-	"types-protobuf==6.30.2.20250503",
+	"types-protobuf",
 ]
 
 [tool.hatch.version]
@@ -100,3 +100,9 @@ ban-relative-imports = "all"
 [tool.ruff.lint.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports.
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
+
+[tool.mypy]
+mypy_path = "gen"
+
+[tool.ty.environment]
+extra-paths = ["gen"]

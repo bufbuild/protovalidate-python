@@ -16,7 +16,7 @@ import typing
 
 from google.protobuf import message
 
-from buf.validate import validate_pb2  # type: ignore
+from buf.validate import validate_pb2
 from protovalidate.config import Config
 from protovalidate.internal import extra_func
 from protovalidate.internal import rules as _rules
@@ -38,7 +38,7 @@ class Validator:
     _factory: _rules.RuleFactory
     _cfg: Config
 
-    def __init__(self, config=None):
+    def __init__(self, config: typing.Optional[Config] = None):
         self._cfg = config if config is not None else Config()
         funcs = extra_func.make_extra_funcs()
         self._factory = _rules.RuleFactory(funcs)
@@ -92,9 +92,9 @@ class Validator:
                 break
         for violation in ctx.violations:
             if violation.proto.HasField("field"):
-                violation.proto.field.elements.reverse()
+                violation.proto.field.elements.reverse()  # type: ignore
             if violation.proto.HasField("rule"):
-                violation.proto.rule.elements.reverse()
+                violation.proto.rule.elements.reverse()  # type: ignore
         return ctx.violations
 
 

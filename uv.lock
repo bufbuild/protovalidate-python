@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.9"
 
 [[package]]
@@ -263,7 +263,7 @@ dev = [
     { name = "google-re2-stubs", specifier = ">=0.1.1" },
     { name = "mypy" },
     { name = "ruff" },
-    { name = "types-protobuf", specifier = "==6.30.2.20250503" },
+    { name = "types-protobuf" },
 ]
 
 [[package]]
@@ -406,11 +406,11 @@ wheels = [
 
 [[package]]
 name = "types-protobuf"
-version = "6.30.2.20250503"
+version = "6.30.2.20250809"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/79/6b/1c384ec9746a6f2a255de6002d43591b886b5950985cb6c62713b3a2b275/types_protobuf-6.30.2.20250503.tar.gz", hash = "sha256:14ad797be85ce763c710b2d8e7cf8c4fc7972d4b986620899727c7dec1e66468", size = 59682, upload-time = "2025-05-03T02:58:07.114Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/9e/8777c578b5b66f6ef99ce9dac4865b51016a52b1d681942fbf75ac35d60f/types_protobuf-6.30.2.20250809.tar.gz", hash = "sha256:b04f2998edf0d81bd8600bbd5db0b2adf547837eef6362ba364925cee21a33b4", size = 62204, upload-time = "2025-08-09T03:14:07.547Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/49/03d14506f26c3e5a9302d6a1f0709cc6ed40b83f0088e647e3fbc0ede4a5/types_protobuf-6.30.2.20250503-py3-none-any.whl", hash = "sha256:fc78df75118155b9617c8e8c3944eaf8f537f943b2f258b00b8520162c32d829", size = 73845, upload-time = "2025-05-03T02:58:05.735Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/9a/43daca708592570539888d80d6b708dff0b1795218aaf6b13057cc2e2c18/types_protobuf-6.30.2.20250809-py3-none-any.whl", hash = "sha256:7afc2d3f569d281dd22f339179577243be60bf7d1dfb4bc13d0109859fb1f1be", size = 76389, upload-time = "2025-08-09T03:14:06.531Z" },
 ]
 
 [[package]]
