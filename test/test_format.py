@@ -26,8 +26,8 @@ from gen.cel.expr.conformance.test import simple_pb2
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
 
-# Version of the cel-spec that this implementation is conformant with
-# This should be kept in sync with the version in the Makefile
+# Version of the cel-spec that this implementation is conformant with.
+# This should be kept in sync with the version in ../Makefile.
 CEL_SPEC_VERSION = "v0.24.0"
 
 skipped_tests = [
@@ -36,6 +36,7 @@ skipped_tests = [
     # This throws an error like:
     # "no such overload: IntType(0) <class 'celpy.celtypes.IntType'> !=
     #    BoolType(False) <class 'celpy.celtypes.BoolType'>",))
+    # TODO: Check if this bug is fixed in newer versions of cel-python.
     "map support (all key types)",
 ]
 skipped_error_tests = [
@@ -111,8 +112,6 @@ class TestFormat(unittest.TestCase):
             prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
 
             bindings = build_variables(test.bindings)
-            # Ideally we should use pytest parametrize instead of subtests, but
-            # that would require refactoring other tests also.
             with self.subTest(test.name):
                 try:
                     result = prog.evaluate(bindings)
@@ -135,8 +134,6 @@ class TestFormat(unittest.TestCase):
             prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
 
             bindings = build_variables(test.bindings)
-            # Ideally we should use pytest parametrize instead of subtests, but
-            # that would require refactoring other tests also.
             with self.subTest(test.name):
                 try:
                     prog.evaluate(bindings)
