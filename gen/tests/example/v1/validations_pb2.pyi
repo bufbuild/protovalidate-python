@@ -137,3 +137,11 @@ class InvalidRESyntax(_message.Message):
     VALUE_FIELD_NUMBER: _ClassVar[int]
     value: str
     def __init__(self, value: _Optional[str] = ...) -> None: ...
+
+class ConcatenatedValues(_message.Message):
+    __slots__ = ("bar", "baz")
+    BAR_FIELD_NUMBER: _ClassVar[int]
+    BAZ_FIELD_NUMBER: _ClassVar[int]
+    bar: _containers.RepeatedScalarFieldContainer[str]
+    baz: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, bar: _Optional[_Iterable[str]] = ..., baz: _Optional[_Iterable[str]] = ...) -> None: ...
