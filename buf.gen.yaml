@@ -2,7 +2,8 @@ version: v2
 managed:
   enabled: true
 plugins:
-    - remote: buf.build/protocolbuffers/python:v30.1
+    # NOTE: v30.0 is the earliest version supporting protobuf==6.
+    - remote: buf.build/protocolbuffers/python:v30.0
       out: gen
-    - remote: buf.build/protocolbuffers/pyi:v30.1
+    - remote: buf.build/protocolbuffers/pyi:v30.0
       out: gen
