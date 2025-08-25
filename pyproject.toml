@@ -22,7 +22,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "protobuf==6.*",
+    "protobuf>=5",
     "cel-python==0.2.*",
 ]
 [project.optional-dependencies]
@@ -45,7 +45,7 @@ dev = [
 	"google-re2-stubs>=0.1.1",
 	"mypy>=1.17.1",
 	"ruff>=0.12.0",
-	"types-protobuf==6.30.2.20250503",
+	"types-protobuf>=5",
 ]
 
 [tool.hatch.version]

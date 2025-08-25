@@ -277,7 +277,7 @@ requires-dist = [
     { name = "google-re2", marker = "python_full_version == '3.12.*' and extra == 're2'", specifier = ">=1.1" },
     { name = "google-re2", marker = "python_full_version == '3.13.*' and extra == 're2'", specifier = ">=1.1.20250722" },
     { name = "google-re2", marker = "extra == 're2'", specifier = ">=1" },
-    { name = "protobuf", specifier = "==6.*" },
+    { name = "protobuf", specifier = ">=5" },
 ]
 provides-extras = ["re2"]
 
@@ -286,7 +286,7 @@ dev = [
     { name = "google-re2-stubs", specifier = ">=0.1.1" },
     { name = "mypy", specifier = ">=1.17.1" },
     { name = "ruff", specifier = ">=0.12.0" },
-    { name = "types-protobuf", specifier = "==6.30.2.20250503" },
+    { name = "types-protobuf", specifier = ">=5" },
 ]
 
 [[package]]
