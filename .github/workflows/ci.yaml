@@ -41,6 +41,6 @@ jobs:
       - name: Format
         run: make format
       - name: Check generated
-        run: make checkgenerate
+        run: UV_RESOLUTION=${{ matrix.resolution }} make checkgenerate
         env:
           BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
