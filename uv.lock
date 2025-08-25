@@ -274,7 +274,7 @@ dev = [
 requires-dist = [
     { name = "cel-python", specifier = "==0.2.*" },
     { name = "google-re2", marker = "python_full_version == '3.13.*' and extra == 're2'", specifier = ">=1.1.20250722" },
-    { name = "google-re2", marker = "extra == 're2'", specifier = ">=1" },
+    { name = "google-re2", marker = "extra == 're2'", specifier = ">=1.1" },
     { name = "protobuf", specifier = "==6.*" },
 ]
 provides-extras = ["re2"]
