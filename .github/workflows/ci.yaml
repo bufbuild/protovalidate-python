@@ -18,6 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        resolution: ["highest", "lowest-direct"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -31,6 +32,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install dependencies with resolution ${{ matrix.resolution }}
+        run: UV_RESOLUTION=${{ matrix.resolution }} make install
       - name: Execute tests
         run: make test
       - name: Lint
