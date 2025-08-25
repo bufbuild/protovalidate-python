@@ -27,7 +27,9 @@ dependencies = [
 ]
 [project.optional-dependencies]
 re2 = [
-    "google-re2==1.*",
+    # We need at least this version, which started publishing wheels for Python 3.13.
+    # Ref: https://github.com/google/re2/issues/516
+    "google-re2>=1.1.20250722",
 ]
 
 [project.urls]
