@@ -179,6 +179,14 @@ class TestCollectViolations(unittest.TestCase):
 
         self._run_invalid_tests(msg, [expected_violation1, expected_violation2])
 
+    def test_concatenated_values(self):
+        msg = validations_pb2.ConcatenatedValues(
+            bar=["a", "b", "c"],
+            baz=["d", "e", "f"],
+        )
+
+        self._run_valid_tests(msg)
+
     def test_fail_fast(self):
         """Test that fail fast correctly fails on first violation
 

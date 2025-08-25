@@ -111,3 +111,16 @@ message RepeatedEmbedSkip {
 message InvalidRESyntax {
   string value = 1 [(buf.validate.field).string.pattern = "^\\z"];
 }
+
+// via #353.
+
+message ConcatenatedValues {
+  option (buf.validate.message).cel = {
+    id: "globally_unique_names"
+    message: "all values in bar and baz must be globally unique"
+    expression: "(this.bar + this.baz).unique()"
+  };
+
+  repeated string bar = 1;
+  repeated string baz = 2;
+}
