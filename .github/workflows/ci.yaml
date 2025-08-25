@@ -40,7 +40,9 @@ jobs:
         run: make lint
       - name: Format
         run: make format
-      - name: Check generated
-        run: UV_RESOLUTION=${{ matrix.resolution }} make checkgenerate
+      # When running with matrix.resolution == lowest, we expect uv.lock to change, but we don't want that file checked in.
+      - if: matrix.resolution == 'highest'
+        name: Check generated
+        run: make checkgenerate
         env:
           BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
