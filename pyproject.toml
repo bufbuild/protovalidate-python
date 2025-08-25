@@ -27,7 +27,12 @@ dependencies = [
 ]
 [project.optional-dependencies]
 re2 = [
-    "google-re2==1.*",
+    # We need at least this version, which started publishing wheels for Python 3.13.
+    # Ref: https://github.com/google/re2/issues/516
+    "google-re2>=1.1.20250722; python_version == '3.13'",
+    # 1.1 started supporting 3.12.
+    "google-re2>=1.1; python_version == '3.12'",
+    "google-re2>=1",
 ]
 
 [project.urls]
@@ -38,8 +43,8 @@ Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 [dependency-groups]
 dev = [
 	"google-re2-stubs>=0.1.1",
-	"mypy",
-	"ruff",
+	"mypy>=1.17.1",
+	"ruff>=0.12.0",
 	"types-protobuf==6.30.2.20250503",
 ]
 

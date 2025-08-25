@@ -70,7 +70,7 @@ lint: install $(BIN)/buf ## Lint code
 	uv run -- ruff format --check --diff protovalidate test
 	uv run -- mypy protovalidate
 	uv run -- ruff check protovalidate test
-	uv sync --locked
+	uv lock --check
 
 .PHONY: install
 install: ## Install dependencies
