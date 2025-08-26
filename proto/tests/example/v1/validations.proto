@@ -124,3 +124,13 @@ message ConcatenatedValues {
   repeated string bar = 1;
   repeated string baz = 2;
 }
+
+// via #304
+
+message RepeatedItems {
+  repeated int64 items = 1 [(buf.validate.field).repeated = {
+    items: {
+      int64: {gt: 0}
+    }
+  }];
+}

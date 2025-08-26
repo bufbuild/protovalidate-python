@@ -129,6 +129,10 @@ class TestCollectViolations(unittest.TestCase):
 
         self._run_invalid_tests(msg, [expected_violation])
 
+    def test_repeated_items(self):
+        msg = validations_pb2.RepeatedItems(items=[i + 1 for i in range(2000)])
+        self._run_valid_tests(msg)
+
     def test_protovalidate_oneof_unknown_field_name(self):
         """Tests that a compilation error is thrown when specifying a oneof rule with an invalid field name"""
         msg = validations_pb2.ProtovalidateOneofUnknownFieldName()

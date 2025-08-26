@@ -144,3 +144,9 @@ class ConcatenatedValues(_message.Message):
     bar: _containers.RepeatedScalarFieldContainer[str]
     baz: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, bar: _Optional[_Iterable[str]] = ..., baz: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class RepeatedItems(_message.Message):
+    __slots__ = ("items",)
+    ITEMS_FIELD_NUMBER: _ClassVar[int]
+    items: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, items: _Optional[_Iterable[int]] = ...) -> None: ...
