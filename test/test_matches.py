@@ -12,33 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import importlib.util
 import unittest
 
 import celpy
 from celpy import celtypes
 
-from protovalidate.internal.extra_func import cel_matches_re, cel_matches_re2
-
-_USE_RE2 = True
-spec = importlib.util.find_spec("re2")
-if spec is None:
-    _USE_RE2 = False
+from protovalidate.internal.extra_func import cel_matches
 
 
 class TestCollectViolations(unittest.TestCase):
-    @unittest.skipUnless(_USE_RE2, "Requires 're2'")
     def test_function_matches_re2(self):
         empty_string = celtypes.StringType("")
         # \z is valid re2 syntax for end of text
-        self.assertTrue(cel_matches_re2(empty_string, "^\\z"))
+        self.assertTrue(cel_matches(empty_string, "^\\z"))
         # \Z is invalid re2 syntax
-        self.assertIsInstance(cel_matches_re2(empty_string, "^\\Z"), celpy.CELEvalError)
-
-    @unittest.skipUnless(_USE_RE2 is False, "Requires 're'")
-    def test_function_matches_re(self):
-        empty_string = celtypes.StringType("")
-        # \z is invalid re syntax
-        self.assertIsInstance(cel_matches_re(empty_string, "^\\z"), celpy.CELEvalError)
-        # \Z is valid re syntax for end of text
-        self.assertTrue(cel_matches_re(empty_string, "^\\Z"))
+        self.assertIsInstance(cel_matches(empty_string, "^\\Z"), celpy.CELEvalError)

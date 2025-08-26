@@ -18,16 +18,11 @@ import typing
 from urllib import parse as urlparse
 
 import celpy
+import re2
 from celpy import celtypes
 
 from protovalidate.internal import string_format
 from protovalidate.internal.rules import MessageType, field_to_cel
-
-_USE_RE2 = True
-try:
-    import re2
-except ImportError:
-    _USE_RE2 = False
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
 _email_regex = re.compile(
@@ -1559,25 +1554,13 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
-def cel_matches_re(text: str, pattern: str) -> celpy.Result:
-    try:
-        m = re.search(pattern, text)
-    except re.error as ex:
-        return celpy.CELEvalError("match error", ex.__class__, ex.args)
-
-    return celtypes.BoolType(m is not None)
-
-
-def cel_matches_re2(text: str, pattern: str) -> celpy.Result:
+def cel_matches(text: str, pattern: str) -> celpy.Result:
     try:
         m = re2.search(pattern, text)
     except re2.error as ex:
         return celpy.CELEvalError("match error", ex.__class__, ex.args)
 
     return celtypes.BoolType(m is not None)
-
-
-cel_matches = cel_matches_re2 if _USE_RE2 else cel_matches_re
 
 
 def make_extra_funcs() -> dict[str, celpy.CELFunction]:

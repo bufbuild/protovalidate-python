@@ -52,12 +52,6 @@ To install the package, use `pip`:
 pip install protovalidate
 ```
 
-Protovalidate also has an optional dependency on [google-re2](https://pypi.org/project/google-re2/). If you require re2 syntax for your regular expressions, install the extra dep as follows:
-
-```shell
-pip install protovalidate[re2]
-```
-
 ## Documentation
 
 Comprehensive documentation for Protovalidate is available at [protovalidate.com][protovalidate].
