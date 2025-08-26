@@ -19,7 +19,7 @@ from collections.abc import Callable, Container, Iterable, Mapping
 
 import celpy
 from celpy import celtypes
-from google.protobuf import any_pb2, descriptor, duration_pb2, message, message_factory
+from google.protobuf import any_pb2, descriptor, duration_pb2, message, message_factory, timestamp_pb2
 
 from buf.validate import validate_pb2
 from protovalidate.config import Config
@@ -37,8 +37,10 @@ def make_duration(msg: duration_pb2.Duration) -> celtypes.DurationType:
     )
 
 
-def make_timestamp(msg: duration_pb2.Duration) -> celtypes.TimestampType:
-    return celtypes.TimestampType(1970, 1, 1) + make_duration(msg)
+def make_timestamp(msg: timestamp_pb2.Timestamp) -> celtypes.TimestampType:
+    return celtypes.TimestampType(1970, 1, 1) + make_duration(
+        duration_pb2.Duration(seconds=msg.seconds, nanos=msg.nanos)
+    )
 
 
 def unwrap(msg: message.Message) -> celtypes.Value:
