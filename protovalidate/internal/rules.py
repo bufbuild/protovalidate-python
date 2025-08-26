@@ -14,16 +14,30 @@
 
 import dataclasses
 import datetime
+import logging
 import typing
 from collections.abc import Callable
 
 import celpy
-from celpy import celtypes
+from celpy import Activation, celtypes
+from celpy.celtypes import MapType
+from celpy.evaluation import NameContainer, Referent
 from google.protobuf import any_pb2, descriptor, message, message_factory
 
 from buf.validate import validate_pb2  # type: ignore
 from protovalidate.config import Config
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
+
+FORMAT = "%(asctime)s %(message)s"
+logging.basicConfig(format=FORMAT)
+logger = logging.getLogger(name=__name__)
+
+
+NameContainer.__repr__ = lambda self: ""
+Referent.__repr__ = lambda self: ""
+Activation.__repr__ = lambda self: ""
+MapType.__repr__ = lambda self: ""
+# Tree.__repr__ = lambda self: ""
 
 
 class CompilationError(Exception):
@@ -764,7 +778,9 @@ class RepeatedRules(FieldRules):
                 if self._item_rules._ignore_empty and not item:
                     continue
                 sub_ctx = ctx.sub_context()
+                logger.warning("validating item value")
                 self._item_rules.validate_item(sub_ctx, item)
+                logger.warning("done validating item value")
                 if sub_ctx.has_errors():
                     element = _field_to_element(self._field)
                     element.index = i

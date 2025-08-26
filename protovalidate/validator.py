@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import typing
 
 from google.protobuf import message
@@ -24,6 +25,11 @@ from protovalidate.internal import rules as _rules
 CompilationError = _rules.CompilationError
 Violations = validate_pb2.Violations
 Violation = _rules.Violation
+
+
+FORMAT = "%(asctime)s %(message)s"
+logging.basicConfig(format=FORMAT)
+logger = logging.getLogger(name=__name__)
 
 
 class Validator:
@@ -58,7 +64,9 @@ class Validator:
             ValidationError: If the message is invalid. The violations raised as part of this error should
             always be equal to the list of violations returned by `collect_violations`.
         """
+        logger.warning("collecting violations")
         violations = self.collect_violations(message)
+        logger.warning("done collecting violations")
         if len(violations) > 0:
             msg = f"invalid {message.DESCRIPTOR.name}"
             raise ValidationError(msg, violations)
@@ -85,11 +93,16 @@ class Validator:
         Raises:
             CompilationError: If the static rules could not be compiled.
         """
+        logger.warning("rule context")
         ctx = _rules.RuleContext(config=self._cfg, violations=into)
         for rule in self._factory.get(message.DESCRIPTOR):
+            logger.warning("validating rule")
             rule.validate(ctx, message)
+            logger.warning("done validating rule")
             if ctx.done:
+                logger.warning("ctx done!")
                 break
+        logger.warning("reversing")
         for violation in ctx.violations:
             if violation.proto.HasField("field"):
                 violation.proto.field.elements.reverse()
