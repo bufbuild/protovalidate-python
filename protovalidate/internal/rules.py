@@ -14,30 +14,17 @@
 
 import dataclasses
 import datetime
-import logging
+import time
 import typing
 from collections.abc import Callable
 
 import celpy
-from celpy import Activation, celtypes
-from celpy.celtypes import MapType
-from celpy.evaluation import NameContainer, Referent
+from celpy import celtypes
 from google.protobuf import any_pb2, descriptor, message, message_factory
 
 from buf.validate import validate_pb2  # type: ignore
 from protovalidate.config import Config
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
-
-FORMAT = "%(asctime)s %(message)s"
-logging.basicConfig(format=FORMAT)
-logger = logging.getLogger(name=__name__)
-
-
-NameContainer.__repr__ = lambda self: ""
-Referent.__repr__ = lambda self: ""
-Activation.__repr__ = lambda self: ""
-MapType.__repr__ = lambda self: ""
-# Tree.__repr__ = lambda self: ""
 
 
 class CompilationError(Exception):
@@ -367,8 +354,12 @@ class CelRules(Rules):
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
         for cel in self._cel:
+            print(f"{cel=}")
             activation["rule"] = cel.rule_cel
+            start_item = time.perf_counter()
             result = cel.runner.evaluate(activation)
+            end_item = time.perf_counter()
+            print(f"Finished evaluationg item rule in {end_item - start_item:.5f} seconds")
             if isinstance(result, celtypes.BoolType):
                 if not result:
                     ctx.add(
@@ -772,15 +763,17 @@ class RepeatedRules(FieldRules):
         super().validate(ctx, message)
         if ctx.done:
             return
+        start = time.perf_counter()
         value = getattr(message, self._field.name)
         if self._item_rules is not None:
             for i, item in enumerate(value):
                 if self._item_rules._ignore_empty and not item:
                     continue
                 sub_ctx = ctx.sub_context()
-                logger.warning("validating item value")
+                start_item = time.perf_counter()
                 self._item_rules.validate_item(sub_ctx, item)
-                logger.warning("done validating item value")
+                end_item = time.perf_counter()
+                print(f"Finished validating item rule in {end_item - start_item:.5f} seconds")
                 if sub_ctx.has_errors():
                     element = _field_to_element(self._field)
                     element.index = i
@@ -789,6 +782,8 @@ class RepeatedRules(FieldRules):
                     ctx.add_errors(sub_ctx)
                 if ctx.done:
                     return
+        end = time.perf_counter()
+        print(f"Finished validating repeated rule in {end - start:.2f} seconds")
 
 
 class MapRules(FieldRules):
