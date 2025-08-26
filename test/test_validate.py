@@ -18,7 +18,6 @@ from google.protobuf import message
 
 import protovalidate
 from gen.tests.example.v1 import validations_pb2
-from protovalidate.config import Config
 from protovalidate.internal import rules
 
 
@@ -27,13 +26,11 @@ def get_default_validator():
 
     This allows testing for validators created via:
         - module-level singleton
-        - instantiated class with no config
-        - instantiated class with config
+        - instantiated class
     """
     return [
         ("module singleton", protovalidate),
-        ("no config", protovalidate.Validator()),
-        ("with default config", protovalidate.Validator(Config())),
+        ("instantiated class", protovalidate.Validator()),
     ]
 
 
@@ -42,8 +39,7 @@ class TestCollectViolations(unittest.TestCase):
 
     A validator can be created via various ways:
     - a module-level singleton, which returns a default validator
-    - instantiating the Validator class with no config, which returns a default validator
-    - instantiating the Validator class with a config
+    - instantiating the Validator class
 
     In addition, the API for validating a message allows for two approaches:
     - via a call to `validate`, which will raise a ValidationError if validation fails
@@ -188,11 +184,7 @@ class TestCollectViolations(unittest.TestCase):
         self._run_valid_tests(msg)
 
     def test_fail_fast(self):
-        """Test that fail fast correctly fails on first violation
-
-        Note this does not use a default validator, but instead uses one with a custom config
-        so that fail_fast can be set to True.
-        """
+        """Test that fail fast correctly fails on first violation"""
         msg = validations_pb2.MultipleValidations()
         msg.title = "bar"
         msg.name = "blah"
@@ -203,18 +195,17 @@ class TestCollectViolations(unittest.TestCase):
         expected_violation.field_value = msg.title
         expected_violation.rule_value = "foo"
 
-        cfg = Config(fail_fast=True)
-        validator = protovalidate.Validator(config=cfg)
+        validator = protovalidate.Validator()
 
         # Test validate
         with self.assertRaises(protovalidate.ValidationError) as cm:
-            validator.validate(msg)
+            validator.validate(msg, fail_fast=True)
             e = cm.exception
             self.assertEqual(str(e), f"invalid {msg.DESCRIPTOR.name}")
             self._compare_violations(e.violations, [expected_violation])
 
         # Test collect_violations
-        violations = validator.collect_violations(msg)
+        violations = validator.collect_violations(msg, fail_fast=True)
         self._compare_violations(violations, [expected_violation])
 
     def _run_valid_tests(self, msg: message.Message):
