@@ -353,6 +353,7 @@ class CelRules(Rules):
             activation["this"] = this_cel
         activation["rules"] = self._rules_cel
         activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
+        start_eval = time.perf_counter()
         for cel in self._cel:
             print(f"{cel=}")
             activation["rule"] = cel.rule_cel
@@ -386,6 +387,7 @@ class CelRules(Rules):
                     )
             elif isinstance(result, Exception):
                 raise result
+        print(f"Finished validating all cel in {time.perf_counter() - start_eval:.5f} seconds")
 
     def add_rule(
         self,
