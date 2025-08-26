@@ -267,11 +267,9 @@ class RuleContext:
 
     _violations: list[Violation]
 
-    def __init__(self, *, fail_fast: bool = False, violations: typing.Optional[list[Violation]] = None):
+    def __init__(self, *, fail_fast: bool = False):
         self._fail_fast = fail_fast
-        if violations is None:
-            violations = []
-        self._violations = violations
+        self._violations = []
 
     @property
     def violations(self) -> list[Violation]:

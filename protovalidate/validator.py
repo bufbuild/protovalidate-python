@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import typing
-
 from google.protobuf import message
 
 from buf.validate import validate_pb2
@@ -63,7 +61,6 @@ class Validator:
         message: message.Message,
         *,
         fail_fast: bool = False,
-        into: typing.Optional[list[Violation]] = None,
     ) -> list[Violation]:
         """
         Validates the given message against the static rules defined in
@@ -77,12 +74,10 @@ class Validator:
         Parameters:
             message: The message to validate.
             fail_fast: If true, validation will stop after the first iteration.
-            into: If provided, any violations will be appended to the
-                Violations object and the same object will be returned.
         Raises:
             CompilationError: If the static rules could not be compiled.
         """
-        ctx = _rules.RuleContext(fail_fast=fail_fast, violations=into)
+        ctx = _rules.RuleContext(fail_fast=fail_fast)
         for rule in self._factory.get(message.DESCRIPTOR):
             rule.validate(ctx, message)
             if ctx.done:
