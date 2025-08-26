@@ -24,9 +24,6 @@ dynamic = ["version"]
 dependencies = [
     "protobuf>=5",
     "cel-python==0.2.*",
-]
-[project.optional-dependencies]
-re2 = [
     # We need at least this version, which started publishing wheels for Python 3.13.
     # Ref: https://github.com/google/re2/issues/516
     "google-re2>=1.1.20250722; python_version == '3.13'",
