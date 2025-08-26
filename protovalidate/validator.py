@@ -17,7 +17,6 @@ import typing
 from google.protobuf import message
 
 from buf.validate import validate_pb2
-from protovalidate.config import Config
 from protovalidate.internal import extra_func
 from protovalidate.internal import rules as _rules
 
@@ -36,29 +35,25 @@ class Validator:
     """
 
     _factory: _rules.RuleFactory
-    _cfg: Config
 
-    def __init__(self, config: typing.Optional[Config] = None):
-        self._cfg = config if config is not None else Config()
+    def __init__(self):
         funcs = extra_func.make_extra_funcs()
         self._factory = _rules.RuleFactory(funcs)
 
-    def validate(
-        self,
-        message: message.Message,
-    ):
+    def validate(self, message: message.Message, *, fail_fast: bool = False):
         """
         Validates the given message against the static rules defined in
         the message's descriptor.
 
         Parameters:
             message: The message to validate.
+            fail_fast: If true, validation will stop after the first iteration.
         Raises:
             CompilationError: If the static rules could not be compiled.
             ValidationError: If the message is invalid. The violations raised as part of this error should
             always be equal to the list of violations returned by `collect_violations`.
         """
-        violations = self.collect_violations(message)
+        violations = self.collect_violations(message, fail_fast=fail_fast)
         if len(violations) > 0:
             msg = f"invalid {message.DESCRIPTOR.name}"
             raise ValidationError(msg, violations)
@@ -67,6 +62,7 @@ class Validator:
         self,
         message: message.Message,
         *,
+        fail_fast: bool = False,
         into: typing.Optional[list[Violation]] = None,
     ) -> list[Violation]:
         """
@@ -80,12 +76,13 @@ class Validator:
 
         Parameters:
             message: The message to validate.
+            fail_fast: If true, validation will stop after the first iteration.
             into: If provided, any violations will be appended to the
                 Violations object and the same object will be returned.
         Raises:
             CompilationError: If the static rules could not be compiled.
         """
-        ctx = _rules.RuleContext(config=self._cfg, violations=into)
+        ctx = _rules.RuleContext(fail_fast=fail_fast, violations=into)
         for rule in self._factory.get(message.DESCRIPTOR):
             rule.validate(ctx, message)
             if ctx.done:
