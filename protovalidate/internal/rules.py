@@ -413,14 +413,14 @@ class MessageOneofRule(Rules):
             ctx.add(
                 Violation(
                     rule_id="message.oneof",
-                    message=f"only one of {', '.join([field.name for field in self._fields])} can be set",
+                    message=f"only one of {', '.join(field.name for field in self._fields)} can be set",
                 )
             )
         if self._required and num_set_fields == 0:
             ctx.add(
                 Violation(
                     rule_id="message.oneof",
-                    message=f"one of {', '.join([field.name for field in self._fields])} must be set",
+                    message=f"one of {', '.join(field.name for field in self._fields)} must be set",
                 )
             )
 
