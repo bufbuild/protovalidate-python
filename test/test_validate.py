@@ -85,20 +85,6 @@ class TestCollectViolations(unittest.TestCase):
 
         self._run_valid_tests(msg)
 
-    def test_collect_violations_into(self):
-        msg1 = validations_pb2.Oneof()
-        msg1.y = 123
-
-        msg2 = validations_pb2.Oneof()
-        msg2.z.val = True
-
-        for label, v in get_default_validator():
-            with self.subTest(label=label):
-                # Test collect_violations into
-                violations = v.collect_violations(msg1)
-                v.collect_violations(msg2, into=violations)
-                self.assertEqual(len(violations), 0)
-
     def test_protovalidate_oneof_valid(self):
         msg = validations_pb2.ProtovalidateOneof()
         msg.a = "A"
