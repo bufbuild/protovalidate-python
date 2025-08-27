@@ -52,7 +52,7 @@ format: install $(BIN)/buf $(BIN)/license-header ## Format code
 
 .PHONY: test
 test: generate install gettestdata ## Run unit tests
-	uv run -- python -m unittest
+	uv run -- pytest
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
