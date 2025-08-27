@@ -41,6 +41,7 @@ Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 dev = [
 	"google-re2-stubs>=0.1.1",
 	"mypy>=1.17.1",
+	"pytest>=8.4.1",
 	"ruff>=0.12.0",
 	"types-protobuf>=5.29.1.20250315",
 ]
@@ -101,8 +102,12 @@ known-first-party = ["protovalidate", "buf"]
 ban-relative-imports = "all"
 
 [tool.ruff.lint.per-file-ignores]
-# Tests can use magic values, assertions, and relative imports.
-"tests/**/*" = ["PLR2004", "S101", "TID252"]
+# Tests can use assertions.
+"test/**/*" = ["S101"]
+
+[tool.pytest.ini_options]
+# restrict testpaths to speed up test discovery
+testpaths = ["test"]
 
 [tool.mypy]
 mypy_path = "gen"

@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
-from collections.abc import MutableMapping
+from collections.abc import Iterable, MutableMapping
 from itertools import chain
 from typing import Any, Optional
 
 import celpy
+import pytest
 from celpy import celtypes
 from google.protobuf import text_format
 
@@ -82,65 +82,53 @@ def get_eval_error_message(test: simple_pb2.SimpleTest) -> Optional[str]:
     return None
 
 
-class TestFormat(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # The test data from the cel-spec conformance tests
-        cel_test_data = load_test_data(f"test/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
-        # Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
-        supplemental_test_data = load_test_data("test/testdata/string_ext_supplemental.textproto")
+# The test data from the cel-spec conformance tests
+cel_test_data = load_test_data(f"test/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
+# Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
+supplemental_test_data = load_test_data("test/testdata/string_ext_supplemental.textproto")
 
-        # Combine the test data from both files into one
-        sections = cel_test_data.section
-        sections.extend(supplemental_test_data.section)
+# Combine the test data from both files into one
+sections = cel_test_data.section
+sections.extend(supplemental_test_data.section)
 
-        # Find the format tests which test successful formatting
-        cls._format_tests = chain.from_iterable(x.test for x in sections if x.name == "format")
-        # Find the format error tests which test errors during formatting
-        cls._format_error_tests = chain.from_iterable(x.test for x in sections if x.name == "format_errors")
+# Find the format tests which test successful formatting
+_format_tests: Iterable[simple_pb2.SimpleTest] = chain.from_iterable(x.test for x in sections if x.name == "format")
+# Find the format error tests which test errors during formatting
+_format_error_tests: Iterable[simple_pb2.SimpleTest] = chain.from_iterable(
+    x.test for x in sections if x.name == "format_errors"
+)
 
-        cls._env = celpy.Environment(runner_class=InterpretedRunner)
+env = celpy.Environment(runner_class=InterpretedRunner)
 
-    def test_format_successes(self):
-        """
-        Tests success scenarios for string.format
-        """
-        for test in self._format_tests:
-            if test.name in skipped_tests:
-                continue
-            ast = self._env.compile(test.expr)
-            prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
 
-            bindings = build_variables(test.bindings)
-            with self.subTest(test.name):
-                try:
-                    result = prog.evaluate(bindings)
-                    expected = get_expected_result(test)
-                    if expected is not None:
-                        self.assertEqual(result, expected)
-                    else:
-                        self.fail(f"[{test.name}]: expected a success result to be defined")
-                except celpy.CELEvalError as e:
-                    self.fail(e)
+@pytest.mark.parametrize("format_test", _format_tests)
+def test_format_successes(format_test):
+    """Tests success scenarios for string.format"""
+    if format_test.name in skipped_tests:
+        pytest.skip(f"skipped test: {format_test.name}")
+    ast = env.compile(format_test.expr)
+    prog = env.program(ast, functions=extra_func.make_extra_funcs())
 
-    def test_format_errors(self):
-        """
-        Tests error scenarios for string.format
-        """
-        for test in self._format_error_tests:
-            if test.name in skipped_error_tests:
-                continue
-            ast = self._env.compile(test.expr)
-            prog = self._env.program(ast, functions=extra_func.make_extra_funcs())
+    bindings = build_variables(format_test.bindings)
+    result = prog.evaluate(bindings)
+    expected = get_expected_result(format_test)
+    assert expected is not None, f"[{format_test.name}]: expected a success result to be defined"
+    assert result == expected
 
-            bindings = build_variables(test.bindings)
-            with self.subTest(test.name):
-                try:
-                    prog.evaluate(bindings)
-                    self.fail(f"[{test.name}]: expected an error to be raised during evaluation")
-                except celpy.CELEvalError as e:
-                    msg = get_eval_error_message(test)
-                    if msg is not None:
-                        self.assertEqual(str(e), msg)
-                    else:
-                        self.fail(f"[{test.name}]: expected an eval error to be defined")
+
+@pytest.mark.parametrize("format_error_test", _format_error_tests)
+def test_format_errors(format_error_test):
+    """Tests error scenarios for string.format"""
+    if format_error_test.name in skipped_error_tests:
+        pytest.skip(f"skipped test: {format_error_test.name}")
+    ast = env.compile(format_error_test.expr)
+    prog = env.program(ast, functions=extra_func.make_extra_funcs())
+
+    bindings = build_variables(format_error_test.bindings)
+    try:
+        prog.evaluate(bindings)
+        pytest.fail(f"[{format_error_test.name}]: expected an error to be raised during evaluation")
+    except celpy.CELEvalError as e:
+        msg = get_eval_error_message(format_error_test)
+        assert msg is not None, f"[{format_error_test.name}]: expected an eval error to be defined"
+        assert str(e) == msg
