@@ -34,13 +34,32 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
-	rm -rf gen
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
-	$(BIN)/buf generate
+generate: generate-protovalidate-pypi-package generate-protobuf-tests $(BIN)/license-header  ## Regenerate code and license headers
 	$(ADD_LICENSE_HEADER)
+
+.PHONY: generate-protobuf-tests
+generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit tests
+	rm -rf test/gen
+	# generate protovalidate-testing into test/gen/buf/validate
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	
+	# generate cel-spec into test/gen/cel/expr
+	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
+	# we need to update the `from cel.expr` imports in those generated files to `from test.gen.cel.expr`
+	LC_ALL=C find test/gen/cel -type f -exec sed -i "" 's/from cel.expr/from test.gen.cel.expr/g' {} +
+
+	# generate proto/tests/example/v1/validations.proto into test/gen/tests/example/v1
+	$(BIN)/buf generate
+
+.PHONY:
+generate-protovalidate-pypi-package: $(BIN)/buf  ## Regenerate protobuf gencode for the bufbuild-protovalidate-protocolbuffers pypi package
+	rm -rf bufbuild-protovalidate-protocolbuffers/buf/validate/proto5
+	rm -rf bufbuild-protovalidate-protocolbuffers/buf/validate/proto6
+	# generate gencode for both proto5 and proto6 for buf.build/bufbuild/protovalidate
+	cd bufbuild-protovalidate-protocolbuffers && ../$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+
+	# set the version of bufbuild-protovalidate-protocolbuffers to the used PROTOVALIDATE_VERSION
+	sed -i '' 's/^version = "[^"]*"/version = "$(PROTOVALIDATE_VERSION)"/' bufbuild-protovalidate-protocolbuffers/pyproject.toml
 
 .PHONY: format
 format: install $(BIN)/buf $(BIN)/license-header ## Format code

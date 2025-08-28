@@ -12,29 +12,37 @@ keywords = ["validate", "protobuf", "protocol buffer"]
 # Keep our minimum version synced with ./.python-version.
 requires-python = ">=3.10"
 classifiers = [
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Operating System :: OS Independent",
-  "Typing :: Typed",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Operating System :: OS Independent",
+	"Typing :: Typed",
 ]
 dynamic = ["version"]
 dependencies = [
-    "protobuf>=5",
-    "cel-python==0.2.*",
-    # We need at least this version, which started publishing wheels for Python 3.13.
-    # Ref: https://github.com/google/re2/issues/516
-    "google-re2>=1.1.20250722; python_version == '3.13'",
-    # 1.1 started supporting 3.12.
-    "google-re2>=1.1; python_version == '3.12'",
-    "google-re2>=1",
+	"bufbuild-protovalidate-protocolbuffers",
+	"protobuf>=5",
+	"cel-python==0.2.*",
+	# We need at least this version, which started publishing wheels for Python 3.13.
+	# Ref: https://github.com/google/re2/issues/516
+	"google-re2>=1.1.20250722; python_version == '3.13'",
+	# 1.1 started supporting 3.12.
+	"google-re2>=1.1; python_version == '3.12'",
+	"google-re2>=1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/bufbuild/protovalidate-python"
 Source = "https://github.com/bufbuild/protovalidate-python"
 Issues = "https://github.com/bufbuild/protovalidate-python/issues"
+
+[tool.uv.workspace]
+members = ["bufbuild-protovalidate-protocolbuffers"]
+
+[tool.uv.sources] # don't install from pypi, use the workspace packages
+bufbuild-protovalidate-protocolbuffers = { workspace = true }
+
 
 [dependency-groups]
 dev = [

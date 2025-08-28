@@ -4,6 +4,6 @@ managed:
 plugins:
     # NOTE: v26.0 is the earliest version supporting protobuf==5.
     - remote: buf.build/protocolbuffers/python:v26.0
-      out: gen
+      out: test/gen
     - remote: buf.build/protocolbuffers/pyi:v26.0
-      out: gen
+      out: test/gen
