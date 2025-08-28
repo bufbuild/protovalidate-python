@@ -7,6 +7,17 @@ resolution-markers = [
     "python_full_version < '3.12' or python_full_version >= '3.14'",
 ]
 
+[manifest]
+members = [
+    "bufbuild-protovalidate-protocolbuffers",
+    "protovalidate",
+]
+
+[[package]]
+name = "bufbuild-protovalidate-protocolbuffers"
+version = "0.14.0"
+source = { editable = "bufbuild-protovalidate-protocolbuffers" }
+
 [[package]]
 name = "cel-python"
 version = "0.2.0"
@@ -252,6 +263,7 @@ wheels = [
 name = "protovalidate"
 source = { editable = "." }
 dependencies = [
+    { name = "bufbuild-protovalidate-protocolbuffers" },
     { name = "cel-python" },
     { name = "google-re2" },
     { name = "protobuf" },
@@ -268,6 +280,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "bufbuild-protovalidate-protocolbuffers", editable = "bufbuild-protovalidate-protocolbuffers" },
     { name = "cel-python", specifier = "==0.2.*" },
     { name = "google-re2", specifier = ">=1" },
     { name = "google-re2", marker = "python_full_version == '3.12.*'", specifier = ">=1.1" },
