@@ -46,7 +46,7 @@ generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit 
 	# generate cel-spec into test/gen/cel/expr
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
 	# we need to update the `from cel.expr` imports in those generated files to `from test.gen.cel.expr`
-	LC_ALL=C find test/gen/cel -type f -exec sed -i "" 's/from cel.expr/from test.gen.cel.expr/g' {} +
+	LC_ALL=C find test/gen/cel -type f -exec sed -i .bak 's/from cel.expr/from test.gen.cel.expr/g' {} + && find test/gen/cel -name '*.bak' -delete
 
 	# generate proto/tests/example/v1/validations.proto into test/gen/tests/example/v1
 	$(BIN)/buf generate
@@ -59,7 +59,7 @@ generate-protovalidate-pypi-package: $(BIN)/buf  ## Regenerate protobuf gencode 
 	cd bufbuild-protovalidate-protocolbuffers && ../$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
 
 	# set the version of bufbuild-protovalidate-protocolbuffers to the used PROTOVALIDATE_VERSION
-	sed -i '' 's/^version = "[^"]*"/version = "$(PROTOVALIDATE_VERSION)"/' bufbuild-protovalidate-protocolbuffers/pyproject.toml
+	sed -i .bak 's/^version = "[^"]*"/version = "$(PROTOVALIDATE_VERSION)"/' bufbuild-protovalidate-protocolbuffers/pyproject.toml  && rm bufbuild-protovalidate-protocolbuffers/pyproject.toml.bak
 
 .PHONY: format
 format: install $(BIN)/buf $(BIN)/license-header ## Format code
