@@ -39,12 +39,17 @@ Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 
 [dependency-groups]
 dev = [
+	"bufbuild-protovalidate-testing-protocolbuffers-python==26.0.0.1.20250717185736+ed3f62325d2e",
+	"google-cel-spec-protocolbuffers-python==26.0.0.1.20250512201741+dffb8c8cf781",
 	"google-re2-stubs>=0.1.1",
 	"mypy>=1.17.1",
 	"pytest>=8.4.1",
 	"ruff>=0.12.0",
 	"types-protobuf>=5.29.1.20250315",
 ]
+
+[[tool.uv.index]]
+url = "https://buf.build/gen/python"
 
 [tool.hatch.version]
 source = "vcs"

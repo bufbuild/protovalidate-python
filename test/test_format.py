@@ -18,17 +18,13 @@ from typing import Any, Optional
 
 import celpy
 import pytest
+from cel.expr import eval_pb2
+from cel.expr.conformance.test import simple_pb2
 from celpy import celtypes
 from google.protobuf import text_format
 
-from gen.cel.expr import eval_pb2
-from gen.cel.expr.conformance.test import simple_pb2
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
-
-# Version of the cel-spec that this implementation is conformant with.
-# This should be kept in sync with the version in ../Makefile.
-CEL_SPEC_VERSION = "v0.24.0"
 
 skipped_tests = [
     # cel-python seems to have a bug with ints and booleans in the same map which evaluate to the same value
@@ -83,7 +79,7 @@ def get_eval_error_message(test: simple_pb2.SimpleTest) -> Optional[str]:
 
 
 # The test data from the cel-spec conformance tests
-cel_test_data = load_test_data(f"test/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
+cel_test_data = load_test_data("test/testdata/string_ext.textproto")
 # Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
 supplemental_test_data = load_test_data("test/testdata/string_ext_supplemental.textproto")
 
