@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate.conformance.harness import harness_pb2 as _harness_pb2
+from test.gen.buf.validate.conformance.harness import harness_pb2 as _harness_pb2
 from google.protobuf import any_pb2 as _any_pb2
 from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf.internal import containers as _containers

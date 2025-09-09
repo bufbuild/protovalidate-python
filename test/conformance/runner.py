@@ -19,7 +19,7 @@ import celpy
 from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
 
 import protovalidate
-from buf.validate.conformance.cases import (
+from test.gen.buf.validate.conformance.cases import (
     bool_pb2,  # noqa: F401
     bytes_pb2,  # noqa: F401
     enums_pb2,  # noqa: F401
@@ -50,8 +50,8 @@ from buf.validate.conformance.cases import (
     wkt_timestamp_pb2,  # noqa: F401
     wkt_wrappers_pb2,  # noqa: F401
 )
-from buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401
-from buf.validate.conformance.harness import harness_pb2
+from test.gen.buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401
+from test.gen.buf.validate.conformance.harness import harness_pb2
 
 
 def run_test_case(tc: typing.Any, result: typing.Optional[harness_pb2.TestResult] = None) -> harness_pb2.TestResult:
