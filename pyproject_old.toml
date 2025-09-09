@@ -10,8 +10,9 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["validate", "protobuf", "protocol buffer"]
 # Keep our minimum version synced with ./.python-version.
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
+	"Programming Language :: Python :: 3.9",
 	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
@@ -45,9 +46,6 @@ dev = [
 	"ruff>=0.12.0",
 	"types-protobuf>=5.29.1.20250315",
 ]
-
-[tool.uv]
-resolution = "lowest-direct"
 
 [tool.uv.sources]
 bufbuild-protovalidate-protocolbuffers = { index = "testpypi" }
@@ -91,6 +89,8 @@ lint.select = [
 	"YTT",
 ]
 lint.ignore = [
+	# Allow boolean positional values in function calls, like `dict.get(..., True)`.
+	"FBT003",
 	# Ignore complexity
 	"C901",
 	"PLR0911",
@@ -99,6 +99,10 @@ lint.ignore = [
 	"PLR0915",
 	# Ignore magic values - in this library, most are obvious in context.
 	"PLR2004",
+]
+lint.unfixable = [
+	# Don't autofix unused imports.
+	"F401",
 ]
 
 [tool.ruff.lint.isort]

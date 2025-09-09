@@ -10,16 +10,17 @@ resolution-markers = [
 [options]
 resolution-mode = "lowest-direct"
 
-[manifest]
-members = [
-    "bufbuild-protovalidate-protocolbuffers",
-    "protovalidate",
-]
-
 [[package]]
 name = "bufbuild-protovalidate-protocolbuffers"
-version = "0.14.0"
-source = { editable = "bufbuild-protovalidate-protocolbuffers" }
+version = "0.14.1"
+source = { registry = "https://test.pypi.org/simple/" }
+dependencies = [
+    { name = "protobuf" },
+]
+sdist = { url = "https://test-files.pythonhosted.org/packages/db/c6/3c2ed83bd37e3351890c41a85dc74444d72185289a9a05150cb82a0b1458/bufbuild_protovalidate_protocolbuffers-0.14.1.tar.gz", hash = "sha256:9155e0b69424375567c8ff2815b36fe058a0fe7ac2ad80a383878dc1dd724790", size = 43383, upload-time = "2025-09-10T08:20:51.963Z" }
+wheels = [
+    { url = "https://test-files.pythonhosted.org/packages/32/3c/fd9528a2f910eebd708368cd89a1446177a332bb011be98f171e5a0e8c55/bufbuild_protovalidate_protocolbuffers-0.14.1-py3-none-any.whl", hash = "sha256:c722a5ed1a176b4f68be8b34046e8e8f1b813750f4f51168ed9e5af80ba8287c", size = 45393, upload-time = "2025-09-10T08:20:50.157Z" },
+]
 
 [[package]]
 name = "cel-python"
@@ -532,7 +533,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bufbuild-protovalidate-protocolbuffers", editable = "bufbuild-protovalidate-protocolbuffers" },
+    { name = "bufbuild-protovalidate-protocolbuffers", index = "https://test.pypi.org/simple/" },
     { name = "cel-python", specifier = "==0.2.*" },
     { name = "google-re2", specifier = ">=1" },
     { name = "google-re2", marker = "python_full_version == '3.12.*'", specifier = ">=1.1" },
