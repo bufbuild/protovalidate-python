@@ -16,7 +16,13 @@ from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -45,6 +51,7 @@ class IgnoreEmptyProto2Message(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: IgnoreEmptyProto2Message.Msg
     def __init__(self, val: _Optional[_Union[IgnoreEmptyProto2Message.Msg, _Mapping]] = ...) -> None: ...
@@ -70,6 +77,7 @@ class IgnoreEmptyProto2Map(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...

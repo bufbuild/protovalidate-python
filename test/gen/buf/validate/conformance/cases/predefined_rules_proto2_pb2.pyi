@@ -20,7 +20,13 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 FLOAT_ABS_RANGE_PROTO2_FIELD_NUMBER: _ClassVar[int]
@@ -158,6 +164,7 @@ class PredefinedEnumRuleProto2(_message.Message):
         __slots__ = ()
         ENUM_PROTO2_ZERO_UNSPECIFIED: _ClassVar[PredefinedEnumRuleProto2.EnumProto2]
         ENUM_PROTO2_ONE: _ClassVar[PredefinedEnumRuleProto2.EnumProto2]
+
     ENUM_PROTO2_ZERO_UNSPECIFIED: PredefinedEnumRuleProto2.EnumProto2
     ENUM_PROTO2_ONE: PredefinedEnumRuleProto2.EnumProto2
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -297,11 +304,14 @@ class PredefinedAndCustomRuleProto2(_message.Message):
         C_FIELD_NUMBER: _ClassVar[int]
         c: int
         def __init__(self, c: _Optional[int] = ...) -> None: ...
+
     A_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
     a: int
     b: PredefinedAndCustomRuleProto2.Nested
-    def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[PredefinedAndCustomRuleProto2.Nested, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, a: _Optional[int] = ..., b: _Optional[_Union[PredefinedAndCustomRuleProto2.Nested, _Mapping]] = ...
+    ) -> None: ...
 
 class StandardPredefinedAndCustomRuleProto2(_message.Message):
     __slots__ = ("a",)

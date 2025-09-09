@@ -18,22 +18,44 @@ from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Environment(_message.Message):
-    __slots__ = ("name", "description", "container", "imports", "stdlib", "extensions", "context_variable", "declarations", "validators", "features", "disable_standard_cel_declarations", "message_type_extension", "enable_macro_call_tracking")
+    __slots__ = (
+        "name",
+        "description",
+        "container",
+        "imports",
+        "stdlib",
+        "extensions",
+        "context_variable",
+        "declarations",
+        "validators",
+        "features",
+        "disable_standard_cel_declarations",
+        "message_type_extension",
+        "enable_macro_call_tracking",
+    )
     class Import(_message.Message):
         __slots__ = ("name",)
         NAME_FIELD_NUMBER: _ClassVar[int]
         name: str
         def __init__(self, name: _Optional[str] = ...) -> None: ...
+
     class ContextVariable(_message.Message):
         __slots__ = ("type_name",)
         TYPE_NAME_FIELD_NUMBER: _ClassVar[int]
         type_name: str
         def __init__(self, type_name: _Optional[str] = ...) -> None: ...
+
     NAME_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
     CONTAINER_FIELD_NUMBER: _ClassVar[int]
@@ -60,7 +82,22 @@ class Environment(_message.Message):
     disable_standard_cel_declarations: bool
     message_type_extension: _descriptor_pb2.FileDescriptorSet
     enable_macro_call_tracking: bool
-    def __init__(self, name: _Optional[str] = ..., description: _Optional[str] = ..., container: _Optional[str] = ..., imports: _Optional[_Iterable[_Union[Environment.Import, _Mapping]]] = ..., stdlib: _Optional[_Union[LibrarySubset, _Mapping]] = ..., extensions: _Optional[_Iterable[_Union[Extension, _Mapping]]] = ..., context_variable: _Optional[_Union[Environment.ContextVariable, _Mapping]] = ..., declarations: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ..., validators: _Optional[_Iterable[_Union[Validator, _Mapping]]] = ..., features: _Optional[_Iterable[_Union[Feature, _Mapping]]] = ..., disable_standard_cel_declarations: bool = ..., message_type_extension: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ..., enable_macro_call_tracking: bool = ...) -> None: ...
+    def __init__(
+        self,
+        name: _Optional[str] = ...,
+        description: _Optional[str] = ...,
+        container: _Optional[str] = ...,
+        imports: _Optional[_Iterable[_Union[Environment.Import, _Mapping]]] = ...,
+        stdlib: _Optional[_Union[LibrarySubset, _Mapping]] = ...,
+        extensions: _Optional[_Iterable[_Union[Extension, _Mapping]]] = ...,
+        context_variable: _Optional[_Union[Environment.ContextVariable, _Mapping]] = ...,
+        declarations: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ...,
+        validators: _Optional[_Iterable[_Union[Validator, _Mapping]]] = ...,
+        features: _Optional[_Iterable[_Union[Feature, _Mapping]]] = ...,
+        disable_standard_cel_declarations: bool = ...,
+        message_type_extension: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ...,
+        enable_macro_call_tracking: bool = ...,
+    ) -> None: ...
 
 class Validator(_message.Message):
     __slots__ = ("name", "config")
@@ -70,12 +107,17 @@ class Validator(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
         value: _struct_pb2.Value
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...
+        ) -> None: ...
+
     NAME_FIELD_NUMBER: _ClassVar[int]
     CONFIG_FIELD_NUMBER: _ClassVar[int]
     name: str
     config: _containers.MessageMap[str, _struct_pb2.Value]
-    def __init__(self, name: _Optional[str] = ..., config: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
+    def __init__(
+        self, name: _Optional[str] = ..., config: _Optional[_Mapping[str, _struct_pb2.Value]] = ...
+    ) -> None: ...
 
 class Feature(_message.Message):
     __slots__ = ("name", "enabled")
@@ -94,7 +136,14 @@ class Extension(_message.Message):
     def __init__(self, name: _Optional[str] = ..., version: _Optional[str] = ...) -> None: ...
 
 class LibrarySubset(_message.Message):
-    __slots__ = ("disabled", "disable_macros", "include_macros", "exclude_macros", "include_functions", "exclude_functions")
+    __slots__ = (
+        "disabled",
+        "disable_macros",
+        "include_macros",
+        "exclude_macros",
+        "include_functions",
+        "exclude_functions",
+    )
     DISABLED_FIELD_NUMBER: _ClassVar[int]
     DISABLE_MACROS_FIELD_NUMBER: _ClassVar[int]
     INCLUDE_MACROS_FIELD_NUMBER: _ClassVar[int]
@@ -107,4 +156,12 @@ class LibrarySubset(_message.Message):
     exclude_macros: _containers.RepeatedScalarFieldContainer[str]
     include_functions: _containers.RepeatedCompositeFieldContainer[_checked_pb2.Decl]
     exclude_functions: _containers.RepeatedCompositeFieldContainer[_checked_pb2.Decl]
-    def __init__(self, disabled: bool = ..., disable_macros: bool = ..., include_macros: _Optional[_Iterable[str]] = ..., exclude_macros: _Optional[_Iterable[str]] = ..., include_functions: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ..., exclude_functions: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        disabled: bool = ...,
+        disable_macros: bool = ...,
+        include_macros: _Optional[_Iterable[str]] = ...,
+        exclude_macros: _Optional[_Iterable[str]] = ...,
+        include_functions: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ...,
+        exclude_functions: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ...,
+    ) -> None: ...

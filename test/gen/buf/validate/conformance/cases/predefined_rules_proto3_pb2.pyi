@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from test.gen.buf.validate.conformance.cases import predefined_rules_proto2_pb2 as _predefined_rules_proto2_pb2
-from test.gen.buf.validate.conformance.cases import predefined_rules_proto_editions_pb2 as _predefined_rules_proto_editions_pb2
+from test.gen.buf.validate.conformance.cases import (
+    predefined_rules_proto_editions_pb2 as _predefined_rules_proto_editions_pb2,
+)
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
@@ -22,7 +24,13 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -122,6 +130,7 @@ class PredefinedEnumRuleProto3(_message.Message):
         __slots__ = ()
         ENUM_PROTO3_ZERO_UNSPECIFIED: _ClassVar[PredefinedEnumRuleProto3.EnumProto3]
         ENUM_PROTO3_ONE: _ClassVar[PredefinedEnumRuleProto3.EnumProto3]
+
     ENUM_PROTO3_ZERO_UNSPECIFIED: PredefinedEnumRuleProto3.EnumProto3
     ENUM_PROTO3_ONE: PredefinedEnumRuleProto3.EnumProto3
     VAL_FIELD_NUMBER: _ClassVar[int]
@@ -137,6 +146,7 @@ class PredefinedMapRuleProto3(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -274,11 +284,14 @@ class PredefinedAndCustomRuleProto3(_message.Message):
         C_FIELD_NUMBER: _ClassVar[int]
         c: int
         def __init__(self, c: _Optional[int] = ...) -> None: ...
+
     A_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
     a: int
     b: PredefinedAndCustomRuleProto3.Nested
-    def __init__(self, a: _Optional[int] = ..., b: _Optional[_Union[PredefinedAndCustomRuleProto3.Nested, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, a: _Optional[int] = ..., b: _Optional[_Union[PredefinedAndCustomRuleProto3.Nested, _Mapping]] = ...
+    ) -> None: ...
 
 class StandardPredefinedAndCustomRuleProto3(_message.Message):
     __slots__ = ("a",)
@@ -292,4 +305,10 @@ class PredefinedRulesProto3UnusedImportBugWorkaround(_message.Message):
     DUMMY_2_FIELD_NUMBER: _ClassVar[int]
     dummy_1: _predefined_rules_proto2_pb2.StandardPredefinedAndCustomRuleProto2
     dummy_2: _predefined_rules_proto_editions_pb2.StandardPredefinedAndCustomRuleEdition2023
-    def __init__(self, dummy_1: _Optional[_Union[_predefined_rules_proto2_pb2.StandardPredefinedAndCustomRuleProto2, _Mapping]] = ..., dummy_2: _Optional[_Union[_predefined_rules_proto_editions_pb2.StandardPredefinedAndCustomRuleEdition2023, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        dummy_1: _Optional[_Union[_predefined_rules_proto2_pb2.StandardPredefinedAndCustomRuleProto2, _Mapping]] = ...,
+        dummy_2: _Optional[
+            _Union[_predefined_rules_proto_editions_pb2.StandardPredefinedAndCustomRuleEdition2023, _Mapping]
+        ] = ...,
+    ) -> None: ...

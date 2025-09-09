@@ -18,7 +18,13 @@ from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -34,7 +40,14 @@ class ResultOptions(_message.Message):
     verbose: bool
     strict_message: bool
     strict_error: bool
-    def __init__(self, suite_filter: _Optional[str] = ..., case_filter: _Optional[str] = ..., verbose: bool = ..., strict_message: bool = ..., strict_error: bool = ...) -> None: ...
+    def __init__(
+        self,
+        suite_filter: _Optional[str] = ...,
+        case_filter: _Optional[str] = ...,
+        verbose: bool = ...,
+        strict_message: bool = ...,
+        strict_error: bool = ...,
+    ) -> None: ...
 
 class ResultSet(_message.Message):
     __slots__ = ("successes", "failures", "suites", "options", "expected_failures")
@@ -48,7 +61,14 @@ class ResultSet(_message.Message):
     suites: _containers.RepeatedCompositeFieldContainer[SuiteResults]
     options: ResultOptions
     expected_failures: int
-    def __init__(self, successes: _Optional[int] = ..., failures: _Optional[int] = ..., suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ..., options: _Optional[_Union[ResultOptions, _Mapping]] = ..., expected_failures: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self,
+        successes: _Optional[int] = ...,
+        failures: _Optional[int] = ...,
+        suites: _Optional[_Iterable[_Union[SuiteResults, _Mapping]]] = ...,
+        options: _Optional[_Union[ResultOptions, _Mapping]] = ...,
+        expected_failures: _Optional[int] = ...,
+    ) -> None: ...
 
 class SuiteResults(_message.Message):
     __slots__ = ("name", "successes", "failures", "cases", "fdset", "expected_failures")
@@ -64,7 +84,15 @@ class SuiteResults(_message.Message):
     cases: _containers.RepeatedCompositeFieldContainer[CaseResult]
     fdset: _descriptor_pb2.FileDescriptorSet
     expected_failures: int
-    def __init__(self, name: _Optional[str] = ..., successes: _Optional[int] = ..., failures: _Optional[int] = ..., cases: _Optional[_Iterable[_Union[CaseResult, _Mapping]]] = ..., fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ..., expected_failures: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self,
+        name: _Optional[str] = ...,
+        successes: _Optional[int] = ...,
+        failures: _Optional[int] = ...,
+        cases: _Optional[_Iterable[_Union[CaseResult, _Mapping]]] = ...,
+        fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ...,
+        expected_failures: _Optional[int] = ...,
+    ) -> None: ...
 
 class CaseResult(_message.Message):
     __slots__ = ("name", "success", "wanted", "got", "input", "expected_failure")
@@ -80,4 +108,12 @@ class CaseResult(_message.Message):
     got: _harness_pb2.TestResult
     input: _any_pb2.Any
     expected_failure: bool
-    def __init__(self, name: _Optional[str] = ..., success: bool = ..., wanted: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ..., got: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ..., input: _Optional[_Union[_any_pb2.Any, _Mapping]] = ..., expected_failure: bool = ...) -> None: ...
+    def __init__(
+        self,
+        name: _Optional[str] = ...,
+        success: bool = ...,
+        wanted: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ...,
+        got: _Optional[_Union[_harness_pb2.TestResult, _Mapping]] = ...,
+        input: _Optional[_Union[_any_pb2.Any, _Mapping]] = ...,
+        expected_failure: bool = ...,
+    ) -> None: ...

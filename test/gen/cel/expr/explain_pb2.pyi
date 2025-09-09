@@ -16,7 +16,13 @@ from test.gen.cel.expr import value_pb2 as _value_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -29,8 +35,13 @@ class Explain(_message.Message):
         id: int
         value_index: int
         def __init__(self, id: _Optional[int] = ..., value_index: _Optional[int] = ...) -> None: ...
+
     VALUES_FIELD_NUMBER: _ClassVar[int]
     EXPR_STEPS_FIELD_NUMBER: _ClassVar[int]
     values: _containers.RepeatedCompositeFieldContainer[_value_pb2.Value]
     expr_steps: _containers.RepeatedCompositeFieldContainer[Explain.ExprStep]
-    def __init__(self, values: _Optional[_Iterable[_Union[_value_pb2.Value, _Mapping]]] = ..., expr_steps: _Optional[_Iterable[_Union[Explain.ExprStep, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        values: _Optional[_Iterable[_Union[_value_pb2.Value, _Mapping]]] = ...,
+        expr_steps: _Optional[_Iterable[_Union[Explain.ExprStep, _Mapping]]] = ...,
+    ) -> None: ...

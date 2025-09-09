@@ -16,7 +16,13 @@ from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -69,6 +75,7 @@ class RequiredEditionsMessageExplicitPresence(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredEditionsMessageExplicitPresence.Msg
     def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresence.Msg, _Mapping]] = ...) -> None: ...
@@ -80,9 +87,12 @@ class RequiredEditionsMessageExplicitPresenceIgnoreAlways(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredEditionsMessageExplicitPresenceIgnoreAlways.Msg
-    def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceIgnoreAlways.Msg, _Mapping]] = ...
+    ) -> None: ...
 
 class RequiredEditionsMessageExplicitPresenceDelimited(_message.Message):
     __slots__ = ("val",)
@@ -91,9 +101,12 @@ class RequiredEditionsMessageExplicitPresenceDelimited(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredEditionsMessageExplicitPresenceDelimited.Msg
-    def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceDelimited.Msg, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceDelimited.Msg, _Mapping]] = ...
+    ) -> None: ...
 
 class RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways(_message.Message):
     __slots__ = ("val",)
@@ -102,9 +115,12 @@ class RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways(_message.Mess
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways.Msg
-    def __init__(self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, val: _Optional[_Union[RequiredEditionsMessageExplicitPresenceDelimitedIgnoreAlways.Msg, _Mapping]] = ...
+    ) -> None: ...
 
 class RequiredEditionsMessageLegacyRequired(_message.Message):
     __slots__ = ("val",)
@@ -113,6 +129,7 @@ class RequiredEditionsMessageLegacyRequired(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredEditionsMessageLegacyRequired.Msg
     def __init__(self, val: _Optional[_Union[RequiredEditionsMessageLegacyRequired.Msg, _Mapping]] = ...) -> None: ...
@@ -124,9 +141,12 @@ class RequiredEditionsMessageLegacyRequiredDelimited(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredEditionsMessageLegacyRequiredDelimited.Msg
-    def __init__(self, val: _Optional[_Union[RequiredEditionsMessageLegacyRequiredDelimited.Msg, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, val: _Optional[_Union[RequiredEditionsMessageLegacyRequiredDelimited.Msg, _Mapping]] = ...
+    ) -> None: ...
 
 class RequiredEditionsOneof(_message.Message):
     __slots__ = ("a", "b")
@@ -177,6 +197,7 @@ class RequiredEditionsMap(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
@@ -190,6 +211,7 @@ class RequiredEditionsMapIgnoreAlways(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...

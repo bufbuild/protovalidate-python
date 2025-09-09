@@ -17,7 +17,13 @@ from test.gen.cel.expr import value_pb2 as _value_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -30,11 +36,16 @@ class EvalState(_message.Message):
         expr: int
         value: int
         def __init__(self, expr: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VALUES_FIELD_NUMBER: _ClassVar[int]
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     values: _containers.RepeatedCompositeFieldContainer[ExprValue]
     results: _containers.RepeatedCompositeFieldContainer[EvalState.Result]
-    def __init__(self, values: _Optional[_Iterable[_Union[ExprValue, _Mapping]]] = ..., results: _Optional[_Iterable[_Union[EvalState.Result, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        values: _Optional[_Iterable[_Union[ExprValue, _Mapping]]] = ...,
+        results: _Optional[_Iterable[_Union[EvalState.Result, _Mapping]]] = ...,
+    ) -> None: ...
 
 class ExprValue(_message.Message):
     __slots__ = ("value", "error", "unknown")
@@ -44,7 +55,12 @@ class ExprValue(_message.Message):
     value: _value_pb2.Value
     error: ErrorSet
     unknown: UnknownSet
-    def __init__(self, value: _Optional[_Union[_value_pb2.Value, _Mapping]] = ..., error: _Optional[_Union[ErrorSet, _Mapping]] = ..., unknown: _Optional[_Union[UnknownSet, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        value: _Optional[_Union[_value_pb2.Value, _Mapping]] = ...,
+        error: _Optional[_Union[ErrorSet, _Mapping]] = ...,
+        unknown: _Optional[_Union[UnknownSet, _Mapping]] = ...,
+    ) -> None: ...
 
 class ErrorSet(_message.Message):
     __slots__ = ("errors",)
@@ -60,7 +76,12 @@ class Status(_message.Message):
     code: int
     message: str
     details: _containers.RepeatedCompositeFieldContainer[_any_pb2.Any]
-    def __init__(self, code: _Optional[int] = ..., message: _Optional[str] = ..., details: _Optional[_Iterable[_Union[_any_pb2.Any, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        code: _Optional[int] = ...,
+        message: _Optional[str] = ...,
+        details: _Optional[_Iterable[_Union[_any_pb2.Any, _Mapping]]] = ...,
+    ) -> None: ...
 
 class UnknownSet(_message.Message):
     __slots__ = ("exprs",)

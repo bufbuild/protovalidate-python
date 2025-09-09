@@ -16,7 +16,13 @@ from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -63,6 +69,7 @@ class Proto3MessageOptionalIgnoreUnspecified(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto3MessageOptionalIgnoreUnspecified.Msg
     def __init__(self, val: _Optional[_Union[Proto3MessageOptionalIgnoreUnspecified.Msg, _Mapping]] = ...) -> None: ...
@@ -74,6 +81,7 @@ class Proto3MessageOptionalIgnoreEmpty(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto3MessageOptionalIgnoreEmpty.Msg
     def __init__(self, val: _Optional[_Union[Proto3MessageOptionalIgnoreEmpty.Msg, _Mapping]] = ...) -> None: ...
@@ -85,6 +93,7 @@ class Proto3MessageOptionalIgnoreAlways(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto3MessageOptionalIgnoreAlways.Msg
     def __init__(self, val: _Optional[_Union[Proto3MessageOptionalIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
@@ -96,6 +105,7 @@ class Proto3MessageIgnoreUnspecified(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto3MessageIgnoreUnspecified.Msg
     def __init__(self, val: _Optional[_Union[Proto3MessageIgnoreUnspecified.Msg, _Mapping]] = ...) -> None: ...
@@ -107,6 +117,7 @@ class Proto3MessageIgnoreEmpty(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto3MessageIgnoreEmpty.Msg
     def __init__(self, val: _Optional[_Union[Proto3MessageIgnoreEmpty.Msg, _Mapping]] = ...) -> None: ...
@@ -156,6 +167,7 @@ class Proto3MapIgnoreUnspecified(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -169,6 +181,7 @@ class Proto3MapIgnoreEmpty(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -182,6 +195,7 @@ class Proto3MapIgnoreAlways(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -213,6 +227,7 @@ class Proto3MapKeyIgnoreUnspecified(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -226,6 +241,7 @@ class Proto3MapKeyIgnoreEmpty(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -239,6 +255,7 @@ class Proto3MapKeyIgnoreAlways(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -252,6 +269,7 @@ class Proto3MapValueIgnoreUnspecified(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -265,6 +283,7 @@ class Proto3MapValueIgnoreEmpty(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -278,6 +297,7 @@ class Proto3MapValueIgnoreAlways(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...

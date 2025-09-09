@@ -19,7 +19,13 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -38,6 +44,7 @@ class TestEnumAlias(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     TEST_ENUM_ALIAS_ALPHA: _ClassVar[TestEnumAlias]
     TEST_ENUM_ALIAS_BETA: _ClassVar[TestEnumAlias]
     TEST_ENUM_ALIAS_GAMMA: _ClassVar[TestEnumAlias]
+
 TEST_ENUM_UNSPECIFIED: TestEnum
 TEST_ENUM_ONE: TestEnum
 TEST_ENUM_TWO: TestEnum
@@ -142,6 +149,7 @@ class MapEnumDefined(_message.Message):
         key: str
         value: TestEnum
         def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, TestEnum]
     def __init__(self, val: _Optional[_Mapping[str, TestEnum]] = ...) -> None: ...
@@ -154,7 +162,10 @@ class MapExternalEnumDefined(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
         value: _embed_pb2.Embed.Enumerated
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_embed_pb2.Embed.Enumerated, str]] = ...) -> None: ...
+        def __init__(
+            self, key: _Optional[str] = ..., value: _Optional[_Union[_embed_pb2.Embed.Enumerated, str]] = ...
+        ) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, _embed_pb2.Embed.Enumerated]
     def __init__(self, val: _Optional[_Mapping[str, _embed_pb2.Embed.Enumerated]] = ...) -> None: ...
@@ -165,7 +176,9 @@ class EnumInsideOneof(_message.Message):
     VAL2_FIELD_NUMBER: _ClassVar[int]
     val: TestEnum
     val2: TestEnum
-    def __init__(self, val: _Optional[_Union[TestEnum, str]] = ..., val2: _Optional[_Union[TestEnum, str]] = ...) -> None: ...
+    def __init__(
+        self, val: _Optional[_Union[TestEnum, str]] = ..., val2: _Optional[_Union[TestEnum, str]] = ...
+    ) -> None: ...
 
 class EnumExample(_message.Message):
     __slots__ = ("val",)
