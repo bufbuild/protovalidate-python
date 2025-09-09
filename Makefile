@@ -17,6 +17,8 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--year-range "2023-2025"
 # This version should be kept in sync with the version in buf.yaml
 PROTOVALIDATE_VERSION ?= v1.0.0
+# This version should be kept in sync with the version in buf.yaml and the bufbuild-protovalidate-protocolbuffers version in uv.lock
+PROTOVALIDATE_TESTING_VERSION ?= v0.14.0
 # Version of the cel-spec that this implementation is conformant with
 CEL_SPEC_VERSION ?= v0.24.0
 TESTDATA_FILE := test/testdata/string_ext.textproto
@@ -34,14 +36,14 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: generate-protovalidate-pypi-package generate-protobuf-tests $(BIN)/license-header  ## Regenerate code and license headers
+generate: generate-protobuf-tests $(BIN)/license-header  ## Regenerate code and license headers
 	$(ADD_LICENSE_HEADER)
 
 .PHONY: generate-protobuf-tests
 generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit tests
 	rm -rf test/gen
 	# generate protovalidate-testing into test/gen/buf/validate
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_TESTING_VERSION)
 	
 	# generate cel-spec into test/gen/cel/expr
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
@@ -50,16 +52,6 @@ generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit 
 
 	# generate proto/tests/example/v1/validations.proto into test/gen/tests/example/v1
 	$(BIN)/buf generate
-
-.PHONY:
-generate-protovalidate-pypi-package: $(BIN)/buf  ## Regenerate protobuf gencode for the bufbuild-protovalidate-protocolbuffers pypi package
-	rm -rf bufbuild-protovalidate-protocolbuffers/buf/validate/proto5
-	rm -rf bufbuild-protovalidate-protocolbuffers/buf/validate/proto6
-	# generate gencode for both proto5 and proto6 for buf.build/bufbuild/protovalidate
-	cd bufbuild-protovalidate-protocolbuffers && ../$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-
-	# set the version of bufbuild-protovalidate-protocolbuffers to the used PROTOVALIDATE_VERSION
-	sed -i .bak 's/^version = "[^"]*"/version = "$(PROTOVALIDATE_VERSION)"/' bufbuild-protovalidate-protocolbuffers/pyproject.toml  && rm bufbuild-protovalidate-protocolbuffers/pyproject.toml.bak
 
 .PHONY: format
 format: install $(BIN)/buf $(BIN)/license-header ## Format code
