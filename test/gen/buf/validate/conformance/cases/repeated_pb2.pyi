@@ -20,7 +20,13 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -29,6 +35,7 @@ class AnEnum(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     AN_ENUM_UNSPECIFIED: _ClassVar[AnEnum]
     AN_ENUM_X: _ClassVar[AnEnum]
     AN_ENUM_Y: _ClassVar[AnEnum]
+
 AN_ENUM_UNSPECIFIED: AnEnum
 AN_ENUM_X: AnEnum
 AN_ENUM_Y: AnEnum
@@ -150,6 +157,7 @@ class RepeatedEmbeddedEnumIn(_message.Message):
         ANOTHER_IN_ENUM_UNSPECIFIED: _ClassVar[RepeatedEmbeddedEnumIn.AnotherInEnum]
         ANOTHER_IN_ENUM_A: _ClassVar[RepeatedEmbeddedEnumIn.AnotherInEnum]
         ANOTHER_IN_ENUM_B: _ClassVar[RepeatedEmbeddedEnumIn.AnotherInEnum]
+
     ANOTHER_IN_ENUM_UNSPECIFIED: RepeatedEmbeddedEnumIn.AnotherInEnum
     ANOTHER_IN_ENUM_A: RepeatedEmbeddedEnumIn.AnotherInEnum
     ANOTHER_IN_ENUM_B: RepeatedEmbeddedEnumIn.AnotherInEnum
@@ -164,12 +172,15 @@ class RepeatedEmbeddedEnumNotIn(_message.Message):
         ANOTHER_NOT_IN_ENUM_UNSPECIFIED: _ClassVar[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
         ANOTHER_NOT_IN_ENUM_A: _ClassVar[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
         ANOTHER_NOT_IN_ENUM_B: _ClassVar[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
+
     ANOTHER_NOT_IN_ENUM_UNSPECIFIED: RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
     ANOTHER_NOT_IN_ENUM_A: RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
     ANOTHER_NOT_IN_ENUM_B: RepeatedEmbeddedEnumNotIn.AnotherNotInEnum
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedScalarFieldContainer[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum]
-    def __init__(self, val: _Optional[_Iterable[_Union[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum, str]]] = ...) -> None: ...
+    def __init__(
+        self, val: _Optional[_Iterable[_Union[RepeatedEmbeddedEnumNotIn.AnotherNotInEnum, str]]] = ...
+    ) -> None: ...
 
 class RepeatedAnyIn(_message.Message):
     __slots__ = ("val",)

@@ -59,6 +59,7 @@ class AnyWrongTypeMessage(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: int
         def __init__(self, val: _Optional[int] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: AnyWrongTypeMessage.WrongType
     def __init__(self, val: _Optional[_Union[AnyWrongTypeMessage.WrongType, _Mapping]] = ...) -> None: ...

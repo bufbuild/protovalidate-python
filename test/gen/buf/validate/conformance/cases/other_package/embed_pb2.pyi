@@ -26,6 +26,7 @@ class Embed(_message.Message):
         __slots__ = ()
         ENUMERATED_UNSPECIFIED: _ClassVar[Embed.Enumerated]
         ENUMERATED_VALUE: _ClassVar[Embed.Enumerated]
+
     ENUMERATED_UNSPECIFIED: Embed.Enumerated
     ENUMERATED_VALUE: Embed.Enumerated
     class DoubleEmbed(_message.Message):
@@ -34,9 +35,11 @@ class Embed(_message.Message):
             __slots__ = ()
             DOUBLE_ENUMERATED_UNSPECIFIED: _ClassVar[Embed.DoubleEmbed.DoubleEnumerated]
             DOUBLE_ENUMERATED_VALUE: _ClassVar[Embed.DoubleEmbed.DoubleEnumerated]
+
         DOUBLE_ENUMERATED_UNSPECIFIED: Embed.DoubleEmbed.DoubleEnumerated
         DOUBLE_ENUMERATED_VALUE: Embed.DoubleEmbed.DoubleEnumerated
         def __init__(self) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
     def __init__(self, val: _Optional[int] = ...) -> None: ...

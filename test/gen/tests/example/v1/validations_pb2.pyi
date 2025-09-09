@@ -17,7 +17,13 @@ from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -55,7 +61,9 @@ class Oneof(_message.Message):
     x: str
     y: int
     z: TestOneofMsg
-    def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...
+    ) -> None: ...
 
 class ProtovalidateOneof(_message.Message):
     __slots__ = ("a", "b", "unrelated")
@@ -102,6 +110,7 @@ class MapMinMax(_message.Message):
         key: str
         value: bool
         def __init__(self, key: _Optional[str] = ..., value: bool = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, bool]
     def __init__(self, val: _Optional[_Mapping[str, bool]] = ...) -> None: ...
@@ -115,6 +124,7 @@ class MapKeys(_message.Message):
         key: int
         value: str
         def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, str]
     def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...

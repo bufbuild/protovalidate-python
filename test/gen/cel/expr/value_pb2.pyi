@@ -17,12 +17,31 @@ from google.protobuf import struct_pb2 as _struct_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import (
+    ClassVar as _ClassVar,
+    Iterable as _Iterable,
+    Mapping as _Mapping,
+    Optional as _Optional,
+    Union as _Union,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Value(_message.Message):
-    __slots__ = ("null_value", "bool_value", "int64_value", "uint64_value", "double_value", "string_value", "bytes_value", "enum_value", "object_value", "map_value", "list_value", "type_value")
+    __slots__ = (
+        "null_value",
+        "bool_value",
+        "int64_value",
+        "uint64_value",
+        "double_value",
+        "string_value",
+        "bytes_value",
+        "enum_value",
+        "object_value",
+        "map_value",
+        "list_value",
+        "type_value",
+    )
     NULL_VALUE_FIELD_NUMBER: _ClassVar[int]
     BOOL_VALUE_FIELD_NUMBER: _ClassVar[int]
     INT64_VALUE_FIELD_NUMBER: _ClassVar[int]
@@ -47,7 +66,21 @@ class Value(_message.Message):
     map_value: MapValue
     list_value: ListValue
     type_value: str
-    def __init__(self, null_value: _Optional[_Union[_struct_pb2.NullValue, str]] = ..., bool_value: bool = ..., int64_value: _Optional[int] = ..., uint64_value: _Optional[int] = ..., double_value: _Optional[float] = ..., string_value: _Optional[str] = ..., bytes_value: _Optional[bytes] = ..., enum_value: _Optional[_Union[EnumValue, _Mapping]] = ..., object_value: _Optional[_Union[_any_pb2.Any, _Mapping]] = ..., map_value: _Optional[_Union[MapValue, _Mapping]] = ..., list_value: _Optional[_Union[ListValue, _Mapping]] = ..., type_value: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        null_value: _Optional[_Union[_struct_pb2.NullValue, str]] = ...,
+        bool_value: bool = ...,
+        int64_value: _Optional[int] = ...,
+        uint64_value: _Optional[int] = ...,
+        double_value: _Optional[float] = ...,
+        string_value: _Optional[str] = ...,
+        bytes_value: _Optional[bytes] = ...,
+        enum_value: _Optional[_Union[EnumValue, _Mapping]] = ...,
+        object_value: _Optional[_Union[_any_pb2.Any, _Mapping]] = ...,
+        map_value: _Optional[_Union[MapValue, _Mapping]] = ...,
+        list_value: _Optional[_Union[ListValue, _Mapping]] = ...,
+        type_value: _Optional[str] = ...,
+    ) -> None: ...
 
 class EnumValue(_message.Message):
     __slots__ = ("type", "value")
@@ -71,7 +104,10 @@ class MapValue(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: Value
         value: Value
-        def __init__(self, key: _Optional[_Union[Value, _Mapping]] = ..., value: _Optional[_Union[Value, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, key: _Optional[_Union[Value, _Mapping]] = ..., value: _Optional[_Union[Value, _Mapping]] = ...
+        ) -> None: ...
+
     ENTRIES_FIELD_NUMBER: _ClassVar[int]
     entries: _containers.RepeatedCompositeFieldContainer[MapValue.Entry]
     def __init__(self, entries: _Optional[_Iterable[_Union[MapValue.Entry, _Mapping]]] = ...) -> None: ...

@@ -55,6 +55,8 @@ generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit 
 	# generate proto/tests/example/v1/validations.proto into test/gen/tests/example/v1
 	$(BIN)/buf generate
 
+	uv run -- ruff format test/gen
+
 .PHONY: format
 format: install $(BIN)/buf $(BIN)/license-header ## Format code
 	$(ADD_LICENSE_HEADER)
