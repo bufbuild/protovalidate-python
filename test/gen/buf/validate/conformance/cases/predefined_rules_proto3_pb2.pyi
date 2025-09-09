@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate.conformance.cases import predefined_rules_proto2_pb2 as _predefined_rules_proto2_pb2
-from buf.validate.conformance.cases import predefined_rules_proto_editions_pb2 as _predefined_rules_proto_editions_pb2
+from test.gen.buf.validate.conformance.cases import predefined_rules_proto2_pb2 as _predefined_rules_proto2_pb2
+from test.gen.buf.validate.conformance.cases import predefined_rules_proto_editions_pb2 as _predefined_rules_proto_editions_pb2
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2

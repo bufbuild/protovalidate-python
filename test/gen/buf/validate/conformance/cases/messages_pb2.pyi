@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate.conformance.cases.other_package import embed_pb2 as _embed_pb2
+from test.gen.buf.validate.conformance.cases.other_package import embed_pb2 as _embed_pb2
 from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
