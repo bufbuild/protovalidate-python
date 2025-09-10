@@ -9,14 +9,13 @@ resolution-markers = [
 
 [[package]]
 name = "bufbuild-protovalidate-protocolbuffers"
-version = "0.14.0"
+version = "0.14.1"
 source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "protobuf" },
 ]
-sdist = { url = "https://test-files.pythonhosted.org/packages/ae/d5/b285ca00a0336d65d0b9e9897c099488610d52a3e6d4398ea95004d3d986/bufbuild_protovalidate_protocolbuffers-0.14.0.tar.gz", hash = "sha256:908438e8ee55d1397327e2b4cd9c7d0fe12d8939c834777b1ccbdc6678089886", size = 43211, upload-time = "2025-09-09T13:56:48.376Z" }
 wheels = [
-    { url = "https://test-files.pythonhosted.org/packages/9d/c5/26c2222624c6b4c0767fe0bdaaf8f202db6606fe07470d9ba5fe5c8b49b2/bufbuild_protovalidate_protocolbuffers-0.14.0-py3-none-any.whl", hash = "sha256:2ffc9a8dd461a7d98b7b1571561a2fcf5dad50e42dbbd75306ea1af92794452e", size = 44558, upload-time = "2025-09-09T13:56:46.58Z" },
+    { url = "https://test-files.pythonhosted.org/packages/32/3c/fd9528a2f910eebd708368cd89a1446177a332bb011be98f171e5a0e8c55/bufbuild_protovalidate_protocolbuffers-0.14.1-py3-none-any.whl", hash = "sha256:c722a5ed1a176b4f68be8b34046e8e8f1b813750f4f51168ed9e5af80ba8287c", size = 45393, upload-time = "2025-09-10T08:20:50.157Z" },
 ]
 
 [[package]]
