@@ -21,10 +21,10 @@ import pytest
 from celpy import celtypes
 from google.protobuf import text_format
 
-from test.gen.cel.expr import eval_pb2
-from test.gen.cel.expr.conformance.test import simple_pb2
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
+from test.gen.cel.expr import eval_pb2
+from test.gen.cel.expr.conformance.test import simple_pb2
 
 skipped_tests = [
     # cel-python seems to have a bug with ints and booleans in the same map which evaluate to the same value

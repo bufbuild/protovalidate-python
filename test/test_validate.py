@@ -16,8 +16,8 @@ import pytest
 from google.protobuf import message
 
 import protovalidate
-from test.gen.tests.example.v1 import validations_pb2
 from protovalidate.internal import rules
+from test.gen.tests.example.v1 import validations_pb2
 
 validators: list[protovalidate.Validator] = [
     protovalidate,  # global module singleton
