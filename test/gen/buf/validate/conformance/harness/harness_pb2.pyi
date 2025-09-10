@@ -30,19 +30,12 @@ class TestConformanceRequest(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
         value: _any_pb2.Any
-        def __init__(
-            self, key: _Optional[str] = ..., value: _Optional[_Union[_any_pb2.Any, _Mapping]] = ...
-        ) -> None: ...
-
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_any_pb2.Any, _Mapping]] = ...) -> None: ...
     FDSET_FIELD_NUMBER: _ClassVar[int]
     CASES_FIELD_NUMBER: _ClassVar[int]
     fdset: _descriptor_pb2.FileDescriptorSet
     cases: _containers.MessageMap[str, _any_pb2.Any]
-    def __init__(
-        self,
-        fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ...,
-        cases: _Optional[_Mapping[str, _any_pb2.Any]] = ...,
-    ) -> None: ...
+    def __init__(self, fdset: _Optional[_Union[_descriptor_pb2.FileDescriptorSet, _Mapping]] = ..., cases: _Optional[_Mapping[str, _any_pb2.Any]] = ...) -> None: ...
 
 class TestConformanceResponse(_message.Message):
     __slots__ = ("results",)
@@ -53,7 +46,6 @@ class TestConformanceResponse(_message.Message):
         key: str
         value: TestResult
         def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[TestResult, _Mapping]] = ...) -> None: ...
-
     RESULTS_FIELD_NUMBER: _ClassVar[int]
     results: _containers.MessageMap[str, TestResult]
     def __init__(self, results: _Optional[_Mapping[str, TestResult]] = ...) -> None: ...
@@ -70,11 +62,4 @@ class TestResult(_message.Message):
     compilation_error: str
     runtime_error: str
     unexpected_error: str
-    def __init__(
-        self,
-        success: bool = ...,
-        validation_error: _Optional[_Union[_validate_pb2.Violations, _Mapping]] = ...,
-        compilation_error: _Optional[str] = ...,
-        runtime_error: _Optional[str] = ...,
-        unexpected_error: _Optional[str] = ...,
-    ) -> None: ...
+    def __init__(self, success: bool = ..., validation_error: _Optional[_Union[_validate_pb2.Violations, _Mapping]] = ..., compilation_error: _Optional[str] = ..., runtime_error: _Optional[str] = ..., unexpected_error: _Optional[str] = ...) -> None: ...

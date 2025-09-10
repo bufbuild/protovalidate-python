@@ -106,9 +106,7 @@ class DurationFieldWithOtherFields(_message.Message):
     INT_VAL_FIELD_NUMBER: _ClassVar[int]
     duration_val: _duration_pb2.Duration
     int_val: int
-    def __init__(
-        self, duration_val: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., int_val: _Optional[int] = ...
-    ) -> None: ...
+    def __init__(self, duration_val: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., int_val: _Optional[int] = ...) -> None: ...
 
 class DurationExample(_message.Message):
     __slots__ = ("val",)
@@ -129,7 +127,6 @@ class DurationWrongTypeMessage(_message.Message):
         SECONDS_FIELD_NUMBER: _ClassVar[int]
         seconds: int
         def __init__(self, seconds: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: DurationWrongTypeMessage.WrongType
     def __init__(self, val: _Optional[_Union[DurationWrongTypeMessage.WrongType, _Mapping]] = ...) -> None: ...

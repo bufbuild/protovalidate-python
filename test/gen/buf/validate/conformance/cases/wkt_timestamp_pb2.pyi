@@ -149,7 +149,6 @@ class TimestampWrongTypeMessage(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: int
         def __init__(self, val: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: TimestampWrongTypeMessage.WrongType
     def __init__(self, val: _Optional[_Union[TimestampWrongTypeMessage.WrongType, _Mapping]] = ...) -> None: ...

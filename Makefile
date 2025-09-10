@@ -41,7 +41,7 @@ generate: generate-protobuf-tests $(BIN)/license-header  ## Regenerate code and 
 
 .PHONY: generate-protobuf-tests
 generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit tests
-	#rm -rf test/gen
+	rm -rf test/gen
 	# generate protovalidate-testing into test/gen/buf/validate
 	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_TESTING_VERSION)
 	
@@ -54,8 +54,6 @@ generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit 
 
 	# generate proto/tests/example/v1/validations.proto into test/gen/tests/example/v1
 	$(BIN)/buf generate
-
-	uv run -- ruff format test/gen
 
 .PHONY: format
 format: install $(BIN)/buf $(BIN)/license-header ## Format code

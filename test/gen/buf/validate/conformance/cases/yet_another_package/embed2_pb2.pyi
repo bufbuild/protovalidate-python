@@ -26,7 +26,6 @@ class Embed(_message.Message):
         __slots__ = ()
         ENUMERATED_UNSPECIFIED: _ClassVar[Embed.Enumerated]
         ENUMERATED_VALUE: _ClassVar[Embed.Enumerated]
-
     ENUMERATED_UNSPECIFIED: Embed.Enumerated
     ENUMERATED_VALUE: Embed.Enumerated
     VAL_FIELD_NUMBER: _ClassVar[int]

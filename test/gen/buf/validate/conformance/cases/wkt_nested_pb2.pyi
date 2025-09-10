@@ -28,11 +28,9 @@ class WktLevelOne(_message.Message):
             UUID_FIELD_NUMBER: _ClassVar[int]
             uuid: str
             def __init__(self, uuid: _Optional[str] = ...) -> None: ...
-
         THREE_FIELD_NUMBER: _ClassVar[int]
         three: WktLevelOne.WktLevelTwo.WktLevelThree
         def __init__(self, three: _Optional[_Union[WktLevelOne.WktLevelTwo.WktLevelThree, _Mapping]] = ...) -> None: ...
-
     TWO_FIELD_NUMBER: _ClassVar[int]
     two: WktLevelOne.WktLevelTwo
     def __init__(self, two: _Optional[_Union[WktLevelOne.WktLevelTwo, _Mapping]] = ...) -> None: ...

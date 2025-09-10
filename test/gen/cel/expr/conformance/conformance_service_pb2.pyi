@@ -20,13 +20,7 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Iterable as _Iterable,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -40,13 +34,7 @@ class ParseRequest(_message.Message):
     syntax_version: str
     source_location: str
     disable_macros: bool
-    def __init__(
-        self,
-        cel_source: _Optional[str] = ...,
-        syntax_version: _Optional[str] = ...,
-        source_location: _Optional[str] = ...,
-        disable_macros: bool = ...,
-    ) -> None: ...
+    def __init__(self, cel_source: _Optional[str] = ..., syntax_version: _Optional[str] = ..., source_location: _Optional[str] = ..., disable_macros: bool = ...) -> None: ...
 
 class ParseResponse(_message.Message):
     __slots__ = ("parsed_expr", "issues")
@@ -54,11 +42,7 @@ class ParseResponse(_message.Message):
     ISSUES_FIELD_NUMBER: _ClassVar[int]
     parsed_expr: _syntax_pb2.ParsedExpr
     issues: _containers.RepeatedCompositeFieldContainer[_status_pb2.Status]
-    def __init__(
-        self,
-        parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ...,
-        issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...,
-    ) -> None: ...
+    def __init__(self, parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ..., issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...) -> None: ...
 
 class CheckRequest(_message.Message):
     __slots__ = ("parsed_expr", "type_env", "container", "no_std_env")
@@ -70,13 +54,7 @@ class CheckRequest(_message.Message):
     type_env: _containers.RepeatedCompositeFieldContainer[_checked_pb2.Decl]
     container: str
     no_std_env: bool
-    def __init__(
-        self,
-        parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ...,
-        type_env: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ...,
-        container: _Optional[str] = ...,
-        no_std_env: bool = ...,
-    ) -> None: ...
+    def __init__(self, parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ..., type_env: _Optional[_Iterable[_Union[_checked_pb2.Decl, _Mapping]]] = ..., container: _Optional[str] = ..., no_std_env: bool = ...) -> None: ...
 
 class CheckResponse(_message.Message):
     __slots__ = ("checked_expr", "issues")
@@ -84,11 +62,7 @@ class CheckResponse(_message.Message):
     ISSUES_FIELD_NUMBER: _ClassVar[int]
     checked_expr: _checked_pb2.CheckedExpr
     issues: _containers.RepeatedCompositeFieldContainer[_status_pb2.Status]
-    def __init__(
-        self,
-        checked_expr: _Optional[_Union[_checked_pb2.CheckedExpr, _Mapping]] = ...,
-        issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...,
-    ) -> None: ...
+    def __init__(self, checked_expr: _Optional[_Union[_checked_pb2.CheckedExpr, _Mapping]] = ..., issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...) -> None: ...
 
 class EvalRequest(_message.Message):
     __slots__ = ("parsed_expr", "checked_expr", "bindings", "container")
@@ -98,10 +72,7 @@ class EvalRequest(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
         value: _eval_pb2.ExprValue
-        def __init__(
-            self, key: _Optional[str] = ..., value: _Optional[_Union[_eval_pb2.ExprValue, _Mapping]] = ...
-        ) -> None: ...
-
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_eval_pb2.ExprValue, _Mapping]] = ...) -> None: ...
     PARSED_EXPR_FIELD_NUMBER: _ClassVar[int]
     CHECKED_EXPR_FIELD_NUMBER: _ClassVar[int]
     BINDINGS_FIELD_NUMBER: _ClassVar[int]
@@ -110,13 +81,7 @@ class EvalRequest(_message.Message):
     checked_expr: _checked_pb2.CheckedExpr
     bindings: _containers.MessageMap[str, _eval_pb2.ExprValue]
     container: str
-    def __init__(
-        self,
-        parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ...,
-        checked_expr: _Optional[_Union[_checked_pb2.CheckedExpr, _Mapping]] = ...,
-        bindings: _Optional[_Mapping[str, _eval_pb2.ExprValue]] = ...,
-        container: _Optional[str] = ...,
-    ) -> None: ...
+    def __init__(self, parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ..., checked_expr: _Optional[_Union[_checked_pb2.CheckedExpr, _Mapping]] = ..., bindings: _Optional[_Mapping[str, _eval_pb2.ExprValue]] = ..., container: _Optional[str] = ...) -> None: ...
 
 class EvalResponse(_message.Message):
     __slots__ = ("result", "issues")
@@ -124,11 +89,7 @@ class EvalResponse(_message.Message):
     ISSUES_FIELD_NUMBER: _ClassVar[int]
     result: _eval_pb2.ExprValue
     issues: _containers.RepeatedCompositeFieldContainer[_status_pb2.Status]
-    def __init__(
-        self,
-        result: _Optional[_Union[_eval_pb2.ExprValue, _Mapping]] = ...,
-        issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...,
-    ) -> None: ...
+    def __init__(self, result: _Optional[_Union[_eval_pb2.ExprValue, _Mapping]] = ..., issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...) -> None: ...
 
 class SourcePosition(_message.Message):
     __slots__ = ("location", "offset", "line", "column")
@@ -140,13 +101,7 @@ class SourcePosition(_message.Message):
     offset: int
     line: int
     column: int
-    def __init__(
-        self,
-        location: _Optional[str] = ...,
-        offset: _Optional[int] = ...,
-        line: _Optional[int] = ...,
-        column: _Optional[int] = ...,
-    ) -> None: ...
+    def __init__(self, location: _Optional[str] = ..., offset: _Optional[int] = ..., line: _Optional[int] = ..., column: _Optional[int] = ...) -> None: ...
 
 class IssueDetails(_message.Message):
     __slots__ = ("severity", "position", "id")
@@ -156,7 +111,6 @@ class IssueDetails(_message.Message):
         DEPRECATION: _ClassVar[IssueDetails.Severity]
         WARNING: _ClassVar[IssueDetails.Severity]
         ERROR: _ClassVar[IssueDetails.Severity]
-
     SEVERITY_UNSPECIFIED: IssueDetails.Severity
     DEPRECATION: IssueDetails.Severity
     WARNING: IssueDetails.Severity
@@ -167,9 +121,4 @@ class IssueDetails(_message.Message):
     severity: IssueDetails.Severity
     position: SourcePosition
     id: int
-    def __init__(
-        self,
-        severity: _Optional[_Union[IssueDetails.Severity, str]] = ...,
-        position: _Optional[_Union[SourcePosition, _Mapping]] = ...,
-        id: _Optional[int] = ...,
-    ) -> None: ...
+    def __init__(self, severity: _Optional[_Union[IssueDetails.Severity, str]] = ..., position: _Optional[_Union[SourcePosition, _Mapping]] = ..., id: _Optional[int] = ...) -> None: ...
