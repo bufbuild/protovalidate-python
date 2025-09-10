@@ -21,10 +21,10 @@ import pytest
 from celpy import celtypes
 from google.protobuf import text_format
 
-from test.gen.cel.expr import eval_pb2
-from test.gen.cel.expr.conformance.test import simple_pb2
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
+from test.gen.cel.expr import eval_pb2
+from test.gen.cel.expr.conformance.test import simple_pb2
 
 # Version of the cel-spec that this implementation is conformant with.
 # This should be kept in sync with the version in ../Makefile.
