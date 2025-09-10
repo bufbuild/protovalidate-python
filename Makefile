@@ -15,8 +15,8 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
-# This version should be kept in sync with the version in buf.yaml
-PROTOVALIDATE_VERSION ?= v0.14.0
+# This version should be kept in sync with the version in buf.yaml and the bufbuild-protovalidate-protocolbuffers version in uv.lock
+PROTOVALIDATE_TESTING_VERSION ?= v0.14.0
 # Version of the cel-spec that this implementation is conformant with
 # This should be kept in sync with the version in test/test_format.py
 CEL_SPEC_VERSION ?= v0.24.0
@@ -35,13 +35,24 @@ clean: ## Delete intermediate build artifacts
 	git clean -Xdf
 
 .PHONY: generate
-generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
-	rm -rf gen
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
-	$(BIN)/buf generate
+generate: generate-protobuf-tests $(BIN)/license-header  ## Regenerate code and license headers
 	$(ADD_LICENSE_HEADER)
+
+.PHONY: generate-protobuf-tests
+generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit tests
+	rm -rf test/gen
+	# generate protovalidate-testing into test/gen/buf/validate
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_TESTING_VERSION)
+	
+	# generate cel-spec into test/gen/cel/expr
+	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
+	# we need to update the `from cel.expr` imports in those generated files to `from test.gen.cel.expr`
+	LC_ALL=C find test/gen/cel -type f -exec sed -i.bak 's/from cel.expr/from test.gen.cel.expr/g' {} + && find test/gen/cel -name '*.bak' -delete
+	# also update buf.validate.conformance imports
+	LC_ALL=C find test/gen/buf/validate/conformance -type f -exec sed -i.bak 's/from buf.validate.conformance/from test.gen.buf.validate.conformance/g' {} + && find test/gen/buf/validate/conformance -name '*.bak' -delete
+
+	# generate proto/tests/example/v1/validations.proto into test/gen/tests/example/v1
+	$(BIN)/buf generate
 
 .PHONY: format
 format: install $(BIN)/buf $(BIN)/license-header ## Format code
@@ -92,4 +103,4 @@ $(BIN)/license-header: $(BIN) Makefile
 	go install github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@latest
 
 $(BIN)/protovalidate-conformance: $(BIN) Makefile
-	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)
+	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_TESTING_VERSION)
