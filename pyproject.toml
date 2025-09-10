@@ -104,6 +104,7 @@ lint.unfixable = [
 	# Don't autofix unused imports.
 	"F401",
 ]
+exclude = ["test/gen/**"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["protovalidate", "buf"]

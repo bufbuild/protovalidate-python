@@ -20,13 +20,7 @@ from google.protobuf import any_pb2 as _any_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Iterable as _Iterable,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -38,12 +32,7 @@ class TestSuite(_message.Message):
     name: str
     description: str
     sections: _containers.RepeatedCompositeFieldContainer[TestSection]
-    def __init__(
-        self,
-        name: _Optional[str] = ...,
-        description: _Optional[str] = ...,
-        sections: _Optional[_Iterable[_Union[TestSection, _Mapping]]] = ...,
-    ) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., description: _Optional[str] = ..., sections: _Optional[_Iterable[_Union[TestSection, _Mapping]]] = ...) -> None: ...
 
 class TestSection(_message.Message):
     __slots__ = ("name", "description", "tests")
@@ -53,25 +42,10 @@ class TestSection(_message.Message):
     name: str
     description: str
     tests: _containers.RepeatedCompositeFieldContainer[TestCase]
-    def __init__(
-        self,
-        name: _Optional[str] = ...,
-        description: _Optional[str] = ...,
-        tests: _Optional[_Iterable[_Union[TestCase, _Mapping]]] = ...,
-    ) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., description: _Optional[str] = ..., tests: _Optional[_Iterable[_Union[TestCase, _Mapping]]] = ...) -> None: ...
 
 class TestCase(_message.Message):
-    __slots__ = (
-        "name",
-        "description",
-        "expr",
-        "env",
-        "input",
-        "input_context",
-        "output",
-        "deduced_type",
-        "disable_check",
-    )
+    __slots__ = ("name", "description", "expr", "env", "input", "input_context", "output", "deduced_type", "disable_check")
     class InputEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -79,7 +53,6 @@ class TestCase(_message.Message):
         key: str
         value: InputValue
         def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[InputValue, _Mapping]] = ...) -> None: ...
-
     NAME_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
     EXPR_FIELD_NUMBER: _ClassVar[int]
@@ -98,18 +71,7 @@ class TestCase(_message.Message):
     output: TestOutput
     deduced_type: _checked_pb2.Type
     disable_check: bool
-    def __init__(
-        self,
-        name: _Optional[str] = ...,
-        description: _Optional[str] = ...,
-        expr: _Optional[str] = ...,
-        env: _Optional[_Union[_env_config_pb2.Environment, _Mapping]] = ...,
-        input: _Optional[_Mapping[str, InputValue]] = ...,
-        input_context: _Optional[_Union[InputContext, _Mapping]] = ...,
-        output: _Optional[_Union[TestOutput, _Mapping]] = ...,
-        deduced_type: _Optional[_Union[_checked_pb2.Type, _Mapping]] = ...,
-        disable_check: bool = ...,
-    ) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., description: _Optional[str] = ..., expr: _Optional[str] = ..., env: _Optional[_Union[_env_config_pb2.Environment, _Mapping]] = ..., input: _Optional[_Mapping[str, InputValue]] = ..., input_context: _Optional[_Union[InputContext, _Mapping]] = ..., output: _Optional[_Union[TestOutput, _Mapping]] = ..., deduced_type: _Optional[_Union[_checked_pb2.Type, _Mapping]] = ..., disable_check: bool = ...) -> None: ...
 
 class InputContext(_message.Message):
     __slots__ = ("context_message", "context_expr")
@@ -117,9 +79,7 @@ class InputContext(_message.Message):
     CONTEXT_EXPR_FIELD_NUMBER: _ClassVar[int]
     context_message: _any_pb2.Any
     context_expr: str
-    def __init__(
-        self, context_message: _Optional[_Union[_any_pb2.Any, _Mapping]] = ..., context_expr: _Optional[str] = ...
-    ) -> None: ...
+    def __init__(self, context_message: _Optional[_Union[_any_pb2.Any, _Mapping]] = ..., context_expr: _Optional[str] = ...) -> None: ...
 
 class InputValue(_message.Message):
     __slots__ = ("value", "expr")
@@ -127,9 +87,7 @@ class InputValue(_message.Message):
     EXPR_FIELD_NUMBER: _ClassVar[int]
     value: _value_pb2.Value
     expr: str
-    def __init__(
-        self, value: _Optional[_Union[_value_pb2.Value, _Mapping]] = ..., expr: _Optional[str] = ...
-    ) -> None: ...
+    def __init__(self, value: _Optional[_Union[_value_pb2.Value, _Mapping]] = ..., expr: _Optional[str] = ...) -> None: ...
 
 class TestOutput(_message.Message):
     __slots__ = ("result_value", "result_expr", "eval_error", "unknown")
@@ -141,10 +99,4 @@ class TestOutput(_message.Message):
     result_expr: str
     eval_error: _eval_pb2.ErrorSet
     unknown: _eval_pb2.UnknownSet
-    def __init__(
-        self,
-        result_value: _Optional[_Union[_value_pb2.Value, _Mapping]] = ...,
-        result_expr: _Optional[str] = ...,
-        eval_error: _Optional[_Union[_eval_pb2.ErrorSet, _Mapping]] = ...,
-        unknown: _Optional[_Union[_eval_pb2.UnknownSet, _Mapping]] = ...,
-    ) -> None: ...
+    def __init__(self, result_value: _Optional[_Union[_value_pb2.Value, _Mapping]] = ..., result_expr: _Optional[str] = ..., eval_error: _Optional[_Union[_eval_pb2.ErrorSet, _Mapping]] = ..., unknown: _Optional[_Union[_eval_pb2.UnknownSet, _Mapping]] = ...) -> None: ...

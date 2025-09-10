@@ -41,9 +41,7 @@ class Oneof(_message.Message):
     x: str
     y: int
     z: TestOneofMsg
-    def __init__(
-        self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...
-    ) -> None: ...
+    def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...) -> None: ...
 
 class OneofRequired(_message.Message):
     __slots__ = ("x", "y", "name_with_underscores", "under_and_1_number")
@@ -55,13 +53,7 @@ class OneofRequired(_message.Message):
     y: int
     name_with_underscores: int
     under_and_1_number: int
-    def __init__(
-        self,
-        x: _Optional[str] = ...,
-        y: _Optional[int] = ...,
-        name_with_underscores: _Optional[int] = ...,
-        under_and_1_number: _Optional[int] = ...,
-    ) -> None: ...
+    def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., name_with_underscores: _Optional[int] = ..., under_and_1_number: _Optional[int] = ...) -> None: ...
 
 class OneofRequiredWithRequiredField(_message.Message):
     __slots__ = ("a", "b")

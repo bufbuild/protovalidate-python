@@ -29,7 +29,6 @@ class MapNone(_message.Message):
         key: int
         value: bool
         def __init__(self, key: _Optional[int] = ..., value: bool = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, bool]
     def __init__(self, val: _Optional[_Mapping[int, bool]] = ...) -> None: ...
@@ -43,7 +42,6 @@ class MapMin(_message.Message):
         key: int
         value: float
         def __init__(self, key: _Optional[int] = ..., value: _Optional[float] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, float]
     def __init__(self, val: _Optional[_Mapping[int, float]] = ...) -> None: ...
@@ -57,7 +55,6 @@ class MapMax(_message.Message):
         key: int
         value: float
         def __init__(self, key: _Optional[int] = ..., value: _Optional[float] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, float]
     def __init__(self, val: _Optional[_Mapping[int, float]] = ...) -> None: ...
@@ -71,7 +68,6 @@ class MapMinMax(_message.Message):
         key: str
         value: bool
         def __init__(self, key: _Optional[str] = ..., value: bool = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, bool]
     def __init__(self, val: _Optional[_Mapping[str, bool]] = ...) -> None: ...
@@ -85,7 +81,6 @@ class MapExact(_message.Message):
         key: int
         value: str
         def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, str]
     def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...
@@ -99,7 +94,6 @@ class MapKeys(_message.Message):
         key: int
         value: str
         def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, str]
     def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...
@@ -113,7 +107,6 @@ class MapValues(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
@@ -127,7 +120,6 @@ class MapKeysPattern(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
@@ -141,7 +133,6 @@ class MapValuesPattern(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
@@ -154,16 +145,12 @@ class MapRecursive(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
         value: MapRecursive.Msg
-        def __init__(
-            self, key: _Optional[int] = ..., value: _Optional[_Union[MapRecursive.Msg, _Mapping]] = ...
-        ) -> None: ...
-
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[MapRecursive.Msg, _Mapping]] = ...) -> None: ...
     class Msg(_message.Message):
         __slots__ = ("val",)
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.MessageMap[int, MapRecursive.Msg]
     def __init__(self, val: _Optional[_Mapping[int, MapRecursive.Msg]] = ...) -> None: ...
@@ -177,7 +164,6 @@ class MapExactIgnore(_message.Message):
         key: int
         value: str
         def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, str]
     def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...
@@ -191,7 +177,6 @@ class MultipleMaps(_message.Message):
         key: int
         value: str
         def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
-
     class SecondEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -199,7 +184,6 @@ class MultipleMaps(_message.Message):
         key: int
         value: bool
         def __init__(self, key: _Optional[int] = ..., value: bool = ...) -> None: ...
-
     class ThirdEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -207,16 +191,10 @@ class MultipleMaps(_message.Message):
         key: int
         value: bool
         def __init__(self, key: _Optional[int] = ..., value: bool = ...) -> None: ...
-
     FIRST_FIELD_NUMBER: _ClassVar[int]
     SECOND_FIELD_NUMBER: _ClassVar[int]
     THIRD_FIELD_NUMBER: _ClassVar[int]
     first: _containers.ScalarMap[int, str]
     second: _containers.ScalarMap[int, bool]
     third: _containers.ScalarMap[int, bool]
-    def __init__(
-        self,
-        first: _Optional[_Mapping[int, str]] = ...,
-        second: _Optional[_Mapping[int, bool]] = ...,
-        third: _Optional[_Mapping[int, bool]] = ...,
-    ) -> None: ...
+    def __init__(self, first: _Optional[_Mapping[int, str]] = ..., second: _Optional[_Mapping[int, bool]] = ..., third: _Optional[_Mapping[int, bool]] = ...) -> None: ...

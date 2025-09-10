@@ -16,13 +16,7 @@ from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Iterable as _Iterable,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -105,7 +99,6 @@ class Proto2MessageOptionalIgnoreUnspecified(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto2MessageOptionalIgnoreUnspecified.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageOptionalIgnoreUnspecified.Msg, _Mapping]] = ...) -> None: ...
@@ -117,7 +110,6 @@ class Proto2MessageOptionalIgnoreEmpty(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto2MessageOptionalIgnoreEmpty.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageOptionalIgnoreEmpty.Msg, _Mapping]] = ...) -> None: ...
@@ -129,7 +121,6 @@ class Proto2MessageOptionalIgnoreAlways(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto2MessageOptionalIgnoreAlways.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageOptionalIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
@@ -141,7 +132,6 @@ class Proto2MessageRequiredIgnoreUnspecified(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto2MessageRequiredIgnoreUnspecified.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageRequiredIgnoreUnspecified.Msg, _Mapping]] = ...) -> None: ...
@@ -153,7 +143,6 @@ class Proto2MessageRequiredIgnoreEmpty(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto2MessageRequiredIgnoreEmpty.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageRequiredIgnoreEmpty.Msg, _Mapping]] = ...) -> None: ...
@@ -165,7 +154,6 @@ class Proto2MessageRequiredIgnoreAlways(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: Proto2MessageRequiredIgnoreAlways.Msg
     def __init__(self, val: _Optional[_Union[Proto2MessageRequiredIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
@@ -233,7 +221,6 @@ class Proto2MapIgnoreUnspecified(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -247,7 +234,6 @@ class Proto2MapIgnoreEmpty(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -261,7 +247,6 @@ class Proto2MapIgnoreAlways(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -293,7 +278,6 @@ class Proto2MapKeyIgnoreUnspecified(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -307,7 +291,6 @@ class Proto2MapKeyIgnoreEmpty(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -321,7 +304,6 @@ class Proto2MapKeyIgnoreAlways(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -335,7 +317,6 @@ class Proto2MapValueIgnoreUnspecified(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -349,7 +330,6 @@ class Proto2MapValueIgnoreEmpty(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...
@@ -363,7 +343,6 @@ class Proto2MapValueIgnoreAlways(_message.Message):
         key: int
         value: int
         def __init__(self, key: _Optional[int] = ..., value: _Optional[int] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, int]
     def __init__(self, val: _Optional[_Mapping[int, int]] = ...) -> None: ...

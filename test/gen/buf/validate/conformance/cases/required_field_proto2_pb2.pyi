@@ -16,13 +16,7 @@ from buf.validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Iterable as _Iterable,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -63,7 +57,6 @@ class RequiredProto2Message(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredProto2Message.Msg
     def __init__(self, val: _Optional[_Union[RequiredProto2Message.Msg, _Mapping]] = ...) -> None: ...
@@ -75,7 +68,6 @@ class RequiredProto2MessageIgnoreAlways(_message.Message):
         VAL_FIELD_NUMBER: _ClassVar[int]
         val: str
         def __init__(self, val: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: RequiredProto2MessageIgnoreAlways.Msg
     def __init__(self, val: _Optional[_Union[RequiredProto2MessageIgnoreAlways.Msg, _Mapping]] = ...) -> None: ...
@@ -117,7 +109,6 @@ class RequiredProto2Map(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...
@@ -131,7 +122,6 @@ class RequiredProto2MapIgnoreAlways(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, str]
     def __init__(self, val: _Optional[_Mapping[str, str]] = ...) -> None: ...

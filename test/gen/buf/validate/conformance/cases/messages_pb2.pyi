@@ -33,7 +33,6 @@ class MessageNone(_message.Message):
     class NoneMsg(_message.Message):
         __slots__ = ()
         def __init__(self) -> None: ...
-
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: MessageNone.NoneMsg
     def __init__(self, val: _Optional[_Union[MessageNone.NoneMsg, _Mapping]] = ...) -> None: ...
@@ -118,9 +117,7 @@ class MessageOneofMultipleSharedFields(_message.Message):
     str_field: str
     bool_field: bool
     int_field: int
-    def __init__(
-        self, str_field: _Optional[str] = ..., bool_field: bool = ..., int_field: _Optional[int] = ...
-    ) -> None: ...
+    def __init__(self, str_field: _Optional[str] = ..., bool_field: bool = ..., int_field: _Optional[int] = ...) -> None: ...
 
 class MessageOneofUnknownFieldName(_message.Message):
     __slots__ = ("str_field",)
