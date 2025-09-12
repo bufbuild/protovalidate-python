@@ -16,7 +16,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
 # This version should be kept in sync with the version in buf.yaml
-PROTOVALIDATE_VERSION ?= v0.14.0
+PROTOVALIDATE_VERSION ?= v1.0.0
 # Version of the cel-spec that this implementation is conformant with
 # This should be kept in sync with the version in test/test_format.py
 CEL_SPEC_VERSION ?= v0.24.0
