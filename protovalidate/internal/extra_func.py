@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import math
-import re
 import typing
 from urllib import parse as urlparse
 
@@ -25,7 +24,7 @@ from protovalidate.internal import string_format
 from protovalidate.internal.rules import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
-_email_regex = re.compile(
+_email_regex = re2.compile(
     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 )
 
@@ -107,9 +106,9 @@ def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
         msg = "invalid argument, expected string or bytes"
         raise celpy.CELEvalError(msg)
     version = 0
-    strict = celtypes.BoolType(False)
+    strict = False
     if len(args) == 1 and isinstance(args[0], celtypes.BoolType):
-        strict = args[0]
+        strict = bool(args[0])
     elif len(args) == 1 and isinstance(args[0], celtypes.IntType):
         version = args[0]
     elif len(args) == 1 and (not isinstance(args[0], celtypes.BoolType) or not isinstance(args[0], celtypes.IntType)):
@@ -117,7 +116,7 @@ def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
         raise celpy.CELEvalError(msg)
     elif len(args) == 2 and isinstance(args[0], celtypes.IntType) and isinstance(args[1], celtypes.BoolType):
         version = args[0]
-        strict = args[1]
+        strict = bool(args[1])
     elif len(args) == 2 and (not isinstance(args[0], celtypes.IntType) or not isinstance(args[1], celtypes.BoolType)):
         msg = "invalid argument, expected int and bool"
         raise celpy.CELEvalError(msg)

@@ -122,11 +122,7 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_int(self, arg: celtypes.Value) -> str:
-        if (
-            isinstance(arg, celtypes.IntType)
-            or isinstance(arg, celtypes.UintType)
-            or isinstance(arg, celtypes.DoubleType)
-        ):
+        if isinstance(arg, (celtypes.IntType, celtypes.UintType, celtypes.DoubleType)):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
@@ -138,9 +134,7 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_hex(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, celtypes.IntType):
-            return f"{arg:x}"
-        if isinstance(arg, celtypes.UintType):
+        if isinstance(arg, (celtypes.IntType, celtypes.UintType)):
             return f"{arg:x}"
         if isinstance(arg, celtypes.BytesType):
             return arg.hex()
@@ -153,9 +147,7 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_oct(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, celtypes.IntType):
-            return f"{arg:o}"
-        if isinstance(arg, celtypes.UintType):
+        if isinstance(arg, (celtypes.IntType, celtypes.UintType)):
             return f"{arg:o}"
         msg = (
             "error during formatting: octal clause can only be used on integers, was given "
@@ -164,17 +156,12 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_bin(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, celtypes.IntType):
-            return f"{arg:b}"
-        if isinstance(arg, celtypes.UintType):
-            return f"{arg:b}"
-        if isinstance(arg, celtypes.BoolType):
+        if isinstance(arg, (celtypes.IntType, celtypes.UintType, celtypes.BoolType)):
             return f"{arg:b}"
         msg = (
             "error during formatting: only integers and bools can be formatted as binary, was given "
             f"{self.__type_str(type(arg))}"
         )
-
         raise celpy.CELEvalError(msg)
 
     def __format_string(self, arg: celtypes.Value) -> str:
@@ -189,6 +176,7 @@ class StringFormat:
             decoded = arg.decode("utf-8", errors="replace")
             # Collapse any contiguous placeholders into one
             return re.sub("\\ufffd+", "\ufffd", decoded)
+
         if isinstance(arg, celtypes.DoubleType):
             result = self.__validate_number(arg)
             if result is not None:
@@ -206,7 +194,7 @@ class StringFormat:
         if isinstance(arg, celtypes.MapType):
             return self.__format_map(arg)
         if isinstance(arg, celtypes.StringType):
-            return f"{arg}"
+            return arg
         if isinstance(arg, celtypes.TimestampType):
             base = arg.isoformat()
             if arg.getMilliseconds() != 0:
@@ -215,31 +203,11 @@ class StringFormat:
         return "unknown"
 
     def __format_list(self, arg: celtypes.ListType) -> str:
-        result = "["
-        for i in range(len(arg)):
-            if i > 0:
-                result += ", "
-            result += self.__format_string(arg[i])
-        result += "]"
-        return result
+        return "[" + ", ".join(self.__format_string(val) for val in arg) + "]"
 
     def __format_map(self, arg: celtypes.MapType) -> str:
-        m = {}
-        for cel_key, cel_val in arg.items():
-            key = self.__format_string(cel_key)
-            val = self.__format_string(cel_val)
-            m[key] = val
-
-        m = dict(sorted(m.items()))
-
-        result = "{"
-        for i, (key, val) in enumerate(m.items()):
-            if i > 0:
-                result += ", "
-            result += key + ": " + val
-
-        result += "}"
-        return result
+        m = {self.__format_string(cel_key): self.__format_string(cel_val) for cel_key, cel_val in arg.items()}
+        return "{" + ", ".join(key + ": " + val for key, val in sorted(m.items())) + "}"
 
     def __format_duration(self, arg: celtypes.DurationType) -> str:
         return f"{arg.seconds + Decimal(arg.microseconds) / Decimal(1_000_000):f}s"

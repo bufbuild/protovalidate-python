@@ -105,10 +105,7 @@ class ValidationError(ValueError):
         """
         Provides the Protobuf form of the validation errors.
         """
-        result = validate_pb2.Violations()
-        for violation in self._violations:
-            result.violations.append(violation.proto)
-        return result
+        return validate_pb2.Violations(violations=[violation.proto for violation in self._violations])
 
     @property
     def violations(self) -> list[Violation]:

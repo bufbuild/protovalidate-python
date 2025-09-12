@@ -79,8 +79,6 @@ lint.select = [
 	"YTT",
 ]
 lint.ignore = [
-	# Allow boolean positional values in function calls, like `dict.get(..., True)`.
-	"FBT003",
 	# Ignore complexity
 	"C901",
 	"PLR0911",
@@ -89,10 +87,6 @@ lint.ignore = [
 	"PLR0915",
 	# Ignore magic values - in this library, most are obvious in context.
 	"PLR2004",
-]
-lint.unfixable = [
-	# Don't autofix unused imports.
-	"F401",
 ]
 
 [tool.ruff.lint.isort]
