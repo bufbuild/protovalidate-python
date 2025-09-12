@@ -46,6 +46,9 @@ dev = [
 	"types-protobuf>=5.29.1.20250315",
 ]
 
+[tool.uv]
+resolution = "lowest-direct"
+
 [tool.hatch.version]
 source = "vcs"
 raw-options = { fallback_version = "0.0.0" }
