@@ -43,8 +43,8 @@ jobs:
         run: make lint
       - name: Format
         run: make format
-      # When running with matrix.resolution == lowest, we expect uv.lock to change, but we don't want that file checked in.
-      - if: matrix.resolution == 'highest'
+      # When running with matrix.resolution == highest, we expect uv.lock to change, but we don't want that file checked in.
+      - if: matrix.resolution == 'higest'
         name: Check generated
         run: make checkgenerate
         env:
