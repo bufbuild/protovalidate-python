@@ -18,9 +18,8 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 # This version should be kept in sync with the version in buf.yaml
 PROTOVALIDATE_VERSION ?= v1.0.0
 # Version of the cel-spec that this implementation is conformant with
-# This should be kept in sync with the version in test/test_format.py
 CEL_SPEC_VERSION ?= v0.24.0
-TESTDATA_FILE := test/testdata/string_ext_$(CEL_SPEC_VERSION).textproto
+TESTDATA_FILE := test/testdata/string_ext.textproto
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -51,12 +50,12 @@ format: install $(BIN)/buf $(BIN)/license-header ## Format code
 	uv run -- ruff check --fix protovalidate test
 
 .PHONY: test
-test: generate install gettestdata ## Run unit tests
+test: generate install $(TESTDATA_FILE) ## Run unit tests
 	uv run -- pytest
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
-	protovalidate-conformance $(CONFORMANCE_ARGS) uv -- run python3 -m test.conformance.runner
+	protovalidate-conformance $(CONFORMANCE_ARGS) uv run test/conformance/runner.py
 
 .PHONY: lint
 lint: install $(BIN)/buf ## Lint code
@@ -74,9 +73,6 @@ install: ## Install dependencies
 checkgenerate: generate
 	@# Used in CI to verify that `make generate` doesn't produce a diff.
 	test -z "$$(git status --porcelain | tee /dev/stderr)"
-
-.PHONY: gettestdata
-gettestdata: $(TESTDATA_FILE)
 
 $(TESTDATA_FILE):
 	mkdir -p $(dir @)

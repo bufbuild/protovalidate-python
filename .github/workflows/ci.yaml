@@ -11,8 +11,8 @@ on:
 permissions:
   contents: read
 jobs:
-  test:
-    name: Unit tests
+  ci:
+    name: CI
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -37,10 +37,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: make install
-      - name: Execute tests
-        run: make test
       - name: Lint
         run: make lint
+      - name: Execute tests
+        run: make test
+      - name: Test conformance
+        run: make conformance
       - name: Format
         run: make format
       # When running with matrix.resolution == highest, we expect uv.lock to change, but we don't want that file checked in.
