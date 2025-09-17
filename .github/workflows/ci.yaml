@@ -11,8 +11,8 @@ on:
 permissions:
   contents: read
 jobs:
-  test:
-    name: Unit tests
+  ci:
+    name: CI
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
