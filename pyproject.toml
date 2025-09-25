@@ -9,7 +9,6 @@ readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["validate", "protobuf", "protocol buffer"]
-# Keep our minimum version synced with ./.python-version.
 requires-python = ">=3.9"
 classifiers = [
   "Programming Language :: Python :: 3.9",
