@@ -46,7 +46,7 @@ jobs:
       - name: Format
         run: make format
       # When running with matrix.resolution == highest, we expect uv.lock to change, but we don't want that file checked in.
-      - if: matrix.resolution == 'higest'
+      - if: matrix.resolution == 'lowest-direct'
         name: Check generated
         run: make checkgenerate
         env:
