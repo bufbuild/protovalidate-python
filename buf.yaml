@@ -3,13 +3,9 @@ modules:
   - path: proto
 deps:
   - buf.build/bufbuild/protovalidate:v1.0.0
-  - buf.build/bufbuild/protovalidate-testing:v1.0.0
 lint:
   use:
     - STANDARD
-  ignore_only:
-    PROTOVALIDATE:
-      - proto/tests/example/v1/validations.proto
 breaking:
   use:
     - FILE
