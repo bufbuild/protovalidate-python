@@ -238,7 +238,7 @@ def check_compilation_errors(validator: protovalidate.Validator, msg: message.Me
 def _compare_violations(actual: list[rules.Violation], expected: list[rules.Violation]):
     """Compares two lists of violations. The violations are expected to be in the expected order also."""
     assert len(actual) == len(expected)
-    for a, e in zip(actual, expected, strict=False):
+    for a, e in zip(actual, expected, strict=True):
         assert a.proto.message == e.proto.message
         assert a.proto.rule_id == e.proto.rule_id
         assert a.proto.for_key == e.proto.for_key
