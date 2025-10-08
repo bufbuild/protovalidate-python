@@ -88,7 +88,7 @@ class StringFormat:
 
         return celtypes.StringType(result)
 
-    def __validate_number(self, arg: Union[celtypes.DoubleType, celtypes.IntType, celtypes.UintType]) -> Optional[str]:
+    def __validate_number(self, arg: celtypes.DoubleType | celtypes.IntType | celtypes.UintType) -> str | None:
         if math.isnan(arg):
             return "NaN"
         if math.isinf(arg):

@@ -54,7 +54,7 @@ from buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa
 from buf.validate.conformance.harness import harness_pb2
 
 
-def run_test_case(tc: typing.Any, result: typing.Optional[harness_pb2.TestResult] = None) -> harness_pb2.TestResult:
+def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) -> harness_pb2.TestResult:
     if result is None:
         result = harness_pb2.TestResult()
     # Run the validator
@@ -76,7 +76,7 @@ def run_test_case(tc: typing.Any, result: typing.Optional[harness_pb2.TestResult
 def run_any_test_case(
     pool: descriptor_pool.DescriptorPool,
     tc: any_pb2.Any,
-    result: typing.Optional[harness_pb2.TestResult] = None,
+    result: harness_pb2.TestResult | None = None,
 ) -> harness_pb2.TestResult:
     type_name = tc.type_url.split("/")[-1]
     desc: descriptor.Descriptor = pool.FindMessageTypeByName(type_name)

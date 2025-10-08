@@ -42,7 +42,7 @@ def cel_get_field(message: celtypes.Value, field_name: celtypes.Value) -> celpy.
     return field_to_cel(message.msg, message.desc.fields_by_name[field_name])
 
 
-def cel_is_ip(val: celtypes.Value, ver: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+def cel_is_ip(val: celtypes.Value, ver: celtypes.Value | None = None) -> celpy.Result:
     """Return True if the string is an IPv4 or IPv6 address, optionally limited to a specific version.
 
     Version 0 or None means either 4 or 6. Passing a version other than 0, 4, or 6 always returns False.
@@ -307,7 +307,7 @@ def cel_is_nan(val: celtypes.Value) -> celpy.Result:
     return celtypes.BoolType(math.isnan(val))
 
 
-def cel_is_inf(val: celtypes.Value, sign: typing.Optional[celtypes.Value] = None) -> celpy.Result:
+def cel_is_inf(val: celtypes.Value, sign: celtypes.Value | None = None) -> celpy.Result:
     if not isinstance(val, celtypes.DoubleType):
         msg = "invalid argument, expected double"
         raise celpy.CELEvalError(msg)
@@ -512,7 +512,7 @@ class Ipv6:
     _double_colon_at: int  # Number of 16-bit pieces found when double colon was found.
     _double_colon_seen: bool
     _dotted_raw: str  # Dotted notation for right-most 32 bits.
-    _dotted_addr: typing.Optional[Ipv4]  # Dotted notation successfully parsed as Ipv4.
+    _dotted_addr: Ipv4 | None  # Dotted notation successfully parsed as Ipv4.
     _zone_id_found: bool
     _prefix_len: int  # 0 -128
 
