@@ -325,7 +325,7 @@ def cel_is_inf(val: celtypes.Value, sign: celtypes.Value | None = None) -> celpy
 
 
 def cel_unique(val: celtypes.Value) -> celpy.Result:
-    if not isinstance(val, (celtypes.ListType, list)):
+    if not isinstance(val, celtypes.ListType | list):
         msg = "invalid argument, expected list"
         raise celpy.CELEvalError(msg)
     return celtypes.BoolType(len(val) == len(set(val)))

@@ -121,7 +121,7 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_int(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, (celtypes.IntType, celtypes.UintType, celtypes.DoubleType)):
+        if isinstance(arg, celtypes.IntType | celtypes.UintType | celtypes.DoubleType):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
@@ -133,7 +133,7 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_hex(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, (celtypes.IntType, celtypes.UintType)):
+        if isinstance(arg, celtypes.IntType | celtypes.UintType):
             return f"{arg:x}"
         if isinstance(arg, celtypes.BytesType):
             return arg.hex()
@@ -146,7 +146,7 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_oct(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, (celtypes.IntType, celtypes.UintType)):
+        if isinstance(arg, celtypes.IntType | celtypes.UintType):
             return f"{arg:o}"
         msg = (
             "error during formatting: octal clause can only be used on integers, was given "
@@ -155,7 +155,7 @@ class StringFormat:
         raise celpy.CELEvalError(msg)
 
     def __format_bin(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, (celtypes.IntType, celtypes.UintType, celtypes.BoolType)):
+        if isinstance(arg, celtypes.IntType | celtypes.UintType | celtypes.BoolType):
             return f"{arg:b}"
         msg = (
             "error during formatting: only integers and bools can be formatted as binary, was given "
