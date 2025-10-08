@@ -125,7 +125,7 @@ def _get_type_name(fd: typing.Any) -> str:
     return md["name"]
 
 
-def _get_type_ctor(fd: typing.Any) -> typing.Optional[typing.Callable[..., celtypes.Value]]:
+def _get_type_ctor(fd: typing.Any) -> typing.Callable[..., celtypes.Value] | None:
     md = _FIELD_DESC_METADATA_MAP.get(fd)
     if md is None:
         return None
@@ -312,19 +312,19 @@ class Rules:
 class CelRunner:
     runner: celpy.Runner
     rule: validate_pb2.Rule
-    rule_value: typing.Optional[typing.Any] = None
-    rule_cel: typing.Optional[celtypes.Value] = None
-    rule_path: typing.Optional[validate_pb2.FieldPath] = None
+    rule_value: typing.Any | None = None
+    rule_cel: celtypes.Value | None = None
+    rule_path: validate_pb2.FieldPath | None = None
 
 
 class CelRules(Rules):
     """A rule that has rules written in CEL."""
 
     _cel: list[CelRunner]
-    _rules: typing.Optional[message.Message] = None
-    _rules_cel: typing.Optional[celtypes.Value] = None
+    _rules: message.Message | None = None
+    _rules_cel: celtypes.Value | None = None
 
-    def __init__(self, rules: typing.Optional[message.Message]):
+    def __init__(self, rules: message.Message | None):
         self._cel = []
         if rules is not None:
             self._rules = rules
@@ -334,8 +334,8 @@ class CelRules(Rules):
         self,
         ctx: RuleContext,
         *,
-        this_value: typing.Optional[typing.Any] = None,
-        this_cel: typing.Optional[celtypes.Value] = None,
+        this_value: typing.Any | None = None,
+        this_cel: celtypes.Value | None = None,
         for_key: bool = False,
     ):
         activation: dict[str, celtypes.Value] = {}
@@ -379,8 +379,8 @@ class CelRules(Rules):
         funcs: dict[str, celpy.CELFunction],
         rules: validate_pb2.Rule,
         *,
-        rule_field: typing.Optional[descriptor.FieldDescriptor] = None,
-        rule_path: typing.Optional[validate_pb2.FieldPath] = None,
+        rule_field: descriptor.FieldDescriptor | None = None,
+        rule_path: validate_pb2.FieldPath | None = None,
     ):
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
@@ -430,7 +430,7 @@ class MessageRules(CelRules):
 
     _oneofs: list[MessageOneofRule]
 
-    def __init__(self, rules: typing.Optional[message.Message], desc: descriptor.Descriptor):
+    def __init__(self, rules: message.Message | None, desc: descriptor.Descriptor):
         super().__init__(rules)
         self._oneofs = []
         self._desc = desc
@@ -467,7 +467,7 @@ class MessageRules(CelRules):
         self._oneofs.append(MessageOneofRule(fields, required=rule.required))
 
 
-def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: typing.Optional[str] = None):
+def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None):
     if field.type != expected and (
         field.type != descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
     ):
@@ -713,7 +713,7 @@ class EnumRules(FieldRules):
 class RepeatedRules(FieldRules):
     """Rules for a repeated field."""
 
-    _item_rules: typing.Optional[FieldRules] = None
+    _item_rules: FieldRules | None = None
 
     _items_rules_suffix: typing.ClassVar[list[validate_pb2.FieldPathElement]] = [
         _field_to_element(
@@ -730,7 +730,7 @@ class RepeatedRules(FieldRules):
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
-        item_rules: typing.Optional[FieldRules],
+        item_rules: FieldRules | None,
     ):
         super().__init__(env, funcs, field, field_level)
         if item_rules is not None:
@@ -760,8 +760,8 @@ class RepeatedRules(FieldRules):
 class MapRules(FieldRules):
     """Rules for a map field."""
 
-    _key_rules: typing.Optional[FieldRules] = None
-    _value_rules: typing.Optional[FieldRules] = None
+    _key_rules: FieldRules | None = None
+    _value_rules: FieldRules | None = None
 
     _key_rules_suffix: typing.ClassVar[list[validate_pb2.FieldPathElement]] = [
         _field_to_element(validate_pb2.MapRules.DESCRIPTOR.fields_by_number[validate_pb2.MapRules.KEYS_FIELD_NUMBER]),
@@ -783,8 +783,8 @@ class MapRules(FieldRules):
         funcs: dict[str, celpy.CELFunction],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
-        key_rules: typing.Optional[FieldRules],
-        value_rules: typing.Optional[FieldRules],
+        key_rules: FieldRules | None,
+        value_rules: FieldRules | None,
     ):
         super().__init__(env, funcs, field, field_level)
         if key_rules is not None:
@@ -850,7 +850,7 @@ class RuleFactory:
 
     _env: celpy.Environment
     _funcs: dict[str, celpy.CELFunction]
-    _cache: dict[descriptor.Descriptor, typing.Union[list[Rules], Exception]]
+    _cache: dict[descriptor.Descriptor, list[Rules] | Exception]
 
     def __init__(self, funcs: dict[str, celpy.CELFunction]):
         self._env = celpy.Environment(runner_class=InterpretedRunner)
@@ -1022,7 +1022,7 @@ class RuleFactory:
 
     def _new_rules(self, desc: descriptor.Descriptor) -> list[Rules]:
         result: list[Rules] = []
-        rule: typing.Optional[Rules] = None
+        rule: Rules | None = None
         all_msg_oneof_fields = set()
         if desc.GetOptions().HasExtension(validate_pb2.message):  # type: ignore
             message_level = desc.GetOptions().Extensions[validate_pb2.message]  # type: ignore
