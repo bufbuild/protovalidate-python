@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import math
-import typing
 from urllib import parse as urlparse
 
 import celpy

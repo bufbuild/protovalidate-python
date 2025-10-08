@@ -15,7 +15,6 @@
 import math
 import re
 from decimal import Decimal
-from typing import Optional, Union
 
 import celpy
 from celpy import celtypes

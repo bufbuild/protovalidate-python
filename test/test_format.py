@@ -14,7 +14,7 @@
 
 from collections.abc import Iterable, MutableMapping
 from itertools import chain
-from typing import Any, Optional
+from typing import Any
 
 import celpy
 import pytest
