@@ -1,6 +1,6 @@
 [project]
 name = "bufbuild-protovalidate-protocolbuffers"
-version = "0.14.1"
+version = "0.14.0"
 description = "Messages, enum types and stubs for buf.build/bufbuild/protovalidate for python."
 readme = "README.md"
 license = "Apache-2.0"
@@ -22,7 +22,7 @@ dependencies = ["protobuf>=5"]
 
 
 [dependency-groups]
-dev = ["ruff>=0.12.12"]
+dev = ["cyclopts>=3.24.0", "httpx>=0.28.1", "loguru>=0.7.3", "ruff>=0.12.12"]
 
 
 [tool.ruff]

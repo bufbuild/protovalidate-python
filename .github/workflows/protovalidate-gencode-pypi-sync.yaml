@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   push-pypi:
@@ -21,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: cd bufbuild-protovalidate-protocolbuffers && uv sync --frozen
       - name: Build and publish
-        run: cd bufbuild-protovalidate-protocolbuffers && rm -rf dist && PROTOVALIDATE_VERSION="v0.11.0" make generate
+        run: cd bufbuild-protovalidate-protocolbuffers && uv run sync_to_pypi.py --pypi-url https://test.pypi.org
       - name: Publish package distributions to TestPyPI
         # authorization is done via OIDC, so no token needed
         # Instead, we've set up a trusted publishing config for the pypi package, that maps to this repository and the
