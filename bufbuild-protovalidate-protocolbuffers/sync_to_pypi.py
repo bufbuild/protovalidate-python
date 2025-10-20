@@ -112,13 +112,15 @@ def _generate_package_for_version(version: str):
             for example, "0.14.0".
     """
     logger.info(f"Generating package for version {version}")
-    source_package_path = Path(__file__).parent.absolute()
-    (source_package_path / "dist").mkdir(exist_ok=True)
+    repo_path = Path(__file__).parent.parent.absolute()
+    built_dist_path = repo_path / "bufbuild-protovalidate-protocolbuffers" / "dist"
+    (repo_path / built_dist_path).mkdir(exist_ok=True)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        # since buf generate overwrites files checked into git, we generate a temporary working directory
-        package_path = Path(tmpdir) / "bufbuild-protovalidate-protocolbuffers"
-        shutil.copytree(source_package_path, package_path)
+        # since buf generate overwrites files checked into git, we copy the whole repo to a temporary directory
+        # (the whole repo since we also need the .git)
+        package_path = Path(tmpdir) / "protovalidate-python" / "bufbuild-protovalidate-protocolbuffers"
+        shutil.copytree(repo_path, package_path.parent)
 
         shutil.rmtree(package_path / "buf" / "validate" / "proto5")
         shutil.rmtree(package_path / "buf" / "validate" / "proto6")
@@ -149,7 +151,7 @@ def _generate_package_for_version(version: str):
             )
 
         for package in (package_path / "dist").iterdir():
-            shutil.copy(package, source_package_path / "dist")
+            shutil.copy(package, built_dist_path)
 
 
 @app.default
