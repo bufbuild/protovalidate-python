@@ -66,6 +66,7 @@ test: generate install $(TESTDATA_FILE) ## Run unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
+	tree
 	protovalidate-conformance $(CONFORMANCE_ARGS) uv run test/conformance/runner.py
 
 .PHONY: lint
