@@ -158,18 +158,18 @@ def _generate_package_for_version(version: str):
 def main(pypi_url: str = "https://pypi.org/"):
     logger.info(f"Querying pypi for existing versions of bufbuild-protovalidate-protocolbuffers (on pypi {pypi_url})")
     pypi_versions = query_pypi_versions(pypi_url)
-    logger.info(f"Found {len(pypi_versions)} versions on pypi: {pypi_versions}")
+    logger.info(f"Found {len(pypi_versions)} versions on pypi: {sorted(pypi_versions)}")
 
     logger.info("Querying buf.build for existing tags of bufbuild/protovalidate")
     buf_tags = query_buf_module_tags()
-    logger.info(f"Found {len(buf_tags)} tags on buf.build: {buf_tags}")
+    logger.info(f"Found {len(buf_tags)} tags on buf.build: {sorted(buf_tags)}")
 
     existing_versions = pypi_versions & buf_tags
-    logger.info(f"Found {len(existing_versions)} existing versions: {existing_versions}")
+    logger.info(f"Found {len(existing_versions)} existing versions: {sorted(existing_versions)}")
     versions_to_generate = buf_tags - pypi_versions
-    logger.info(f"Found {len(versions_to_generate)} versions to generate: {versions_to_generate}")
+    logger.info(f"Found {len(versions_to_generate)} versions to generate: {sorted(versions_to_generate)}")
 
-    for i, version in enumerate(versions_to_generate):
+    for i, version in enumerate(sorted(versions_to_generate)):
         if i >= 2:
             logger.info("Generated 2 packages, stopping for now to test the sync script.")
             return
