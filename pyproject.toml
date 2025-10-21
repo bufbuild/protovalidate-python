@@ -117,7 +117,7 @@ ban-relative-imports = "all"
 testpaths = ["test"]
 
 [tool.mypy]
-mypy_path = "gen"
+mypy_path = "test/gen"
 
 [tool.ty.environment]
-extra-paths = ["gen"]
+extra-paths = ["test/gen"]

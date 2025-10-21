@@ -5,22 +5,27 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   push-pypi:
     name: Push latest bufbuild-protovalidate-protocolbuffers to PyPI
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
       - uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.9
+          python-version: 3.10
       - name: Install dependencies
-        run: cd bufbuild-protovalidate-protocolbuffers && uv sync --frozen
+        run: cd bufbuild-protovalidate-protocolbuffers && uv sync --frozen && make build && rm -rf dist
       - name: Build and publish
         run: cd bufbuild-protovalidate-protocolbuffers && uv run sync_to_pypi.py --pypi-url https://test.pypi.org
       - name: Publish package distributions to TestPyPI
@@ -30,3 +35,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          packages-dir: bufbuild-protovalidate-protocolbuffers/dist

@@ -66,6 +66,7 @@ test: generate install $(TESTDATA_FILE) ## Run unit tests
 
 .PHONY: conformance
 conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
+	uv run pip freeze
 	$(BIN)/protovalidate-conformance $(CONFORMANCE_ARGS) uv run test/conformance/runner.py
 
 .PHONY: lint
@@ -78,7 +79,7 @@ lint: install $(BIN)/buf ## Lint code
 
 .PHONY: install
 install: ## Install dependencies
-	uv sync --dev
+	uv sync --dev --python 3.12
 
 .PHONY: checkgenerate
 checkgenerate: generate
