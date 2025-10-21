@@ -15,10 +15,8 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
-# This version should be kept in sync with the version in buf.yaml
-PROTOVALIDATE_VERSION ?= v1.0.0
 # This version should be kept in sync with the version in buf.yaml and the bufbuild-protovalidate-protocolbuffers version in uv.lock
-PROTOVALIDATE_TESTING_VERSION ?= v0.14.0
+PROTOVALIDATE_VERSION ?= v1.0.0
 # Version of the cel-spec that this implementation is conformant with
 CEL_SPEC_VERSION ?= v0.24.0
 TESTDATA_FILE := test/testdata/string_ext.textproto
@@ -43,7 +41,7 @@ generate: generate-protobuf-tests $(BIN)/license-header  ## Regenerate code and 
 generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit tests
 	rm -rf test/gen
 	# generate protovalidate-testing into test/gen/buf/validate
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_TESTING_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
 	
 	# generate cel-spec into test/gen/cel/expr
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3

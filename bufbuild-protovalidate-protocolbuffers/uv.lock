@@ -32,7 +32,7 @@ wheels = [
 
 [[package]]
 name = "bufbuild-protovalidate-protocolbuffers"
-version = "0.14.0"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "protobuf" },
