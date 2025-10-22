@@ -45,10 +45,10 @@ generate-protobuf-tests: $(BIN)/buf ## Regenerate protobuf gencode used in unit 
 	
 	# generate cel-spec into test/gen/cel/expr
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
-	# we need to update the `from cel.expr` imports in those generated files to `from test.gen.cel.expr`
-	LC_ALL=C find test/gen/cel -type f -exec sed -i.bak 's/from cel.expr/from test.gen.cel.expr/g' {} + && find test/gen/cel -name '*.bak' -delete
+	# we need to update the `from cel.expr` imports in those generated files to `from gen.cel.expr`
+	LC_ALL=C find test/gen/cel -type f -exec sed -i.bak 's/from cel.expr/from gen.cel.expr/g' {} + && find test/gen/cel -name '*.bak' -delete
 	# also update buf.validate.conformance imports
-	LC_ALL=C find test/gen/buf/validate/conformance -type f -exec sed -i.bak 's/from buf.validate.conformance/from test.gen.buf.validate.conformance/g' {} + && find test/gen/buf/validate/conformance -name '*.bak' -delete
+	LC_ALL=C find test/gen/buf/validate/conformance -type f -exec sed -i.bak 's/from buf.validate.conformance/from gen.buf.validate.conformance/g' {} + && find test/gen/buf/validate/conformance -name '*.bak' -delete
 
 	# generate proto/tests/example/v1/validations.proto into test/gen/tests/example/v1
 	$(BIN)/buf generate

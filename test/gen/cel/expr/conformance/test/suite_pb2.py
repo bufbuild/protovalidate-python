@@ -26,10 +26,10 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from test.gen.cel.expr import checked_pb2 as cel_dot_expr_dot_checked__pb2
-from test.gen.cel.expr import eval_pb2 as cel_dot_expr_dot_eval__pb2
-from test.gen.cel.expr import value_pb2 as cel_dot_expr_dot_value__pb2
-from test.gen.cel.expr.conformance import env_config_pb2 as cel_dot_expr_dot_conformance_dot_env__config__pb2
+from gen.cel.expr import checked_pb2 as cel_dot_expr_dot_checked__pb2
+from gen.cel.expr import eval_pb2 as cel_dot_expr_dot_eval__pb2
+from gen.cel.expr import value_pb2 as cel_dot_expr_dot_value__pb2
+from gen.cel.expr.conformance import env_config_pb2 as cel_dot_expr_dot_conformance_dot_env__config__pb2
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 

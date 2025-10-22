@@ -26,7 +26,7 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from test.gen.cel.expr import checked_pb2 as cel_dot_expr_dot_checked__pb2
+from gen.cel.expr import checked_pb2 as cel_dot_expr_dot_checked__pb2
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from google.protobuf import descriptor_pb2 as google_dot_protobuf_dot_descriptor__pb2
 

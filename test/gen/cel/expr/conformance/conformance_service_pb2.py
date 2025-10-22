@@ -26,9 +26,9 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from test.gen.cel.expr import checked_pb2 as cel_dot_expr_dot_checked__pb2
-from test.gen.cel.expr import eval_pb2 as cel_dot_expr_dot_eval__pb2
-from test.gen.cel.expr import syntax_pb2 as cel_dot_expr_dot_syntax__pb2
+from gen.cel.expr import checked_pb2 as cel_dot_expr_dot_checked__pb2
+from gen.cel.expr import eval_pb2 as cel_dot_expr_dot_eval__pb2
+from gen.cel.expr import syntax_pb2 as cel_dot_expr_dot_syntax__pb2
 from google.rpc import status_pb2 as google_dot_rpc_dot_status__pb2
 
 

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from test.gen.cel.expr import checked_pb2 as _checked_pb2
-from test.gen.cel.expr import eval_pb2 as _eval_pb2
-from test.gen.cel.expr import syntax_pb2 as _syntax_pb2
+from gen.cel.expr import checked_pb2 as _checked_pb2
+from gen.cel.expr import eval_pb2 as _eval_pb2
+from gen.cel.expr import syntax_pb2 as _syntax_pb2
 from google.rpc import status_pb2 as _status_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
