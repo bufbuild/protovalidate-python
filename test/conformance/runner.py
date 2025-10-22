@@ -28,7 +28,7 @@ test_dir_path = Path(__file__).parent.parent.absolute().as_posix()
 if test_dir_path not in sys.path:
     sys.path.append(test_dir_path)
 
-from gen.buf.validate.conformance.cases import (
+from gen.buf.validate.conformance.cases import (  # noqa: E402
     bool_pb2,  # noqa: F401
     bytes_pb2,  # noqa: F401
     enums_pb2,  # noqa: F401
@@ -59,8 +59,8 @@ from gen.buf.validate.conformance.cases import (
     wkt_timestamp_pb2,  # noqa: F401
     wkt_wrappers_pb2,  # noqa: F401
 )
-from gen.buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401
-from gen.buf.validate.conformance.harness import harness_pb2
+from gen.buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401, E402
+from gen.buf.validate.conformance.harness import harness_pb2  # noqa: E402
 
 
 def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) -> harness_pb2.TestResult:
