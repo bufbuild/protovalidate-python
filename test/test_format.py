@@ -14,7 +14,7 @@
 
 from collections.abc import Iterable, MutableMapping
 from itertools import chain
-from typing import Any, Optional
+from typing import Any
 
 import celpy
 import pytest
@@ -62,7 +62,7 @@ def build_variables(bindings: MutableMapping[str, eval_pb2.ExprValue]) -> dict[A
     return binder
 
 
-def get_expected_result(test: simple_pb2.SimpleTest) -> Optional[str]:
+def get_expected_result(test: simple_pb2.SimpleTest) -> str | None:
     if test.HasField("value"):
         val = test.value
         if val.HasField("string_value"):
@@ -70,7 +70,7 @@ def get_expected_result(test: simple_pb2.SimpleTest) -> Optional[str]:
     return None
 
 
-def get_eval_error_message(test: simple_pb2.SimpleTest) -> Optional[str]:
+def get_eval_error_message(test: simple_pb2.SimpleTest) -> str | None:
     if test.HasField("eval_error"):
         err_set = test.eval_error
         if len(err_set.errors) == 1:
