@@ -21,7 +21,6 @@ cd protovalidate-python
 
 Next, install dependencies. You will need:
 
-* Python >=v3.9
 * [uv](https://docs.astral.sh/uv/)
 
 We use a Makefile to test and lint our code, so you'll also need a few non-Python tools:
@@ -34,9 +33,8 @@ We use a Makefile to test and lint our code, so you'll also need a few non-Pytho
   directly from upstream](https://go.dev/doc/install).
 
 With Go and GNU Make installed, you can verify that your changes pass tests and
-lint checks by running `make`. If your Python 3 interpreter isn't available as
-`python3`, try `UV_PYTHON=python make`. For a list of other useful commands, run
-`make help`.
+lint checks by running `make`. For a list of other useful commands, run `make
+help`.
 
 ### Reporting Bugs
 
@@ -93,29 +91,6 @@ contribution.
 For changes, improvements, or fixes, please create a pull request. Make sure
 your PR is up-to-date with the main branch. Please write clear and concise
 commit messages to help us understand and review your PR.
-
-## Language Support Requirements
-
-We aim for `protovalidate-python` to support multiple languages, including but not
-limited to Go, Java, Python, C++, and Typescript. Here are the requirements for
-adding a new language:
-
-1. __Conformance__: Make sure that your language addition passes the conformance
-   test suite. This ensures that your addition meets the project's standards and
-   behaves as expected.
-
-2. __CEL Interpreter__: Implement a Common Expression Language (CEL) interpreter
-   in your chosen language. CEL is a non-Turing complete language that makes it
-   easy to write simple expressions, and it's crucial to `protovalidate-python`.
-
-3. __Custom Function Equivalence__: Ensure that custom functions have equivalent
-   behavior across all languages. This uniformity is essential to maintain the
-   integrity and consistency of the project. Check out
-   the [Custom Functions][custom-funcs] for more
-
-If you are interested in adding a new language to `protovalidate-python`, please open
-an issue to discuss the details and requirements. We will be more than happy to
-guide you through the process.
 
 ### Minimizing Performance Regression
 
@@ -175,6 +150,5 @@ working together to make `protovalidate-python` the best it can be.
 [code-of-conduct]: https://github.com/bufbuild/protovalidate/tree/main/.github/CODE_OF_CONDUCT.md
 [issues]: https://github.com/bufbuild/protovalidate-python/issues
 [file-bug]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Bug&template=bug_report.md&title=%5BBUG%5D
-[custom-funcs]: https://github.com/bufbuild/protovalidate/tree/main/docs/cel.md#custom-library-in-protovalidate
 [file-feature-request]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Feature&template=feature_request.md&title=%5BFeature+Request%5D
 [cel-spec]: https://github.com/google/cel-spec
