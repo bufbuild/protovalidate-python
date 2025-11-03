@@ -2,11 +2,9 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    tags: ["v*"]
   pull_request:
     branches: [main]
-  schedule:
-    - cron: '15 22 * * *'
   workflow_dispatch: {} # support manual runs
 permissions:
   contents: read
@@ -21,7 +19,7 @@ jobs:
         resolution: ["highest", "lowest-direct"]
     env:
       # Shared env variables for all the tests
-      UV_RESOLUTION: '${{ matrix.resolution }}'
+      UV_RESOLUTION: "${{ matrix.resolution }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -30,7 +28,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          go-version: stable
+          go-version: "1.25.x"
           cache: false
       - uses: astral-sh/setup-uv@v7
         with:

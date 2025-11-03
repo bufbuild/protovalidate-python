@@ -1,0 +1,38 @@
+name: Push latest bufbuild-protovalidate-protocolbuffers to PyPI
+on:
+  schedule:
+    - cron: "15 12 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  push-pypi:
+    name: Push latest bufbuild-protovalidate-protocolbuffers to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: cd bufbuild-protovalidate-protocolbuffers && uv sync --frozen && make build && rm -rf dist
+      - name: Build and publish
+        run: cd bufbuild-protovalidate-protocolbuffers && uv run sync_to_pypi.py --pypi-url https://test.pypi.org
+      - name: Publish package distributions to TestPyPI
+        # authorization is done via OIDC, so no token needed
+        # Instead, we've set up a trusted publishing config for the pypi package, that maps to this repository and the
+        # protovalidate-gencode-pypi-sync workflow and maps it to the bufbuild-protovalidate-protocolbuffers package on pypi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: bufbuild-protovalidate-protocolbuffers/dist

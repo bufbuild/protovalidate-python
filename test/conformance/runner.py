@@ -14,12 +14,21 @@
 
 import sys
 import typing
+from pathlib import Path
 
 import celpy
 from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
 
 import protovalidate
-from buf.validate.conformance.cases import (
+
+# this is run as a standard python script, not via pytest, so we need to append the correct path to the sys.path
+# to make below import work. We can't use test.gen.buf.validate.conformance.cases because that would require an
+# __init__.py in every directory level.
+test_dir_path = Path(__file__).parent.parent.absolute().as_posix()
+if test_dir_path not in sys.path:
+    sys.path.append(test_dir_path)
+
+from gen.buf.validate.conformance.cases import (  # noqa: E402
     bool_pb2,  # noqa: F401
     bytes_pb2,  # noqa: F401
     enums_pb2,  # noqa: F401
@@ -50,8 +59,8 @@ from buf.validate.conformance.cases import (
     wkt_timestamp_pb2,  # noqa: F401
     wkt_wrappers_pb2,  # noqa: F401
 )
-from buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401
-from buf.validate.conformance.harness import harness_pb2
+from gen.buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401, E402
+from gen.buf.validate.conformance.harness import harness_pb2  # noqa: E402
 
 
 def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) -> harness_pb2.TestResult:

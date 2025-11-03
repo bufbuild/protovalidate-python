@@ -12,23 +12,24 @@ keywords = ["validate", "protobuf", "protocol buffer"]
 # Keep our minimum version synced with ./.python-version.
 requires-python = ">=3.10"
 classifiers = [
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Operating System :: OS Independent",
-  "Typing :: Typed",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Operating System :: OS Independent",
+	"Typing :: Typed",
 ]
 dynamic = ["version"]
 dependencies = [
-    "protobuf>=5",
-    "cel-python==0.2.*",
-    # We need at least this version, which started publishing wheels for Python 3.13.
-    # Ref: https://github.com/google/re2/issues/516
-    "google-re2>=1.1.20250722; python_version == '3.13'",
-    # 1.1 started supporting 3.12.
-    "google-re2>=1.1; python_version == '3.12'",
-    "google-re2>=1",
+	"bufbuild-protovalidate-protocolbuffers",
+	"protobuf>=5",
+	"cel-python==0.2.*",
+	# We need at least this version, which started publishing wheels for Python 3.13.
+	# Ref: https://github.com/google/re2/issues/516
+	"google-re2>=1.1.20250722; python_version == '3.13'",
+	# 1.1 started supporting 3.12.
+	"google-re2>=1.1; python_version == '3.12'",
+	"google-re2>=1",
 ]
 
 [project.urls]
@@ -48,12 +49,22 @@ dev = [
 [tool.uv]
 resolution = "lowest-direct"
 
+[tool.uv.sources]
+bufbuild-protovalidate-protocolbuffers = { index = "testpypi" }
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
+
 [tool.hatch.version]
 source = "vcs"
 raw-options = { fallback_version = "0.0.0" }
 
 [tool.ruff]
 line-length = 120
+target-version = "py310"
 lint.select = [
 	"A",
 	"ARG",
@@ -90,6 +101,7 @@ lint.ignore = [
 	# Ignore magic values - in this library, most are obvious in context.
 	"PLR2004",
 ]
+exclude = ["test/gen/**"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["protovalidate", "buf"]
@@ -106,7 +118,7 @@ ban-relative-imports = "all"
 testpaths = ["test"]
 
 [tool.mypy]
-mypy_path = "gen"
+mypy_path = "test/gen"
 
 [tool.ty.environment]
-extra-paths = ["gen"]
+extra-paths = ["test/gen"]
