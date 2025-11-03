@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.10"
 # dependencies = [
 #     "cyclopts",
 #     "httpx",
@@ -39,7 +39,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import Optional, Set, Tuple
 from cyclopts import App
 import httpx
 from loguru import logger
@@ -63,7 +62,7 @@ def query_pypi_versions(pypi_url: str) -> set[str]:
     return set(response.json()["releases"].keys())
 
 
-def query_buf_module_tags() -> Set[str]:
+def query_buf_module_tags() -> set[str]:
     """
     Query the buf registry for a list of tags for the bufbuild/protovalidate module
 
@@ -80,7 +79,7 @@ def query_buf_module_tags() -> Set[str]:
     return tags
 
 
-def _query_buf_module_labels(page_token: Optional[str] = None) -> Tuple[Set[str], Optional[str]]:
+def _query_buf_module_labels(page_token: str | None = None) -> tuple[set[str], str | None]:
     """Fetch a single page of tags for the bufbuild/protovalidate module."""
     request_data = {
         "pageSize": 100,

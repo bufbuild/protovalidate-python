@@ -64,6 +64,7 @@ raw-options = { fallback_version = "0.0.0" }
 
 [tool.ruff]
 line-length = 120
+target-version = "py310"
 lint.select = [
 	"A",
 	"ARG",

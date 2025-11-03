@@ -5,7 +5,7 @@ description = "Messages, enum types and stubs for buf.build/bufbuild/protovalida
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
@@ -27,6 +27,7 @@ dev = ["cyclopts>=3.24.0", "httpx>=0.28.1", "loguru>=0.7.3", "ruff>=0.12.12"]
 
 [tool.ruff]
 line-length = 120
+target-version = "py310"
 exclude = ["buf/validate/proto*/**"]
 
 [[tool.uv.index]]
