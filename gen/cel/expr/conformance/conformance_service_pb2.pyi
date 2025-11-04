@@ -15,7 +15,6 @@
 from cel.expr import checked_pb2 as _checked_pb2
 from cel.expr import eval_pb2 as _eval_pb2
 from cel.expr import syntax_pb2 as _syntax_pb2
-from google.rpc import status_pb2 as _status_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -41,8 +40,8 @@ class ParseResponse(_message.Message):
     PARSED_EXPR_FIELD_NUMBER: _ClassVar[int]
     ISSUES_FIELD_NUMBER: _ClassVar[int]
     parsed_expr: _syntax_pb2.ParsedExpr
-    issues: _containers.RepeatedCompositeFieldContainer[_status_pb2.Status]
-    def __init__(self, parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ..., issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...) -> None: ...
+    issues: _eval_pb2.ErrorSet
+    def __init__(self, parsed_expr: _Optional[_Union[_syntax_pb2.ParsedExpr, _Mapping]] = ..., issues: _Optional[_Union[_eval_pb2.ErrorSet, _Mapping]] = ...) -> None: ...
 
 class CheckRequest(_message.Message):
     __slots__ = ("parsed_expr", "type_env", "container", "no_std_env")
@@ -61,8 +60,8 @@ class CheckResponse(_message.Message):
     CHECKED_EXPR_FIELD_NUMBER: _ClassVar[int]
     ISSUES_FIELD_NUMBER: _ClassVar[int]
     checked_expr: _checked_pb2.CheckedExpr
-    issues: _containers.RepeatedCompositeFieldContainer[_status_pb2.Status]
-    def __init__(self, checked_expr: _Optional[_Union[_checked_pb2.CheckedExpr, _Mapping]] = ..., issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...) -> None: ...
+    issues: _eval_pb2.ErrorSet
+    def __init__(self, checked_expr: _Optional[_Union[_checked_pb2.CheckedExpr, _Mapping]] = ..., issues: _Optional[_Union[_eval_pb2.ErrorSet, _Mapping]] = ...) -> None: ...
 
 class EvalRequest(_message.Message):
     __slots__ = ("parsed_expr", "checked_expr", "bindings", "container")
@@ -88,8 +87,8 @@ class EvalResponse(_message.Message):
     RESULT_FIELD_NUMBER: _ClassVar[int]
     ISSUES_FIELD_NUMBER: _ClassVar[int]
     result: _eval_pb2.ExprValue
-    issues: _containers.RepeatedCompositeFieldContainer[_status_pb2.Status]
-    def __init__(self, result: _Optional[_Union[_eval_pb2.ExprValue, _Mapping]] = ..., issues: _Optional[_Iterable[_Union[_status_pb2.Status, _Mapping]]] = ...) -> None: ...
+    issues: _eval_pb2.ErrorSet
+    def __init__(self, result: _Optional[_Union[_eval_pb2.ExprValue, _Mapping]] = ..., issues: _Optional[_Union[_eval_pb2.ErrorSet, _Mapping]] = ...) -> None: ...
 
 class SourcePosition(_message.Message):
     __slots__ = ("location", "offset", "line", "column")

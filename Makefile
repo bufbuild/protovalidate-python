@@ -18,7 +18,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 # This version should be kept in sync with the version in buf.yaml
 PROTOVALIDATE_VERSION ?= v1.0.0
 # Version of the cel-spec that this implementation is conformant with
-CEL_SPEC_VERSION ?= v0.24.0
+CEL_SPEC_VERSION ?= v0.25.0
 TESTDATA_FILE := test/testdata/string_ext.textproto
 
 .PHONY: help
