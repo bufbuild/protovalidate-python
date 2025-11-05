@@ -27,7 +27,7 @@ dependencies = [
     # Which appears to be fixed in v33 of the protobuf runtime:
     # https://github.com/protocolbuffers/protobuf/issues/12186
     # https://github.com/protocolbuffers/protobuf/commit/5b32936822e64b796fa18fcff53df2305c6b7686
-    "protobuf>=5.27; python_version == '3.14'",
+    "protobuf>=5.26; python_version == '3.14'",
     "protobuf>=5",
     "cel-python==0.2.*",
     # We need at least this version, which started publishing wheels for Python 3.14.
