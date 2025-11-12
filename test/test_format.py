@@ -26,6 +26,10 @@ from gen.cel.expr.conformance.test import simple_pb2
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
 
+# Version of the cel-spec that this implementation is conformant with.
+# This should be kept in sync with the version in ../Makefile.
+CEL_SPEC_VERSION = "v0.25.1"
+
 skipped_tests = [
     # cel-python seems to have a bug with ints and booleans in the same map which evaluate to the same value
     # which the test data for this test has. For example: {1: 'value1', true: 'value2'}]).
@@ -79,7 +83,7 @@ def get_eval_error_message(test: simple_pb2.SimpleTest) -> str | None:
 
 
 # The test data from the cel-spec conformance tests
-cel_test_data = load_test_data("test/testdata/string_ext.textproto")
+cel_test_data = load_test_data(f"test/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
 # Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
 supplemental_test_data = load_test_data("test/testdata/string_ext_supplemental.textproto")
 
