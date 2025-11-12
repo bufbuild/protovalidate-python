@@ -23,7 +23,7 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "protobuf>=5",
-    "cel-python==0.2.*",
+    "cel-python>=0.2,<0.5",
     # We need at least this version, which started publishing wheels for Python 3.14.
     # Ref: https://github.com/google/re2/issues/580
     "google-re2>=1.1.20251105; python_version == '3.14'",
