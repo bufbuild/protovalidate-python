@@ -31,7 +31,7 @@ message User {
 }
 ```
 
-Once you've added `protovalidate-python` to your project, validation is idiomatic Python:
+Once you've added `protovalidate` to your project, validation is idiomatic Python:
 
 ```python
 try:
