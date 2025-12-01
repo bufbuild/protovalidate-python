@@ -24,7 +24,7 @@ jobs:
       UV_RESOLUTION: '${{ matrix.resolution }}'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install Go
