@@ -348,13 +348,16 @@ class CelRules(Rules):
             result = cel.runner.evaluate(activation)
             if isinstance(result, celtypes.BoolType):
                 if not result:
+                    message = cel.rule.message
+                    if len(message) == 0:
+                        message = "\"{}\" returned false".format(cel.rule.expression)
                     ctx.add(
                         Violation(
                             field_value=this_value,
                             rule=cel.rule_path,
                             rule_value=cel.rule_value,
                             rule_id=cel.rule.id,
-                            message=cel.rule.message,
+                            message=message,
                             for_key=for_key,
                         ),
                     )
