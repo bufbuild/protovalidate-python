@@ -350,7 +350,7 @@ class CelRules(Rules):
                 if not result:
                     message = cel.rule.message
                     if len(message) == 0:
-                        message = "\"{}\" returned false".format(cel.rule.expression)
+                        message = f'"{cel.rule.expression}" returned false'
                     ctx.add(
                         Violation(
                             field_value=this_value,
