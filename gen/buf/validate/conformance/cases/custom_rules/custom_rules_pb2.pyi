@@ -64,6 +64,12 @@ class MessageExpressions(_message.Message):
     f: MessageExpressions.Nested
     def __init__(self, a: _Optional[int] = ..., b: _Optional[int] = ..., c: _Optional[_Union[Enum, str]] = ..., d: _Optional[_Union[Enum, str]] = ..., e: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ..., f: _Optional[_Union[MessageExpressions.Nested, _Mapping]] = ...) -> None: ...
 
+class MessageExpressionOnly(_message.Message):
+    __slots__ = ("a",)
+    A_FIELD_NUMBER: _ClassVar[int]
+    a: int
+    def __init__(self, a: _Optional[int] = ...) -> None: ...
+
 class MissingField(_message.Message):
     __slots__ = ("a",)
     A_FIELD_NUMBER: _ClassVar[int]
@@ -85,6 +91,12 @@ class DynRuntimeError(_message.Message):
 class NowEqualsNow(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
+
+class FieldExpressionOnly(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: int
+    def __init__(self, val: _Optional[int] = ...) -> None: ...
 
 class FieldExpressionMultipleScalar(_message.Message):
     __slots__ = ("val",)

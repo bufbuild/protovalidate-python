@@ -139,24 +139,6 @@ class BytesIPv6Ignore(_message.Message):
     val: bytes
     def __init__(self, val: _Optional[bytes] = ...) -> None: ...
 
-class BytesUUID(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: bytes
-    def __init__(self, val: _Optional[bytes] = ...) -> None: ...
-
-class BytesNotUUID(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: bytes
-    def __init__(self, val: _Optional[bytes] = ...) -> None: ...
-
-class BytesUUIDIgnore(_message.Message):
-    __slots__ = ("val",)
-    VAL_FIELD_NUMBER: _ClassVar[int]
-    val: bytes
-    def __init__(self, val: _Optional[bytes] = ...) -> None: ...
-
 class BytesExample(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]

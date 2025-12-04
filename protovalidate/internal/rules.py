@@ -388,6 +388,7 @@ class CelRules(Rules):
         if isinstance(rules, str):
             expression = rules
             rules = validate_pb2.Rule()
+            rules.id = expression
             rules.expression = expression
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
