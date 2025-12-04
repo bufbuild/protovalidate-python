@@ -380,11 +380,15 @@ class CelRules(Rules):
         self,
         env: celpy.Environment,
         funcs: dict[str, celpy.CELFunction],
-        rules: validate_pb2.Rule,
+        rules: validate_pb2.Rule | str,
         *,
         rule_field: descriptor.FieldDescriptor | None = None,
         rule_path: validate_pb2.FieldPath | None = None,
     ):
+        if isinstance(rules, str):
+            expression = rules
+            rules = validate_pb2.Rule()
+            rules.expression = expression
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
         rule_value = None
@@ -527,6 +531,14 @@ class FieldRules(CelRules):
         ]
     )
 
+    _cel_expression_rule_path: typing.ClassVar[validate_pb2.FieldPath] = validate_pb2.FieldPath(
+        elements=[
+            _field_to_element(
+                validate_pb2.FieldRules.DESCRIPTOR.fields_by_number[validate_pb2.FieldRules.CEL_EXPRESSION_FIELD_NUMBER]
+            )
+        ]
+    )
+
     def __init__(
         self,
         env: celpy.Environment,
@@ -564,6 +576,11 @@ class FieldRules(CelRules):
                                 ]
                             ),
                         )
+        for i, cel in enumerate(field_level.cel_expression):
+            rule_path = validate_pb2.FieldPath()
+            rule_path.CopyFrom(self._cel_expression_rule_path)
+            rule_path.elements[0].index = i
+            self.add_rule(env, funcs, cel, rule_path=rule_path)
         for i, cel in enumerate(field_level.cel):
             rule_path = validate_pb2.FieldPath()
             rule_path.CopyFrom(self._cel_rule_path)
@@ -875,6 +892,8 @@ class RuleFactory:
         result = MessageRules(rules, desc)
         for oneof in rules.oneof:
             result.add_oneof(oneof)
+        for expr in rules.cel_expression:
+            result.add_rule(self._env, self._funcs, expr)
         for cel in rules.cel:
             result.add_rule(self._env, self._funcs, cel)
         return result
