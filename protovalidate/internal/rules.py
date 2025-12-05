@@ -916,6 +916,10 @@ class RuleFactory:
             check_field_type(field, 0, "google.protobuf.Duration")
             result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
             return result
+        elif type_case == "field_mask":
+            check_field_type(field, 0, "google.protobuf.FieldMask")
+            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            return result
         elif type_case == "timestamp":
             check_field_type(field, 0, "google.protobuf.Timestamp")
             result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)

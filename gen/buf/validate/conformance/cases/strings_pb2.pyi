@@ -331,6 +331,24 @@ class StringNotTUUID(_message.Message):
     val: str
     def __init__(self, val: _Optional[str] = ...) -> None: ...
 
+class StringULID(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringNotULID(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
+class StringULIDIgnore(_message.Message):
+    __slots__ = ("val",)
+    VAL_FIELD_NUMBER: _ClassVar[int]
+    val: str
+    def __init__(self, val: _Optional[str] = ...) -> None: ...
+
 class StringHttpHeaderName(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
