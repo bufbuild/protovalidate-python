@@ -16,7 +16,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
 # This version should be kept in sync with the version in buf.yaml
-PROTOVALIDATE_VERSION ?= 8ed821b7c3ee9cad5d840a12ef32339af0dd2cbd
+PROTOVALIDATE_VERSION ?= v1.1.0
 # Version of the cel-spec that this implementation is conformant with
 # This should be kept in sync with the version in test/test_format.py
 CEL_SPEC_VERSION ?= v0.25.1
@@ -37,8 +37,8 @@ clean: ## Delete intermediate build artifacts
 .PHONY: generate
 generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
 	rm -rf gen
-	$(BIN)/buf generate https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate,ref=$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate-testing,ref=$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
 	$(BIN)/buf generate
 	$(ADD_LICENSE_HEADER)
