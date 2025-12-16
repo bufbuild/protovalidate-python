@@ -15,12 +15,18 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
-# This version should be kept in sync with the version in buf.yaml
-PROTOVALIDATE_VERSION ?= v1.1.0
+PROTOVALIDATE_VERSION ?= 895eefca6d1346f742fc18b9983d40478820906d
 # Version of the cel-spec that this implementation is conformant with
 # This should be kept in sync with the version in test/test_format.py
 CEL_SPEC_VERSION ?= v0.25.1
 TESTDATA_FILE := test/testdata/string_ext_$(CEL_SPEC_VERSION).textproto
+
+PROTOVALIDATE_PROTO_PATH := buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
+PROTOVALIDATE_TESTING_PROTO_PATH := buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+ifneq ($(shell echo ${PROTOVALIDATE_VERSION} | grep -E "^v\d+\.\d+.\d+(-.+)?$$"), $(PROTOVALIDATE_VERSION))
+  PROTOVALIDATE_PROTO_PATH = https://github.com/bufbuild/protovalidate.git\#subdir=proto/protovalidate,ref=$(PROTOVALIDATE_VERSION)
+  PROTOVALIDATE_TESTING_PROTO_PATH = https://github.com/bufbuild/protovalidate.git\#subdir=proto/protovalidate-testing,ref=$(PROTOVALIDATE_VERSION)
+endif
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -33,18 +39,25 @@ all: test conformance lint ## Run all tests and lint (default)
 clean: ## Delete intermediate build artifacts
 	@# -X only removes untracked files, -d recurses into directories, -f actually removes files/dirs
 	git clean -Xdf
+	@echo $(CEL_SPEC_VERSION)
 
 .PHONY: generate
-generate: $(BIN)/buf $(BIN)/license-header ## Regenerate code and license headers
+generate: $(BIN)/buf $(BIN)/license-header upstream ## Regenerate code and license headers
 	rm -rf gen
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate:$(PROTOVALIDATE_VERSION)
-	$(BIN)/buf generate buf.build/bufbuild/protovalidate-testing:$(PROTOVALIDATE_VERSION)
+	$(BIN)/buf generate $(PROTOVALIDATE_PROTO_PATH)
+	$(BIN)/buf generate $(PROTOVALIDATE_TESTING_PROTO_PATH)
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
 	$(BIN)/buf generate
 	$(ADD_LICENSE_HEADER)
 
+.PHONY: upstream
+upstream: $(BIN)/buf
+	rm -rf upstream
+	$(BIN)/buf export $(PROTOVALIDATE_PROTO_PATH) -o upstream/proto
+	$(ADD_LICENSE_HEADER)
+
 .PHONY: format
-format: install $(BIN)/buf $(BIN)/license-header ## Format code
+format: install $(BIN)/buf $(BIN)/license-header ## Format code	
 	$(ADD_LICENSE_HEADER)
 	buf format --write .
 	uv run -- ruff format protovalidate test
