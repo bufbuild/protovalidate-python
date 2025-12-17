@@ -13,8 +13,12 @@
 # limitations under the License.
 
 import threading
+from typing import TYPE_CHECKING
 
 import celpy
+
+if TYPE_CHECKING:
+    import celpy.celtypes
 
 _has_state = threading.local()
 
@@ -32,7 +36,7 @@ def in_has() -> bool:
 
 
 class InterpretedRunner(celpy.InterpretedRunner):
-    def evaluate(self, context):
+    def evaluate(self, context: celpy.Context) -> celpy.celtypes.Value:
         class Evaluator(celpy.Evaluator):
             def macro_has_eval(self, exprlist):
                 _has_state.in_has = True
