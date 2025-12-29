@@ -52,6 +52,9 @@ dev = [
 [tool.uv]
 resolution = "lowest-direct"
 
+[tool.uv.sources]
+cel-python = { git = "https://github.com/cloud-custodian/cel-python", branch = "main" }
+
 [tool.hatch.version]
 source = "vcs"
 raw-options = { fallback_version = "0.0.0" }
