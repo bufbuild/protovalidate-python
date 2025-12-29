@@ -29,14 +29,14 @@ _sym_db = _symbol_database.Default()
 from cel.expr import value_pb2 as cel_dot_expr_dot_value__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x63\x65l/expr/explain.proto\x12\x08\x63\x65l.expr\x1a\x14\x63\x65l/expr/value.proto\"\xae\x01\n\x07\x45xplain\x12\'\n\x06values\x18\x01 \x03(\x0b\x32\x0f.cel.expr.ValueR\x06values\x12\x39\n\nexpr_steps\x18\x02 \x03(\x0b\x32\x1a.cel.expr.Explain.ExprStepR\texprSteps\x1a;\n\x08\x45xprStep\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x1f\n\x0bvalue_index\x18\x02 \x01(\x05R\nvalueIndex:\x02\x18\x01\x42n\n\x0c\x63om.cel.exprB\x0c\x45xplainProtoP\x01Z\x0c\x63\x65l.dev/expr\xf8\x01\x01\xa2\x02\x03\x43\x45X\xaa\x02\x08\x43\x65l.Expr\xca\x02\x08\x43\x65l\\Expr\xe2\x02\x14\x43\x65l\\Expr\\GPBMetadata\xea\x02\tCel::Exprb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x63\x65l/expr/explain.proto\x12\x08\x63\x65l.expr\x1a\x14\x63\x65l/expr/value.proto\"\xae\x01\n\x07\x45xplain\x12\'\n\x06values\x18\x01 \x03(\x0b\x32\x0f.cel.expr.ValueR\x06values\x12\x39\n\nexpr_steps\x18\x02 \x03(\x0b\x32\x1a.cel.expr.Explain.ExprStepR\texprSteps\x1a;\n\x08\x45xprStep\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x1f\n\x0bvalue_index\x18\x02 \x01(\x05R\nvalueIndex:\x02\x18\x01\x42z\n\x0c\x63om.cel.exprB\x0c\x45xplainProtoP\x01Z\x0c\x63\x65l.dev/expr\xf8\x01\x01\xa2\x02\x03\x43\x45X\xaa\x02\x08\x43\x65l.Expr\xba\x02\tCel_Expr_\xca\x02\x08\x43\x65l\\Expr\xe2\x02\x14\x43\x65l\\Expr\\GPBMetadata\xea\x02\tCel::Exprb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'cel.expr.explain_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
-  _globals['DESCRIPTOR']._serialized_options = b'\n\014com.cel.exprB\014ExplainProtoP\001Z\014cel.dev/expr\370\001\001\242\002\003CEX\252\002\010Cel.Expr\312\002\010Cel\\Expr\342\002\024Cel\\Expr\\GPBMetadata\352\002\tCel::Expr'
+  _globals['DESCRIPTOR']._serialized_options = b'\n\014com.cel.exprB\014ExplainProtoP\001Z\014cel.dev/expr\370\001\001\242\002\003CEX\252\002\010Cel.Expr\272\002\tCel_Expr_\312\002\010Cel\\Expr\342\002\024Cel\\Expr\\GPBMetadata\352\002\tCel::Expr'
   _globals['_EXPLAIN']._loaded_options = None
   _globals['_EXPLAIN']._serialized_options = b'\030\001'
   _globals['_EXPLAIN']._serialized_start=59

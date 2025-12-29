@@ -10,7 +10,7 @@ BIN := .tmp/bin
 export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
 export PYTHONPATH ?= gen
-BUF_VERSION := 1.61.0
+BUF_VERSION := 1.62.0
 CONFORMANCE_ARGS ?= --strict_message --expected_failures=test/conformance/nonconforming.yaml --timeout 10s
 ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
