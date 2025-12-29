@@ -10,6 +10,7 @@ BIN := .tmp/bin
 export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
 export PYTHONPATH ?= gen
+BUF_VERSION := 1.62.0
 CONFORMANCE_ARGS ?= --strict_message --expected_failures=test/conformance/nonconforming.yaml --timeout 10s
 ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
@@ -57,7 +58,7 @@ upstream: $(BIN)/buf
 	$(ADD_LICENSE_HEADER)
 
 .PHONY: format
-format: install $(BIN)/buf $(BIN)/license-header ## Format code	
+format: install $(BIN)/buf $(BIN)/license-header ## Format code
 	$(ADD_LICENSE_HEADER)
 	buf format --write .
 	uv run -- ruff format protovalidate test
@@ -96,10 +97,10 @@ $(BIN):
 	@mkdir -p $(BIN)
 
 $(BIN)/buf: $(BIN) Makefile
-	go install github.com/bufbuild/buf/cmd/buf@latest
+	go install github.com/bufbuild/buf/cmd/buf@v${BUF_VERSION}
 
 $(BIN)/license-header: $(BIN) Makefile
-	go install github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@latest
+	go install github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v${BUF_VERSION}
 
 $(BIN)/protovalidate-conformance: $(BIN) Makefile
 	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)
