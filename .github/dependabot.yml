@@ -8,3 +8,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # We will manually update these as we drop compatibility for older versions.
+      - dependency-name: "protobuf"
+      - dependency-name: "types-protobuf"
