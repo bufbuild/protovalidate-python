@@ -29,14 +29,14 @@ _sym_db = _symbol_database.Default()
 from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n4buf/validate/conformance/cases/groups_editions.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x83\x01\n\x0eGroupDelimited\x12Q\n\x05value\x18\x01 \x01(\x0b\x32\x34.buf.validate.conformance.cases.GroupDelimited.ValueB\x05\xaa\x01\x02(\x02R\x05value\x1a\x1e\n\x05Value\x12\x15\n\x01x\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\x01xB\xf7\x01\n\"com.buf.validate.conformance.casesB\x13GroupsEditionsProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xba\x02\x1f\x42uf_Validate_Conformance_Cases_\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x08\x65\x64itionsp\xe8\x07')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n4buf/validate/conformance/cases/groups_editions.proto\x12\x1e\x62uf.validate.conformance.cases\x1a\x1b\x62uf/validate/validate.proto\"\x83\x01\n\x0eGroupDelimited\x12Q\n\x05value\x18\x01 \x01(\x0b\x32\x34.buf.validate.conformance.cases.GroupDelimited.ValueB\x05\xaa\x01\x02(\x02R\x05value\x1a\x1e\n\x05Value\x12\x15\n\x01x\x18\x01 \x01(\x08\x42\x07\xbaH\x04j\x02\x08\x01R\x01xB\xd5\x01\n\"com.buf.validate.conformance.casesB\x13GroupsEditionsProtoP\x01\xa2\x02\x04\x42VCC\xaa\x02\x1e\x42uf.Validate.Conformance.Cases\xca\x02\x1e\x42uf\\Validate\\Conformance\\Cases\xe2\x02*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\xea\x02!Buf::Validate::Conformance::Casesb\x08\x65\x64itionsp\xe8\x07')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'buf.validate.conformance.cases.groups_editions_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
-  _globals['DESCRIPTOR']._serialized_options = b'\n\"com.buf.validate.conformance.casesB\023GroupsEditionsProtoP\001\242\002\004BVCC\252\002\036Buf.Validate.Conformance.Cases\272\002\037Buf_Validate_Conformance_Cases_\312\002\036Buf\\Validate\\Conformance\\Cases\342\002*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\352\002!Buf::Validate::Conformance::Cases'
+  _globals['DESCRIPTOR']._serialized_options = b'\n\"com.buf.validate.conformance.casesB\023GroupsEditionsProtoP\001\242\002\004BVCC\252\002\036Buf.Validate.Conformance.Cases\312\002\036Buf\\Validate\\Conformance\\Cases\342\002*Buf\\Validate\\Conformance\\Cases\\GPBMetadata\352\002!Buf::Validate::Conformance::Cases'
   _globals['_GROUPDELIMITED_VALUE'].fields_by_name['x']._loaded_options = None
   _globals['_GROUPDELIMITED_VALUE'].fields_by_name['x']._serialized_options = b'\272H\004j\002\010\001'
   _globals['_GROUPDELIMITED'].fields_by_name['value']._loaded_options = None
