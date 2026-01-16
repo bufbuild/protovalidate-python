@@ -74,14 +74,14 @@ class MessageType(celtypes.MapType):
                 continue
             self[field.name] = field_to_cel(self.msg, field)
 
-    def __getitem__(self, name):
-        field = self.desc.fields_by_name[name]
-        if field.has_presence and not self.msg.HasField(name):
+    def __getitem__(self, key):
+        field = self.desc.fields_by_name[key]
+        if field.has_presence and not self.msg.HasField(key):
             if in_has():
                 raise KeyError()
             else:
                 return _zero_value(field)
-        return super().__getitem__(name)
+        return super().__getitem__(key)
 
 
 def _msg_to_cel(msg: message.Message) -> celtypes.Value:
@@ -303,7 +303,7 @@ class RuleContext:
 class Rules:
     """The rules associated with a single 'rules' message."""
 
-    def validate(self, ctx: RuleContext, _: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):  # noqa: ARG002
         """Validate the message against the rules in this rule."""
         ctx.add(Violation(rule_id="unimplemented", message="Unimplemented"))
 
@@ -415,8 +415,8 @@ class MessageOneofRule(Rules):
         self._fields = fields
         self._required = required
 
-    def validate(self, ctx: RuleContext, msg: message.Message):
-        num_set_fields = sum(1 for field in self._fields if not _is_empty_field(msg, field))
+    def validate(self, ctx: RuleContext, message: message.Message):
+        num_set_fields = sum(1 for field in self._fields if not _is_empty_field(message, field))
         if num_set_fields > 1:
             ctx.add(
                 Violation(
@@ -561,8 +561,8 @@ class FieldRules(CelRules):
             # For each set field in the message, look for the private rule
             # extension.
             for list_field, _ in rules.ListFields():
-                if validate_pb2.predefined in list_field.GetOptions().Extensions:  # type: ignore
-                    for cel in list_field.GetOptions().Extensions[validate_pb2.predefined].cel:  # type: ignore
+                if validate_pb2.predefined in list_field.GetOptions().Extensions:
+                    for cel in list_field.GetOptions().Extensions[validate_pb2.predefined].cel:
                         self.add_rule(
                             env,
                             funcs,
@@ -617,11 +617,13 @@ class FieldRules(CelRules):
             sub_ctx.add_field_path_element(element)
             ctx.add_errors(sub_ctx)
 
-    def validate_item(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
-        self._validate_value(ctx, val, for_key=for_key)
-        self._validate_cel(ctx, this_value=val, this_cel=_scalar_field_value_to_cel(val, self._field), for_key=for_key)
+    def validate_item(self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False):
+        self._validate_value(ctx, value, for_key=for_key)
+        self._validate_cel(
+            ctx, this_value=value, this_cel=_scalar_field_value_to_cel(value, self._field), for_key=for_key
+        )
 
-    def _validate_value(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
+    def _validate_value(self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False):
         pass
 
 
