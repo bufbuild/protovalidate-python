@@ -43,9 +43,9 @@ Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 [dependency-groups]
 dev = [
 	"google-re2-stubs>=0.1.1",
-	"mypy>=1.17.1",
 	"pytest>=8.4.1",
 	"ruff>=0.12.0",
+	"ty>=0.0.12",
 	"types-protobuf>=5.29.1.20250315",
 ]
 
