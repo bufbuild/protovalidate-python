@@ -101,7 +101,7 @@ _format_error_tests: Iterable[simple_pb2.SimpleTest] = chain.from_iterable(
 env = celpy.Environment(runner_class=InterpretedRunner)
 
 
-def test_format_successes(subtests):
+def test_format_successes(subtests: pytest.Subtests):
     """Tests success scenarios for string.format"""
     for format_test in _format_tests:
         with subtests.test(msg=format_test.name):
@@ -117,7 +117,7 @@ def test_format_successes(subtests):
             assert result == expected
 
 
-def test_format_errors(subtests):
+def test_format_errors(subtests: pytest.Subtests):
     """Tests error scenarios for string.format"""
     for format_error_test in _format_error_tests:
         with subtests.test(msg=format_error_test.name):
