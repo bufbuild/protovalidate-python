@@ -13,8 +13,8 @@ resolution-mode = "lowest-direct"
 
 [[package]]
 name = "cel-python"
-version = "0.4.0"
-source = { git = "https://github.com/cloud-custodian/cel-python?branch=main#3a134c10394058c73a6bbe0e4ca7e862ea9707b3" }
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-re2", version = "1.1.20250722", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version != '3.14.*'" },
     { name = "google-re2", version = "1.1.20251105", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.14.*'" },
@@ -23,6 +23,10 @@ dependencies = [
     { name = "pendulum" },
     { name = "pyyaml" },
     { name = "tomli", marker = "python_full_version < '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/61/4e/f821948a5bbd7a98a218720f831a62216f79a98e43b13d9ab2f98e37c5f8/cel_python-0.5.0.tar.gz", hash = "sha256:3eb0a619e8df0f338d0430cda01427a742e77e3c433a1c7c3ebd409cd804c45a", size = 13364027, upload-time = "2026-01-31T19:07:13.436Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/f8/38812adc3f787c2c2e8ba56f524185ed379656c10b40347a32796ba61c08/cel_python-0.5.0-py3-none-any.whl", hash = "sha256:d0f85008b89655c2bb18d797d2fa3f96f2ed80f4a3b43b0e8138c6646581e5f6", size = 84950, upload-time = "2026-01-31T19:07:11.821Z" },
 ]
 
 [[package]]
@@ -520,7 +524,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cel-python", git = "https://github.com/cloud-custodian/cel-python?branch=main" },
+    { name = "cel-python", specifier = ">=0.5" },
     { name = "google-re2", specifier = ">=1" },
     { name = "google-re2", marker = "python_full_version == '3.12.*'", specifier = ">=1.1" },
     { name = "google-re2", marker = "python_full_version == '3.13.*'", specifier = ">=1.1.20250722" },
