@@ -22,17 +22,17 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "protobuf>=5",
-    "cel-python>=0.5",
-    # We need at least this version, which started publishing wheels for Python 3.14.
-    # Ref: https://github.com/google/re2/issues/580
-    "google-re2>=1.1.20251105; python_version == '3.14'",
-    # We need at least this version, which started publishing wheels for Python 3.13.
-    # Ref: https://github.com/google/re2/issues/516
-    "google-re2>=1.1.20250722; python_version == '3.13'",
-    # 1.1 started supporting 3.12.
-    "google-re2>=1.1; python_version == '3.12'",
-    "google-re2>=1",
+  "protobuf>=5",
+  "cel-python>=0.5",
+  # We need at least this version, which started publishing wheels for Python 3.14.
+  # Ref: https://github.com/google/re2/issues/580
+  "google-re2>=1.1.20251105; python_version == '3.14'",
+  # We need at least this version, which started publishing wheels for Python 3.13.
+  # Ref: https://github.com/google/re2/issues/516
+  "google-re2>=1.1.20250722; python_version == '3.13'",
+  # 1.1 started supporting 3.12.
+  "google-re2>=1.1; python_version == '3.12'",
+  "google-re2>=1",
 ]
 
 [project.urls]
@@ -42,11 +42,11 @@ Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 
 [dependency-groups]
 dev = [
-	"google-re2-stubs>=0.1.1",
-	"mypy>=1.17.1",
-	"pytest>=8.4.1",
-	"ruff>=0.12.0",
-	"types-protobuf>=5.29.1.20250315",
+  "google-re2-stubs>=0.1.1",
+  "mypy>=1.17.1",
+  "pytest>=9.0.2",
+  "ruff>=0.12.0",
+  "types-protobuf>=5.29.1.20250315",
 ]
 
 [tool.uv]
@@ -59,40 +59,40 @@ raw-options = { fallback_version = "0.0.0" }
 [tool.ruff]
 line-length = 120
 lint.select = [
-	"A",
-	"ARG",
-	"B",
-	"C",
-	"DTZ",
-	"E",
-	"EM",
-	"F",
-	"FBT",
-	"I",
-	"ICN",
-	"N",
-	"PLC",
-	"PLE",
-	"PLR",
-	"PLW",
-	"Q",
-	"RUF",
-	"S",
-	"T",
-	"TID",
-	"UP",
-	"W",
-	"YTT",
+  "A",
+  "ARG",
+  "B",
+  "C",
+  "DTZ",
+  "E",
+  "EM",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "N",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "Q",
+  "RUF",
+  "S",
+  "T",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
 ]
 lint.ignore = [
-	# Ignore complexity
-	"C901",
-	"PLR0911",
-	"PLR0912",
-	"PLR0913",
-	"PLR0915",
-	# Ignore magic values - in this library, most are obvious in context.
-	"PLR2004",
+  # Ignore complexity
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  # Ignore magic values - in this library, most are obvious in context.
+  "PLR2004",
 ]
 
 [tool.ruff.lint.isort]
@@ -105,7 +105,8 @@ ban-relative-imports = "all"
 # Tests can use assertions.
 "test/**/*" = ["S101"]
 
-[tool.pytest.ini_options]
+[tool.pytest]
+strict = true
 # restrict testpaths to speed up test discovery
 testpaths = ["test"]
 

@@ -101,34 +101,36 @@ _format_error_tests: Iterable[simple_pb2.SimpleTest] = chain.from_iterable(
 env = celpy.Environment(runner_class=InterpretedRunner)
 
 
-@pytest.mark.parametrize("format_test", _format_tests)
-def test_format_successes(format_test):
+def test_format_successes(subtests: pytest.Subtests):
     """Tests success scenarios for string.format"""
-    if format_test.name in skipped_tests:
-        pytest.skip(f"skipped test: {format_test.name}")
-    ast = env.compile(format_test.expr)
-    prog = env.program(ast, functions=extra_func.make_extra_funcs())
+    for format_test in _format_tests:
+        with subtests.test(msg=format_test.name):
+            if format_test.name in skipped_tests:
+                pytest.skip(f"skipped test: {format_test.name}")
+            ast = env.compile(format_test.expr)
+            prog = env.program(ast, functions=extra_func.make_extra_funcs())
 
-    bindings = build_variables(format_test.bindings)
-    result = prog.evaluate(bindings)
-    expected = get_expected_result(format_test)
-    assert expected is not None, f"[{format_test.name}]: expected a success result to be defined"
-    assert result == expected
+            bindings = build_variables(format_test.bindings)
+            result = prog.evaluate(bindings)
+            expected = get_expected_result(format_test)
+            assert expected is not None, f"[{format_test.name}]: expected a success result to be defined"
+            assert result == expected
 
 
-@pytest.mark.parametrize("format_error_test", _format_error_tests)
-def test_format_errors(format_error_test):
+def test_format_errors(subtests: pytest.Subtests):
     """Tests error scenarios for string.format"""
-    if format_error_test.name in skipped_error_tests:
-        pytest.skip(f"skipped test: {format_error_test.name}")
-    ast = env.compile(format_error_test.expr)
-    prog = env.program(ast, functions=extra_func.make_extra_funcs())
+    for format_error_test in _format_error_tests:
+        with subtests.test(msg=format_error_test.name):
+            if format_error_test.name in skipped_error_tests:
+                pytest.skip(f"skipped test: {format_error_test.name}")
+            ast = env.compile(format_error_test.expr)
+            prog = env.program(ast, functions=extra_func.make_extra_funcs())
 
-    bindings = build_variables(format_error_test.bindings)
-    try:
-        prog.evaluate(bindings)
-        pytest.fail(f"[{format_error_test.name}]: expected an error to be raised during evaluation")
-    except celpy.CELEvalError as e:
-        msg = get_eval_error_message(format_error_test)
-        assert msg is not None, f"[{format_error_test.name}]: expected an eval error to be defined"
-        assert str(e) == msg
+            bindings = build_variables(format_error_test.bindings)
+            try:
+                prog.evaluate(bindings)
+                pytest.fail(f"[{format_error_test.name}]: expected an error to be raised during evaluation")
+            except celpy.CELEvalError as e:
+                msg = get_eval_error_message(format_error_test)
+                assert msg is not None, f"[{format_error_test.name}]: expected an eval error to be defined"
+                assert str(e) == msg
