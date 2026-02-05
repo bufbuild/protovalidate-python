@@ -109,8 +109,9 @@ ban-relative-imports = "all"
 strict = true
 # restrict testpaths to speed up test discovery
 testpaths = ["test"]
-# Turn all warnings into errors
-filterwarnings = ["error"]
+# Turn all warnings into errors,
+# except DeprecationWarnings (which we knowingly tolerate due to using old `protobuf` APIs).
+filterwarnings = ["error", "ignore::DeprecationWarning"]
 
 [tool.mypy]
 mypy_path = "gen"
