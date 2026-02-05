@@ -109,6 +109,8 @@ ban-relative-imports = "all"
 strict = true
 # restrict testpaths to speed up test discovery
 testpaths = ["test"]
+# Turn all warnings into errors
+filterwarnings = ["error"]
 
 [tool.mypy]
 mypy_path = "gen"
