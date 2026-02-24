@@ -45,8 +45,8 @@ generate:  ## Regenerate code and license headers
 format:  ## Format code
 	$(ADD_LICENSE_HEADER)
 	$(BUF) format --write .
-	uv run -- ruff check --fix protovalidate test
-	uv run -- ruff format protovalidate test
+	uv run -- ruff check --fix .
+	uv run -- ruff format .
 
 .PHONY: test
 test: $(TESTDATA_FILE) ## Run unit tests
@@ -59,9 +59,9 @@ conformance: generate ## Run conformance tests
 .PHONY: lint
 lint: ## Lint code
 	$(BUF) format -d --exit-code
-	uv run -- ruff format --check --diff protovalidate test
+	uv run -- ruff format --check --diff .
 	uv run -- mypy protovalidate
-	uv run -- ruff check protovalidate test
+	uv run -- ruff check .
 	uv lock --check
 
 .PHONY: checkgenerate
