@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import pytest
+from gen.tests.example.v1 import validations_pb2
 from google.protobuf import message
 
 import protovalidate
-from gen.tests.example.v1 import validations_pb2
 from protovalidate.internal import rules
 
 validators: list[protovalidate.Validator] = [

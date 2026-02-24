@@ -12,34 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from buf.validate import validate_pb2 as _validate_pb2
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class MultipleValidations(_message.Message):
-    __slots__ = ("title", "name")
+    __slots__ = ("name", "title")
     TITLE_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     title: str
     name: str
-    def __init__(self, title: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
+    def __init__(self, title: str | None = ..., name: str | None = ...) -> None: ...
 
 class DoubleFinite(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: float
-    def __init__(self, val: _Optional[float] = ...) -> None: ...
+    def __init__(self, val: float | None = ...) -> None: ...
 
 class SFixed64ExLTGT(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
+    def __init__(self, val: int | None = ...) -> None: ...
 
 class TestOneofMsg(_message.Message):
     __slots__ = ("val",)
@@ -55,7 +57,7 @@ class Oneof(_message.Message):
     x: str
     y: int
     z: TestOneofMsg
-    def __init__(self, x: _Optional[str] = ..., y: _Optional[int] = ..., z: _Optional[_Union[TestOneofMsg, _Mapping]] = ...) -> None: ...
+    def __init__(self, x: str | None = ..., y: int | None = ..., z: TestOneofMsg | _Mapping | None = ...) -> None: ...
 
 class ProtovalidateOneof(_message.Message):
     __slots__ = ("a", "b", "unrelated")
@@ -65,7 +67,7 @@ class ProtovalidateOneof(_message.Message):
     a: str
     b: str
     unrelated: bool
-    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ..., unrelated: bool = ...) -> None: ...
+    def __init__(self, a: str | None = ..., b: str | None = ..., unrelated: bool = ...) -> None: ...
 
 class ProtovalidateOneofRequired(_message.Message):
     __slots__ = ("a", "b", "unrelated")
@@ -75,7 +77,7 @@ class ProtovalidateOneofRequired(_message.Message):
     a: str
     b: str
     unrelated: bool
-    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ..., unrelated: bool = ...) -> None: ...
+    def __init__(self, a: str | None = ..., b: str | None = ..., unrelated: bool = ...) -> None: ...
 
 class ProtovalidateOneofUnknownFieldName(_message.Message):
     __slots__ = ("a", "b", "unrelated")
@@ -85,13 +87,13 @@ class ProtovalidateOneofUnknownFieldName(_message.Message):
     a: str
     b: str
     unrelated: bool
-    def __init__(self, a: _Optional[str] = ..., b: _Optional[str] = ..., unrelated: bool = ...) -> None: ...
+    def __init__(self, a: str | None = ..., b: str | None = ..., unrelated: bool = ...) -> None: ...
 
 class TimestampGTNow(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _timestamp_pb2.Timestamp
-    def __init__(self, val: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(self, val: _timestamp_pb2.Timestamp | _Mapping | None = ...) -> None: ...
 
 class MapMinMax(_message.Message):
     __slots__ = ("val",)
@@ -101,10 +103,11 @@ class MapMinMax(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
         value: bool
-        def __init__(self, key: _Optional[str] = ..., value: bool = ...) -> None: ...
+        def __init__(self, key: str | None = ..., value: bool = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[str, bool]
-    def __init__(self, val: _Optional[_Mapping[str, bool]] = ...) -> None: ...
+    def __init__(self, val: _Mapping[str, bool] | None = ...) -> None: ...
 
 class MapKeys(_message.Message):
     __slots__ = ("val",)
@@ -114,28 +117,29 @@ class MapKeys(_message.Message):
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
         value: str
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[str] = ...) -> None: ...
+        def __init__(self, key: int | None = ..., value: str | None = ...) -> None: ...
+
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.ScalarMap[int, str]
-    def __init__(self, val: _Optional[_Mapping[int, str]] = ...) -> None: ...
+    def __init__(self, val: _Mapping[int, str] | None = ...) -> None: ...
 
 class Embed(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: int
-    def __init__(self, val: _Optional[int] = ...) -> None: ...
+    def __init__(self, val: int | None = ...) -> None: ...
 
 class RepeatedEmbedSkip(_message.Message):
     __slots__ = ("val",)
     VAL_FIELD_NUMBER: _ClassVar[int]
     val: _containers.RepeatedCompositeFieldContainer[Embed]
-    def __init__(self, val: _Optional[_Iterable[_Union[Embed, _Mapping]]] = ...) -> None: ...
+    def __init__(self, val: _Iterable[Embed | _Mapping] | None = ...) -> None: ...
 
 class InvalidRESyntax(_message.Message):
     __slots__ = ("value",)
     VALUE_FIELD_NUMBER: _ClassVar[int]
     value: str
-    def __init__(self, value: _Optional[str] = ...) -> None: ...
+    def __init__(self, value: str | None = ...) -> None: ...
 
 class ConcatenatedValues(_message.Message):
     __slots__ = ("bar", "baz")
@@ -143,4 +147,4 @@ class ConcatenatedValues(_message.Message):
     BAZ_FIELD_NUMBER: _ClassVar[int]
     bar: _containers.RepeatedScalarFieldContainer[str]
     baz: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, bar: _Optional[_Iterable[str]] = ..., baz: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, bar: _Iterable[str] | None = ..., baz: _Iterable[str] | None = ...) -> None: ...
