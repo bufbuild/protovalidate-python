@@ -22,6 +22,10 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
+  # We need at least this version, which fixed Python 3.14 compatibility (tp_new metaclass issue).
+  # The fix was never backported to the 5.x series.
+  # Ref: https://github.com/protocolbuffers/protobuf/pull/20594
+  "protobuf>=6.31.0; python_version >= '3.14'",
   "protobuf>=5",
   "cel-python>=0.5",
   # We need at least this version, which started publishing wheels for Python 3.14.
