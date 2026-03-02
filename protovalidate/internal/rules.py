@@ -25,15 +25,15 @@ from buf.validate import validate_pb2
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
 # protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
-if hasattr(descriptor.FieldDescriptor, "LABEL_REPEATED"):
+if hasattr(descriptor.FieldDescriptor, "is_repeated"):
 
     def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
-        return field.label == descriptor.FieldDescriptor.LABEL_REPEATED  # type: ignore[attr-defined]
+        return field.is_repeated  # type: ignore[attr-defined]
 
 else:
 
     def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
-        return field.is_repeated  # type: ignore[attr-defined]
+        return field.label == descriptor.FieldDescriptor.LABEL_REPEATED  # type: ignore[attr-defined]
 
 
 class CompilationError(Exception):
