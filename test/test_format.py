@@ -16,36 +16,20 @@ from collections.abc import Iterable, MutableMapping
 from itertools import chain
 from typing import Any
 
-import celpy
 import pytest
-from celpy import celtypes
+from cel_expr_python import cel
 from google.protobuf import text_format
 
 from gen.cel.expr import eval_pb2
 from gen.cel.expr.conformance.test import simple_pb2
 from protovalidate.internal import extra_func
-from protovalidate.internal.cel_field_presence import InterpretedRunner
 
 # Version of the cel-spec that this implementation is conformant with.
 # This should be kept in sync with the version in ../Makefile.
 CEL_SPEC_VERSION = "v0.25.1"
 
-skipped_tests = [
-    # cel-python seems to have a bug with ints and booleans in the same map which evaluate to the same value
-    # which the test data for this test has. For example: {1: 'value1', true: 'value2'}]).
-    # This throws an error like:
-    # "no such overload: IntType(0) <class 'celpy.celtypes.IntType'> !=
-    #    BoolType(False) <class 'celpy.celtypes.BoolType'>",))
-    # TODO: Check if this bug is fixed in newer versions of cel-python.
-    "map support (all key types)",
-]
-skipped_error_tests = [
-    # cel-python does not support Protobuf messages at the moment and these tests use a MessageType
-    # See https://github.com/cloud-custodian/cel-python/issues/43
-    "object not allowed",
-    "object inside list",
-    "object inside map",
-]
+skipped_tests: list[str] = []
+skipped_error_tests: list[str] = []
 
 
 def load_test_data(file_name: str) -> simple_pb2.SimpleTestFile:
@@ -62,7 +46,7 @@ def build_variables(bindings: MutableMapping[str, eval_pb2.ExprValue]) -> dict[A
         if value.HasField("value"):
             val = value.value
             if val.HasField("string_value"):
-                binder[key] = celtypes.StringType(val.string_value)
+                binder[key] = val.string_value
     return binder
 
 
@@ -78,7 +62,7 @@ def get_eval_error_message(test: simple_pb2.SimpleTest) -> str | None:
     if test.HasField("eval_error"):
         err_set = test.eval_error
         if len(err_set.errors) == 1:
-            return celtypes.StringType(err_set.errors[0].message)
+            return err_set.errors[0].message
     return None
 
 
@@ -98,7 +82,7 @@ _format_error_tests: Iterable[simple_pb2.SimpleTest] = chain.from_iterable(
     x.test for x in sections if x.name == "format_errors"
 )
 
-env = celpy.Environment(runner_class=InterpretedRunner)
+env = cel.NewEnv(extensions=[extra_func.make_extra_funcs()])
 
 
 def test_format_successes(subtests: pytest.Subtests):
@@ -107,14 +91,16 @@ def test_format_successes(subtests: pytest.Subtests):
         with subtests.test(msg=format_test.name):
             if format_test.name in skipped_tests:
                 pytest.skip(f"skipped test: {format_test.name}")
-            ast = env.compile(format_test.expr)
-            prog = env.program(ast, functions=extra_func.make_extra_funcs())
+            ast = env.compile(format_test.expr, disable_check=True)
 
             bindings = build_variables(format_test.bindings)
-            result = prog.evaluate(bindings)
+            result = ast.eval(data=bindings)
             expected = get_expected_result(format_test)
             assert expected is not None, f"[{format_test.name}]: expected a success result to be defined"
-            assert result == expected
+            assert result.type() == cel.Type.STRING, (
+                f"[{format_test.name}]: expected STRING result, got {result.type()}"
+            )
+            assert result.value() == expected
 
 
 def test_format_errors(subtests: pytest.Subtests):
@@ -123,14 +109,13 @@ def test_format_errors(subtests: pytest.Subtests):
         with subtests.test(msg=format_error_test.name):
             if format_error_test.name in skipped_error_tests:
                 pytest.skip(f"skipped test: {format_error_test.name}")
-            ast = env.compile(format_error_test.expr)
-            prog = env.program(ast, functions=extra_func.make_extra_funcs())
+            ast = env.compile(format_error_test.expr, disable_check=True)
 
             bindings = build_variables(format_error_test.bindings)
-            try:
-                prog.evaluate(bindings)
-                pytest.fail(f"[{format_error_test.name}]: expected an error to be raised during evaluation")
-            except celpy.CELEvalError as e:
-                msg = get_eval_error_message(format_error_test)
-                assert msg is not None, f"[{format_error_test.name}]: expected an eval error to be defined"
-                assert str(e) == msg
+            result = ast.eval(data=bindings)
+            msg = get_eval_error_message(format_error_test)
+            assert msg is not None, f"[{format_error_test.name}]: expected an eval error to be defined"
+            assert result.type() == cel.Type.ERROR, (
+                f"[{format_error_test.name}]: expected an ERROR result, got {result.type()}"
+            )
+            assert result.value() == msg

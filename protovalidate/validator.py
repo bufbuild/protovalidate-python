@@ -35,8 +35,8 @@ class Validator:
     _factory: _rules.RuleFactory
 
     def __init__(self):
-        funcs = extra_func.make_extra_funcs()
-        self._factory = _rules.RuleFactory(funcs)
+        extension = extra_func.make_extra_funcs()
+        self._factory = _rules.RuleFactory(extension)
 
     def validate(self, message: message.Message, *, fail_fast: bool = False):
         """

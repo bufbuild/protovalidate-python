@@ -12,35 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import threading
-
-import celpy
-import celpy.celtypes
-
-_has_state = threading.local()
-
-
-def in_has() -> bool:
-    """
-    Returns true if inside of CEL interpreter `has` macro.
-
-    This enables working around an issue in cel-python where it is not possible
-    to implement protobuf semantics around the `has` macro.
-
-    https://github.com/cloud-custodian/cel-python/issues/73
-    """
-    return getattr(_has_state, "in_has", False)
-
-
-class InterpretedRunner(celpy.InterpretedRunner):
-    def evaluate(self, context) -> celpy.celtypes.Value:
-        class Evaluator(celpy.Evaluator):
-            def macro_has_eval(self, exprlist) -> celpy.celtypes.BoolType:
-                _has_state.in_has = True
-                result = super().macro_has_eval(exprlist)
-                _has_state.in_has = False
-                return result
-
-        e = Evaluator(ast=self.ast, activation=self.new_activation())
-        value = e.evaluate(context)
-        return value
+# This module previously contained a workaround for cel-python's inability to
+# implement protobuf has() macro semantics. With cel-expr-python, the C++
+# implementation handles protobuf natively and no workaround is needed.

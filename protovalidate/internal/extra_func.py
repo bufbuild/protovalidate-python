@@ -15,12 +15,12 @@
 import math
 from urllib import parse as urlparse
 
-import celpy
 import re2
-from celpy import celtypes
+from cel_expr_python import cel
+from google.protobuf import descriptor
+from google.protobuf import message as proto_message
 
 from protovalidate.internal import string_format
-from protovalidate.internal.rules import MessageType, field_to_cel
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
 _email_regex = re2.compile(
@@ -28,20 +28,33 @@ _email_regex = re2.compile(
 )
 
 
-def cel_get_field(message: celtypes.Value, field_name: celtypes.Value) -> celpy.Result:
-    if not isinstance(message, MessageType):
+def _field_is_repeated(field: descriptor.FieldDescriptor) -> bool:
+    if hasattr(field, "is_repeated"):
+        return field.is_repeated  # type: ignore[attr-defined]
+    return field.label == descriptor.FieldDescriptor.LABEL_REPEATED  # type: ignore[attr-defined]
+
+
+def _field_is_map(field: descriptor.FieldDescriptor) -> bool:
+    return _field_is_repeated(field) and field.message_type is not None and field.message_type.GetOptions().map_entry
+
+
+def cel_get_field(message: proto_message.Message, field_name: str):
+    if not isinstance(message, proto_message.Message):
         msg = "invalid argument, expected message"
-        raise celpy.CELEvalError(msg)
-    if not isinstance(field_name, celtypes.StringType):
-        msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    if field_name not in message.desc.fields_by_name:
+        raise ValueError(msg)
+    if field_name not in message.DESCRIPTOR.fields_by_name:
         msg = f"no such field: {field_name}"
-        raise celpy.CELEvalError(msg)
-    return field_to_cel(message.msg, message.desc.fields_by_name[field_name])
+        raise ValueError(msg)
+    field = message.DESCRIPTOR.fields_by_name[field_name]
+    val = getattr(message, field_name)
+    if _field_is_map(field):
+        return dict(val)
+    if _field_is_repeated(field):
+        return list(val)
+    return val
 
 
-def cel_is_ip(val: celtypes.Value, ver: celtypes.Value | None = None) -> celpy.Result:
+def cel_is_ip(val: str, ver: int | None = None) -> bool:
     """Return True if the string is an IPv4 or IPv6 address, optionally limited to a specific version.
 
     Version 0 or None means either 4 or 6. Passing a version other than 0, 4, or 6 always returns False.
@@ -53,19 +66,7 @@ def cel_is_ip(val: celtypes.Value, ver: celtypes.Value | None = None) -> celpy.R
     identifiers for IPv6 addresses (for example "fe80::a%en1") are supported.
 
     """
-    if not isinstance(val, celtypes.StringType):
-        msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    if not isinstance(ver, celtypes.IntType) and ver is not None:
-        msg = "invalid argument, expected int"
-        raise celpy.CELEvalError(msg)
-
-    if ver is None:
-        version = 0
-    else:
-        version = ver
-
-    return celtypes.BoolType(_is_ip(val, version))
+    return _is_ip(val, 0 if ver is None else ver)
 
 
 def _is_ip(string: str, version: int) -> bool:
@@ -81,7 +82,23 @@ def _is_ip(string: str, version: int) -> bool:
     return valid
 
 
-def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
+def cel_is_ip_prefix_no_args(val: str) -> bool:
+    return _is_ip_prefix(val, 0)
+
+
+def cel_is_ip_prefix_strict(val: str, strict: bool) -> bool:  # noqa: FBT001
+    return _is_ip_prefix(val, 0, strict=strict)
+
+
+def cel_is_ip_prefix_ver(val: str, ver: int) -> bool:
+    return _is_ip_prefix(val, ver)
+
+
+def cel_is_ip_prefix_ver_strict(val: str, ver: int, strict: bool) -> bool:  # noqa: FBT001
+    return _is_ip_prefix(val, ver, strict=strict)
+
+
+def cel_is_ip_prefix(val: str, *args) -> bool:
     """Return True if the string is a valid IP with prefix length, optionally
      limited to a specific version (v4 or v6), and optionally requiring the host
      portion to be all zeros.
@@ -101,26 +118,17 @@ def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
 
     """
 
-    if not isinstance(val, celtypes.StringType):
-        msg = "invalid argument, expected string or bytes"
-        raise celpy.CELEvalError(msg)
     version = 0
     strict = False
-    if len(args) == 1 and isinstance(args[0], celtypes.BoolType):
-        strict = bool(args[0])
-    elif len(args) == 1 and isinstance(args[0], celtypes.IntType):
+    if len(args) == 1 and isinstance(args[0], bool):
+        strict = args[0]
+    elif len(args) == 1 and isinstance(args[0], int):
         version = args[0]
-    elif len(args) == 1 and (not isinstance(args[0], celtypes.BoolType) or not isinstance(args[0], celtypes.IntType)):
-        msg = "invalid argument, expected bool or int"
-        raise celpy.CELEvalError(msg)
-    elif len(args) == 2 and isinstance(args[0], celtypes.IntType) and isinstance(args[1], celtypes.BoolType):
+    elif len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], bool):
         version = args[0]
-        strict = bool(args[1])
-    elif len(args) == 2 and (not isinstance(args[0], celtypes.IntType) or not isinstance(args[1], celtypes.BoolType)):
-        msg = "invalid argument, expected int and bool"
-        raise celpy.CELEvalError(msg)
+        strict = args[1]
 
-    return celtypes.BoolType(_is_ip_prefix(val, version, strict=strict))
+    return _is_ip_prefix(val, version, strict=strict)
 
 
 def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
@@ -138,7 +146,7 @@ def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
     return valid
 
 
-def cel_is_email(string: celtypes.Value) -> celpy.Result:
+def cel_is_email(string: str) -> bool:
     """Return True if the string is an email address, for example "foo@example.com".
 
     Conforms to the definition for a valid email address from the HTML standard.
@@ -147,28 +155,20 @@ def cel_is_email(string: celtypes.Value) -> celpy.Result:
     error.
 
     """
-    if not isinstance(string, celtypes.StringType):
-        msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    m = _email_regex.fullmatch(string) is not None
-    return celtypes.BoolType(m)
+    return _email_regex.fullmatch(string) is not None
 
 
-def cel_is_uri(string: celtypes.Value) -> celpy.Result:
+def cel_is_uri(string: str) -> bool:
     """Return True if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag".
 
     URI is defined in the internet standard RFC 3986.
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
     """
-    if not isinstance(string, celtypes.StringType):
-        msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    valid = Uri(str(string)).uri()
-    return celtypes.BoolType(valid)
+    return Uri(string).uri()
 
 
-def cel_is_uri_ref(string: celtypes.Value) -> celpy.Result:
+def cel_is_uri_ref(string: str) -> bool:
     """Return True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
     a Relative Reference such as "./foo/bar?query".
 
@@ -176,14 +176,10 @@ def cel_is_uri_ref(string: celtypes.Value) -> celpy.Result:
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
     """
-    if not isinstance(string, celtypes.StringType):
-        msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    valid = Uri(str(string)).uri_reference()
-    return celtypes.BoolType(valid)
+    return Uri(string).uri_reference()
 
 
-def cel_is_hostname(val: celtypes.Value) -> celpy.Result:
+def cel_is_hostname(val: str) -> bool:
     """Returns True if the string is a valid hostname, for example "foo.example.com".
 
     A valid hostname follows the rules below:
@@ -195,10 +191,7 @@ def cel_is_hostname(val: celtypes.Value) -> celpy.Result:
     - The name can be 253 characters at most, excluding the optional trailing dot.
 
     """
-    if not isinstance(val, celtypes.StringType):
-        msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(_is_hostname(val))
+    return _is_hostname(val)
 
 
 def _is_hostname(val: str) -> bool:
@@ -250,7 +243,7 @@ def _is_port(val: str) -> bool:
         return False
 
 
-def cel_is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) -> celpy.Result:
+def cel_is_host_and_port(string: str, port_required: bool) -> bool:  # noqa: FBT001
     """Return True if the string is a valid host/port pair, for example "example.com:8080".
 
      If the argument `port_required` is True, the port is required. If the argument
@@ -263,13 +256,7 @@ def cel_is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) 
 
     The port is separated by a colon. It must be non-empty, with a decimal number in the range of 0-65535, inclusive.
     """
-    if not isinstance(string, celtypes.StringType):
-        msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    if not isinstance(port_required, celtypes.BoolType):
-        msg = "invalid argument, expected bool"
-        raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(_is_host_and_port(string, port_required=bool(port_required)))
+    return _is_host_and_port(string, port_required=port_required)
 
 
 def _is_host_and_port(val: str, *, port_required=False) -> bool:
@@ -299,36 +286,31 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
     return (_is_hostname(host) or _is_ip(host, 4)) and _is_port(port)
 
 
-def cel_is_nan(val: celtypes.Value) -> celpy.Result:
-    if not isinstance(val, celtypes.DoubleType):
-        msg = "invalid argument, expected double"
-        raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(math.isnan(val))
+def cel_is_nan(val: float) -> bool:
+    return math.isnan(val)
 
 
-def cel_is_inf(val: celtypes.Value, sign: celtypes.Value | None = None) -> celpy.Result:
-    if not isinstance(val, celtypes.DoubleType):
-        msg = "invalid argument, expected double"
-        raise celpy.CELEvalError(msg)
-    if sign is None:
-        return celtypes.BoolType(math.isinf(val))
+def cel_is_inf_no_sign(val: float) -> bool:
+    return math.isinf(val)
 
-    if not isinstance(sign, celtypes.IntType):
-        msg = "invalid argument, expected int"
-        raise celpy.CELEvalError(msg)
+
+def cel_is_inf_with_sign(val: float, sign: int) -> bool:
     if sign > 0:
-        return celtypes.BoolType(math.isinf(val) and val > 0)
-    elif sign < 0:
-        return celtypes.BoolType(math.isinf(val) and val < 0)
-    else:
-        return celtypes.BoolType(math.isinf(val))
+        return math.isinf(val) and val > 0
+    if sign < 0:
+        return math.isinf(val) and val < 0
+    return math.isinf(val)
 
 
-def cel_unique(val: celtypes.Value) -> celpy.Result:
-    if not isinstance(val, celtypes.ListType | list):
-        msg = "invalid argument, expected list"
-        raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(len(val) == len(set(val)))
+def cel_unique(val: list) -> bool:
+    try:
+        return len(val) == len(set(val))
+    except TypeError:
+        # Unhashable elements (e.g. lists, dicts) — fall back to O(n²) comparison
+        for i, item in enumerate(val):
+            if item in val[:i]:
+                return False
+        return True
 
 
 class Ipv4:
@@ -1552,32 +1534,223 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
-def cel_matches(text: str, pattern: str) -> celpy.Result:
+def cel_matches(text: str, pattern: str) -> bool:
     try:
         m = re2.search(pattern, text)
     except re2.error as ex:
-        return celpy.CELEvalError("match error", ex.__class__, ex.args)
+        msg = f"match error: {ex}"
+        raise ValueError(msg) from ex
+    return m is not None
 
-    return celtypes.BoolType(m is not None)
 
-
-def make_extra_funcs() -> dict[str, celpy.CELFunction]:
+def make_extra_funcs() -> cel.CelExtension:
     string_fmt = string_format.StringFormat()
-    return {
-        # Missing standard functions
-        "format": string_fmt.format,
-        # Overridden standard functions
-        "matches": cel_matches,
-        # protovalidate specific functions
-        "getField": cel_get_field,
-        "isNan": cel_is_nan,
-        "isInf": cel_is_inf,
-        "isIp": cel_is_ip,
-        "isIpPrefix": cel_is_ip_prefix,
-        "isEmail": cel_is_email,
-        "isUri": cel_is_uri,
-        "isUriRef": cel_is_uri_ref,
-        "isHostname": cel_is_hostname,
-        "isHostAndPort": cel_is_host_and_port,
-        "unique": cel_unique,
-    }
+    return cel.CelExtension(
+        "protovalidate",
+        functions=[
+            # string.format([...]) -> string
+            cel.FunctionDecl(
+                "format",
+                [
+                    cel.Overload(
+                        "format_string_list",
+                        return_type=cel.Type.STRING,
+                        parameters=[cel.Type.STRING, cel.Type.LIST],
+                        is_member=True,
+                        impl=string_fmt.format,
+                    )
+                ],
+            ),
+            # string.matches(pattern) -> bool — override built-in to use RE2
+            cel.FunctionDecl(
+                "matches",
+                [
+                    cel.Overload(
+                        "matches_string_string",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING, cel.Type.STRING],
+                        is_member=True,
+                        impl=cel_matches,
+                    )
+                ],
+            ),
+            # getField(message, fieldName) -> dyn — global function for reserved-keyword fields
+            cel.FunctionDecl(
+                "getField",
+                [
+                    cel.Overload(
+                        "getField_dyn_string",
+                        return_type=cel.Type.DYN,
+                        parameters=[cel.Type.DYN, cel.Type.STRING],
+                        is_member=False,
+                        impl=cel_get_field,
+                    )
+                ],
+            ),
+            # double.isNan() -> bool
+            cel.FunctionDecl(
+                "isNan",
+                [
+                    cel.Overload(
+                        "isNan_double",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.DOUBLE],
+                        is_member=True,
+                        impl=cel_is_nan,
+                    )
+                ],
+            ),
+            # double.isInf() -> bool, double.isInf(sign) -> bool
+            cel.FunctionDecl(
+                "isInf",
+                [
+                    cel.Overload(
+                        "isInf_double",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.DOUBLE],
+                        is_member=True,
+                        impl=cel_is_inf_no_sign,
+                    ),
+                    cel.Overload(
+                        "isInf_double_int",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.DOUBLE, cel.Type.INT],
+                        is_member=True,
+                        impl=cel_is_inf_with_sign,
+                    ),
+                ],
+            ),
+            # string.isIp() -> bool, string.isIp(ver) -> bool
+            cel.FunctionDecl(
+                "isIp",
+                [
+                    cel.Overload(
+                        "isIp_string",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING],
+                        is_member=True,
+                        impl=cel_is_ip,
+                    ),
+                    cel.Overload(
+                        "isIp_string_int",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING, cel.Type.INT],
+                        is_member=True,
+                        impl=cel_is_ip,
+                    ),
+                ],
+            ),
+            # string.isIpPrefix() — four overloads for (ver?, strict?) combinations
+            cel.FunctionDecl(
+                "isIpPrefix",
+                [
+                    cel.Overload(
+                        "isIpPrefix_string",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING],
+                        is_member=True,
+                        impl=cel_is_ip_prefix_no_args,
+                    ),
+                    cel.Overload(
+                        "isIpPrefix_string_bool",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING, cel.Type.BOOL],
+                        is_member=True,
+                        impl=cel_is_ip_prefix_strict,
+                    ),
+                    cel.Overload(
+                        "isIpPrefix_string_int",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING, cel.Type.INT],
+                        is_member=True,
+                        impl=cel_is_ip_prefix_ver,
+                    ),
+                    cel.Overload(
+                        "isIpPrefix_string_int_bool",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING, cel.Type.INT, cel.Type.BOOL],
+                        is_member=True,
+                        impl=cel_is_ip_prefix_ver_strict,
+                    ),
+                ],
+            ),
+            # string.isEmail() -> bool
+            cel.FunctionDecl(
+                "isEmail",
+                [
+                    cel.Overload(
+                        "isEmail_string",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING],
+                        is_member=True,
+                        impl=cel_is_email,
+                    )
+                ],
+            ),
+            # string.isUri() -> bool
+            cel.FunctionDecl(
+                "isUri",
+                [
+                    cel.Overload(
+                        "isUri_string",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING],
+                        is_member=True,
+                        impl=cel_is_uri,
+                    )
+                ],
+            ),
+            # string.isUriRef() -> bool
+            cel.FunctionDecl(
+                "isUriRef",
+                [
+                    cel.Overload(
+                        "isUriRef_string",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING],
+                        is_member=True,
+                        impl=cel_is_uri_ref,
+                    )
+                ],
+            ),
+            # string.isHostname() -> bool
+            cel.FunctionDecl(
+                "isHostname",
+                [
+                    cel.Overload(
+                        "isHostname_string",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING],
+                        is_member=True,
+                        impl=cel_is_hostname,
+                    )
+                ],
+            ),
+            # string.isHostAndPort(portRequired) -> bool
+            cel.FunctionDecl(
+                "isHostAndPort",
+                [
+                    cel.Overload(
+                        "isHostAndPort_string_bool",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.STRING, cel.Type.BOOL],
+                        is_member=True,
+                        impl=cel_is_host_and_port,
+                    )
+                ],
+            ),
+            # list.unique() -> bool
+            cel.FunctionDecl(
+                "unique",
+                [
+                    cel.Overload(
+                        "unique_list",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.LIST],
+                        is_member=True,
+                        impl=cel_unique,
+                    )
+                ],
+            ),
+        ],
+    )

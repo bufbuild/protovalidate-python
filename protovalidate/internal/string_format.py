@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import math
 import re
 from decimal import Decimal
-
-import celpy
-from celpy import celtypes
 
 
 class StringFormat:
@@ -26,11 +24,7 @@ class StringFormat:
     def __init__(self):
         self.fmt = None
 
-    def format(self, fmt: celtypes.Value, args: celtypes.Value) -> celpy.Result:
-        if not isinstance(fmt, celtypes.StringType):
-            return celpy.CELEvalError("format() requires a string as the first argument")
-        if not isinstance(args, celtypes.ListType):
-            return celpy.CELEvalError("format() requires a list as the second argument")
+    def format(self, fmt: str, args: list) -> str:
         # printf style formatting
         i = 0
         j = 0
@@ -46,12 +40,14 @@ class StringFormat:
                 i += 2
                 continue
             if j >= len(args):
-                return celpy.CELEvalError(f"index {j} out of range")
+                msg = f"index {j} out of range"
+                raise ValueError(msg)
             arg = args[j]
             j += 1
             i += 1
             if i >= len(fmt):
-                return celpy.CELEvalError("format() incomplete format specifier")
+                msg = "format() incomplete format specifier"
+                raise ValueError(msg)
             precision = 6
             if fmt[i] == ".":
                 i += 1
@@ -60,7 +56,8 @@ class StringFormat:
                     precision = precision * 10 + int(fmt[i])
                     i += 1
             if i >= len(fmt):
-                return celpy.CELEvalError("format() incomplete format specifier")
+                msg = "format() incomplete format specifier"
+                raise ValueError(msg)
             if fmt[i] == "f":
                 result += self.__format_float(arg, precision)
             elif fmt[i] == "e":
@@ -78,16 +75,16 @@ class StringFormat:
             elif fmt[i] == "b":
                 result += self.__format_bin(arg)
             else:
-                return celpy.CELEvalError(
-                    f'could not parse formatting clause: unrecognized formatting clause "{fmt[i]}"'
-                )
+                msg = f'could not parse formatting clause: unrecognized formatting clause "{fmt[i]}"'
+                raise ValueError(msg)
             i += 1
         if j < len(args):
-            return celpy.CELEvalError("format() too many arguments for format string")
+            msg = "format() too many arguments for format string"
+            raise ValueError(msg)
 
-        return celtypes.StringType(result)
+        return result
 
-    def __validate_number(self, arg: celtypes.DoubleType | celtypes.IntType | celtypes.UintType) -> str | None:
+    def __validate_number(self, arg: float | int) -> str | None:
         if math.isnan(arg):
             return "NaN"
         if math.isinf(arg):
@@ -96,8 +93,8 @@ class StringFormat:
             return "Infinity"
         return None
 
-    def __format_float(self, arg: celtypes.Value, precision: int) -> str:
-        if isinstance(arg, celtypes.DoubleType):
+    def __format_float(self, arg, precision: int) -> str:
+        if isinstance(arg, float):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
@@ -106,10 +103,10 @@ class StringFormat:
             "error during formatting: fixed-point clause can only be used on doubles, was given "
             f"{self.__type_str(type(arg))}"
         )
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
-    def __format_exponential(self, arg: celtypes.Value, precision: int) -> str:
-        if isinstance(arg, celtypes.DoubleType):
+    def __format_exponential(self, arg, precision: int) -> str:
+        if isinstance(arg, float):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
@@ -118,120 +115,142 @@ class StringFormat:
             "error during formatting: scientific clause can only be used on doubles, was given "
             f"{self.__type_str(type(arg))}"
         )
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
-    def __format_int(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, celtypes.IntType | celtypes.UintType | celtypes.DoubleType):
+    def __format_int(self, arg) -> str:
+        # bool is a subclass of int in Python, so check bool first
+        if isinstance(arg, bool):
+            msg = (
+                "error during formatting: decimal clause can only be used on integers, was given "
+                f"{self.__type_str(type(arg))}"
+            )
+            raise ValueError(msg)
+        if isinstance(arg, (int, float)):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
-            return f"{arg}"
+            return f"{int(arg)}"
         msg = (
             "error during formatting: decimal clause can only be used on integers, was given "
             f"{self.__type_str(type(arg))}"
         )
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
-    def __format_hex(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, celtypes.IntType | celtypes.UintType):
+    def __format_hex(self, arg) -> str:
+        if isinstance(arg, bool):
+            msg = (
+                "error during formatting: only integers, byte buffers, and strings can be formatted as hex, "
+                f"was given {self.__type_str(type(arg))}"
+            )
+            raise ValueError(msg)
+        if isinstance(arg, int):
             return f"{arg:x}"
-        if isinstance(arg, celtypes.BytesType):
+        if isinstance(arg, (bytes, bytearray)):
             return arg.hex()
-        if isinstance(arg, celtypes.StringType):
+        if isinstance(arg, str):
             return arg.encode("utf-8").hex()
         msg = (
             "error during formatting: only integers, byte buffers, and strings can be formatted as hex, was given "
             f"{self.__type_str(type(arg))}"
         )
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
-    def __format_oct(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, celtypes.IntType | celtypes.UintType):
+    def __format_oct(self, arg) -> str:
+        if isinstance(arg, bool):
+            msg = (
+                "error during formatting: octal clause can only be used on integers, was given "
+                f"{self.__type_str(type(arg))}"
+            )
+            raise ValueError(msg)
+        if isinstance(arg, int):
             return f"{arg:o}"
         msg = (
             "error during formatting: octal clause can only be used on integers, was given "
             f"{self.__type_str(type(arg))}"
         )
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
-    def __format_bin(self, arg: celtypes.Value) -> str:
-        if isinstance(arg, celtypes.IntType | celtypes.UintType | celtypes.BoolType):
+    def __format_bin(self, arg) -> str:
+        if isinstance(arg, bool):
+            return f"{int(arg):b}"
+        if isinstance(arg, int):
             return f"{arg:b}"
         msg = (
             "error during formatting: only integers and bools can be formatted as binary, was given "
             f"{self.__type_str(type(arg))}"
         )
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
-    def __format_string(self, arg: celtypes.Value) -> str:
+    def __format_string(self, arg) -> str:
         if arg is None:
             return "null"
-        if isinstance(arg, type):
-            return self.__type_str(arg)
-        if isinstance(arg, celtypes.BoolType):
-            # True -> true
+        if isinstance(arg, bool):
+            # True -> "true", False -> "false"
             return str(arg).lower()
-        if isinstance(arg, celtypes.BytesType):
+        if isinstance(arg, (bytes, bytearray)):
             decoded = arg.decode("utf-8", errors="replace")
-            # Collapse any contiguous placeholders into one
-            return re.sub("\\ufffd+", "\ufffd", decoded)
-
-        if isinstance(arg, celtypes.DoubleType):
+            # Collapse any contiguous replacement characters into one
+            return re.sub("\ufffd+", "\ufffd", decoded)
+        if isinstance(arg, float):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
             return f"{arg:g}"
-        if isinstance(arg, celtypes.DurationType):
+        if isinstance(arg, datetime.timedelta):
             return self.__format_duration(arg)
-        if isinstance(arg, celtypes.IntType) or isinstance(arg, celtypes.UintType):
+        if isinstance(arg, int):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
             return f"{arg}"
-        if isinstance(arg, celtypes.ListType):
+        if isinstance(arg, list):
             return self.__format_list(arg)
-        if isinstance(arg, celtypes.MapType):
+        if isinstance(arg, dict):
             return self.__format_map(arg)
-        if isinstance(arg, celtypes.StringType):
+        if isinstance(arg, str):
             return arg
-        if isinstance(arg, celtypes.TimestampType):
-            base = arg.isoformat()
-            if arg.getMilliseconds() != 0:
-                base = arg.isoformat(timespec="milliseconds")
-            return base.removesuffix("+00:00") + "Z"
+        if isinstance(arg, datetime.datetime):
+            return self.__format_timestamp(arg)
         return "unknown"
 
-    def __format_list(self, arg: celtypes.ListType) -> str:
+    def __format_list(self, arg: list) -> str:
         return "[" + ", ".join(self.__format_string(val) for val in arg) + "]"
 
-    def __format_map(self, arg: celtypes.MapType) -> str:
-        m = {self.__format_string(cel_key): self.__format_string(cel_val) for cel_key, cel_val in arg.items()}
+    def __format_map(self, arg: dict) -> str:
+        m = {self.__format_string(k): self.__format_string(v) for k, v in arg.items()}
         return "{" + ", ".join(key + ": " + val for key, val in sorted(m.items())) + "}"
 
-    def __format_duration(self, arg: celtypes.DurationType) -> str:
-        return f"{arg.seconds + Decimal(arg.microseconds) / Decimal(1_000_000):f}s"
+    def __format_duration(self, arg: datetime.timedelta) -> str:
+        total_seconds = Decimal(arg.days * 86400 + arg.seconds) + Decimal(arg.microseconds) / Decimal(1_000_000)
+        return f"{total_seconds:f}s"
 
-    def __type_str(self, arg: celtypes.Type) -> str:
+    def __format_timestamp(self, arg: datetime.datetime) -> str:
+        # Format as ISO 8601 with Z suffix, using millisecond precision if needed.
+        if arg.microsecond != 0:
+            base = arg.isoformat(timespec="milliseconds")
+        else:
+            base = arg.isoformat(timespec="seconds")
+        return base.removesuffix("+00:00") + "Z"
+
+    def __type_str(self, arg: type) -> str:
         if arg is type(None):
             return "null_type"
-        if arg is celtypes.BoolType:
+        if arg is bool:
             return "bool"
-        if arg is celtypes.BytesType:
+        if arg is bytes or arg is bytearray:
             return "bytes"
-        if arg is celtypes.DoubleType:
+        if arg is float:
             return "double"
-        if arg is celtypes.DurationType:
+        if arg is datetime.timedelta:
             return "google.protobuf.Duration"
-        if arg is celtypes.IntType:
+        if arg is int:
             return "int"
-        if arg is celtypes.ListType:
+        if arg is list:
             return "list"
-        if arg is celtypes.MapType:
+        if arg is dict:
             return "map"
-        if arg is celtypes.StringType:
+        if arg is str:
             return "string"
-        if arg is celtypes.TimestampType:
+        if arg is datetime.datetime:
             return "google.protobuf.Timestamp"
-        if arg is celtypes.UintType:
-            return "uint"
         return "unknown"
