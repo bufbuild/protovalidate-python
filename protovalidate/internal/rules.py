@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import dataclasses
 import datetime
 import typing
@@ -195,7 +197,7 @@ class RuleContext:
     def has_errors(self) -> bool:
         return len(self._violations) > 0
 
-    def sub_context(self) -> "RuleContext":
+    def sub_context(self) -> RuleContext:
         return RuleContext(fail_fast=self._fail_fast)
 
 
