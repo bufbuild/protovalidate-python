@@ -288,7 +288,7 @@ requires-dist = [
     { name = "google-re2", specifier = ">=1" },
     { name = "google-re2", marker = "python_full_version == '3.12.*'", specifier = ">=1.1" },
     { name = "google-re2", marker = "python_full_version == '3.13.*'", specifier = ">=1.1.20250722" },
-    { name = "protobuf", specifier = ">=5" },
+    { name = "protobuf", specifier = ">=6.30.0" },
 ]
 
 [package.metadata.requires-dev]

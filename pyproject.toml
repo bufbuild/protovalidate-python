@@ -20,7 +20,8 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-  "protobuf>=5",
+  # cel-expr-python requires protobuf 6.30+ for nested message type descriptor lookup.
+  "protobuf>=6.30.0",
   "cel-expr-python>=0.1.1; python_version >= '3.11' and python_version < '3.14' and sys_platform == 'linux'",
   # We need at least this version, which started publishing wheels for Python 3.13.
   # Ref: https://github.com/google/re2/issues/516
