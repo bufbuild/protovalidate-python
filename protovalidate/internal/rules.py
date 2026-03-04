@@ -21,7 +21,7 @@ import typing
 from collections.abc import Container
 
 from cel_expr_python import cel
-from google.protobuf import any_pb2, descriptor, message, message_factory
+from google.protobuf import any_pb2, descriptor, message, message_factory, timestamp_pb2
 
 from buf.validate import validate_pb2
 
@@ -247,7 +247,9 @@ class CelRules(Rules):
             activation["this"] = this_value
         if self._rules is not None:
             activation["rules"] = self._rules
-        activation["now"] = datetime.datetime.now(tz=datetime.UTC)
+        now_ts = timestamp_pb2.Timestamp()
+        now_ts.FromDatetime(datetime.datetime.now(tz=datetime.UTC))
+        activation["now"] = now_ts
         for cel_runner in self._cel:
             if cel_runner.rule_cel is not None:
                 activation["rule"] = cel_runner.rule_cel

@@ -1739,5 +1739,100 @@ def make_extra_funcs() -> cel.CelExtension:
                     )
                 ],
             ),
+            # bytes.contains(bytes) -> bool
+            cel.FunctionDecl(
+                "contains",
+                [
+                    cel.Overload(
+                        "contains_bytes_bytes",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.BYTES, cel.Type.BYTES],
+                        is_member=True,
+                        impl=lambda a, b: b in a,
+                    )
+                ],
+            ),
+            # bytes.startsWith(bytes) -> bool
+            cel.FunctionDecl(
+                "startsWith",
+                [
+                    cel.Overload(
+                        "startsWith_bytes_bytes",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.BYTES, cel.Type.BYTES],
+                        is_member=True,
+                        impl=lambda a, b: a.startswith(b),
+                    )
+                ],
+            ),
+            # bytes.endsWith(bytes) -> bool
+            cel.FunctionDecl(
+                "endsWith",
+                [
+                    cel.Overload(
+                        "endsWith_bytes_bytes",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.BYTES, cel.Type.BYTES],
+                        is_member=True,
+                        impl=lambda a, b: a.endswith(b),
+                    )
+                ],
+            ),
+            # Cross-type int/uint arithmetic overloads.
+            # CEL predefined rules for uint types use uint literals (e.g. "this % 2u == 0u"),
+            # but Python int values are mapped to CEL int64. These overloads bridge the gap.
+            cel.FunctionDecl(
+                "_%_",
+                [
+                    cel.Overload(
+                        "_mod__int_uint",
+                        return_type=cel.Type.INT,
+                        parameters=[cel.Type.INT, cel.Type.UINT],
+                        is_member=False,
+                        impl=lambda a, b: a % b,
+                    ),
+                ],
+            ),
+            # Cross-type int/uint equality overloads.
+            # CEL built-in size() for bytes returns uint64, but integer literals are int64.
+            # These overloads allow comparisons like "this.size() == 4" to work correctly.
+            cel.FunctionDecl(
+                "_==_",
+                [
+                    cel.Overload(
+                        "_eq__int_uint",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.INT, cel.Type.UINT],
+                        is_member=False,
+                        impl=lambda a, b: a == b,
+                    ),
+                    cel.Overload(
+                        "_eq__uint_int",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.UINT, cel.Type.INT],
+                        is_member=False,
+                        impl=lambda a, b: a == b,
+                    ),
+                ],
+            ),
+            cel.FunctionDecl(
+                "_!=_",
+                [
+                    cel.Overload(
+                        "_ne__int_uint",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.INT, cel.Type.UINT],
+                        is_member=False,
+                        impl=lambda a, b: a != b,
+                    ),
+                    cel.Overload(
+                        "_ne__uint_int",
+                        return_type=cel.Type.BOOL,
+                        parameters=[cel.Type.UINT, cel.Type.INT],
+                        is_member=False,
+                        impl=lambda a, b: a != b,
+                    ),
+                ],
+            ),
         ],
     )

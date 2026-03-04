@@ -1,1 +1,53 @@
-{}
+# cel-expr-python cannot look up descriptors for nested message types in these
+# proto editions test cases. The C++ CEL runtime does not find the nested Msg
+# descriptor, producing a runtime error instead of a validation result.
+standard_rules/ignore:
+  - proto/2023/message/explicit_presence/length_prefixed/ignore_unspecified/invalid/default
+  - proto/2023/message/explicit_presence/length_prefixed/ignore_unspecified/invalid/populated
+  - proto/2023/message/explicit_presence/length_prefixed/ignore_unspecified/valid/populated
+  - proto/2023/message/explicit_presence/length_prefixed/ignore_empty/invalid/default
+  - proto/2023/message/explicit_presence/length_prefixed/ignore_empty/invalid/populated
+  - proto/2023/message/explicit_presence/length_prefixed/ignore_empty/valid/populated
+  - proto/2023/message/explicit_presence/delimited/ignore_unspecified/invalid/default
+  - proto/2023/message/explicit_presence/delimited/ignore_unspecified/invalid/populated
+  - proto/2023/message/explicit_presence/delimited/ignore_unspecified/valid/populated
+  - proto/2023/message/explicit_presence/delimited/ignore_empty/invalid/default
+  - proto/2023/message/explicit_presence/delimited/ignore_empty/invalid/populated
+  - proto/2023/message/explicit_presence/delimited/ignore_empty/valid/populated
+  - proto/2023/message/legacy_required/length_prefixed/ignore_unspecified/invalid/default
+  - proto/2023/message/legacy_required/length_prefixed/ignore_unspecified/invalid/populated
+  - proto/2023/message/legacy_required/length_prefixed/ignore_unspecified/valid/populated
+  - proto/2023/message/legacy_required/length_prefixed/ignore_empty/invalid/default
+  - proto/2023/message/legacy_required/length_prefixed/ignore_empty/invalid/populated
+  - proto/2023/message/legacy_required/length_prefixed/ignore_empty/valid/populated
+  - proto/2023/message/legacy_required/delimited/ignore_unspecified/invalid/default
+  - proto/2023/message/legacy_required/delimited/ignore_unspecified/invalid/populated
+  - proto/2023/message/legacy_required/delimited/ignore_unspecified/valid/populated
+  - proto/2023/message/legacy_required/delimited/ignore_empty/invalid/default
+  - proto/2023/message/legacy_required/delimited/ignore_empty/invalid/populated
+  - proto/2023/message/legacy_required/delimited/ignore_empty/valid/populated
+
+standard_rules/ignore_empty:
+  - proto/2023/message/explicit_presence/length_prefixed/nonzero
+  - proto/2023/message/explicit_presence/length_prefixed/zero
+  - proto/2023/message/explicit_presence/delimited/nonzero
+  - proto/2023/message/explicit_presence/delimited/zero
+
+# cel-expr-python cannot look up the descriptor for the GroupCustom.Custom nested
+# message type, which is a proto2 group-encoded field.
+groups:
+  - custom/valid
+  - custom/invalid
+
+# cel-expr-python truncates Python strings and bytes at embedded NUL bytes when
+# converting to C++ strings, causing NUL-byte inputs to be silently truncated.
+kitchen_sink:
+  - field/invalid
+  - field/embedded/invalid
+  - field/transitive/invalid
+  - many/all-non-message-fields/invalid
+
+standard_rules/string:
+  - well_known_regex/header_name/strict/invalid/nul
+  - well_known_regex/header_value/strict/invalid/nul
+  - well_known_regex/header_value/loose/invalid/nul
