@@ -1778,24 +1778,6 @@ def make_extra_funcs() -> cel.CelExtension:
                     )
                 ],
             ),
-            # Override size(bytes) -> int64 so that comparisons like "this.size() == 4"
-            # use the built-in _==_(int64, int64) operator. The C++ CEL runtime's built-in
-            # size(bytes) returns uint64, but integer literals (e.g. 4) are int64, causing
-            # "this.size() == 4" to always be false due to strict type checking.
-            # Extension function FunctionDecls add overloads without replacing other
-            # parameter-type variants, so size(string)/size(list)/size(map) are unaffected.
-            cel.FunctionDecl(
-                "size",
-                [
-                    cel.Overload(
-                        "size_bytes_int",
-                        return_type=cel.Type.INT,
-                        parameters=[cel.Type.BYTES],
-                        is_member=True,
-                        impl=lambda b: len(b),
-                    ),
-                ],
-            ),
             # Cross-type int/uint modulo overload.
             # CEL predefined rules for uint types use uint literals (e.g. "this % 2u == 0u"),
             # but Python int values are mapped to CEL int64. The result is uint64 so that
