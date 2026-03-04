@@ -239,7 +239,7 @@ class CelRules(Rules):
             activation["this"] = this_value
         if self._rules is not None:
             activation["rules"] = self._rules
-        activation["now"] = datetime.datetime.now(tz=datetime.timezone.utc)
+        activation["now"] = datetime.datetime.now(tz=datetime.UTC)
         for cel_runner in self._cel:
             if cel_runner.rule_cel is not None:
                 activation["rule"] = cel_runner.rule_cel

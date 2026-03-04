@@ -125,7 +125,7 @@ class StringFormat:
                 f"{self.__type_str(type(arg))}"
             )
             raise ValueError(msg)
-        if isinstance(arg, (int, float)):
+        if isinstance(arg, int | float):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
@@ -145,7 +145,7 @@ class StringFormat:
             raise ValueError(msg)
         if isinstance(arg, int):
             return f"{arg:x}"
-        if isinstance(arg, (bytes, bytearray)):
+        if isinstance(arg, bytes | bytearray):
             return arg.hex()
         if isinstance(arg, str):
             return arg.encode("utf-8").hex()
@@ -187,7 +187,7 @@ class StringFormat:
         if isinstance(arg, bool):
             # True -> "true", False -> "false"
             return str(arg).lower()
-        if isinstance(arg, (bytes, bytearray)):
+        if isinstance(arg, bytes | bytearray):
             decoded = arg.decode("utf-8", errors="replace")
             # Collapse any contiguous replacement characters into one
             return re.sub("\ufffd+", "\ufffd", decoded)

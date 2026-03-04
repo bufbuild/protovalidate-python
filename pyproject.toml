@@ -12,7 +12,6 @@ keywords = ["validate", "protobuf", "protocol buffer"]
 # Keep our minimum version synced with ./.python-version.
 requires-python = ">=3.11"
 classifiers = [
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
