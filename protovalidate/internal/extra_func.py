@@ -1561,19 +1561,6 @@ def make_extra_funcs() -> cel.CelExtension:
                     )
                 ],
             ),
-            # string.matches(pattern) -> bool — override built-in to use RE2
-            cel.FunctionDecl(
-                "matches",
-                [
-                    cel.Overload(
-                        "matches_string_string",
-                        return_type=cel.Type.BOOL,
-                        parameters=[cel.Type.STRING, cel.Type.STRING],
-                        is_member=True,
-                        impl=cel_matches,
-                    )
-                ],
-            ),
             # getField(message, fieldName) -> dyn — global function for reserved-keyword fields
             cel.FunctionDecl(
                 "getField",
