@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import dataclasses
 import datetime
+import re
 import typing
 from collections.abc import Container
 
@@ -38,6 +39,11 @@ else:
 
 class CompilationError(Exception):
     pass
+
+
+def _strip_cel_status_prefix(s: str) -> str:
+    """Strip gRPC-style status prefix (e.g. 'OUT_OF_RANGE: ') from CEL error messages."""
+    return re.sub(r"^[A-Z_]+: ", "", s)
 
 
 _FIELD_TYPE_NAMES: dict[int, str] = {
@@ -247,8 +253,7 @@ class CelRules(Rules):
                 activation["rule"] = cel_runner.rule_cel
             result = cel_runner.expression.eval(data=activation)
             if result.type() == cel.Type.ERROR:
-                msg = result.value()
-                raise RuntimeError(msg)
+                raise RuntimeError(_strip_cel_status_prefix(result.value()))
             if result.type() == cel.Type.BOOL:
                 if not result.value():
                     rule_message = cel_runner.rule.message
