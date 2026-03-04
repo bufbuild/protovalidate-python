@@ -1,38 +1,3 @@
-# cel-expr-python cannot look up descriptors for nested message types in these
-# proto editions test cases. The C++ CEL runtime does not find the nested Msg
-# descriptor, producing a runtime error instead of a validation result.
-standard_rules/ignore:
-  - proto/2023/message/explicit_presence/length_prefixed/ignore_unspecified/invalid/default
-  - proto/2023/message/explicit_presence/length_prefixed/ignore_unspecified/invalid/populated
-  - proto/2023/message/explicit_presence/length_prefixed/ignore_unspecified/valid/populated
-  - proto/2023/message/explicit_presence/length_prefixed/ignore_empty/invalid/default
-  - proto/2023/message/explicit_presence/length_prefixed/ignore_empty/invalid/populated
-  - proto/2023/message/explicit_presence/length_prefixed/ignore_empty/valid/populated
-  - proto/2023/message/explicit_presence/delimited/ignore_unspecified/invalid/default
-  - proto/2023/message/explicit_presence/delimited/ignore_unspecified/invalid/populated
-  - proto/2023/message/explicit_presence/delimited/ignore_unspecified/valid/populated
-  - proto/2023/message/explicit_presence/delimited/ignore_empty/invalid/default
-  - proto/2023/message/explicit_presence/delimited/ignore_empty/invalid/populated
-  - proto/2023/message/explicit_presence/delimited/ignore_empty/valid/populated
-  - proto/2023/message/legacy_required/length_prefixed/ignore_unspecified/invalid/default
-  - proto/2023/message/legacy_required/length_prefixed/ignore_unspecified/invalid/populated
-  - proto/2023/message/legacy_required/length_prefixed/ignore_unspecified/valid/populated
-  - proto/2023/message/legacy_required/length_prefixed/ignore_empty/invalid/default
-  - proto/2023/message/legacy_required/length_prefixed/ignore_empty/invalid/populated
-  - proto/2023/message/legacy_required/length_prefixed/ignore_empty/valid/populated
-  - proto/2023/message/legacy_required/delimited/ignore_unspecified/invalid/default
-  - proto/2023/message/legacy_required/delimited/ignore_unspecified/invalid/populated
-  - proto/2023/message/legacy_required/delimited/ignore_unspecified/valid/populated
-  - proto/2023/message/legacy_required/delimited/ignore_empty/invalid/default
-  - proto/2023/message/legacy_required/delimited/ignore_empty/invalid/populated
-  - proto/2023/message/legacy_required/delimited/ignore_empty/valid/populated
-
-standard_rules/ignore_empty:
-  - proto/2023/message/explicit_presence/length_prefixed/nonzero
-  - proto/2023/message/explicit_presence/length_prefixed/zero
-  - proto/2023/message/explicit_presence/delimited/nonzero
-  - proto/2023/message/explicit_presence/delimited/zero
-
 # cel-expr-python cannot look up the descriptor for the GroupCustom.Custom nested
 # message type, which is a proto2 group-encoded field.
 groups:
@@ -46,6 +11,19 @@ kitchen_sink:
   - field/embedded/invalid
   - field/transitive/invalid
   - many/all-non-message-fields/invalid
+
+standard_rules/bytes:
+  - IP/valid/v4
+  - IP/valid/v6
+  - IPv4/valid
+  - IPv6/valid
+  - uuid/valid/nil
+  - uuid/valid/v1/lowercase
+  - uuid/valid/v1/uppercase
+  - uuid/valid/v2/lowercase
+  - uuid/valid/v2/uppercase
+  - uuid/valid/v4/lowercase
+  - uuid/valid/v4/uppercase
 
 standard_rules/string:
   - well_known_regex/header_name/strict/invalid/nul
