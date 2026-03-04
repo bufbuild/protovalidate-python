@@ -1780,27 +1780,13 @@ def make_extra_funcs() -> cel.CelExtension:
             ),
             # Cross-type int/uint modulo overload.
             # CEL predefined rules for uint types use uint literals (e.g. "this % 2u == 0u"),
-            # but Python int values are mapped to CEL int64. The result is uint64 so that
-            # the subsequent "== 0u" comparison uses the built-in _==_(uint64, uint64).
-            # Operator FunctionDecls replace the built-in, so all standard overloads must
-            # be included here alongside the cross-type overload.
+            # but Python int values are mapped to CEL int64. This overload bridges the gap:
+            # int64 % uint64 → uint64, so the subsequent "== 0u" comparison uses the
+            # built-in _==_(uint64, uint64). Adding a new overload with a novel parameter
+            # combination does not collide with the existing built-ins.
             cel.FunctionDecl(
                 "_%_",
                 [
-                    cel.Overload(
-                        "_mod__int_int",
-                        return_type=cel.Type.INT,
-                        parameters=[cel.Type.INT, cel.Type.INT],
-                        is_member=False,
-                        impl=lambda a, b: a % b,
-                    ),
-                    cel.Overload(
-                        "_mod__uint_uint",
-                        return_type=cel.Type.UINT,
-                        parameters=[cel.Type.UINT, cel.Type.UINT],
-                        is_member=False,
-                        impl=lambda a, b: a % b,
-                    ),
                     cel.Overload(
                         "_mod__int_uint",
                         return_type=cel.Type.UINT,
