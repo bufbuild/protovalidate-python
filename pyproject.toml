@@ -43,6 +43,7 @@ dependencies = [
 Homepage = "https://github.com/bufbuild/protovalidate-python"
 Source = "https://github.com/bufbuild/protovalidate-python"
 Issues = "https://github.com/bufbuild/protovalidate-python/issues"
+Documentation = "https://protovalidate.com"
 
 [dependency-groups]
 dev = [
