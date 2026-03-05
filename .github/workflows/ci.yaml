@@ -41,4 +41,8 @@ jobs:
         env:
           BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
       - run: make test
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
       - run: make conformance
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
