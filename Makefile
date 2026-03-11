@@ -96,11 +96,11 @@ $(TESTDATA_FILE):
 $(BIN):
 	@mkdir -p $(BIN)
 
-$(BIN)/buf: $(BIN) Makefile
+$(BIN)/buf: Makefile | $(BIN)
 	go install github.com/bufbuild/buf/cmd/buf@v${BUF_VERSION}
 
-$(BIN)/license-header: $(BIN) Makefile
+$(BIN)/license-header: Makefile | $(BIN)
 	go install github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v${BUF_VERSION}
 
-$(BIN)/protovalidate-conformance: $(BIN) Makefile
+$(BIN)/protovalidate-conformance: Makefile | $(BIN)
 	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)
