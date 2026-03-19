@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "helpers:pinGitHubActionDigests",
+    "schedule:earlyMondays"
+  ],
+  "prHourlyLimit": 0,
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "matchManagers": [
+        "pep621"
+      ],
+      "matchDepTypes": [
+        "project.dependencies",
+        "project.optional-dependencies"
+      ],
+      "matchFileNames": [
+        "pyproject.toml"
+      ],
+      // We manage production dependencies ourselves, only bumping
+      // when necessary.
+      "enabled": false
+    },
+    {
+      "matchCategories": [
+        "python"
+      ],
+      "groupName": "Python dependencies"
+    }
+  ]
+}
