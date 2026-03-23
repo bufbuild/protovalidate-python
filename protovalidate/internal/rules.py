@@ -19,7 +19,7 @@ from collections.abc import Callable, Container, Iterable, Mapping
 
 import celpy
 from celpy import celtypes
-from google.protobuf import any_pb2, descriptor, duration_pb2, message, message_factory, timestamp_pb2
+from google.protobuf import any_pb2, descriptor, duration_pb2, message, message_factory, timestamp_pb2, unknown_fields  # type: ignore[attr-defined]
 
 from buf.validate import validate_pb2
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
@@ -565,6 +565,9 @@ class FieldRules(CelRules):
         self._required = field_level.required
         if type_case is not None:
             rules: message.Message = getattr(field_level, type_case)
+            if len(unknown_fields.UnknownFieldSet(rules)) > 0:
+                msg = f"unknown rules in {rules.DESCRIPTOR.full_name}"
+                raise CompilationError(msg)
             # For each set field in the message, look for the private rule
             # extension.
             for list_field, _ in rules.ListFields():
@@ -1031,6 +1034,9 @@ class RuleFactory:
             check_field_type(field, 0, "google.protobuf.Any")
             result = AnyRules(self._env, self._funcs, field, field_level)
             return result
+        else:
+            msg = f"unknown rule type {type_case!r}"
+            raise CompilationError(msg)
 
     def _new_field_rule(
         self,
