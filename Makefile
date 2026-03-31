@@ -63,6 +63,7 @@ format: install $(BIN)/buf $(BIN)/license-header ## Format code
 	buf format --write .
 	uv run -- ruff format protovalidate test
 	uv run -- ruff check --fix protovalidate test
+	uv run -- tombi format
 
 .PHONY: test
 test: generate install $(TESTDATA_FILE) ## Run unit tests
@@ -78,6 +79,8 @@ lint: install $(BIN)/buf ## Lint code
 	uv run -- ruff format --check --diff protovalidate test
 	uv run -- mypy protovalidate
 	uv run -- ruff check protovalidate test
+	uv run -- tombi format --check
+	uv run -- tombi lint
 	uv lock --check
 
 .PHONY: install
