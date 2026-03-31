@@ -17,6 +17,16 @@
     },
     {
       "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackagePrefixes": [
+        "bufbuild/"
+      ],
+      // We manage bufbuild actions ourselves; no need to pin or bump.
+      "enabled": false
+    },
+    {
+      "matchManagers": [
         "pep621"
       ],
       "matchDepTypes": [
