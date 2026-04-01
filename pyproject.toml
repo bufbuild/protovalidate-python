@@ -1,49 +1,45 @@
-[build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
-
 [project]
 name = "protovalidate"
 description = "Protocol Buffer Validation for Python"
 readme = "README.md"
-license = "Apache-2.0"
-license-files = ["LICENSE"]
-keywords = ["validate", "protobuf", "protocol buffer"]
 # Keep our minimum version synced with ./.python-version.
 requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["protobuf", "protocol buffer", "validate"]
 classifiers = [
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
-  "Operating System :: OS Independent",
   "Typing :: Typed",
 ]
-dynamic = ["version"]
 dependencies = [
+  "cel-python>=0.5",
+  "google-re2>=1",
+  # We need at least this version, which started publishing wheels for Python 3.13.
+  # Ref: https://github.com/google/re2/issues/516
+  "google-re2>=1.1.20250722; python_version == '3.13'",
+  # We need at least this version, which started publishing wheels for Python 3.14.
+  # Ref: https://github.com/google/re2/issues/580
+  "google-re2>=1.1.20251105; python_version == '3.14'",
+  # 1.1 started supporting 3.12.
+  "google-re2>=1.1; python_version == '3.12'",
+  "protobuf>=5",
   # We need at least this version, which fixed Python 3.14 compatibility (tp_new metaclass issue).
   # The fix was never backported to the 5.x series.
   # Ref: https://github.com/protocolbuffers/protobuf/pull/20594
   "protobuf>=6.31.0; python_version >= '3.14'",
-  "protobuf>=5",
-  "cel-python>=0.5",
-  # We need at least this version, which started publishing wheels for Python 3.14.
-  # Ref: https://github.com/google/re2/issues/580
-  "google-re2>=1.1.20251105; python_version == '3.14'",
-  # We need at least this version, which started publishing wheels for Python 3.13.
-  # Ref: https://github.com/google/re2/issues/516
-  "google-re2>=1.1.20250722; python_version == '3.13'",
-  # 1.1 started supporting 3.12.
-  "google-re2>=1.1; python_version == '3.12'",
-  "google-re2>=1",
 ]
+dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://github.com/bufbuild/protovalidate-python"
-Source = "https://github.com/bufbuild/protovalidate-python"
-Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 Documentation = "https://protovalidate.com"
+Homepage = "https://github.com/bufbuild/protovalidate-python"
+Issues = "https://github.com/bufbuild/protovalidate-python/issues"
+Source = "https://github.com/bufbuild/protovalidate-python"
 
 [dependency-groups]
 dev = [
@@ -51,12 +47,28 @@ dev = [
   "mypy>=1.17.1",
   "pytest>=9.0.2",
   "ruff>=0.12.0",
+  "tombi>=0.9.12",
   "types-protobuf>=5.29.1.20250315",
 ]
+
+[build-system]
+requires = ["hatch-vcs", "hatchling"]
+build-backend = "hatchling.build"
 
 [tool.hatch.version]
 source = "vcs"
 raw-options = { fallback_version = "0.0.0" }
+
+[tool.mypy]
+mypy_path = "gen"
+
+[tool.pytest]
+# Turn all warnings into errors,
+# except DeprecationWarnings (which we knowingly tolerate due to using old `protobuf` APIs).
+filterwarnings = ["error", "ignore::DeprecationWarning"]
+strict = true
+# restrict testpaths to speed up test discovery
+testpaths = ["test"]
 
 [tool.ruff]
 line-length = 120
@@ -106,17 +118,6 @@ ban-relative-imports = "all"
 [tool.ruff.lint.per-file-ignores]
 # Tests can use assertions.
 "test/**/*" = ["S101"]
-
-[tool.pytest]
-strict = true
-# restrict testpaths to speed up test discovery
-testpaths = ["test"]
-# Turn all warnings into errors,
-# except DeprecationWarnings (which we knowingly tolerate due to using old `protobuf` APIs).
-filterwarnings = ["error", "ignore::DeprecationWarning"]
-
-[tool.mypy]
-mypy_path = "gen"
 
 [tool.ty.environment]
 extra-paths = ["gen"]
