@@ -9,5 +9,5 @@ jobs:
   approve:
     name: Approve
     if: github.event.label.name == 'Emergency Bypass Review'
-    uses: bufbuild/base-workflows/.github/workflows/emergency-review-bypass.yaml@main
+    uses: bufbuild/base-workflows/.github/workflows/emergency-review-bypass.yaml@7be6b0f6700ab0c62145c2b4ca2efd103bfc4895 # main
     secrets: inherit
