@@ -31,6 +31,17 @@
       "enabled": false
     },
     {
+      "matchCategories": ["python"],
+      "matchPackageNames": [
+        "protobuf",
+        "types-protobuf"
+      ],
+      // We manage these dependencies ourselves.
+      "lockFileMaintenance": {
+        "enabled": false
+      }
+    },
+    {
       "matchCategories": [
         "python"
       ],
