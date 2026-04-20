@@ -29,7 +29,7 @@ jobs:
           go-version: stable
           # We use this to install `buf`, and the `buf` version is controlled by the Makefile.
           cache-dependency-path: Makefile
-      - uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           python-version: ${{ matrix.python-version }}
       - run: make install
