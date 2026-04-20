@@ -4,4 +4,3 @@ changelog:
       - ignore-for-release
     authors:
       - renovate[bot]
-      - dependabot[bot]
