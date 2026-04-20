@@ -401,7 +401,7 @@ class BoolRules(_message.Message):
     def __init__(self, const: bool = ..., example: _Optional[_Iterable[bool]] = ...) -> None: ...
 
 class StringRules(_message.Message):
-    __slots__ = ("const", "len", "min_len", "max_len", "len_bytes", "min_bytes", "max_bytes", "pattern", "prefix", "suffix", "contains", "not_contains", "not_in", "email", "hostname", "ip", "ipv4", "ipv6", "uri", "uri_ref", "address", "uuid", "tuuid", "ip_with_prefixlen", "ipv4_with_prefixlen", "ipv6_with_prefixlen", "ip_prefix", "ipv4_prefix", "ipv6_prefix", "host_and_port", "ulid", "well_known_regex", "strict", "example")
+    __slots__ = ("const", "len", "min_len", "max_len", "len_bytes", "min_bytes", "max_bytes", "pattern", "prefix", "suffix", "contains", "not_contains", "not_in", "email", "hostname", "ip", "ipv4", "ipv6", "uri", "uri_ref", "address", "uuid", "tuuid", "ip_with_prefixlen", "ipv4_with_prefixlen", "ipv6_with_prefixlen", "ip_prefix", "ipv4_prefix", "ipv6_prefix", "host_and_port", "ulid", "protobuf_fqn", "protobuf_dot_fqn", "well_known_regex", "strict", "example")
     Extensions: _python_message._ExtensionDict
     CONST_FIELD_NUMBER: _ClassVar[int]
     LEN_FIELD_NUMBER: _ClassVar[int]
@@ -435,6 +435,8 @@ class StringRules(_message.Message):
     IPV6_PREFIX_FIELD_NUMBER: _ClassVar[int]
     HOST_AND_PORT_FIELD_NUMBER: _ClassVar[int]
     ULID_FIELD_NUMBER: _ClassVar[int]
+    PROTOBUF_FQN_FIELD_NUMBER: _ClassVar[int]
+    PROTOBUF_DOT_FQN_FIELD_NUMBER: _ClassVar[int]
     WELL_KNOWN_REGEX_FIELD_NUMBER: _ClassVar[int]
     STRICT_FIELD_NUMBER: _ClassVar[int]
     EXAMPLE_FIELD_NUMBER: _ClassVar[int]
@@ -469,10 +471,12 @@ class StringRules(_message.Message):
     ipv6_prefix: bool
     host_and_port: bool
     ulid: bool
+    protobuf_fqn: bool
+    protobuf_dot_fqn: bool
     well_known_regex: KnownRegex
     strict: bool
     example: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, const: _Optional[str] = ..., len: _Optional[int] = ..., min_len: _Optional[int] = ..., max_len: _Optional[int] = ..., len_bytes: _Optional[int] = ..., min_bytes: _Optional[int] = ..., max_bytes: _Optional[int] = ..., pattern: _Optional[str] = ..., prefix: _Optional[str] = ..., suffix: _Optional[str] = ..., contains: _Optional[str] = ..., not_contains: _Optional[str] = ..., not_in: _Optional[_Iterable[str]] = ..., email: bool = ..., hostname: bool = ..., ip: bool = ..., ipv4: bool = ..., ipv6: bool = ..., uri: bool = ..., uri_ref: bool = ..., address: bool = ..., uuid: bool = ..., tuuid: bool = ..., ip_with_prefixlen: bool = ..., ipv4_with_prefixlen: bool = ..., ipv6_with_prefixlen: bool = ..., ip_prefix: bool = ..., ipv4_prefix: bool = ..., ipv6_prefix: bool = ..., host_and_port: bool = ..., ulid: bool = ..., well_known_regex: _Optional[_Union[KnownRegex, str]] = ..., strict: bool = ..., example: _Optional[_Iterable[str]] = ..., **kwargs) -> None: ...
+    def __init__(self, const: _Optional[str] = ..., len: _Optional[int] = ..., min_len: _Optional[int] = ..., max_len: _Optional[int] = ..., len_bytes: _Optional[int] = ..., min_bytes: _Optional[int] = ..., max_bytes: _Optional[int] = ..., pattern: _Optional[str] = ..., prefix: _Optional[str] = ..., suffix: _Optional[str] = ..., contains: _Optional[str] = ..., not_contains: _Optional[str] = ..., not_in: _Optional[_Iterable[str]] = ..., email: bool = ..., hostname: bool = ..., ip: bool = ..., ipv4: bool = ..., ipv6: bool = ..., uri: bool = ..., uri_ref: bool = ..., address: bool = ..., uuid: bool = ..., tuuid: bool = ..., ip_with_prefixlen: bool = ..., ipv4_with_prefixlen: bool = ..., ipv6_with_prefixlen: bool = ..., ip_prefix: bool = ..., ipv4_prefix: bool = ..., ipv6_prefix: bool = ..., host_and_port: bool = ..., ulid: bool = ..., protobuf_fqn: bool = ..., protobuf_dot_fqn: bool = ..., well_known_regex: _Optional[_Union[KnownRegex, str]] = ..., strict: bool = ..., example: _Optional[_Iterable[str]] = ..., **kwargs) -> None: ...
 
 class BytesRules(_message.Message):
     __slots__ = ("const", "len", "min_len", "max_len", "pattern", "prefix", "suffix", "contains", "not_in", "ip", "ipv4", "ipv6", "uuid", "example")

@@ -16,7 +16,7 @@ ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2025"
-PROTOVALIDATE_VERSION ?= 895eefca6d1346f742fc18b9983d40478820906d
+PROTOVALIDATE_VERSION ?= v1.2.0
 # Version of the cel-spec that this implementation is conformant with
 # This should be kept in sync with the version in test/test_format.py
 CEL_SPEC_VERSION ?= v0.25.1
