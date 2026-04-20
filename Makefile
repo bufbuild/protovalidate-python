@@ -15,7 +15,7 @@ CONFORMANCE_ARGS ?= --strict_message --expected_failures=test/conformance/noncon
 ADD_LICENSE_HEADER := $(BIN)/license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "2023-2025"
+		--year-range "2023-2026"
 PROTOVALIDATE_VERSION ?= v1.2.0
 # Version of the cel-spec that this implementation is conformant with
 # This should be kept in sync with the version in test/test_format.py
