@@ -342,6 +342,7 @@ class CelRules(Rules):
     _cel: list[CelRunner]
     _rules: message.Message | None = None
     _rules_cel: celtypes.Value | None = None
+    _uses_now: bool = False
 
     def __init__(self, rules: message.Message | None):
         self._cel = []
@@ -357,11 +358,14 @@ class CelRules(Rules):
         this_cel: celtypes.Value | None = None,
         for_key: bool = False,
     ):
+        if not self._cel:
+            return
         activation: dict[str, celtypes.Value] = {}
         if this_cel is not None:
             activation["this"] = this_cel
         activation["rules"] = self._rules_cel
-        activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
+        if self._uses_now:
+            activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
         for cel in self._cel:
             activation["rule"] = cel.rule_cel
             result = cel.runner.evaluate(activation)
@@ -409,6 +413,8 @@ class CelRules(Rules):
             rules = validate_pb2.Rule()
             rules.id = expression
             rules.expression = expression
+        if "now" in rules.expression:
+            self._uses_now = True
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
         rule_value = None
@@ -463,9 +469,10 @@ class MessageRules(CelRules):
         self._desc = desc
 
     def validate(self, ctx: RuleContext, message: message.Message):
-        self._validate_cel(ctx, this_cel=_msg_to_cel(message))
-        if ctx.done:
-            return
+        if self._cel:
+            self._validate_cel(ctx, this_cel=_msg_to_cel(message))
+            if ctx.done:
+                return
         for oneof in self._oneofs:
             oneof.validate(ctx, message)
             if ctx.done:
