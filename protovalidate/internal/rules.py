@@ -14,6 +14,7 @@
 
 import dataclasses
 import datetime
+import re
 import typing
 from collections.abc import Callable, Container, Iterable, Mapping
 
@@ -42,6 +43,9 @@ else:
 
     def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
         return field.label == descriptor.FieldDescriptor.LABEL_REPEATED  # type: ignore[attr-defined]
+
+
+_NOW_RE = re.compile(r"\bnow\b")
 
 
 class CompilationError(Exception):
@@ -413,7 +417,7 @@ class CelRules(Rules):
             rules = validate_pb2.Rule()
             rules.id = expression
             rules.expression = expression
-        if "now" in rules.expression:
+        if _NOW_RE.search(rules.expression):
             self._uses_now = True
         ast = env.compile(rules.expression)
         prog = env.program(ast, functions=funcs)
