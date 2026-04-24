@@ -328,7 +328,12 @@ def cel_unique(val: celtypes.Value) -> celpy.Result:
     if not isinstance(val, celtypes.ListType | list):
         msg = "invalid argument, expected list"
         raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(len(val) == len(set(val)))
+    seen: set[celtypes.Value] = set()
+    for item in val:
+        if item in seen:
+            return celtypes.BoolType(False)  # noqa: FBT003
+        seen.add(item)
+    return celtypes.BoolType(True)  # noqa: FBT003
 
 
 class Ipv4:
