@@ -1,5 +1,5 @@
-# celpy doesn't support nano seconds
-# ref: https://github.com/cloud-custodian/cel-python/issues/43
+# datetime.timedelta only has microsecond precision; sub-microsecond nanosecond values are
+# truncated when converting google.protobuf.Duration and google.protobuf.Timestamp to Python.
 standard_rules/well_known_types/duration:
  - gte_lte/invalid/above
  - lte/invalid
@@ -7,3 +7,7 @@ standard_rules/well_known_types/duration:
 standard_rules/well_known_types/timestamp:
  - gte_lte/invalid/above
  - lte/invalid
+# common-expression-language validates field references at runtime, not compile time.
+# This test expects a compilation error for a non-existent field reference.
+custom_rules:
+ - compilation/missing_field

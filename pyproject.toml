@@ -3,13 +3,12 @@ name = "protovalidate"
 description = "Protocol Buffer Validation for Python"
 readme = "README.md"
 # Keep our minimum version synced with ./.python-version.
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["protobuf", "protocol buffer", "validate"]
 classifiers = [
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -17,7 +16,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "cel-python>=0.5",
+  "common-expression-language>=0.5.6",
   "google-re2>=1",
   # We need at least this version, which started publishing wheels for Python 3.13.
   # Ref: https://github.com/google/re2/issues/516

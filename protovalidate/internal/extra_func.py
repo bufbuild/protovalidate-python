@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import math
+import typing
 from urllib import parse as urlparse
 
-import celpy
 import re2
-from celpy import celtypes
 
 from protovalidate.internal import string_format
-from protovalidate.internal.rules import MessageType, field_to_cel
+from protovalidate.internal.rules import field_to_python
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
 _email_regex = re2.compile(
@@ -28,20 +28,20 @@ _email_regex = re2.compile(
 )
 
 
-def cel_get_field(message: celtypes.Value, field_name: celtypes.Value) -> celpy.Result:
-    if not isinstance(message, MessageType):
+def cel_get_field(proto_msg: typing.Any, field_name: typing.Any) -> typing.Any:
+    if not isinstance(proto_msg, dict):
         msg = "invalid argument, expected message"
-        raise celpy.CELEvalError(msg)
-    if not isinstance(field_name, celtypes.StringType):
+        raise ValueError(msg)
+    if not isinstance(field_name, str):
         msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    if field_name not in message.desc.fields_by_name:
+        raise ValueError(msg)
+    if field_name not in proto_msg:
         msg = f"no such field: {field_name}"
-        raise celpy.CELEvalError(msg)
-    return field_to_cel(message.msg, message.desc.fields_by_name[field_name])
+        raise ValueError(msg)
+    return proto_msg[field_name]
 
 
-def cel_is_ip(val: celtypes.Value, ver: celtypes.Value | None = None) -> celpy.Result:
+def cel_is_ip(val: typing.Any, ver: typing.Any = None) -> bool:
     """Return True if the string is an IPv4 or IPv6 address, optionally limited to a specific version.
 
     Version 0 or None means either 4 or 6. Passing a version other than 0, 4, or 6 always returns False.
@@ -53,19 +53,19 @@ def cel_is_ip(val: celtypes.Value, ver: celtypes.Value | None = None) -> celpy.R
     identifiers for IPv6 addresses (for example "fe80::a%en1") are supported.
 
     """
-    if not isinstance(val, celtypes.StringType):
+    if not isinstance(val, str):
         msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    if not isinstance(ver, celtypes.IntType) and ver is not None:
+        raise ValueError(msg)
+    if not isinstance(ver, int) and ver is not None:
         msg = "invalid argument, expected int"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
     if ver is None:
         version = 0
     else:
         version = ver
 
-    return celtypes.BoolType(_is_ip(val, version))
+    return _is_ip(val, version)
 
 
 def _is_ip(string: str, version: int) -> bool:
@@ -81,7 +81,7 @@ def _is_ip(string: str, version: int) -> bool:
     return valid
 
 
-def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
+def cel_is_ip_prefix(val: typing.Any, *args) -> bool:
     """Return True if the string is a valid IP with prefix length, optionally
      limited to a specific version (v4 or v6), and optionally requiring the host
      portion to be all zeros.
@@ -101,26 +101,26 @@ def cel_is_ip_prefix(val: celtypes.Value, *args) -> celpy.Result:
 
     """
 
-    if not isinstance(val, celtypes.StringType):
+    if not isinstance(val, str):
         msg = "invalid argument, expected string or bytes"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
     version = 0
     strict = False
-    if len(args) == 1 and isinstance(args[0], celtypes.BoolType):
+    if len(args) == 1 and isinstance(args[0], bool):
         strict = bool(args[0])
-    elif len(args) == 1 and isinstance(args[0], celtypes.IntType):
+    elif len(args) == 1 and isinstance(args[0], int):
         version = args[0]
-    elif len(args) == 1 and (not isinstance(args[0], celtypes.BoolType) or not isinstance(args[0], celtypes.IntType)):
+    elif len(args) == 1 and (not isinstance(args[0], bool) or not isinstance(args[0], int)):
         msg = "invalid argument, expected bool or int"
-        raise celpy.CELEvalError(msg)
-    elif len(args) == 2 and isinstance(args[0], celtypes.IntType) and isinstance(args[1], celtypes.BoolType):
+        raise ValueError(msg)
+    elif len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], bool):
         version = args[0]
         strict = bool(args[1])
-    elif len(args) == 2 and (not isinstance(args[0], celtypes.IntType) or not isinstance(args[1], celtypes.BoolType)):
+    elif len(args) == 2 and (not isinstance(args[0], int) or not isinstance(args[1], bool)):
         msg = "invalid argument, expected int and bool"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
 
-    return celtypes.BoolType(_is_ip_prefix(val, version, strict=strict))
+    return _is_ip_prefix(val, version, strict=strict)
 
 
 def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
@@ -138,7 +138,7 @@ def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
     return valid
 
 
-def cel_is_email(string: celtypes.Value) -> celpy.Result:
+def cel_is_email(string: typing.Any) -> bool:
     """Return True if the string is an email address, for example "foo@example.com".
 
     Conforms to the definition for a valid email address from the HTML standard.
@@ -147,28 +147,28 @@ def cel_is_email(string: celtypes.Value) -> celpy.Result:
     error.
 
     """
-    if not isinstance(string, celtypes.StringType):
+    if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
     m = _email_regex.fullmatch(string) is not None
-    return celtypes.BoolType(m)
+    return m
 
 
-def cel_is_uri(string: celtypes.Value) -> celpy.Result:
+def cel_is_uri(string: typing.Any) -> bool:
     """Return True if the string is a URI, for example "https://example.com/foo/bar?baz=quux#frag".
 
     URI is defined in the internet standard RFC 3986.
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
     """
-    if not isinstance(string, celtypes.StringType):
+    if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
     valid = Uri(str(string)).uri()
-    return celtypes.BoolType(valid)
+    return valid
 
 
-def cel_is_uri_ref(string: celtypes.Value) -> celpy.Result:
+def cel_is_uri_ref(string: typing.Any) -> bool:
     """Return True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
     a Relative Reference such as "./foo/bar?query".
 
@@ -176,14 +176,14 @@ def cel_is_uri_ref(string: celtypes.Value) -> celpy.Result:
     Zone Identifiers in IPv6 address literals are supported (RFC 6874).
 
     """
-    if not isinstance(string, celtypes.StringType):
+    if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
     valid = Uri(str(string)).uri_reference()
-    return celtypes.BoolType(valid)
+    return valid
 
 
-def cel_is_hostname(val: celtypes.Value) -> celpy.Result:
+def cel_is_hostname(val: typing.Any) -> bool:
     """Returns True if the string is a valid hostname, for example "foo.example.com".
 
     A valid hostname follows the rules below:
@@ -195,10 +195,10 @@ def cel_is_hostname(val: celtypes.Value) -> celpy.Result:
     - The name can be 253 characters at most, excluding the optional trailing dot.
 
     """
-    if not isinstance(val, celtypes.StringType):
+    if not isinstance(val, str):
         msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(_is_hostname(val))
+        raise ValueError(msg)
+    return _is_hostname(val)
 
 
 def _is_hostname(val: str) -> bool:
@@ -250,7 +250,7 @@ def _is_port(val: str) -> bool:
         return False
 
 
-def cel_is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) -> celpy.Result:
+def cel_is_host_and_port(string: typing.Any, port_required: typing.Any) -> bool:
     """Return True if the string is a valid host/port pair, for example "example.com:8080".
 
      If the argument `port_required` is True, the port is required. If the argument
@@ -263,13 +263,13 @@ def cel_is_host_and_port(string: celtypes.Value, port_required: celtypes.Value) 
 
     The port is separated by a colon. It must be non-empty, with a decimal number in the range of 0-65535, inclusive.
     """
-    if not isinstance(string, celtypes.StringType):
+    if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise celpy.CELEvalError(msg)
-    if not isinstance(port_required, celtypes.BoolType):
+        raise ValueError(msg)
+    if not isinstance(port_required, bool):
         msg = "invalid argument, expected bool"
-        raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(_is_host_and_port(string, port_required=bool(port_required)))
+        raise ValueError(msg)
+    return _is_host_and_port(string, port_required=bool(port_required))
 
 
 def _is_host_and_port(val: str, *, port_required=False) -> bool:
@@ -299,41 +299,41 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
     return (_is_hostname(host) or _is_ip(host, 4)) and _is_port(port)
 
 
-def cel_is_nan(val: celtypes.Value) -> celpy.Result:
-    if not isinstance(val, celtypes.DoubleType):
+def cel_is_nan(val: typing.Any) -> bool:
+    if not isinstance(val, float):
         msg = "invalid argument, expected double"
-        raise celpy.CELEvalError(msg)
-    return celtypes.BoolType(math.isnan(val))
+        raise ValueError(msg)
+    return math.isnan(val)
 
 
-def cel_is_inf(val: celtypes.Value, sign: celtypes.Value | None = None) -> celpy.Result:
-    if not isinstance(val, celtypes.DoubleType):
+def cel_is_inf(val: typing.Any, sign: typing.Any = None) -> bool:
+    if not isinstance(val, float):
         msg = "invalid argument, expected double"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
     if sign is None:
-        return celtypes.BoolType(math.isinf(val))
+        return math.isinf(val)
 
-    if not isinstance(sign, celtypes.IntType):
+    if not isinstance(sign, int):
         msg = "invalid argument, expected int"
-        raise celpy.CELEvalError(msg)
+        raise ValueError(msg)
     if sign > 0:
-        return celtypes.BoolType(math.isinf(val) and val > 0)
+        return math.isinf(val) and val > 0
     elif sign < 0:
-        return celtypes.BoolType(math.isinf(val) and val < 0)
+        return math.isinf(val) and val < 0
     else:
-        return celtypes.BoolType(math.isinf(val))
+        return math.isinf(val)
 
 
-def cel_unique(val: celtypes.Value) -> celpy.Result:
-    if not isinstance(val, celtypes.ListType | list):
+def cel_unique(val: typing.Any) -> bool:
+    if not isinstance(val, list):
         msg = "invalid argument, expected list"
-        raise celpy.CELEvalError(msg)
-    seen: set[celtypes.Value] = set()
+        raise ValueError(msg)
+    seen: set = set()
     for item in val:
         if item in seen:
-            return celtypes.BoolType(False)  # noqa: FBT003
+            return False
         seen.add(item)
-    return celtypes.BoolType(True)  # noqa: FBT003
+    return True
 
 
 class Ipv4:
@@ -1534,6 +1534,7 @@ class Uri:
 
         if ("0" <= c <= "9") or ("a" <= c <= "f") or ("A" <= c <= "F"):
             self._index += 1
+
             return True
 
         return False
@@ -1557,22 +1558,76 @@ class Uri:
         return self._index < len(self._string) and self._string[self._index] == char
 
 
-def cel_matches(text: str, pattern: str) -> celpy.Result:
+def cel_matches(text: typing.Any, pattern: typing.Any) -> bool:
     try:
-        m = re2.search(pattern, text)
+        m = re2.search(str(pattern), str(text))
     except re2.error as ex:
-        return celpy.CELEvalError("match error", ex.__class__, ex.args)
+        raise ValueError(f"match error: {ex}") from ex
 
-    return celtypes.BoolType(m is not None)
+    return m is not None
 
 
-def make_extra_funcs() -> dict[str, celpy.CELFunction]:
+def cel_int(val: typing.Any) -> int:
+    if isinstance(val, datetime.datetime):
+        return int(val.timestamp())
+    return int(val)
+
+
+def cel_string(val: typing.Any) -> str:
+    if isinstance(val, bytes):
+        try:
+            return val.decode("utf-8")
+        except UnicodeDecodeError as e:
+            raise ValueError("value must be valid UTF-8 to apply regexp") from e
+    return str(val)
+
+
+def cel_size(val: typing.Any) -> int:
+    # CEL spec: string.size() counts Unicode code points; bytes.size() counts bytes; list/map count elements
+    return len(val)
+
+
+def cel_starts_with(val: typing.Any, prefix: typing.Any) -> bool:
+    if isinstance(val, bytes) and isinstance(prefix, bytes):
+        return val.startswith(prefix)
+    if isinstance(val, str) and isinstance(prefix, str):
+        return val.startswith(prefix)
+    msg = "startsWith: mismatched argument types"
+    raise ValueError(msg)
+
+
+def cel_ends_with(val: typing.Any, suffix: typing.Any) -> bool:
+    if isinstance(val, bytes) and isinstance(suffix, bytes):
+        return val.endswith(suffix)
+    if isinstance(val, str) and isinstance(suffix, str):
+        return val.endswith(suffix)
+    msg = "endsWith: mismatched argument types"
+    raise ValueError(msg)
+
+
+def cel_contains(val: typing.Any, substr: typing.Any) -> bool:
+    if isinstance(val, bytes) and isinstance(substr, bytes):
+        return substr in val
+    if isinstance(val, str) and isinstance(substr, str):
+        return substr in val
+    msg = "contains: mismatched argument types"
+    raise ValueError(msg)
+
+
+def make_extra_funcs() -> dict[str, typing.Callable]:
     string_fmt = string_format.StringFormat()
     return {
-        # Missing standard functions
-        "format": string_fmt.format,
-        # Overridden standard functions
+        # string.format — receiver rewritten to __cel_format__(fmt, args) by _cel_compile
+        "__cel_format__": string_fmt.format,
+        # Overridden standard functions — fix string.size() for Unicode, string() for UTF-8 validation,
+        # int() for timestamp conversion, bytes for startsWith/endsWith/contains
         "matches": cel_matches,
+        "int": cel_int,
+        "string": cel_string,
+        "size": cel_size,
+        "startsWith": cel_starts_with,
+        "endsWith": cel_ends_with,
+        "contains": cel_contains,
         # protovalidate specific functions
         "getField": cel_get_field,
         "isNan": cel_is_nan,

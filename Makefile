@@ -49,6 +49,9 @@ generate: $(BIN)/buf $(BIN)/license-header upstream ## Regenerate code and licen
 	$(BIN)/buf generate $(PROTOVALIDATE_TESTING_PROTO_PATH)
 	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
 	$(BIN)/buf generate
+	mv gen/cel gen/cel_spec
+	find gen/cel_spec \( -name "*.py" -o -name "*.pyi" \) -exec sed -i.bak 's/from cel\./from cel_spec\./g' {} \;
+	find gen/cel_spec -name "*.bak" -delete
 	$(ADD_LICENSE_HEADER)
 
 .PHONY: upstream

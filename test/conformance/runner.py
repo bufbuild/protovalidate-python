@@ -15,7 +15,6 @@
 import sys
 import typing
 
-import celpy
 from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
 
 import protovalidate
@@ -64,7 +63,7 @@ def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) 
             result.validation_error.violations.append(violation.proto)
         if len(result.validation_error.violations) == 0:
             result.success = True
-    except celpy.CELEvalError as e:
+    except RuntimeError as e:
         result.runtime_error = str(e)
     except protovalidate.CompilationError as e:
         result.compilation_error = str(e)

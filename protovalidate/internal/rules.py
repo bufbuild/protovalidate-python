@@ -14,11 +14,94 @@
 
 import dataclasses
 import datetime
+import re
 import typing
 from collections.abc import Callable, Container, Iterable, Mapping
 
-import celpy
-from celpy import celtypes
+from cel import Context as CelContext
+from cel import Program as CelProgram
+from cel import compile as cel_compile
+
+# common-expression-language doesn't pass the receiver to custom member-function calls:
+# receiver.func(args) calls func(args) without the receiver. Work around by rewriting
+# all custom member calls to explicit two-argument global calls before compiling.
+_FORMAT_RE = re.compile(r"('[^']*'|\"[^\"]*\")\.format\(")
+
+_MEMBER_FUNCS = "isNan|isInf|isIp|isIpPrefix|isEmail|isUri|isUriRef|isHostname|isHostAndPort|unique|matches|startsWith|endsWith|contains|size"
+_RECV = r"[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*"
+_MEMBER_NO_ARGS_RE = re.compile(rf"({_RECV})\.({_MEMBER_FUNCS})\(\s*\)")
+_MEMBER_WITH_ARGS_RE = re.compile(rf"({_RECV})\.({_MEMBER_FUNCS})\((?!\s*\))")
+
+_PAREN_MEMBER_FUNCS = {"isNan", "isInf", "isIp", "isIpPrefix", "isEmail", "isUri", "isUriRef",
+                       "isHostname", "isHostAndPort", "unique", "matches",
+                       "startsWith", "endsWith", "contains", "size"}
+
+# Strip uint literal suffix (e.g. 2u → 2): common-expression-language rejects int % uint
+_UINT_LITERAL_RE = re.compile(r"\b(\d+)u\b")
+
+
+def _preprocess_paren_receivers(expr: str) -> str:
+    """Transform receiver(...).func([args]) → func(receiver(...)[, args]) by tracking parens.
+
+    Handles both plain-paren receivers like (a + b).unique() and function-call receivers
+    like string(this).matches(pattern).
+    """
+    for func_name in _PAREN_MEMBER_FUNCS:
+        no_arg_suffix = ")." + func_name + "()"
+        with_arg_suffix = ")." + func_name + "("
+        result = ""
+        pos = 0
+        while pos < len(expr):
+            for suffix, has_args in ((no_arg_suffix, False), (with_arg_suffix, True)):
+                if not expr[pos:].startswith(suffix):
+                    continue
+                # Find the matching '(' in what we've already emitted to result
+                depth = 0
+                j = len(result) - 1
+                while j >= 0:
+                    if result[j] == ")":
+                        depth += 1
+                    elif result[j] == "(":
+                        if depth == 0:
+                            break
+                        depth -= 1
+                    j -= 1
+                if j < 0:
+                    break  # No matching '(', skip
+                # Walk backwards past any identifier chars before '(' to include
+                # the function name in the receiver, e.g. 'string' in 'string(this)'
+                k = j - 1
+                while k >= 0 and (result[k].isalnum() or result[k] == "_"):
+                    k -= 1
+                k += 1
+                inner = result[j + 1:]
+                before_receiver = result[:k]
+                receiver_prefix = result[k:j]  # e.g. 'string' or ''
+                if receiver_prefix:
+                    receiver = receiver_prefix + "(" + inner + ")"
+                else:
+                    receiver = inner
+                result = before_receiver
+                if has_args:
+                    result += func_name + "(" + receiver + ", "
+                else:
+                    result += func_name + "(" + receiver + ")"
+                pos += len(suffix)
+                break
+            else:
+                result += expr[pos]
+                pos += 1
+        expr = result
+    return expr
+
+
+def _cel_compile(expr: str) -> CelProgram:
+    expr = _FORMAT_RE.sub(r"__cel_format__(\1, ", expr)
+    expr = _MEMBER_NO_ARGS_RE.sub(r"\2(\1)", expr)
+    expr = _MEMBER_WITH_ARGS_RE.sub(r"\2(\1, ", expr)
+    expr = _preprocess_paren_receivers(expr)
+    expr = _UINT_LITERAL_RE.sub(r"\1", expr)
+    return cel_compile(expr)
 from google.protobuf import (  # type: ignore[attr-defined]
     any_pb2,
     descriptor,
@@ -30,7 +113,6 @@ from google.protobuf import (  # type: ignore[attr-defined]
 )
 
 from buf.validate import validate_pb2
-from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
 # protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
 if hasattr(descriptor.FieldDescriptor, "is_repeated"):
@@ -48,24 +130,21 @@ class CompilationError(Exception):
     pass
 
 
-def make_duration(msg: duration_pb2.Duration) -> celtypes.DurationType:
-    return celtypes.DurationType(
-        seconds=msg.seconds,
-        nanos=msg.nanos,
-    )
+def make_duration(msg: duration_pb2.Duration) -> datetime.timedelta:
+    return datetime.timedelta(seconds=msg.seconds, microseconds=msg.nanos // 1000)
 
 
-def make_timestamp(msg: timestamp_pb2.Timestamp) -> celtypes.TimestampType:
-    return celtypes.TimestampType(1970, 1, 1) + make_duration(
+def make_timestamp(msg: timestamp_pb2.Timestamp) -> datetime.datetime:
+    return datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc) + make_duration(
         duration_pb2.Duration(seconds=msg.seconds, nanos=msg.nanos)
     )
 
 
-def unwrap(msg: message.Message) -> celtypes.Value:
-    return field_to_cel(msg, msg.DESCRIPTOR.fields_by_name["value"])
+def unwrap(msg: message.Message) -> typing.Any:
+    return field_to_python(msg, msg.DESCRIPTOR.fields_by_name["value"])
 
 
-_MSG_TYPE_URL_TO_CTOR: dict[str, Callable[..., celtypes.Value]] = {
+_MSG_TYPE_URL_TO_CTOR: dict[str, Callable[..., typing.Any]] = {
     "google.protobuf.Duration": make_duration,
     "google.protobuf.Timestamp": make_timestamp,
     "google.protobuf.StringValue": unwrap,
@@ -80,60 +159,110 @@ _MSG_TYPE_URL_TO_CTOR: dict[str, Callable[..., celtypes.Value]] = {
 }
 
 
-class MessageType(celtypes.MapType):
-    msg: message.Message
-
-    def __init__(self, msg: message.Message):
-        super().__init__()
-        self.msg = msg
-        self.desc = msg.DESCRIPTOR
-        field: descriptor.FieldDescriptor
-        for field in self.desc.fields:
-            if field.containing_oneof is not None and not self.msg.HasField(field.name):
-                continue
-            self[field.name] = field_to_cel(self.msg, field)
-
-    def __getitem__(self, name):
-        field = self.desc.fields_by_name[name]
-        if field.has_presence and not self.msg.HasField(name):
-            if in_has():
-                raise KeyError()
-            else:
-                return _zero_value(field)
-        return super().__getitem__(name)
-
-
-def _msg_to_cel(msg: message.Message) -> celtypes.Value:
+def _msg_to_python(msg: message.Message) -> typing.Any:
     ctor = _MSG_TYPE_URL_TO_CTOR.get(msg.DESCRIPTOR.full_name)
     if ctor is not None:
         return ctor(msg)
-    return MessageType(msg)
+    return _proto_message_to_dict(msg)
+
+
+def _proto_message_to_dict(msg: message.Message, *, include_absent_scalars: bool = False) -> dict:
+    result = {}
+    field: descriptor.FieldDescriptor
+    for field in msg.DESCRIPTOR.fields:
+        if field.containing_oneof is not None:
+            # Proto3 optional fields use a synthetic oneof named '_<field>' for presence
+            # tracking. Treat them like regular presence-tracked scalars (handled below).
+            # Real oneof fields: skip if not the active variant.
+            if field.containing_oneof.name != "_" + field.name and not msg.HasField(field.name):
+                continue
+        if field.has_presence and not _proto_message_has_field(msg, field):
+            if not include_absent_scalars:
+                continue
+            # In value mode: absent message fields are included as empty default dicts
+            # (so this.e.a == 0 works), absent scalars as default values (so this.x == '' works).
+        if include_absent_scalars:
+            result[field.name] = _field_to_python_for_value(msg, field)
+        else:
+            result[field.name] = field_to_python(msg, field)
+    return result
+
+
+def _msg_to_python_for_value(msg: message.Message) -> typing.Any:
+    """Like _msg_to_python but includes absent scalar fields with default values.
+    Used for the CEL 'this' binding so expressions like 'this.val == ''' succeed."""
+    ctor = _MSG_TYPE_URL_TO_CTOR.get(msg.DESCRIPTOR.full_name)
+    if ctor is not None:
+        return ctor(msg)
+    return _proto_message_to_dict(msg, include_absent_scalars=True)
+
+
+def _default_dict_for_message(msg_desc: descriptor.Descriptor) -> dict:
+    """Build a shallow default dict for an absent message field from its descriptor.
+    Only non-presence-tracked scalars get default values; absent nested messages become {};
+    repeated fields become []. This avoids infinite recursion on self-referential types."""
+    result = {}
+    for field in msg_desc.fields:
+        if field.containing_oneof is not None:
+            continue
+        if field.has_presence:
+            continue
+        if _is_repeated(field):
+            result[field.name] = []
+        elif field.message_type is not None:
+            result[field.name] = {}
+        else:
+            result[field.name] = field.default_value
+    return result
+
+
+def _field_to_python_for_value(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+    """Like field_to_python but recurses through message fields using _msg_to_python_for_value."""
+    if _is_repeated(field):
+        return _repeated_field_to_python(msg, field)
+    if field.message_type is not None:
+        if not _proto_message_has_field(msg, field):
+            ctor = _MSG_TYPE_URL_TO_CTOR.get(field.message_type.full_name)
+            if ctor is not None:
+                return None  # special WKT types absent → None
+            return _default_dict_for_message(field.message_type)
+        return _msg_to_python_for_value(_proto_message_get_field(msg, field))
+    return _scalar_field_value_to_python(_proto_message_get_field(msg, field), field)
+
+
+def _field_value_to_python_for_value(val: typing.Any, field: descriptor.FieldDescriptor) -> typing.Any:
+    """Like _field_value_to_python but uses _msg_to_python_for_value for message types."""
+    if _is_repeated(field):
+        return _field_value_to_python(val, field)
+    if field.message_type is not None:
+        return _msg_to_python_for_value(val)
+    return _scalar_field_value_to_python(val, field)
 
 
 class FieldDescMetadata(typing.TypedDict):
     name: str
-    ctor: typing.Callable[..., celtypes.Value]
+    ctor: typing.Callable[..., typing.Any]
 
 
 _FIELD_DESC_METADATA_MAP: dict[typing.Any, FieldDescMetadata] = {
-    descriptor.FieldDescriptor.TYPE_MESSAGE: {"name": "message", "ctor": _msg_to_cel},
-    descriptor.FieldDescriptor.TYPE_GROUP: {"name": "group", "ctor": _msg_to_cel},
-    descriptor.FieldDescriptor.TYPE_ENUM: {"name": "enum", "ctor": celtypes.IntType},
-    descriptor.FieldDescriptor.TYPE_BOOL: {"name": "bool", "ctor": celtypes.BoolType},
-    descriptor.FieldDescriptor.TYPE_BYTES: {"name": "bytes", "ctor": celtypes.BytesType},
-    descriptor.FieldDescriptor.TYPE_STRING: {"name": "string", "ctor": celtypes.StringType},
-    descriptor.FieldDescriptor.TYPE_FLOAT: {"name": "float", "ctor": celtypes.DoubleType},
-    descriptor.FieldDescriptor.TYPE_DOUBLE: {"name": "double", "ctor": celtypes.DoubleType},
-    descriptor.FieldDescriptor.TYPE_INT32: {"name": "int32", "ctor": celtypes.IntType},
-    descriptor.FieldDescriptor.TYPE_INT64: {"name": "int64", "ctor": celtypes.IntType},
-    descriptor.FieldDescriptor.TYPE_SINT32: {"name": "sint32", "ctor": celtypes.IntType},
-    descriptor.FieldDescriptor.TYPE_SINT64: {"name": "sint64", "ctor": celtypes.IntType},
-    descriptor.FieldDescriptor.TYPE_SFIXED32: {"name": "sfixed32", "ctor": celtypes.IntType},
-    descriptor.FieldDescriptor.TYPE_SFIXED64: {"name": "sfixed64", "ctor": celtypes.IntType},
-    descriptor.FieldDescriptor.TYPE_UINT32: {"name": "uint32", "ctor": celtypes.UintType},
-    descriptor.FieldDescriptor.TYPE_UINT64: {"name": "uint64", "ctor": celtypes.UintType},
-    descriptor.FieldDescriptor.TYPE_FIXED32: {"name": "fixed32", "ctor": celtypes.UintType},
-    descriptor.FieldDescriptor.TYPE_FIXED64: {"name": "fixed64", "ctor": celtypes.UintType},
+    descriptor.FieldDescriptor.TYPE_MESSAGE: {"name": "message", "ctor": _msg_to_python},
+    descriptor.FieldDescriptor.TYPE_GROUP: {"name": "group", "ctor": _msg_to_python},
+    descriptor.FieldDescriptor.TYPE_ENUM: {"name": "enum", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_BOOL: {"name": "bool", "ctor": bool},
+    descriptor.FieldDescriptor.TYPE_BYTES: {"name": "bytes", "ctor": bytes},
+    descriptor.FieldDescriptor.TYPE_STRING: {"name": "string", "ctor": str},
+    descriptor.FieldDescriptor.TYPE_FLOAT: {"name": "float", "ctor": float},
+    descriptor.FieldDescriptor.TYPE_DOUBLE: {"name": "double", "ctor": float},
+    descriptor.FieldDescriptor.TYPE_INT32: {"name": "int32", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_INT64: {"name": "int64", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_SINT32: {"name": "sint32", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_SINT64: {"name": "sint64", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_SFIXED32: {"name": "sfixed32", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_SFIXED64: {"name": "sfixed64", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_UINT32: {"name": "uint32", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_UINT64: {"name": "uint64", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_FIXED32: {"name": "fixed32", "ctor": int},
+    descriptor.FieldDescriptor.TYPE_FIXED64: {"name": "fixed64", "ctor": int},
 }
 
 
@@ -144,7 +273,7 @@ def _get_type_name(fd: typing.Any) -> str:
     return md["name"]
 
 
-def _get_type_ctor(fd: typing.Any) -> typing.Callable[..., celtypes.Value] | None:
+def _get_type_ctor(fd: typing.Any) -> typing.Callable[..., typing.Any] | None:
     md = _FIELD_DESC_METADATA_MAP.get(fd)
     if md is None:
         return None
@@ -165,7 +294,7 @@ def _proto_message_get_field(msg: message.Message, field: descriptor.FieldDescri
         return getattr(msg, field.name)
 
 
-def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _scalar_field_value_to_python(val: typing.Any, field: descriptor.FieldDescriptor) -> typing.Any:
     ctor = _get_type_ctor(field.type)
     if ctor is None:
         msg = "unknown field type"
@@ -173,12 +302,12 @@ def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescripto
     return ctor(val)
 
 
-def _field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _field_value_to_python(val: typing.Any, field: descriptor.FieldDescriptor) -> typing.Any:
     if _is_repeated(field):
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
-            return _map_field_value_to_cel(val, field)
-        return _repeated_field_value_to_cel(val, field)
-    return _scalar_field_value_to_cel(val, field)
+            return _map_field_value_to_python(val, field)
+        return _repeated_field_value_to_python(val, field)
+    return _scalar_field_value_to_python(val, field)
 
 
 def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
@@ -189,36 +318,36 @@ def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> 
     return _proto_message_get_field(msg, field) == field.default_value
 
 
-def _repeated_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def _repeated_field_to_python(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
     if field.message_type is not None and field.message_type.GetOptions().map_entry:
-        return _map_field_to_cel(msg, field)
-    return _repeated_field_value_to_cel(_proto_message_get_field(msg, field), field)
+        return _map_field_to_python(msg, field)
+    return _repeated_field_value_to_python(_proto_message_get_field(msg, field), field)
 
 
-def _repeated_field_value_to_cel(val: Iterable, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    return celtypes.ListType(_scalar_field_value_to_cel(item, field) for item in val)
+def _repeated_field_value_to_python(val: Iterable, field: descriptor.FieldDescriptor) -> list:
+    return [_scalar_field_value_to_python(item, field) for item in val]
 
 
-def _map_field_value_to_cel(mapping: Mapping, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    result = celtypes.MapType()
+def _map_field_value_to_python(mapping: Mapping, field: descriptor.FieldDescriptor) -> dict:
+    result = {}
     key_field = field.message_type.fields[0]
     val_field = field.message_type.fields[1]
     for key, val in mapping.items():
-        result[_field_value_to_cel(key, key_field)] = _field_value_to_cel(val, val_field)
+        result[_field_value_to_python(key, key_field)] = _field_value_to_python(val, val_field)
     return result
 
 
-def _map_field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
-    return _map_field_value_to_cel(_proto_message_get_field(msg, field), field)
+def _map_field_to_python(msg: message.Message, field: descriptor.FieldDescriptor) -> dict:
+    return _map_field_value_to_python(_proto_message_get_field(msg, field), field)
 
 
-def field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> celtypes.Value:
+def field_to_python(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
     if _is_repeated(field):
-        return _repeated_field_to_cel(msg, field)
+        return _repeated_field_to_python(msg, field)
     elif field.message_type is not None and not _proto_message_has_field(msg, field):
         return None
     else:
-        return _scalar_field_value_to_cel(_proto_message_get_field(msg, field), field)
+        return _scalar_field_value_to_python(_proto_message_get_field(msg, field), field)
 
 
 def _field_to_element(field: descriptor.FieldDescriptor) -> validate_pb2.FieldPathElement:
@@ -329,10 +458,10 @@ class Rules:
 
 @dataclasses.dataclass
 class CelRunner:
-    runner: celpy.Runner
+    program: CelProgram
     rule: validate_pb2.Rule
     rule_value: typing.Any | None = None
-    rule_cel: celtypes.Value | None = None
+    rule_python: typing.Any | None = None
     rule_path: validate_pb2.FieldPath | None = None
 
 
@@ -341,50 +470,56 @@ class CelRules(Rules):
 
     _cel: list[CelRunner]
     _rules: message.Message | None = None
-    _rules_cel: celtypes.Value | None = None
+    _rules_python: typing.Any | None = None
     _uses_now: bool = False
+    _funcs: dict[str, Callable]
 
-    def __init__(self, rules: message.Message | None):
+    def __init__(self, rules: message.Message | None, funcs: dict[str, Callable]):
         self._cel = []
+        self._funcs = funcs
         if rules is not None:
             self._rules = rules
-            self._rules_cel = _msg_to_cel(rules)
+            self._rules_python = _msg_to_python(rules)
 
     def _validate_cel(
         self,
         ctx: RuleContext,
         *,
         this_value: typing.Any | None = None,
-        this_cel: celtypes.Value | None = None,
+        this_python: typing.Any | None = None,
         for_key: bool = False,
     ):
         if not self._cel:
             return
-        activation: dict[str, celtypes.Value] = {}
-        if this_cel is not None:
-            activation["this"] = this_cel
-        activation["rules"] = self._rules_cel
+        activation: dict[str, typing.Any] = {}
+        if this_python is not None:
+            activation["this"] = this_python
+        activation["rules"] = self._rules_python
         if self._uses_now:
-            activation["now"] = celtypes.TimestampType(datetime.datetime.now(tz=datetime.timezone.utc))
+            activation["now"] = datetime.datetime.now(tz=datetime.timezone.utc)
         for cel in self._cel:
-            activation["rule"] = cel.rule_cel
-            result = cel.runner.evaluate(activation)
-            if isinstance(result, celtypes.BoolType):
+            activation["rule"] = cel.rule_python
+            exec_ctx = CelContext(variables=activation, functions=self._funcs)
+            try:
+                result = cel.program.execute(exec_ctx)
+            except Exception as e:
+                raise e  # noqa: TRY201
+            if isinstance(result, bool):
                 if not result:
-                    message = cel.rule.message
-                    if len(message) == 0:
-                        message = f'"{cel.rule.expression}" returned false'
+                    cel_message = cel.rule.message
+                    if len(cel_message) == 0:
+                        cel_message = f'"{cel.rule.expression}" returned false'
                     ctx.add(
                         Violation(
                             field_value=this_value,
                             rule=cel.rule_path,
                             rule_value=cel.rule_value,
                             rule_id=cel.rule.id,
-                            message=message,
+                            message=cel_message,
                             for_key=for_key,
                         ),
                     )
-            elif isinstance(result, celtypes.StringType):
+            elif isinstance(result, str):
                 if result:
                     ctx.add(
                         Violation(
@@ -396,13 +531,9 @@ class CelRules(Rules):
                             for_key=for_key,
                         ),
                     )
-            elif isinstance(result, Exception):
-                raise result
 
     def add_rule(
         self,
-        env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
         rules: validate_pb2.Rule | str,
         *,
         rule_field: descriptor.FieldDescriptor | None = None,
@@ -415,19 +546,18 @@ class CelRules(Rules):
             rules.expression = expression
         if "now" in rules.expression:
             self._uses_now = True
-        ast = env.compile(rules.expression)
-        prog = env.program(ast, functions=funcs)
+        program = _cel_compile(rules.expression)
         rule_value = None
-        rule_cel = None
+        rule_python = None
         if rule_field is not None and self._rules is not None:
             rule_value = _proto_message_get_field(self._rules, rule_field)
-            rule_cel = field_to_cel(self._rules, rule_field)
+            rule_python = field_to_python(self._rules, rule_field)
         self._cel.append(
             CelRunner(
-                runner=prog,
+                program=program,
                 rule=rules,
                 rule_value=rule_value,
-                rule_cel=rule_cel,
+                rule_python=rule_python,
                 rule_path=rule_path,
             )
         )
@@ -463,14 +593,14 @@ class MessageRules(CelRules):
 
     _oneofs: list[MessageOneofRule]
 
-    def __init__(self, rules: message.Message | None, desc: descriptor.Descriptor):
-        super().__init__(rules)
+    def __init__(self, rules: message.Message | None, desc: descriptor.Descriptor, funcs: dict[str, Callable]):
+        super().__init__(rules, funcs)
         self._oneofs = []
         self._desc = desc
 
     def validate(self, ctx: RuleContext, message: message.Message):
         if self._cel:
-            self._validate_cel(ctx, this_cel=_msg_to_cel(message))
+            self._validate_cel(ctx, this_python=_msg_to_python_for_value(message))
             if ctx.done:
                 return
         for oneof in self._oneofs:
@@ -527,9 +657,9 @@ def _is_list(field: descriptor.FieldDescriptor):
 
 def _zero_value(field: descriptor.FieldDescriptor):
     if field.message_type is not None and not _is_repeated(field):
-        return _field_value_to_cel(message_factory.GetMessageClass(field.message_type)(), field)
+        return _field_value_to_python(message_factory.GetMessageClass(field.message_type)(), field)
     else:
-        return _field_value_to_cel(field.default_value, field)
+        return _field_value_to_python(field.default_value, field)
 
 
 class FieldRules(CelRules):
@@ -564,15 +694,14 @@ class FieldRules(CelRules):
 
     def __init__(
         self,
-        env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: dict[str, Callable],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
         *,
         for_items: bool = False,
     ):
         type_case = field_level.WhichOneof("type")
-        super().__init__(None if type_case is None else getattr(field_level, type_case))
+        super().__init__(None if type_case is None else getattr(field_level, type_case), funcs)
         self._field = field
         self._ignore_empty = field_level.ignore == validate_pb2.IGNORE_IF_ZERO_VALUE or (
             field.has_presence and not for_items
@@ -589,8 +718,6 @@ class FieldRules(CelRules):
                 if validate_pb2.predefined in list_field.GetOptions().Extensions:  # type: ignore
                     for cel in list_field.GetOptions().Extensions[validate_pb2.predefined].cel:  # type: ignore
                         self.add_rule(
-                            env,
-                            funcs,
                             cel,
                             rule_field=list_field,
                             rule_path=validate_pb2.FieldPath(
@@ -606,12 +733,12 @@ class FieldRules(CelRules):
             rule_path = validate_pb2.FieldPath()
             rule_path.CopyFrom(self._cel_expression_rule_path)
             rule_path.elements[0].index = i
-            self.add_rule(env, funcs, cel, rule_path=rule_path)
+            self.add_rule(cel, rule_path=rule_path)
         for i, cel in enumerate(field_level.cel):
             rule_path = validate_pb2.FieldPath()
             rule_path.CopyFrom(self._cel_rule_path)
             rule_path.elements[0].index = i
-            self.add_rule(env, funcs, cel, rule_path=rule_path)
+            self.add_rule(cel, rule_path=rule_path)
 
     def validate(self, ctx: RuleContext, message: message.Message):
         if _is_empty_field(message, self._field):
@@ -633,10 +760,10 @@ class FieldRules(CelRules):
             if self._ignore_empty:
                 return
         val = getattr(message, self._field.name)
-        cel_val = _field_value_to_cel(val, self._field)
+        python_val = _field_value_to_python_for_value(val, self._field)
         sub_ctx = ctx.sub_context()
         self._validate_value(sub_ctx, val)
-        self._validate_cel(sub_ctx, this_value=_proto_message_get_field(message, self._field), this_cel=cel_val)
+        self._validate_cel(sub_ctx, this_value=_proto_message_get_field(message, self._field), this_python=python_val)
         if sub_ctx.has_errors():
             element = _field_to_element(self._field)
             sub_ctx.add_field_path_element(element)
@@ -644,7 +771,7 @@ class FieldRules(CelRules):
 
     def validate_item(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
         self._validate_value(ctx, val, for_key=for_key)
-        self._validate_cel(ctx, this_value=val, this_cel=_scalar_field_value_to_cel(val, self._field), for_key=for_key)
+        self._validate_cel(ctx, this_value=val, this_python=_scalar_field_value_to_python(val, self._field), for_key=for_key)
 
     def _validate_value(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
         pass
@@ -675,12 +802,11 @@ class AnyRules(FieldRules):
 
     def __init__(
         self,
-        env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: dict[str, Callable],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
     ):
-        super().__init__(env, funcs, field, field_level)
+        super().__init__(funcs, field, field_level)
         self._in = getattr(field_level.any, "in") or []
         self._not_in: Container[str] = field_level.any.not_in or []
 
@@ -725,14 +851,13 @@ class EnumRules(FieldRules):
 
     def __init__(
         self,
-        env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: dict[str, Callable],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
         *,
         for_items: bool = False,
     ):
-        super().__init__(env, funcs, field, field_level, for_items=for_items)
+        super().__init__(funcs, field, field_level, for_items=for_items)
         if field_level.enum.defined_only:
             self._defined_only = True
 
@@ -772,13 +897,12 @@ class RepeatedRules(FieldRules):
 
     def __init__(
         self,
-        env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: dict[str, Callable],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
         item_rules: FieldRules | None,
     ):
-        super().__init__(env, funcs, field, field_level)
+        super().__init__(funcs, field, field_level)
         if item_rules is not None:
             self._item_rules = item_rules
 
@@ -825,14 +949,13 @@ class MapRules(FieldRules):
 
     def __init__(
         self,
-        env: celpy.Environment,
-        funcs: dict[str, celpy.CELFunction],
+        funcs: dict[str, Callable],
         field: descriptor.FieldDescriptor,
         field_level: validate_pb2.FieldRules,
         key_rules: FieldRules | None,
         value_rules: FieldRules | None,
     ):
-        super().__init__(env, funcs, field, field_level)
+        super().__init__(funcs, field, field_level)
         if key_rules is not None:
             self._key_rules = key_rules
         if value_rules is not None:
@@ -894,12 +1017,10 @@ class OneofRules(Rules):
 class RuleFactory:
     """Factory for creating and caching rules."""
 
-    _env: celpy.Environment
-    _funcs: dict[str, celpy.CELFunction]
+    _funcs: dict[str, Callable]
     _cache: dict[descriptor.Descriptor, list[Rules] | Exception]
 
-    def __init__(self, funcs: dict[str, celpy.CELFunction]):
-        self._env = celpy.Environment(runner_class=InterpretedRunner)
+    def __init__(self, funcs: dict[str, Callable]):
         self._funcs = funcs
         self._cache = {}
 
@@ -915,13 +1036,13 @@ class RuleFactory:
         return result
 
     def _new_message_rule(self, rules: validate_pb2.MessageRules, desc: descriptor.Descriptor) -> MessageRules:
-        result = MessageRules(rules, desc)
+        result = MessageRules(rules, desc, self._funcs)
         for oneof in rules.oneof:
             result.add_oneof(oneof)
         for expr in rules.cel_expression:
-            result.add_rule(self._env, self._funcs, expr)
+            result.add_rule(expr)
         for cel in rules.cel:
-            result.add_rule(self._env, self._funcs, cel)
+            result.add_rule(cel)
         return result
 
     def _new_scalar_field_rule(
@@ -935,27 +1056,27 @@ class RuleFactory:
             return None
         type_case = field_level.WhichOneof("type")
         if type_case is None:
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "duration":
             check_field_type(field, 0, "google.protobuf.Duration")
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "field_mask":
             check_field_type(field, 0, "google.protobuf.FieldMask")
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "timestamp":
             check_field_type(field, 0, "google.protobuf.Timestamp")
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "enum":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_ENUM)
-            result = EnumRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = EnumRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bool":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "bytes":
             check_field_type(
@@ -963,15 +1084,15 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_BYTES,
                 "google.protobuf.BytesValue",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED32)
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "fixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED64)
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "float":
             check_field_type(
@@ -979,7 +1100,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_FLOAT,
                 "google.protobuf.FloatValue",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "double":
             check_field_type(
@@ -987,7 +1108,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_DOUBLE,
                 "google.protobuf.DoubleValue",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int32":
             check_field_type(
@@ -995,7 +1116,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_INT32,
                 "google.protobuf.Int32Value",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "int64":
             check_field_type(
@@ -1003,23 +1124,23 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_INT64,
                 "google.protobuf.Int64Value",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED32)
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sfixed64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED64)
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint32":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT32)
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "sint64":
             check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT64)
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint32":
             check_field_type(
@@ -1027,7 +1148,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_UINT32,
                 "google.protobuf.UInt32Value",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "uint64":
             check_field_type(
@@ -1035,7 +1156,7 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_UINT64,
                 "google.protobuf.UInt64Value",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "string":
             check_field_type(
@@ -1043,11 +1164,11 @@ class RuleFactory:
                 descriptor.FieldDescriptor.TYPE_STRING,
                 "google.protobuf.StringValue",
             )
-            result = FieldRules(self._env, self._funcs, field, field_level, for_items=for_items)
+            result = FieldRules(self._funcs, field, field_level, for_items=for_items)
             return result
         elif type_case == "any":
             check_field_type(field, 0, "google.protobuf.Any")
-            result = AnyRules(self._env, self._funcs, field, field_level)
+            result = AnyRules(self._funcs, field, field_level)
             return result
         else:
             msg = f"unknown rule type {type_case!r}"
@@ -1069,11 +1190,11 @@ class RuleFactory:
             if rules.map.HasField("values"):
                 value_field = field.message_type.fields_by_name["value"]
                 value_rules = self._new_scalar_field_rule(value_field, rules.map.values, for_items=True)
-            return MapRules(self._env, self._funcs, field, rules, key_rules, value_rules)
+            return MapRules(self._funcs, field, rules, key_rules, value_rules)
         item_rule = None
         if rules.repeated.HasField("items"):
             item_rule = self._new_scalar_field_rule(field, rules.repeated.items)
-        return RepeatedRules(self._env, self._funcs, field, rules, item_rule)
+        return RepeatedRules(self._funcs, field, rules, item_rule)
 
     def _new_rules(self, desc: descriptor.Descriptor) -> list[Rules]:
         result: list[Rules] = []
