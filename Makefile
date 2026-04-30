@@ -10,9 +10,13 @@ BIN := .tmp/bin
 export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
 export PYTHONPATH ?= gen
-BUF_VERSION := 1.62.1
+BUF_VERSION := 1.69.0
 CONFORMANCE_ARGS ?= --strict_message --expected_failures=test/conformance/nonconforming.yaml --timeout 10s
 ADD_LICENSE_HEADER := $(BIN)/license-header \
+		--ignore .github \
+		--ignore buf.yaml \
+		--ignore buf.gen.yaml \
+		--ignore test/conformance/*.yaml \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
 		--year-range "2023-2026"
