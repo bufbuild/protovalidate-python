@@ -43,12 +43,12 @@ Source = "https://github.com/bufbuild/protovalidate-python"
 
 [dependency-groups]
 dev = [
-  "google-re2-stubs>=0.1.1",
-  "mypy>=1.17.1",
-  "pytest>=9.0.2",
-  "ruff>=0.12.0",
-  "tombi>=0.9.12",
-  "types-protobuf>=5.29.1.20250315",
+  "google-re2-stubs==0.1.1",
+  "mypy==1.20.2",
+  "pytest==9.0.3",
+  "ruff==0.15.12",
+  "tombi==0.10.5",
+  "types-protobuf==6.32.1.20260221",
 ]
 
 [build-system]
