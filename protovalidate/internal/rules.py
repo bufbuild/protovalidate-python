@@ -19,7 +19,7 @@ from collections.abc import Callable, Container, Iterable, Mapping
 
 import celpy
 from celpy import celtypes
-from google.protobuf import (  # type: ignore[attr-defined]
+from google.protobuf import (
     any_pb2,
     descriptor,
     duration_pb2,
@@ -32,16 +32,12 @@ from google.protobuf import (  # type: ignore[attr-defined]
 from buf.validate import validate_pb2
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 
+
 # protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
-if hasattr(descriptor.FieldDescriptor, "is_repeated"):
-
-    def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
-        return field.is_repeated  # type: ignore[attr-defined]
-
-else:
-
-    def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
-        return field.label == descriptor.FieldDescriptor.LABEL_REPEATED  # type: ignore[attr-defined]
+def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
+    if hasattr(field, "is_repeated"):
+        return field.is_repeated
+    return field.label == descriptor.FieldDescriptor.LABEL_REPEATED
 
 
 class CompilationError(Exception):
@@ -93,14 +89,14 @@ class MessageType(celtypes.MapType):
                 continue
             self[field.name] = field_to_cel(self.msg, field)
 
-    def __getitem__(self, name):
-        field = self.desc.fields_by_name[name]
-        if field.has_presence and not self.msg.HasField(name):
+    def __getitem__(self, key):
+        field = self.desc.fields_by_name[key]
+        if field.has_presence and not self.msg.HasField(key):
             if in_has():
                 raise KeyError()
             else:
                 return _zero_value(field)
-        return super().__getitem__(name)
+        return super().__getitem__(key)
 
 
 def _msg_to_cel(msg: message.Message) -> celtypes.Value:
@@ -153,14 +149,14 @@ def _get_type_ctor(fd: typing.Any) -> typing.Callable[..., celtypes.Value] | Non
 
 def _proto_message_has_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
     if field.is_extension:
-        return msg.HasExtension(field)  # type: ignore
+        return msg.HasExtension(field)  # ty: ignore[invalid-argument-type]
     else:
         return msg.HasField(field.name)
 
 
 def _proto_message_get_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
     if field.is_extension:
-        return msg.Extensions[field]  # type: ignore
+        return msg.Extensions[field]  # ty: ignore[invalid-argument-type]
     else:
         return getattr(msg, field.name)
 
@@ -322,7 +318,7 @@ class RuleContext:
 class Rules:
     """The rules associated with a single 'rules' message."""
 
-    def validate(self, ctx: RuleContext, _: message.Message):
+    def validate(self, ctx: RuleContext, message: message.Message):  # noqa: ARG002
         """Validate the message against the rules in this rule."""
         ctx.add(Violation(rule_id="unimplemented", message="Unimplemented"))
 
@@ -440,8 +436,8 @@ class MessageOneofRule(Rules):
         self._fields = fields
         self._required = required
 
-    def validate(self, ctx: RuleContext, msg: message.Message):
-        num_set_fields = sum(1 for field in self._fields if not _is_empty_field(msg, field))
+    def validate(self, ctx: RuleContext, message: message.Message):
+        num_set_fields = sum(1 for field in self._fields if not _is_empty_field(message, field))
         if num_set_fields > 1:
             ctx.add(
                 Violation(
@@ -586,8 +582,8 @@ class FieldRules(CelRules):
             # For each set field in the message, look for the private rule
             # extension.
             for list_field, _ in rules.ListFields():
-                if validate_pb2.predefined in list_field.GetOptions().Extensions:  # type: ignore
-                    for cel in list_field.GetOptions().Extensions[validate_pb2.predefined].cel:  # type: ignore
+                if validate_pb2.predefined in list_field.GetOptions().Extensions:  # ty: ignore[unsupported-operator]
+                    for cel in list_field.GetOptions().Extensions[validate_pb2.predefined].cel:  # ty: ignore[invalid-argument-type]
                         self.add_rule(
                             env,
                             funcs,
@@ -642,11 +638,13 @@ class FieldRules(CelRules):
             sub_ctx.add_field_path_element(element)
             ctx.add_errors(sub_ctx)
 
-    def validate_item(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
-        self._validate_value(ctx, val, for_key=for_key)
-        self._validate_cel(ctx, this_value=val, this_cel=_scalar_field_value_to_cel(val, self._field), for_key=for_key)
+    def validate_item(self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False):
+        self._validate_value(ctx, value, for_key=for_key)
+        self._validate_cel(
+            ctx, this_value=value, this_cel=_scalar_field_value_to_cel(value, self._field), for_key=for_key
+        )
 
-    def _validate_value(self, ctx: RuleContext, val: typing.Any, *, for_key: bool = False):
+    def _validate_value(self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False):
         pass
 
 
@@ -1079,8 +1077,8 @@ class RuleFactory:
         result: list[Rules] = []
         rule: Rules | None = None
         all_msg_oneof_fields = set()
-        if desc.GetOptions().HasExtension(validate_pb2.message):  # type: ignore
-            message_level = desc.GetOptions().Extensions[validate_pb2.message]  # type: ignore
+        if desc.GetOptions().HasExtension(validate_pb2.message):  # ty: ignore[invalid-argument-type]
+            message_level = desc.GetOptions().Extensions[validate_pb2.message]  # ty: ignore[invalid-argument-type]
             for oneof in message_level.oneof:
                 all_msg_oneof_fields.update(oneof.fields)
             if rule := self._new_message_rule(message_level, desc):

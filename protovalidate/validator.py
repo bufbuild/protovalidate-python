@@ -84,9 +84,9 @@ class Validator:
                 break
         for violation in ctx.violations:
             if violation.proto.HasField("field"):
-                violation.proto.field.elements.reverse()  # type: ignore
+                violation.proto.field.elements.reverse()
             if violation.proto.HasField("rule"):
-                violation.proto.rule.elements.reverse()  # type: ignore
+                violation.proto.rule.elements.reverse()
         return ctx.violations
 
 
