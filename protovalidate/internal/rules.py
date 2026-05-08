@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import abc
 import dataclasses
 import datetime
 import typing
@@ -320,12 +321,13 @@ class RuleContext:
         return RuleContext(fail_fast=self._fail_fast)
 
 
-class Rules:
+class Rules(abc.ABC):
     """The rules associated with a single 'rules' message."""
 
-    def validate(self, ctx: RuleContext, message: message.Message):  # noqa: ARG002
+    @abc.abstractmethod
+    def validate(self, ctx: RuleContext, message: message.Message) -> None:
         """Validate the message against the rules in this rule."""
-        ctx.add(Violation(rule_id="unimplemented", message="Unimplemented"))
+        ...
 
 
 @dataclasses.dataclass
