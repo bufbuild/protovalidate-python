@@ -33,7 +33,7 @@ def in_has() -> bool:
 
 
 class InterpretedRunner(celpy.InterpretedRunner):
-    def evaluate(self, context) -> celpy.celtypes.Value:
+    def evaluate(self, context: celpy.Context) -> celpy.celtypes.Value:
         class Evaluator(celpy.Evaluator):
             def macro_has_eval(self, exprlist) -> celpy.celtypes.BoolType:
                 _has_state.in_has = True

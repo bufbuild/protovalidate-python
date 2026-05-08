@@ -81,7 +81,7 @@ conformance: $(BIN)/protovalidate-conformance generate install ## Run conformanc
 lint: install $(BIN)/buf ## Lint code
 	buf format -d --exit-code
 	uv run -- ruff format --check --diff protovalidate test
-	uv run -- mypy protovalidate
+	uv run -- ty check protovalidate
 	uv run -- ruff check protovalidate test
 	uv run -- tombi format --check
 	uv run -- tombi lint

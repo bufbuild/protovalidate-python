@@ -44,10 +44,10 @@ Source = "https://github.com/bufbuild/protovalidate-python"
 [dependency-groups]
 dev = [
   "google-re2-stubs==0.1.1",
-  "mypy==1.20.2",
   "pytest==9.0.3",
   "ruff==0.15.12",
   "tombi==0.10.5",
+  "ty==0.0.34",
   "types-protobuf==6.32.1.20260221",
 ]
 
@@ -58,9 +58,6 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 raw-options = { fallback_version = "0.0.0" }
-
-[tool.mypy]
-mypy_path = "gen"
 
 [tool.pytest]
 # Turn all warnings into errors,
