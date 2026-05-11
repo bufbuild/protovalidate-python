@@ -46,8 +46,8 @@ dev = [
   "google-re2-stubs==0.1.1",
   "pytest==9.0.3",
   "ruff==0.15.12",
-  "tombi==0.10.5",
-  "ty==0.0.34",
+  "tombi==0.11.1",
+  "ty==0.0.35",
   "types-protobuf==6.32.1.20260221",
 ]
 
