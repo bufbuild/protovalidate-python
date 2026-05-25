@@ -66,11 +66,11 @@ format: install ## Format code
 	uv run -- tombi format
 
 .PHONY: test
-test: generate install $(TESTDATA_FILE) ## Run unit tests
+test: install $(TESTDATA_FILE) ## Run unit tests
 	uv run -- pytest
 
 .PHONY: conformance
-conformance: generate install ## Run conformance tests
+conformance: install ## Run conformance tests
 	go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION) $(CONFORMANCE_ARGS) uv run test/conformance/runner.py
 
 .PHONY: lint

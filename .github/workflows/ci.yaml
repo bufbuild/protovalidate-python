@@ -36,13 +36,9 @@ jobs:
       - run: make lint
       - run: make format
       # When running with matrix.resolution == lowest-direct, we expect uv.lock to change, but we don't want that file checked in.
-      - if: matrix.resolution == 'highest'
+      - if: matrix.resolution == 'highest' && !github.event.repository.fork
         run: make checkgenerate
         env:
           BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
       - run: make test
-        env:
-          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
       - run: make conformance
-        env:
-          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
