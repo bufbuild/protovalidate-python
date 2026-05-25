@@ -44,9 +44,9 @@ Source = "https://github.com/bufbuild/protovalidate-python"
 dev = [
   "google-re2-stubs==0.1.1",
   "pytest==9.0.3",
-  "ruff==0.15.13",
-  "tombi==0.11.5",
-  "ty==0.0.37",
+  "ruff==0.15.14",
+  "tombi==0.11.7",
+  "ty==0.0.39",
   "types-protobuf==6.32.1.20260221",
 ]
 
