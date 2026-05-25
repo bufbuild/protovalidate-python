@@ -9,6 +9,29 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 
+[manifest]
+members = [
+    "protovalidate",
+    "protovalidate-proto",
+]
+
+[[package]]
+name = "buf-bin"
+version = "1.69.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1d/c5/522cfcb6ffc54cc93dd67b9834039f3b1c239cee81a900bcd12d6c87d3aa/buf_bin-1.69.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:658e84ac50db6edd30f4e39323df01a6a9f56a1e1068c005417877c737412107", size = 15304756, upload-time = "2026-04-29T20:24:46.363Z" },
+    { url = "https://files.pythonhosted.org/packages/85/98/8677aa41d49d5ad6f74852875cc7f372c9dcdec56f8677eb0ab5e0e83e3f/buf_bin-1.69.0-py3-none-macosx_11_0_x86_64.whl", hash = "sha256:e7dafcf891d7cfd67a51b9e17aad946ca57623c30fadeabe93ae3e1fb6c41780", size = 16461818, upload-time = "2026-04-29T20:24:49.06Z" },
+    { url = "https://files.pythonhosted.org/packages/37/c2/90b6ad3296b93ceb50c93964afdc4e9018c5b48dfb7d1c01fa1063188a99/buf_bin-1.69.0-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:602610bd6f6472a22af16b53941459071dd816b85f6cd1d2c28dfdd054be1b3e", size = 14487191, upload-time = "2026-04-29T20:24:52.455Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/ee/469d5814a6bb90f29204b44b2247257eeaa6ed5f833337efca5a266bfecb/buf_bin-1.69.0-py3-none-manylinux2014_armv7l.manylinux_2_17_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:41430d5b209732a16c3ef82f5a3f1ea78014d17b359f6b651a09cfa3491a4a4f", size = 14684194, upload-time = "2026-04-29T20:24:55.121Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/e0/d50b0d8f6e78ff2ec2f774cf4852dc2622a75e643acc32b61d359372047e/buf_bin-1.69.0-py3-none-manylinux2014_ppc64le.manylinux_2_17_ppc64le.musllinux_1_1_ppc64le.whl", hash = "sha256:1d5623340b99fb40f47cf3b3b694e5c00c6d9863c6047d3a03c73790b0722858", size = 14199324, upload-time = "2026-04-29T20:24:57.864Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/7c/efea54d503a7970470cfec98f1df80875faaf215bbd8c2e71702053574c4/buf_bin-1.69.0-py3-none-manylinux2014_s390x.manylinux_2_17_s390x.musllinux_1_1_s390x.whl", hash = "sha256:f9bcd185de5e26e28458c3d2ac71a96842f061ed0f4c1f47afe5db9900c86649", size = 15451658, upload-time = "2026-04-29T20:25:00.621Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/ab/b8b0ccdd4c964f6ce36777d0eb830e5eff53e1741d6fd8b8cea398bd12f8/buf_bin-1.69.0-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:34e215709a2a41dfc8c2b0028687287ce4bcb36fd1222528fb8bd992e59a813f", size = 16056766, upload-time = "2026-04-29T20:25:02.851Z" },
+    { url = "https://files.pythonhosted.org/packages/88/9f/9a224ba624131a8b212ba88f4818bd96054cfbad795eefdfa001f4a40743/buf_bin-1.69.0-py3-none-manylinux_2_17_riscv64.musllinux_1_2_riscv64.whl", hash = "sha256:de0e228a3e3fca9bdcf6bf4a76789cd04a9f3a684e7857caefd66eb20963f7f8", size = 14709270, upload-time = "2026-04-29T20:25:05.352Z" },
+    { url = "https://files.pythonhosted.org/packages/86/23/0b60f48234ea249316385248503569ee23d095c044757a2e8da4a1f1efe4/buf_bin-1.69.0-py3-none-win_amd64.whl", hash = "sha256:27daafeab659fbabbd69bc44d0b4a9b1d710efc5a0166f9135e6f5cd7d44e469", size = 16393197, upload-time = "2026-04-29T20:25:07.975Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/c4/db7dc7d5f2e863b3bec4fff0e3e4e1dc9fb42d224286dc427d8c4a0bede6/buf_bin-1.69.0-py3-none-win_arm64.whl", hash = "sha256:50e660ec9eb466735953586d5e2c06a23921fd5256afe27200764e24bc48b332", size = 14573674, upload-time = "2026-04-29T20:25:10.38Z" },
+]
+
 [[package]]
 name = "cel-python"
 version = "0.5.0"
@@ -261,7 +284,9 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "buf-bin" },
     { name = "google-re2-stubs" },
+    { name = "protovalidate-proto" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "tombi" },
@@ -282,13 +307,20 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "buf-bin", specifier = "==1.69.0" },
     { name = "google-re2-stubs", specifier = "==0.1.1" },
+    { name = "protovalidate-proto", editable = "packages/protovalidate-proto" },
     { name = "pytest", specifier = "==9.0.3" },
     { name = "ruff", specifier = "==0.15.14" },
     { name = "tombi", specifier = "==1.0.0" },
     { name = "ty", specifier = "==0.0.39" },
     { name = "types-protobuf", specifier = "==6.32.1.20260221" },
 ]
+
+[[package]]
+name = "protovalidate-proto"
+version = "0.1.0"
+source = { editable = "packages/protovalidate-proto" }
 
 [[package]]
 name = "pygments"

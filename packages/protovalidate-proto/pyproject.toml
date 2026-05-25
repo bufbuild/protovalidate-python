@@ -1,0 +1,33 @@
+[project]
+name = "protovalidate-proto"
+version = "0.1.0"
+description = "Protocol Buffer Stubs for protovalidate-python"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["protobuf", "protocol buffer", "validate"]
+classifiers = [
+  "Operating System :: OS Independent",
+  "Private :: Do Not Upload",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://protovalidate.com"
+Homepage = "https://github.com/bufbuild/protovalidate-python"
+Issues = "https://github.com/bufbuild/protovalidate-python/issues"
+Source = "https://github.com/bufbuild/protovalidate-python"
+
+[build-system]
+requires = ["uv_build>=0.11.2,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = ["buf.validate"]
