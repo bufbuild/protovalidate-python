@@ -6,3 +6,4 @@ __pycache__
 
 # VS Code configuration
 /.vscode/
+.envrc

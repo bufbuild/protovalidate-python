@@ -6,13 +6,10 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
-BIN := .tmp/bin
-export PATH := $(BIN):$(PATH)
-export GOBIN := $(abspath $(BIN))
 export PYTHONPATH ?= gen
 BUF_VERSION := 1.69.0
 CONFORMANCE_ARGS ?= --strict_message --expected_failures=test/conformance/nonconforming.yaml --timeout 10s
-ADD_LICENSE_HEADER := $(BIN)/license-header \
+ADD_LICENSE_HEADER := go run github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v${BUF_VERSION} \
 		--ignore .github \
 		--ignore buf.yaml \
 		--ignore buf.gen.yaml \
@@ -47,39 +44,38 @@ clean: ## Delete intermediate build artifacts
 	@echo $(CEL_SPEC_VERSION)
 
 .PHONY: generate
-generate: $(BIN)/buf $(BIN)/license-header upstream ## Regenerate code and license headers
-	rm -rf gen
-	$(BIN)/buf generate $(PROTOVALIDATE_PROTO_PATH)
-	$(BIN)/buf generate $(PROTOVALIDATE_TESTING_PROTO_PATH)
-	$(BIN)/buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3
-	$(BIN)/buf generate
-	$(ADD_LICENSE_HEADER)
+generate: ## Regenerate code and license headers
+	cd packages/protovalidate-proto && \
+		rm -rf src && mkdir -p src/buf/validate && touch src/buf/validate/__init__.py && \
+		uv run -- buf generate $(PROTOVALIDATE_PROTO_PATH) && \
+		uv run -- buf generate $(PROTOVALIDATE_TESTING_PROTO_PATH)
 
-.PHONY: upstream
-upstream: $(BIN)/buf
-	rm -rf upstream
-	$(BIN)/buf export $(PROTOVALIDATE_PROTO_PATH) -o upstream/proto
+	cd test && \
+	    rm -rf gen && \
+		uv run -- buf generate buf.build/google/cel-spec:$(CEL_SPEC_VERSION) --exclude-path cel/expr/conformance/proto2 --exclude-path cel/expr/conformance/proto3 && \
+		uv run -- buf generate
+
 	$(ADD_LICENSE_HEADER)
 
 .PHONY: format
-format: install $(BIN)/buf $(BIN)/license-header ## Format code
+format: install ## Format code
 	$(ADD_LICENSE_HEADER)
-	buf format --write .
+	uv run -- buf format --write .
 	uv run -- ruff format protovalidate test
 	uv run -- ruff check --fix protovalidate test
 	uv run -- tombi format
 
 .PHONY: test
-test: generate install $(TESTDATA_FILE) ## Run unit tests
+test: install $(TESTDATA_FILE) ## Run unit tests
 	uv run -- pytest
 
 .PHONY: conformance
-conformance: $(BIN)/protovalidate-conformance generate install ## Run conformance tests
-	protovalidate-conformance $(CONFORMANCE_ARGS) uv run test/conformance/runner.py
+conformance: install ## Run conformance tests
+	go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION) $(CONFORMANCE_ARGS) uv run test/conformance/runner.py
 
 .PHONY: lint
-lint: install $(BIN)/buf ## Lint code
-	buf format -d --exit-code
+lint: install ## Lint code
+	uv run -- buf format -d --exit-code
 	uv run -- ruff format --check --diff protovalidate test
 	uv run -- ty check protovalidate
 	uv run -- ruff check protovalidate test
@@ -89,7 +85,7 @@ lint: install $(BIN)/buf ## Lint code
 
 .PHONY: install
 install: ## Install dependencies
-	uv sync --dev
+	uv sync
 
 .PHONY: checkgenerate
 checkgenerate: generate
@@ -99,15 +95,3 @@ checkgenerate: generate
 $(TESTDATA_FILE):
 	mkdir -p $(dir @)
 	curl -fsSL -o $@ https://raw.githubusercontent.com/google/cel-spec/refs/tags/$(CEL_SPEC_VERSION)/tests/simple/testdata/string_ext.textproto
-
-$(BIN):
-	@mkdir -p $(BIN)
-
-$(BIN)/buf: Makefile | $(BIN)
-	go install github.com/bufbuild/buf/cmd/buf@v${BUF_VERSION}
-
-$(BIN)/license-header: Makefile | $(BIN)
-	go install github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v${BUF_VERSION}
-
-$(BIN)/protovalidate-conformance: Makefile | $(BIN)
-	go install github.com/bufbuild/protovalidate/tools/protovalidate-conformance@$(PROTOVALIDATE_VERSION)

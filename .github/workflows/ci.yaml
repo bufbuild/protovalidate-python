@@ -33,16 +33,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: make install
+      - run: make test
+      - run: make conformance
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: stable
+          # We use this to install `buf`, and the `buf` version is controlled by the Makefile.
+          cache-dependency-path: Makefile
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: make install
       - run: make lint
       - run: make format
       # When running with matrix.resolution == lowest-direct, we expect uv.lock to change, but we don't want that file checked in.
-      - if: matrix.resolution == 'highest'
-        run: make checkgenerate
-        env:
-          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
-      - run: make test
-        env:
-          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
-      - run: make conformance
+      - run: make checkgenerate
         env:
           BUF_TOKEN: ${{ secrets.BUF_TOKEN }}

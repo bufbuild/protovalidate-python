@@ -42,6 +42,9 @@ Source = "https://github.com/bufbuild/protovalidate-python"
 
 [dependency-groups]
 dev = [
+  "protovalidate-proto",
+
+  "buf-bin==1.69.0",
   "google-re2-stubs==0.1.1",
   "pytest==9.0.3",
   "ruff==0.15.14",
@@ -62,12 +65,19 @@ raw-options = { fallback_version = "0.0.0" }
 # Turn all warnings into errors,
 # except DeprecationWarnings (which we knowingly tolerate due to using old `protobuf` APIs).
 filterwarnings = ["error", "ignore::DeprecationWarning"]
+pythonpath = ["test/gen"]
 strict = true
 # restrict testpaths to speed up test discovery
 testpaths = ["test"]
 
 [tool.ruff]
 line-length = 120
+exclude = [
+  # Protobuf generated code
+  "packages/protovalidate-proto/src/**",
+  "test/gen/**",
+]
+
 lint.select = [
   "A",
   "ARG",
@@ -108,12 +118,15 @@ lint.ignore = [
 [tool.ruff.lint.isort]
 known-first-party = ["protovalidate", "buf"]
 
-[tool.ruff.lint.flake8-tidy-imports]
-ban-relative-imports = "all"
-
 [tool.ruff.lint.per-file-ignores]
 # Tests can use assertions.
 "test/**/*" = ["S101"]
 
-[tool.ty.environment]
-extra-paths = ["gen"]
+[tool.uv.sources]
+protovalidate = { workspace = true }
+protovalidate-proto = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+  "packages/protovalidate-proto",
+]
