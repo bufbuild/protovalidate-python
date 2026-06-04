@@ -67,7 +67,6 @@ raw-options = { fallback_version = "0.0.0" }
 # Turn all warnings into errors,
 # except DeprecationWarnings (which we knowingly tolerate due to using old `protobuf` APIs).
 filterwarnings = ["error", "ignore::DeprecationWarning"]
-pythonpath = ["test/gen"]
 strict = true
 # restrict testpaths to speed up test discovery
 testpaths = ["test"]
