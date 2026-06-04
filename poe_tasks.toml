@@ -18,9 +18,9 @@ go run github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v1.6
 [tasks.check]
 help = "Run code checks"
 sequence = [
-    "lint",
-    "test",
-    "test-conformance",
+  "lint",
+  "test",
+  "test-conformance",
 ]
 
 [tasks.diffcheck]
