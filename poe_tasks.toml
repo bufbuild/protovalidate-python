@@ -1,0 +1,103 @@
+#:schema https://json.schemastore.org/partial-poe.json
+
+[env]
+PROTOVALIDATE_VERSION = "v1.2.0"
+
+[tasks.add-license-header]
+help = "Add license header to all source files"
+cmd = """
+go run github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v1.69.0
+    --ignore .github --ignore buf.yaml
+    --ignore buf.gen.yaml
+    --ignore test/conformance/nonconforming.yaml
+    --license-type apache
+    --copyright-holder "Buf Technologies, Inc."
+    --year-range "2023-2026"
+"""
+
+[tasks.check]
+help = "Run code checks"
+sequence = [
+    "lint",
+    "test",
+    "test-conformance",
+]
+
+[tasks.diffcheck]
+help = "Check for uncommitted or untracked files (guards against codegen regressions)"
+shell = "test -z \"$(git status --porcelain | tee /dev/stderr)\""
+
+[tasks.generate]
+sequence = [
+  "generate-cel",
+  "generate-protovalidate",
+  "generate-test",
+  "add-license-header",
+]
+
+[tasks.generate-cel]
+script = "scripts.generate_cel:main"
+
+[tasks.generate-protovalidate]
+script = "scripts.generate_protovalidate:main(environ['PROTOVALIDATE_VERSION'])"
+
+[tasks.generate-test]
+cmd = "buf generate"
+cwd = "test"
+
+[tasks.format]
+help = "Apply all possible auto-formatting to files"
+sequence = ["format-python", "format-toml", "add-license-header"]
+
+[tasks.format-python]
+help = "Apply auto-formatting to Python files"
+sequence = [
+  { cmd = "ruff check --fix --unsafe-fixes --exit-zero" },
+  { cmd = "ruff format" }
+]
+
+[tasks.format-toml]
+help = "Apply formatting to TOML files"
+cmd = "tombi format"
+
+[tasks.lint]
+help = "Apply all possible linting to files"
+sequence = [
+  "lint-python",
+  "lint-protos",
+  "lint-toml",
+  { cmd = "uv lock --check" }
+]
+
+[tasks.lint-protos]
+help = "Apply linting to protobuf files"
+cmd = "buf format -d --exit-code"
+
+[tasks.lint-python]
+help = "Apply linting to Python files"
+sequence = [
+  { cmd = "ruff check" },
+  { cmd = "ruff format --check" },
+  { cmd = "ty check protovalidate" },
+]
+
+[tasks.lint-toml]
+help = "Apply linting to TOML files"
+sequence = [
+  { cmd = "tombi format --check" },
+  { cmd = "tombi lint" },
+]
+
+[tasks.test-conformance]
+help = "Run the CEL conformance tests"
+cmd = """
+go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@${PROTOVALIDATE_VERSION}
+    --strict_message
+    --expected_failures=test/conformance/nonconforming.yaml
+    --timeout 10s
+    python test/conformance/runner.py
+"""
+
+[tasks.test]
+help = "Run unit tests"
+cmd = "pytest"
