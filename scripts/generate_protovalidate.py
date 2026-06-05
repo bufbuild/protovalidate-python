@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -30,8 +31,10 @@ def main(version: str) -> None:
         )
 
     protos_dir = Path(__file__).parent.parent / "packages" / "protovalidate-proto" / "proto"
-    protos_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.rmtree(protos_dir, ignore_errors=True)
+    protos_dir.mkdir(parents=True, exist_ok=True)
 
     subprocess.run(["buf", "export", protovalidate_path, "-o", protos_dir], check=True)  # noqa: S603, S607
     subprocess.run(["buf", "export", protovalidate_testing_path, "-o", protos_dir], check=True)  # noqa: S603, S607
     subprocess.run(["buf", "generate"], cwd=protos_dir.parent, check=True)  # noqa: S607
+    (protos_dir.parent / "src" / "buf" / "validate" / "__init__.py").touch()

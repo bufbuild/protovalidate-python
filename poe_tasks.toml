@@ -1,7 +1,7 @@
 #:schema https://json.schemastore.org/partial-poe.json
 
 [env]
-PROTOVALIDATE_VERSION = "v1.2.0"
+PROTOVALIDATE_VERSION.default = "v1.2.0"
 
 [tasks.add-license-header]
 help = "Add license header to all source files"
@@ -42,12 +42,23 @@ script = "scripts.generate_cel:main"
 script = "scripts.generate_protovalidate:main(environ['PROTOVALIDATE_VERSION'])"
 
 [tasks.generate-test]
-cmd = "buf generate"
-cwd = "test"
+sequence = [
+  { script = "poethepoet.scripts:rm('test/gen/tests')" },
+  { cmd = "buf generate", cwd = "test" },
+]
 
 [tasks.format]
 help = "Apply all possible auto-formatting to files"
-sequence = ["format-python", "format-toml", "add-license-header"]
+sequence = [
+  "format-python",
+  "format-protos",
+  "format-toml",
+  "add-license-header"
+]
+
+[tasks.format-protos]
+help = "Apply auto-formatting to protobuf files"
+cmd = "buf format --write"
 
 [tasks.format-python]
 help = "Apply auto-formatting to Python files"

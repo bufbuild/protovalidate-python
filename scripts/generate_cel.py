@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import shutil
 import subprocess
 from pathlib import Path
 from urllib.request import urlopen
@@ -25,6 +26,9 @@ test_dir = Path(__file__).parent.parent / "test"
 
 def main() -> None:
     """Generates CEL conformance protos and fetches CEL testdata"""
+
+    shutil.rmtree(test_dir / "gen" / "cel", ignore_errors=True)
+
     subprocess.run(  # noqa: S603
         [  # noqa: S607
             "buf",

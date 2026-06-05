@@ -32,7 +32,7 @@ jobs:
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv sync --frozen
+      - run: uv sync
       - run: uv run poe test
       - run: uv run poe test-conformance
 
@@ -48,7 +48,7 @@ jobs:
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv sync --frozen
+      - run: uv sync --locked
       - run: uv run poe lint
       - run: uv run poe format
       - run: uv run poe generate
