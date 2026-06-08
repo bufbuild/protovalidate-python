@@ -44,12 +44,12 @@ Source = "https://github.com/bufbuild/protovalidate-python"
 dev = [
   "protovalidate-proto",
 
-  "buf-bin==1.69.0",
+  "buf-bin==1.70.0",
   "google-re2-stubs==0.1.1",
   "pytest==9.0.3",
-  "ruff==0.15.14",
-  "tombi==1.0.0",
-  "ty==0.0.39",
+  "ruff==0.15.16",
+  "tombi==1.1.2",
+  "ty==0.0.44",
   "types-protobuf==6.32.1.20260221",
 ]
 
