@@ -23,18 +23,14 @@ Next, install dependencies. You will need:
 
 * [uv](https://docs.astral.sh/uv/)
 
-We use a Makefile to test and lint our code, so you'll also need a few non-Python tools:
+Some tasks require additional non-Python tools:
 
-* GNU Make (to use the Makefile): part of the `build-essential` package on
-  Debian-derived Linux distributions (including Ubuntu), and part of
-  `xcode-select --install` on Macs.
 * Go (for the conformance test runner): often available in your system package
   manager (`apt`, `dnf`, `brew`, etc.), but most reliable when [installed
   directly from upstream](https://go.dev/doc/install).
 
-With Go and GNU Make installed, you can verify that your changes pass tests and
-lint checks by running `make`. For a list of other useful commands, run `make
-help`.
+With Go installed, you can verify that your changes pass tests and
+lint checks by running `uv run poe check`. For a list of other useful commands, run `uv run poe`.
 
 ### Reporting Bugs
 

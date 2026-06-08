@@ -45,7 +45,9 @@ dev = [
   "protovalidate-proto",
 
   "buf-bin==1.70.0",
+  "fix-protobuf-imports==0.1.7",
   "google-re2-stubs==0.1.1",
+  "poethepoet==0.46.0",
   "pytest==9.0.3",
   "ruff==0.15.16",
   "tombi==1.1.2",
@@ -65,7 +67,6 @@ raw-options = { fallback_version = "0.0.0" }
 # Turn all warnings into errors,
 # except DeprecationWarnings (which we knowingly tolerate due to using old `protobuf` APIs).
 filterwarnings = ["error", "ignore::DeprecationWarning"]
-pythonpath = ["test/gen"]
 strict = true
 # restrict testpaths to speed up test discovery
 testpaths = ["test"]

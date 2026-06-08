@@ -1,6 +1,3 @@
-# tools, see ./Makefile
-/.tmp/
-
 # python writes compiled bytecode to .pyc files in __pycache__ directories
 __pycache__
 
