@@ -1,6 +1,5 @@
 version: v2
-managed:
-  enabled: true
+clean: true
 plugins:
     # NOTE: v26.0 is the earliest version supporting protobuf==5.
     - remote: buf.build/protocolbuffers/python:v26.0

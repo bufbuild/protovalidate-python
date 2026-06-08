@@ -14,6 +14,7 @@
 
 from collections.abc import Iterable, MutableMapping
 from itertools import chain
+from pathlib import Path
 from typing import Any
 
 import celpy
@@ -28,7 +29,6 @@ from .gen.cel.expr import eval_pb2
 from .gen.cel.expr.conformance.test import simple_pb2
 
 # Version of the cel-spec that this implementation is conformant with.
-# This should be kept in sync with the version in ../Makefile.
 CEL_SPEC_VERSION = "v0.25.1"
 
 skipped_tests = [
@@ -84,9 +84,10 @@ def get_eval_error_message(test: simple_pb2.SimpleTest) -> str | None:
 
 
 # The test data from the cel-spec conformance tests
-cel_test_data = load_test_data(f"test/testdata/string_ext_{CEL_SPEC_VERSION}.textproto")
+testdata_dir = Path(__file__).parent / "testdata"
+cel_test_data = load_test_data(testdata_dir / f"string_ext_{CEL_SPEC_VERSION}.textproto")
 # Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
-supplemental_test_data = load_test_data("test/testdata/string_ext_supplemental.textproto")
+supplemental_test_data = load_test_data(testdata_dir / "string_ext_supplemental.textproto")
 
 # Combine the test data from both files into one
 sections = cel_test_data.section
