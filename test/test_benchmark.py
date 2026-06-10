@@ -12,17 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Benchmarks for CEL rule evaluation, by rule category.
-
-Run with `uv run poe bench`. This file only touches the public protovalidate
-API, so the same file produces comparable numbers on any branch (e.g. to
-compare CEL backends, check out the baseline branch, drop this file in, and
-run it there).
-
-Each benchmark measures steady-state `collect_violations` on a shared
-`Validator`, so per-message-type compilation is warmed up by the calibration
-phase and the numbers reflect rule evaluation, not compilation.
-"""
 
 import time
 
