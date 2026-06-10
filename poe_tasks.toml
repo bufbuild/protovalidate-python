@@ -15,6 +15,10 @@ go run github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v1.6
     --year-range "2023-2026"
 """
 
+[tasks.bench]
+help = "Run CEL evaluation benchmarks"
+cmd = "pytest --benchmark-enable --benchmark-only"
+
 [tasks.check]
 help = "Run code checks"
 sequence = [
