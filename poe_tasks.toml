@@ -16,7 +16,7 @@ go run github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v1.6
 """
 
 [tasks.bench]
-help = "Run CEL evaluation benchmarks"
+help = "Run benchmarks"
 cmd = "pytest --benchmark-enable --benchmark-only"
 
 [tasks.check]
