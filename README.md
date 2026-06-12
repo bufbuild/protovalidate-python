@@ -75,6 +75,22 @@ Additionally, [protovalidate's core repository](https://github.com/bufbuild/prot
 - [Protovalidate's Protobuf API][validate-proto]
 - [Conformance testing utilities][conformance] for acceptance testing of `protovalidate` implementations
 
+## Benchmarks
+
+We include a set of benchmarks to verify different types of validation operations based on `pytest-benchmark`.
+You can run them with
+
+```shellsession
+$ uv run poe bench
+```
+
+This persists the runs results. It is often helpful to compare benchmark results between runs,
+for example before and after an optimization. To compare persisted results, use
+
+```shellsession
+$ uv run poe bench-compare
+```
+
 ## Contributing
 
 We genuinely appreciate any help! If you'd like to contribute, check out these resources:

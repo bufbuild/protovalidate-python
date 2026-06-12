@@ -67,6 +67,7 @@ raw-options = { fallback_version = "0.0.0" }
 [tool.pytest]
 addopts = [
   "--benchmark-disable",
+  "--benchmark-group-by=func,param:_id",
 ]
 # Turn all warnings into errors,
 # except DeprecationWarnings (which we knowingly tolerate due to using old `protobuf` APIs).

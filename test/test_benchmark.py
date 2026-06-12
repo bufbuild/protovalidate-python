@@ -113,23 +113,25 @@ def gen_complex(depth: int) -> BenchComplexSchema:
 validator = protovalidate.Validator()
 
 
+def param(*args, id: str) -> pytest.param:  # noqa: A002
+    """Copies pytest id to a fixture parameter since pytest-benchmark doesn't allow
+    grouping on the former."""
+    return pytest.param(id, *args, id=id)
+
+
 # Use lambda factories to allow random seed fixture to apply before computing
 cases = [
-    pytest.param(lambda: BenchScalar(x=42), id="scalar"),
-    pytest.param(lambda: BenchRepeatedScalar(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), id="repeated_scalar"),
-    pytest.param(lambda: BenchRepeatedMessage(x=[BenchScalar(x=i + 1) for i in range(10)]), id="repeated_message"),
-    pytest.param(
-        lambda: BenchRepeatedScalarUnique(x=[1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8]), id="repeated_unique_scalar"
-    ),
-    pytest.param(
-        lambda: BenchRepeatedBytesUnique(x=[gen_bytes(4, i + 1) for i in range(8)]), id="repeated_unique_bytes"
-    ),
-    pytest.param(
+    param(lambda: BenchScalar(x=42), id="scalar"),
+    param(lambda: BenchRepeatedScalar(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), id="repeated_scalar"),
+    param(lambda: BenchRepeatedMessage(x=[BenchScalar(x=i + 1) for i in range(10)]), id="repeated_message"),
+    param(lambda: BenchRepeatedScalarUnique(x=[1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8]), id="repeated_unique_scalar"),
+    param(lambda: BenchRepeatedBytesUnique(x=[gen_bytes(4, i + 1) for i in range(8)]), id="repeated_unique_bytes"),
+    param(
         lambda: BenchMap(entries={"k1": "v1", "k2": "v2", "k3": "v3", "k4": "v4", "k5": "v5", "k6": "v6", "k7": "v7"}),
         id="map",
     ),
-    pytest.param(lambda: gen_complex(1), id="complex_schema"),
-    pytest.param(
+    param(lambda: gen_complex(1), id="complex_schema"),
+    param(
         lambda: BenchGT(
             gt=50,
             gte=50,
@@ -150,7 +152,7 @@ cases = [
         ),
         id="int32_gt",
     ),
-    pytest.param(
+    param(
         lambda: ByteMatching(
             # 16-byte buffers; bytes.ip accepts 4 or 16 bytes (v4/v6 raw), bytes.ipv4
             # requires 4 bytes, bytes.ipv6 requires 16, bytes.uuid requires 16.
@@ -161,7 +163,7 @@ cases = [
         ),
         id="bytes_matching",
     ),
-    pytest.param(
+    param(
         lambda: StringMatching(
             hostname="example.com",
             host_and_port="example.com:8080",
@@ -170,7 +172,7 @@ cases = [
         ),
         id="string_matching",
     ),
-    pytest.param(
+    param(
         lambda: WrapperTesting(
             i32=Int32Value(value=11),
             d=DoubleValue(value=11),
@@ -184,12 +186,12 @@ cases = [
         ),
         id="wrapper_testing",
     ),
-    pytest.param(lambda: MultiRule(many=1), id="multi_rule_error"),
-    pytest.param(lambda: MultiRule(many=10), id="multi_rule_no_error"),
+    param(lambda: MultiRule(many=1), id="multi_rule_error"),
+    param(lambda: MultiRule(many=10), id="multi_rule_no_error"),
 ]
 
 
-@pytest.mark.parametrize("message_factory", cases)
-def test_benchmark(message_factory: Callable[[], Message], benchmark: BenchmarkFixture):
+@pytest.mark.parametrize(("_id", "message_factory"), cases)
+def test_benchmark(_id: str, message_factory: Callable[[], Message], benchmark: BenchmarkFixture):
     message = message_factory()
     benchmark(validator.collect_violations, message)
