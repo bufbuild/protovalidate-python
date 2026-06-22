@@ -75,9 +75,7 @@ message BenchComplexSchema {
   map<string, string> map_str_str = 23 [(buf.validate.field).map.min_pairs = 1];
   map<int32, int64> map_i32_i64 = 24 [(buf.validate.field).map.max_pairs = 10];
   map<uint64, bool> map_u64_bool = 25;
-  map<string, bytes> map_str_bytes = 26 [(buf.validate.field).map.keys = {
-    string: {min_len: 1}
-  }];
+  map<string, bytes> map_str_bytes = 26 [(buf.validate.field).map.keys = {string: {min_len: 1}}];
 
   map<string, BenchScalar> map_str_msg = 27 [(buf.validate.field).map.values = {required: true}];
   map<int64, BenchScalar> map_i64_msg = 28;
