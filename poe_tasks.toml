@@ -41,6 +41,7 @@ sequence = [
   "generate-protovalidate",
   "generate-test",
   "add-license-header",
+  "format-protos",
 ]
 
 [tasks.generate-cel]
