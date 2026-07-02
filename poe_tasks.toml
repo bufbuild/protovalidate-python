@@ -123,7 +123,7 @@ go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@${PROTO
     --strict_message
     --expected_failures=test/conformance/nonconforming.yaml
     --timeout 10s
-    python test/conformance/runner.py
+    python -- -m test.conformance.runner
 """
 
 [tasks.test-conformance-legacy]
@@ -134,7 +134,7 @@ go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@${PROTO
     --strict_message
     --expected_failures=test/conformance/nonconforming.yaml
     --timeout 10s
-    python test/conformance/runner.py
+    python -- -m test.conformance.runner
 """
 
 [tasks.test]
