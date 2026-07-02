@@ -48,7 +48,7 @@ dev = [
   "tombi==1.1.4",
   "ty==0.0.51",
   "types-protobuf==6.32.1.20260221",
-  
+
   # Unlike most dev dependencies, we don't pin to allow testing old and new versions
   "protobuf>=5",
   # We need at least this version, which fixed Python 3.14 compatibility (tp_new metaclass issue).
