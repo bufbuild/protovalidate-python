@@ -1,1 +1,5 @@
-/gen/** linguist-generated=true
+protovalidate/_gen/** linguist-generated=true
+test/gen/** linguist-generated=true
+
+proto/** linguist-vendored=true
+test/proto/buf/** linguist-vendored=true

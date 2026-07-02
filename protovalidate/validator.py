@@ -12,20 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.protobuf import message
+from __future__ import annotations
 
-from buf.validate import validate_pb2
+from typing import TYPE_CHECKING
+
+from protobuf import Message, Registry
+
+from protovalidate._gen.buf.validate import validate_pb
 from protovalidate.internal import extra_func
 from protovalidate.internal import rules as _rules
+from protovalidate.internal.legacy import LegacyMessageConverter
+
+if TYPE_CHECKING:
+    from google.protobuf import message as google_message
 
 CompilationError = _rules.CompilationError
-Violations = validate_pb2.Violations
+Violations = validate_pb.Violations
 Violation = _rules.Violation
 
 
 class Validator:
     """
-    Validates protobuf messages against static rules.
+    Validates Protobuf messages against static rules.
+
+    Both protobuf-py messages and legacy google.protobuf messages are
+    accepted. A google.protobuf message is validated by copying it into a
+    protobuf-py message of the same type; violation field values then refer
+    to that copy.
 
     Each validator instance caches internal state generated from the static
     rules, so reusing the same instance for multiple validations
@@ -34,11 +47,22 @@ class Validator:
 
     _factory: _rules.RuleFactory
 
-    def __init__(self):
+    def __init__(self, registry: Registry | None = None):
+        """
+        Parameters:
+            registry: An optional Registry used to resolve custom
+                predefined-rule extensions. If omitted, only standard rules are applied.
+        """
         funcs = extra_func.make_extra_funcs()
-        self._factory = _rules.RuleFactory(funcs)
+        try:
+            import google.protobuf.message  # noqa: F401, PLC0415
 
-    def validate(self, message: message.Message, *, fail_fast: bool = False):
+            self._legacy = LegacyMessageConverter()
+        except ImportError:
+            self._legacy = None
+        self._factory = _rules.RuleFactory(funcs, registry)
+
+    def validate(self, message: Message | google_message.Message, *, fail_fast: bool = False):
         """
         Validates the given message against the static rules defined in
         the message's descriptor.
@@ -51,14 +75,15 @@ class Validator:
             ValidationError: If the message is invalid. The violations raised as part of this error should
             always be equal to the list of violations returned by `collect_violations`.
         """
+        message = self._coerce(message)
         violations = self.collect_violations(message, fail_fast=fail_fast)
         if len(violations) > 0:
-            msg = f"invalid {message.DESCRIPTOR.name}"
+            msg = f"invalid {type(message).desc().name}"
             raise ValidationError(msg, violations)
 
     def collect_violations(
         self,
-        message: message.Message,
+        message: Message | google_message.Message,
         *,
         fail_fast: bool = False,
     ) -> list[Violation]:
@@ -77,17 +102,21 @@ class Validator:
         Raises:
             CompilationError: If the static rules could not be compiled.
         """
+        message = self._coerce(message)
         ctx = _rules.RuleContext(fail_fast=fail_fast)
-        for rule in self._factory.get(message.DESCRIPTOR):
+        for rule in self._factory.get(type(message).desc()):
             rule.validate(ctx, message)
             if ctx.done:
                 break
         for violation in ctx.violations:
-            if violation.proto.HasField("field"):
-                violation.proto.field.elements.reverse()
-            if violation.proto.HasField("rule"):
-                violation.proto.rule.elements.reverse()
+            violation._finalize_paths()
         return ctx.violations
+
+    def _coerce(self, message: Message | google_message.Message) -> Message:
+        if self._legacy:
+            return self._legacy.normalize(message)
+        assert isinstance(message, Message)  # noqa: S101
+        return message
 
 
 class ValidationError(ValueError):
@@ -101,11 +130,11 @@ class ValidationError(ValueError):
         super().__init__(msg)
         self._violations = violations
 
-    def to_proto(self) -> validate_pb2.Violations:
+    def to_proto(self) -> validate_pb.Violations:
         """
         Provides the Protobuf form of the validation errors.
         """
-        return validate_pb2.Violations(violations=[violation.proto for violation in self._violations])
+        return validate_pb.Violations(violations=[violation.proto for violation in self._violations])
 
     @property
     def violations(self) -> list[Violation]:

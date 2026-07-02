@@ -7,3 +7,5 @@ plugins:
       out: gen
     - remote: buf.build/protocolbuffers/pyi:v26.0
       out: gen
+    - remote: buf.build/bufbuild/py:v0.1.1
+      out: gen

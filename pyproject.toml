@@ -26,11 +26,7 @@ dependencies = [
   "google-re2>=1.1.20251105; python_version == '3.14'",
   # 1.1 started supporting 3.12.
   "google-re2>=1.1; python_version == '3.12'",
-  "protobuf>=5",
-  # We need at least this version, which fixed Python 3.14 compatibility (tp_new metaclass issue).
-  # The fix was never backported to the 5.x series.
-  # Ref: https://github.com/protocolbuffers/protobuf/pull/20594
-  "protobuf>=6.31.0; python_version >= '3.14'",
+  "protobuf-py>=0.1.1",
 ]
 dynamic = ["version"]
 
@@ -42,8 +38,6 @@ Source = "https://github.com/bufbuild/protovalidate-python"
 
 [dependency-groups]
 dev = [
-  "protovalidate-proto",
-
   "buf-bin==1.71.0",
   "fix-protobuf-imports==0.1.7",
   "google-re2-stubs==0.1.1",
@@ -54,6 +48,13 @@ dev = [
   "tombi==1.1.4",
   "ty==0.0.51",
   "types-protobuf==6.32.1.20260221",
+  
+  # Unlike most dev dependencies, we don't pin to allow testing old and new versions
+  "protobuf>=5",
+  # We need at least this version, which fixed Python 3.14 compatibility (tp_new metaclass issue).
+  # The fix was never backported to the 5.x series.
+  # Ref: https://github.com/protocolbuffers/protobuf/pull/20594
+  "protobuf>=6.31.0; python_version >= '3.14'",
 ]
 
 [build-system]
@@ -80,7 +81,6 @@ testpaths = ["test"]
 line-length = 120
 exclude = [
   # Protobuf generated code
-  "packages/protovalidate-proto/src/**",
   "test/gen/**",
 ]
 
@@ -127,12 +127,3 @@ known-first-party = ["protovalidate", "buf"]
 [tool.ruff.lint.per-file-ignores]
 # Tests can use assertions.
 "test/**/*" = ["S101"]
-
-[tool.uv.sources]
-protovalidate = { workspace = true }
-protovalidate-proto = { workspace = true }
-
-[tool.uv.workspace]
-members = [
-  "packages/protovalidate-proto",
-]

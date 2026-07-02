@@ -16,8 +16,8 @@ import random
 from collections.abc import Callable, Iterator
 
 import pytest
-from google.protobuf.message import Message
-from google.protobuf.wrappers_pb2 import (
+from protobuf import Message, Oneof
+from protobuf.wkt import (
     BoolValue,
     BytesValue,
     DoubleValue,
@@ -32,7 +32,7 @@ from pytest_benchmark.fixture import BenchmarkFixture
 
 import protovalidate
 
-from .gen.bench.v1.bench_pb2 import (
+from .gen.bench.v1.bench_pb import (
     BenchComplexSchema,
     BenchEnum,
     BenchMap,
@@ -42,8 +42,8 @@ from .gen.bench.v1.bench_pb2 import (
     BenchRepeatedScalarUnique,
     BenchScalar,
 )
-from .gen.bench.v1.native_pb2 import BenchGT, MultiRule, StringMatching, WrapperTesting
-from .gen.bench.v1.native_pb2 import TestByteMatching as ByteMatching
+from .gen.bench.v1.native_pb import BenchGT, MultiRule, StringMatching, WrapperTesting
+from .gen.bench.v1.native_pb import TestByteMatching as ByteMatching
 
 
 def gen_bytes(n: int, salt: int) -> bytes:
@@ -64,7 +64,6 @@ words = [
 ]
 
 
-# Fix the random seed for repeatable data in complex messages
 @pytest.fixture(autouse=True, scope="module")
 def random_seed() -> Iterator[None]:
     random.seed(1)
@@ -74,7 +73,7 @@ def random_seed() -> Iterator[None]:
 
 # ruff: noqa: S311 # Allow pseudorandom
 def gen_complex(depth: int) -> BenchComplexSchema:
-    m = BenchComplexSchema(
+    return BenchComplexSchema(
         s1=random.choice(words),
         s2=random.choice(words),
         i32=random.randint(1, 100),
@@ -87,8 +86,8 @@ def gen_complex(depth: int) -> BenchComplexSchema:
         f64=random.randint(1, 999),
         sf32=random.randint(1, 100),
         sf64=random.randint(1, 999),
-        fl=random.randint(1, 100),
-        db=random.randint(1, 100),
+        fl=float(random.randint(1, 100)),
+        db=float(random.randint(1, 100)),
         bl=True,
         by=gen_bytes(8, 7),
         nested=BenchScalar(x=random.randint(1, 100)),
@@ -102,12 +101,10 @@ def gen_complex(depth: int) -> BenchComplexSchema:
         map_str_bytes={"k": gen_bytes(2, 0)},
         map_str_msg={"a": BenchScalar(x=random.randint(1, 100)), "b": BenchScalar(x=random.randint(1, 100))},
         map_i64_msg={1: BenchScalar(x=random.randint(1, 100)), 2: BenchScalar(x=random.randint(1, 100))},
-        enum_field=BenchEnum.BENCH_ENUM_ONE,
-        oneof_str=random.choice(words),
+        enum_field=BenchEnum.ONE,
+        choice=Oneof(field="oneof_str", value=random.choice(words)),
+        self_ref=gen_complex(depth - 1) if depth > 0 else None,
     )
-    if depth > 0:
-        m.self_ref.CopyFrom(gen_complex(depth - 1))
-    return m
 
 
 validator = protovalidate.Validator()
@@ -175,8 +172,8 @@ cases = [
     param(
         lambda: WrapperTesting(
             i32=Int32Value(value=11),
-            d=DoubleValue(value=11),
-            f=FloatValue(value=11),
+            d=DoubleValue(value=11.0),
+            f=FloatValue(value=11.0),
             i64=Int64Value(value=11),
             u64=UInt64Value(value=11),
             u32=UInt32Value(value=11),

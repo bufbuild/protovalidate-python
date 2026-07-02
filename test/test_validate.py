@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import protobuf
 import pytest
-from google.protobuf import message
+from protobuf import Oneof
 
 import protovalidate
 from protovalidate.internal import rules
 
-from .gen.tests.example.v1 import validations_pb2
+from .gen.tests.example.v1 import validations_pb, validations_pb2
 
 validators: list[protovalidate.Validator] = [
     protovalidate,  # global module singleton
@@ -28,51 +29,52 @@ validators: list[protovalidate.Validator] = [
 
 @pytest.mark.parametrize("validator", validators)
 def test_ninf(validator):
-    msg = validations_pb2.DoubleFinite()
+    msg = validations_pb.DoubleFinite()
     msg.val = float("-inf")
 
-    expected_violation = rules.Violation()
-    expected_violation.proto.message = "must be finite"
-    expected_violation.proto.rule_id = "double.finite"
-    expected_violation.field_value = msg.val
-    expected_violation.rule_value = True
+    expected_violation = rules.Violation(
+        message="must be finite",
+        rule_id="double.finite",
+        field_value=msg.val,
+        rule_value=True,
+    )
 
     check_invalid(validator, msg, [expected_violation])
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_map_key(validator):
-    msg = validations_pb2.MapKeys()
+    msg = validations_pb.MapKeys()
     msg.val[1] = "a"
 
-    expected_violation = rules.Violation()
-    expected_violation.proto.message = "must be less than 0"
-    expected_violation.proto.rule_id = "sint64.lt"
-    expected_violation.proto.for_key = True
-    expected_violation.field_value = 1
-    expected_violation.rule_value = 0
+    expected_violation = rules.Violation(
+        message="must be less than 0",
+        rule_id="sint64.lt",
+        for_key=True,
+        field_value=1,
+        rule_value=0,
+    )
 
     check_invalid(validator, msg, [expected_violation])
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_sfixed64_valid(validator):
-    msg = validations_pb2.SFixed64ExLTGT(val=11)
+    msg = validations_pb.SFixed64ExLTGT(val=11)
 
     check_valid(validator, msg)
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_oneofs(validator):
-    msg = validations_pb2.Oneof()
-    msg.y = 123
+    msg = validations_pb.Oneof(o=Oneof(field="y", value=123))
 
     check_valid(validator, msg)
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_protovalidate_oneof_valid(validator):
-    msg = validations_pb2.ProtovalidateOneof()
+    msg = validations_pb.ProtovalidateOneof()
     msg.a = "A"
 
     check_valid(validator, msg)
@@ -80,24 +82,20 @@ def test_protovalidate_oneof_valid(validator):
 
 @pytest.mark.parametrize("validator", validators)
 def test_protovalidate_oneof_violation(validator):
-    msg = validations_pb2.ProtovalidateOneof()
+    msg = validations_pb.ProtovalidateOneof()
     msg.a = "A"
     msg.b = "B"
 
-    expected_violation = rules.Violation()
-    expected_violation.proto.message = "only one of a, b can be set"
-    expected_violation.proto.rule_id = "message.oneof"
+    expected_violation = rules.Violation(message="only one of a, b can be set", rule_id="message.oneof")
 
     check_invalid(validator, msg, [expected_violation])
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_protovalidate_oneof_required_violation(validator):
-    msg = validations_pb2.ProtovalidateOneofRequired()
+    msg = validations_pb.ProtovalidateOneofRequired()
 
-    expected_violation = rules.Violation()
-    expected_violation.proto.message = "one of a, b must be set"
-    expected_violation.proto.rule_id = "message.oneof"
+    expected_violation = rules.Violation(message="one of a, b must be set", rule_id="message.oneof")
 
     check_invalid(validator, msg, [expected_violation])
 
@@ -105,7 +103,7 @@ def test_protovalidate_oneof_required_violation(validator):
 @pytest.mark.parametrize("validator", validators)
 def test_protovalidate_oneof_unknown_field_name(validator):
     """Tests that a compilation error is thrown when specifying a oneof rule with an invalid field name"""
-    msg = validations_pb2.ProtovalidateOneofUnknownFieldName()
+    msg = validations_pb.ProtovalidateOneofUnknownFieldName()
 
     check_compilation_errors(
         validator, msg, 'field "xxx" not found in message tests.example.v1.ProtovalidateOneofUnknownFieldName'
@@ -114,28 +112,28 @@ def test_protovalidate_oneof_unknown_field_name(validator):
 
 @pytest.mark.parametrize("validator", validators)
 def test_repeated(validator):
-    msg = validations_pb2.RepeatedEmbedSkip()
-    msg.val.add(val=-1)
+    msg = validations_pb.RepeatedEmbedSkip(val=[validations_pb.Embed(val=-1)])
 
     check_valid(validator, msg)
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_maps(validator):
-    msg = validations_pb2.MapMinMax()
+    msg = validations_pb.MapMinMax()
 
-    expected_violation = rules.Violation()
-    expected_violation.proto.message = "map must be at least 2 entries"
-    expected_violation.proto.rule_id = "map.min_pairs"
-    expected_violation.field_value = {}
-    expected_violation.rule_value = 2
+    expected_violation = rules.Violation(
+        message="map must be at least 2 entries",
+        rule_id="map.min_pairs",
+        field_value={},
+        rule_value=2,
+    )
 
     check_invalid(validator, msg, [expected_violation])
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_timestamp(validator):
-    msg = validations_pb2.TimestampGTNow()
+    msg = validations_pb.TimestampGTNow()
 
     check_valid(validator, msg)
 
@@ -143,28 +141,30 @@ def test_timestamp(validator):
 @pytest.mark.parametrize("validator", validators)
 def test_multiple_validations(validator):
     """Test that a message with multiple violations correctly returns all of them."""
-    msg = validations_pb2.MultipleValidations()
+    msg = validations_pb.MultipleValidations()
     msg.title = "bar"
     msg.name = "blah"
 
-    expected_violation1 = rules.Violation()
-    expected_violation1.proto.message = "does not have prefix `foo`"
-    expected_violation1.proto.rule_id = "string.prefix"
-    expected_violation1.field_value = msg.title
-    expected_violation1.rule_value = "foo"
+    expected_violation1 = rules.Violation(
+        message="does not have prefix `foo`",
+        rule_id="string.prefix",
+        field_value=msg.title,
+        rule_value="foo",
+    )
 
-    expected_violation2 = rules.Violation()
-    expected_violation2.proto.message = "must be at least 5 characters"
-    expected_violation2.proto.rule_id = "string.min_len"
-    expected_violation2.field_value = msg.name
-    expected_violation2.rule_value = 5
+    expected_violation2 = rules.Violation(
+        message="must be at least 5 characters",
+        rule_id="string.min_len",
+        field_value=msg.name,
+        rule_value=5,
+    )
 
     check_invalid(validator, msg, [expected_violation1, expected_violation2])
 
 
 @pytest.mark.parametrize("validator", validators)
 def test_concatenated_values(validator):
-    msg = validations_pb2.ConcatenatedValues(
+    msg = validations_pb.ConcatenatedValues(
         bar=["a", "b", "c"],
         baz=["d", "e", "f"],
     )
@@ -175,21 +175,22 @@ def test_concatenated_values(validator):
 @pytest.mark.parametrize("validator", validators)
 def test_fail_fast(validator):
     """Test that fail fast correctly fails on first violation"""
-    msg = validations_pb2.MultipleValidations()
+    msg = validations_pb.MultipleValidations()
     msg.title = "bar"
     msg.name = "blah"
 
-    expected_violation = rules.Violation()
-    expected_violation.proto.message = "does not have prefix `foo`"
-    expected_violation.proto.rule_id = "string.prefix"
-    expected_violation.field_value = msg.title
-    expected_violation.rule_value = "foo"
+    expected_violation = rules.Violation(
+        message="does not have prefix `foo`",
+        rule_id="string.prefix",
+        field_value=msg.title,
+        rule_value="foo",
+    )
 
     # Test validate
     with pytest.raises(protovalidate.ValidationError) as cm:
         validator.validate(msg, fail_fast=True)
     e = cm.value
-    assert str(e) == f"invalid {msg.DESCRIPTOR.name}"
+    assert str(e) == f"invalid {type(msg).desc().name}"
     _compare_violations(e.violations, [expected_violation])  # ty: ignore
 
     # Test collect_violations
@@ -197,7 +198,55 @@ def test_fail_fast(validator):
     _compare_violations(violations, [expected_violation])
 
 
-def check_valid(validator: protovalidate.Validator, msg: message.Message):
+@pytest.mark.parametrize("validator", validators)
+def test_legacy_message_valid(validator):
+    """A google.protobuf message validates through the legacy conversion path."""
+    msg = validations_pb2.DoubleFinite()
+    msg.val = 1.0
+
+    check_valid(validator, msg)
+
+
+@pytest.mark.parametrize("validator", validators)
+def test_legacy_message_invalid(validator):
+    msg = validations_pb2.DoubleFinite()
+    msg.val = float("-inf")
+
+    expected_violation = rules.Violation(
+        message="must be finite",
+        rule_id="double.finite",
+        field_value=msg.val,
+        rule_value=True,
+    )
+
+    with pytest.raises(protovalidate.ValidationError) as exc_info:
+        validator.validate(msg)
+    e = exc_info.value
+    assert str(e) == f"invalid {msg.DESCRIPTOR.name}"
+    _compare_violations(e.violations, [expected_violation])  # ty: ignore
+
+    violations = validator.collect_violations(msg)
+    _compare_violations(violations, [expected_violation])
+
+
+@pytest.mark.parametrize("validator", validators)
+def test_legacy_message_map_key(validator):
+    msg = validations_pb2.MapKeys()
+    msg.val[1] = "a"
+
+    expected_violation = rules.Violation(
+        message="must be less than 0",
+        rule_id="sint64.lt",
+        for_key=True,
+        field_value=1,
+        rule_value=0,
+    )
+
+    violations = validator.collect_violations(msg)
+    _compare_violations(violations, [expected_violation])
+
+
+def check_valid(validator: protovalidate.Validator, msg: protobuf.Message):
     # Test validate
     validator.validate(msg)
 
@@ -206,12 +255,12 @@ def check_valid(validator: protovalidate.Validator, msg: message.Message):
     assert len(violations) == 0
 
 
-def check_invalid(validator: protovalidate.Validator, msg: message.Message, expected: list[rules.Violation]):
+def check_invalid(validator: protovalidate.Validator, msg: protobuf.Message, expected: list[rules.Violation]):
     # Test validate
     with pytest.raises(protovalidate.ValidationError) as exc_info:
         validator.validate(msg)
     e = exc_info.value
-    assert str(e) == f"invalid {msg.DESCRIPTOR.name}"
+    assert str(e) == f"invalid {type(msg).desc().name}"
     _compare_violations(e.violations, expected)  # ty: ignore
 
     # Test collect_violations
@@ -219,7 +268,7 @@ def check_invalid(validator: protovalidate.Validator, msg: message.Message, expe
     _compare_violations(violations, expected)
 
 
-def check_compilation_errors(validator: protovalidate.Validator, msg: message.Message, expected: str):
+def check_compilation_errors(validator: protovalidate.Validator, msg: protobuf.Message, expected: str):
     """A helper function for testing compilation errors when validating.
 
     The tests are run using validators created via all possible methods and
