@@ -23,8 +23,9 @@ from protobuf import Oneof, Registry
 from protobuf import wkt as pb_wkt
 
 import protovalidate
-from test.gen.buf.validate import validate_pb
-from test.gen.buf.validate.conformance.harness.harness_pb import (
+
+from ..gen.buf.validate import validate_pb  # noqa: TID252
+from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
     TestConformanceRequest,
     TestConformanceResponse,
     TestResult,
