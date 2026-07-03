@@ -25,6 +25,7 @@ from protobuf import Oneof, Registry
 from protobuf import wkt as pb_wkt
 
 import protovalidate
+from protovalidate.internal import backend
 
 from ..gen.buf.validate import validate_pb  # noqa: TID252
 from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
@@ -35,6 +36,13 @@ from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
 
 # Set to test google.protobuf messages instead of protobuf-py
 _LEGACY = os.environ.get("PROTOVALIDATE_CONFORMANCE_LEGACY") == "1"
+
+# Pin the CEL backend for this run. A test-harness detail (like _LEGACY), not a
+# public switch: the parent process can't monkeypatch into this subprocess, so
+# it passes the choice by env. "celpy" forces the fallback by clearing the
+# auto-detect flag before any Validator is built; anything else keeps auto.
+if os.environ.get("PROTOVALIDATE_CONFORMANCE_BACKEND") == "celpy":
+    backend.CEL_EXPR_AVAILABLE = False
 
 
 def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> google_descriptor_pool.DescriptorPool:
@@ -71,10 +79,14 @@ def run_test_case(validator: protovalidate.Validator, tc: protobuf.Message | goo
             )
         else:
             return TestResult(result=Oneof(field="success", value=True))
-    except celpy.CELEvalError as e:
-        return TestResult(result=Oneof(field="runtime_error", value=str(e)))
     except protovalidate.CompilationError as e:
         return TestResult(result=Oneof(field="compilation_error", value=str(e)))
+    except celpy.CELEvalError as e:
+        # celpy surfaces evaluation failures as CELEvalError; cel-expr-python
+        # surfaces them as RuntimeError.
+        return TestResult(result=Oneof(field="runtime_error", value=str(e)))
+    except RuntimeError as e:
+        return TestResult(result=Oneof(field="runtime_error", value=str(e)))
     except Exception as e:
         return TestResult(result=Oneof(field="unexpected_error", value=str(e)))
 

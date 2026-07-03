@@ -1,0 +1,5 @@
+# Expected conformance failures for the cel-expr-python backend.
+#
+# cel-expr-python (cel-cpp) evaluates nanosecond-precision duration and
+# timestamp comparisons correctly, so the cases celpy skips in
+# nonconforming.yaml all pass here. All known cases conform.

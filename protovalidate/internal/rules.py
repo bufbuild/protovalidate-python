@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import abc
 import dataclasses
 import datetime
 import typing
@@ -41,12 +40,11 @@ from protobuf import (
 from protobuf.wkt import Duration, FieldDescriptorProto, Timestamp
 
 from protovalidate._gen.buf.validate import validate_pb
+
+# Backend-agnostic primitives shared with the cel-expr-python engine. Re-exported
+# here so ``protovalidate.internal.rules.Violation`` (etc.) stays importable.
+from protovalidate.internal._core import CompilationError, RuleContext, Rules, Violation
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
-
-
-class CompilationError(Exception):
-    pass
-
 
 _TYPE_CTORS: dict[ScalarType, Callable[..., celtypes.Value]] = {
     ScalarType.BOOL: celtypes.BoolType,
@@ -319,102 +317,6 @@ def _spec_field(rules_cls: type[Message], name: str) -> DescField:
 
 def _which_type(field_level: validate_pb.FieldRules) -> str | None:
     return field_level.type.field if field_level.type is not None else None
-
-
-class Violation:
-    """A singular rule violation."""
-
-    field_value: typing.Any
-    rule_value: typing.Any
-
-    def __init__(
-        self,
-        *,
-        field_value: typing.Any = None,
-        rule_value: typing.Any = None,
-        field: validate_pb.FieldPath | None = None,
-        rule: validate_pb.FieldPath | None = None,
-        rule_id: str = "",
-        message: str = "",
-        for_key: bool = False,
-    ):
-        self.field_value = field_value
-        self.rule_value = rule_value
-        self._field_elements: list[validate_pb.FieldPathElement] = list(field.elements) if field is not None else []
-        self._rule_elements: list[validate_pb.FieldPathElement] = list(rule.elements) if rule is not None else []
-        self._rule_id = rule_id
-        self._message = message
-        self._for_key = for_key
-
-    @property
-    def proto(self) -> validate_pb.Violation:
-        kwargs: dict[str, typing.Any] = {
-            "rule_id": self._rule_id,
-            "message": self._message,
-            "for_key": self._for_key,
-        }
-        if self._field_elements:
-            kwargs["field"] = validate_pb.FieldPath(elements=list(self._field_elements))
-        if self._rule_elements:
-            kwargs["rule"] = validate_pb.FieldPath(elements=list(self._rule_elements))
-        return validate_pb.Violation(**kwargs)
-
-    def _finalize_paths(self) -> None:
-        self._field_elements.reverse()
-        self._rule_elements.reverse()
-
-    def _append_field_element(self, element: validate_pb.FieldPathElement) -> None:
-        self._field_elements.append(element)
-
-    def _extend_rule_elements(self, elements: list[validate_pb.FieldPathElement]) -> None:
-        self._rule_elements.extend(elements)
-
-
-class RuleContext:
-    """The state associated with a single rule evaluation."""
-
-    _violations: list[Violation]
-
-    def __init__(self, *, fail_fast: bool = False):
-        self._fail_fast = fail_fast
-        self._violations = []
-
-    @property
-    def violations(self) -> list[Violation]:
-        return self._violations
-
-    def add(self, violation: Violation):
-        self._violations.append(violation)
-
-    def add_errors(self, other_ctx: "RuleContext"):
-        self._violations.extend(other_ctx.violations)
-
-    def add_field_path_element(self, element: validate_pb.FieldPathElement):
-        for violation in self._violations:
-            violation._append_field_element(element)
-
-    def add_rule_path_elements(self, elements: list[validate_pb.FieldPathElement]):
-        for violation in self._violations:
-            violation._extend_rule_elements(elements)
-
-    @property
-    def done(self) -> bool:
-        return self._fail_fast and self.has_errors()
-
-    def has_errors(self) -> bool:
-        return len(self._violations) > 0
-
-    def sub_context(self) -> "RuleContext":
-        return RuleContext(fail_fast=self._fail_fast)
-
-
-class Rules(abc.ABC):
-    """The rules associated with a single 'rules' message."""
-
-    @abc.abstractmethod
-    def validate(self, ctx: RuleContext, message: Message) -> None:
-        """Validate the message against the rules in this rule."""
-        ...
 
 
 @dataclasses.dataclass

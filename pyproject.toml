@@ -30,6 +30,29 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+# cel-expr-python (cel-cpp) is an optional, faster CEL backend. It is fully
+# opt-in: it ships only version-specific compiled wheels for CPython 3.11-3.14
+# on manylinux (glibc) / macOS / Windows (x86-64 + arm64) — no musllinux, no
+# 3.10, no free-threaded (cp314t), no abi3/pure-python wheel. PEP 508 markers
+# cannot express those distinctions (no free-threaded marker; manylinux and
+# musllinux are both `sys_platform == 'linux'`), so it cannot be gated onto the
+# required dependency list without risking a source build. When installed, the
+# validator selects it automatically and otherwise falls back to cel-python.
+[project.optional-dependencies]
+cel-expr = [
+  # google.protobuf is required alongside it: cel-expr-python only ingests
+  # google.protobuf descriptor pools and messages, so protobuf-py values are
+  # bridged through it at the validation boundary.
+  # No 3.10 release exists (earliest wheel is cp311), so a floor marker is
+  # required for the lock to resolve on our 3.10-supported base.
+  "cel-expr-python>=0.1.3; python_version >= '3.11'",
+  "protobuf>=5; python_version >= '3.11'",
+  # We need at least this version, which fixed Python 3.14 compatibility (tp_new metaclass issue).
+  # The fix was never backported to the 5.x series.
+  # Ref: https://github.com/protocolbuffers/protobuf/pull/20594
+  "protobuf>=6.31.0; python_version >= '3.14'",
+]
+
 [project.urls]
 Documentation = "https://protovalidate.com"
 Homepage = "https://github.com/bufbuild/protovalidate-python"
@@ -48,6 +71,11 @@ dev = [
   "tombi==1.1.4",
   "ty==0.0.51",
   "types-protobuf==6.32.1.20260221",
+
+  # The optional cel-expr backend, installed for local/CI testing of both
+  # engines. Unpinned so the resolver picks the wheel for the active platform;
+  # floored at 3.11 (its earliest release) so the lock resolves on 3.10.
+  "cel-expr-python>=0.1.3; python_version >= '3.11'",
 
   # Unlike most dev dependencies, we don't pin to allow testing old and new versions
   "protobuf>=5",

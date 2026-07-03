@@ -22,7 +22,15 @@ from textwrap import dedent
 
 import pytest
 
+from test.conftest import BACKENDS
 from test.versions import PROTOVALIDATE_VERSION
+
+# Per-backend expected-failure lists: celpy skips nanosecond timestamp/duration
+# cases that cel-expr-python handles correctly.
+_EXPECTED_FAILURES = {
+    "celpy": "nonconforming.yaml",
+    "cel-expr": "nonconforming.cel-expr.yaml",
+}
 
 
 def maybe_patch_args_with_debug(args: list[str]) -> list[str]:
@@ -39,8 +47,9 @@ def maybe_patch_args_with_debug(args: list[str]) -> list[str]:
         return args
 
 
+@pytest.mark.parametrize("cel_backend", BACKENDS)
 @pytest.mark.parametrize("legacy", [False, True], ids=["py", "legacy"])
-def test_conformance(*, legacy: bool) -> None:
+def test_conformance(*, legacy: bool, cel_backend: str) -> None:
     # Workaround pydevd monkeypatching of -m invocation not being compatible
     # with Python 3.14 yet by executing a script that uses runpy itself.
     # pydevd does monkeypatch -c form correctly.
@@ -60,6 +69,7 @@ def test_conformance(*, legacy: bool) -> None:
     env = os.environ.copy()
     if legacy:
         env["PROTOVALIDATE_CONFORMANCE_LEGACY"] = "1"
+    env["PROTOVALIDATE_CONFORMANCE_BACKEND"] = cel_backend
 
     subprocess.run(  # noqa: S603
         [  # noqa: S607
@@ -67,7 +77,7 @@ def test_conformance(*, legacy: bool) -> None:
             "run",
             f"github.com/bufbuild/protovalidate/tools/protovalidate-conformance@{PROTOVALIDATE_VERSION}",
             "--strict_message",
-            f"--expected_failures={Path(__file__).parent / 'nonconforming.yaml'}",
+            f"--expected_failures={Path(__file__).parent / _EXPECTED_FAILURES[cel_backend]}",
             "--timeout",
             "10s",
             *command,

@@ -6,7 +6,8 @@ resolution-markers = [
     "python_full_version == '3.14.*'",
     "python_full_version == '3.13.*'",
     "python_full_version == '3.12.*'",
-    "python_full_version < '3.12'",
+    "python_full_version == '3.11.*'",
+    "python_full_version < '3.11'",
 ]
 
 [[package]]
@@ -24,6 +25,33 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/55/f7/e3af059c0840ea70bdcd04237403fe12d5ba1c56166cdee21e03bc227844/buf_bin-1.71.0-py3-none-manylinux_2_17_riscv64.musllinux_1_2_riscv64.whl", hash = "sha256:0ab282c3f0c7e4b02130ad54fa0be6896a1b44210bca181d6e6cc8006e2825c3", size = 14730629, upload-time = "2026-06-16T18:25:11.273Z" },
     { url = "https://files.pythonhosted.org/packages/97/a4/c071c15b1419960e3f7f2c06628d092c0b1166b97a3ac335c4f8e50cfe55/buf_bin-1.71.0-py3-none-win_amd64.whl", hash = "sha256:bb815768b2b86a17bcf6897995d06fb33f465cc67e7e1fd4298365617e91e50c", size = 16446079, upload-time = "2026-06-16T18:25:13.631Z" },
     { url = "https://files.pythonhosted.org/packages/01/01/77553cba45fe4a769fb6fa44ee25961580b87a95fb47c95f2638bd8cf145/buf_bin-1.71.0-py3-none-win_arm64.whl", hash = "sha256:5172e2068819c2954fe5626fa02aaeeb1b631f0e154ef24dadfeff14f12f547a", size = 14617019, upload-time = "2026-06-16T18:25:15.78Z" },
+]
+
+[[package]]
+name = "cel-expr-python"
+version = "0.1.3"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cb/42/8a9ee05d86317fd57b8f20853c84076745ef34e38f0ab969c930e6ba8b86/cel_expr_python-0.1.3-cp311-cp311-macosx_10_13_x86_64.whl", hash = "sha256:5b2ecfc4f4e8120928b446262b13977ee3326b535c1684bdc3eb2fb990298dba", size = 12607175, upload-time = "2026-06-25T23:02:58.642Z" },
+    { url = "https://files.pythonhosted.org/packages/43/6d/3b89f7b3473c2c83220a6478b30dda7f9e960f074284e507128ded568c84/cel_expr_python-0.1.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:11e4cf0a3b2bf7b4231df4ed1f359de006001f2680676c99631df86744f9c1f2", size = 12030643, upload-time = "2026-06-25T23:03:00.966Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/34/d27fbf56e4f844cff649f980534fc358a2210f61ef19a021ef4c9b4c4ca0/cel_expr_python-0.1.3-cp311-cp311-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:cc1d80c53affcaf7f31b09dd3e10d87add48833b1de51f037b8fcfb549e7362f", size = 15158230, upload-time = "2026-06-25T23:03:03.273Z" },
+    { url = "https://files.pythonhosted.org/packages/72/bd/03fb13876057deb3028cd9bf80748f362958944f4a89565b239ada75931b/cel_expr_python-0.1.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:292ae505727bfcfc1986c8bf653c2580faa06f46af56b9087060eafdf2a08652", size = 16017630, upload-time = "2026-06-25T23:03:05.712Z" },
+    { url = "https://files.pythonhosted.org/packages/50/e3/fc514c4d9884ae773f987186957e3b0fe57b8abb5a46d44daf58b91ba9db/cel_expr_python-0.1.3-cp311-cp311-win_amd64.whl", hash = "sha256:8b56ebf586df6ec4dae0449d90bd9f6da0027bef407f2ffbb92701a9886ee43c", size = 7870074, upload-time = "2026-06-25T23:03:07.97Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/e7/b7cad8b31394c2123b19559d08caef14130cf8d17245005623acd7727e87/cel_expr_python-0.1.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:5ab17a336e7f01e3868fc454630c05596fb8a16293833fa34a7a2f946faa835f", size = 12615855, upload-time = "2026-06-25T23:03:09.963Z" },
+    { url = "https://files.pythonhosted.org/packages/23/39/585a1b08d634346cb7dbe158c24a2c4015a8b5f7221fddb471087f570338/cel_expr_python-0.1.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:4e2694afe68a0484ee7c99a79887309511f6738e562a5d2c4ff566dc791e7ec6", size = 12033466, upload-time = "2026-06-25T23:03:12.437Z" },
+    { url = "https://files.pythonhosted.org/packages/70/1a/cd8a88eccbca175e89d3f55c61e16c1e8f1ed407f3ac1d6b05019eeb4320/cel_expr_python-0.1.3-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:4170d1e6a3cf359b0ec7c1fb50317daa3e3e3eb12b61311260714a1e02313fbe", size = 16450147, upload-time = "2026-06-25T23:03:14.636Z" },
+    { url = "https://files.pythonhosted.org/packages/da/5c/fadbe060d821652909f7fbace3106c92dbc71bfad1faf06e8401c768c69e/cel_expr_python-0.1.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ab3b0a418b3911177a77ee69fef1f4199b4a053e2ddd1c339119e58c9cd72824", size = 17313058, upload-time = "2026-06-25T23:03:17.136Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/b3/721ba61eaca18a8d4abe8c9fe5942fa3281e53a6db6335e80236703f8719/cel_expr_python-0.1.3-cp312-cp312-win_amd64.whl", hash = "sha256:925bbf323fdf2743491ddf411e40b5c4a12ab102e3bc7e0bfec0fed1c6defa3b", size = 15040270, upload-time = "2026-06-25T23:03:19.981Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/50/572b7f65ad961f1227ff58d2c39256b72ce5fcf5c86436a581060eeda867/cel_expr_python-0.1.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:ac60fdb981d1435faadc536c0582ada321a3a392c18ba70e94e3f3caa0f37437", size = 12616486, upload-time = "2026-06-25T23:03:22.613Z" },
+    { url = "https://files.pythonhosted.org/packages/88/ba/ca4dbc50ed3c97454f7b4eb3a6552ea3065cd4ef934a17481c897091765b/cel_expr_python-0.1.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:b8eb8d3c92b11e99fffddb846ba68f8b1ba12a3bf1bc0ccdd8c2914c7458f3a4", size = 12034024, upload-time = "2026-06-25T23:03:24.738Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/b0/9c3830b5d105204a2ff2775d8e8f89e1cf68f62c28dec736dcdb468c9fb1/cel_expr_python-0.1.3-cp313-cp313-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:ea4679e74567c145c824e1ef049ae340af5b2a1a4451324d215e58ed5db20969", size = 16449714, upload-time = "2026-06-25T23:03:26.919Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/65/65ebe0e73c700724b2f8b74ed65309f6326aaf9c2e907d9bc237ab139ae8/cel_expr_python-0.1.3-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:aa80370ed20cee201a7671634f9c58dc17fd93f15addf680d7e0393969bc51b3", size = 17313510, upload-time = "2026-06-25T23:03:29.553Z" },
+    { url = "https://files.pythonhosted.org/packages/34/cf/3532944395d9e4eba7157c2c0414ad7a621e0e3757e654f166190313782b/cel_expr_python-0.1.3-cp313-cp313-win_amd64.whl", hash = "sha256:cd6ff40b4a89af6b62ca24d431893d8fcce5cca6149f06926a0e88211a370645", size = 13724593, upload-time = "2026-06-25T23:03:32.332Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/33/ceba4fdc652d8f3e692cafd065e90eb35e51fd20141abcc0f13d235be995/cel_expr_python-0.1.3-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:665fbb261c4733e69a4022763c16f7655cfe6e057cd394ad9f36dfee92b9df8c", size = 12617454, upload-time = "2026-06-25T23:03:34.947Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/6e/3f36105e268e4dd0d8ad1ec233ef8ebca826eee8ad9cb22702bfd5631a34/cel_expr_python-0.1.3-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:b3e1ba34748796624b2cf8c9bc664b79baccc0662c97299a1991278ef45d3aed", size = 12038419, upload-time = "2026-06-25T23:03:37.644Z" },
+    { url = "https://files.pythonhosted.org/packages/89/02/65ab9b3a9dc2b73e798ce237c21811675e1acd898638036a829ccf90c77b/cel_expr_python-0.1.3-cp314-cp314-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0d2035831cfb9c0ae36c91e3de421828f8fa27173680e86676a7d6e0f68300a0", size = 16452974, upload-time = "2026-06-25T23:03:40.028Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/25/f352cdffd78175fe56ef50967a3a9e33d7770d46a0bd3294cbca9738df1e/cel_expr_python-0.1.3-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9b36c7a36ca865b147e1fc68f3f6faaae5b113e9de4d77e7eb751c95e1547a99", size = 17314171, upload-time = "2026-06-25T23:03:42.633Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/f5/71742755695bfbfbe55632e8f83a9e84cac65cb8aefa102353975df8209c/cel_expr_python-0.1.3-cp314-cp314-win_amd64.whl", hash = "sha256:4711f59f0dd3fcabf68a617685ab2857ed931cc10e2f1595abe7d4d99f921bba", size = 13902879, upload-time = "2026-06-25T23:03:45.135Z" },
 ]
 
 [[package]]
@@ -69,7 +97,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -370,9 +398,16 @@ dependencies = [
     { name = "protobuf-py" },
 ]
 
+[package.optional-dependencies]
+cel-expr = [
+    { name = "cel-expr-python", marker = "python_full_version >= '3.11'" },
+    { name = "protobuf", marker = "python_full_version >= '3.11'" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "buf-bin" },
+    { name = "cel-expr-python", marker = "python_full_version >= '3.11'" },
     { name = "fix-protobuf-imports" },
     { name = "google-re2-stubs" },
     { name = "poethepoet" },
@@ -387,17 +422,22 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cel-expr-python", marker = "python_full_version >= '3.11' and extra == 'cel-expr'", specifier = ">=0.1.3" },
     { name = "cel-python", specifier = ">=0.5" },
     { name = "google-re2", specifier = ">=1" },
     { name = "google-re2", marker = "python_full_version == '3.12.*'", specifier = ">=1.1" },
     { name = "google-re2", marker = "python_full_version == '3.13.*'", specifier = ">=1.1.20250722" },
     { name = "google-re2", marker = "python_full_version == '3.14.*'", specifier = ">=1.1.20251105" },
+    { name = "protobuf", marker = "python_full_version >= '3.11' and extra == 'cel-expr'", specifier = ">=5" },
+    { name = "protobuf", marker = "python_full_version >= '3.14' and extra == 'cel-expr'", specifier = ">=6.31.0" },
     { name = "protobuf-py", specifier = ">=0.1.1" },
 ]
+provides-extras = ["cel-expr"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "buf-bin", specifier = "==1.71.0" },
+    { name = "cel-expr-python", marker = "python_full_version >= '3.11'", specifier = ">=0.1.3" },
     { name = "fix-protobuf-imports", specifier = "==0.1.7" },
     { name = "google-re2-stubs", specifier = "==0.1.1" },
     { name = "poethepoet", specifier = "==0.46.0" },
