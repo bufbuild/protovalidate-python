@@ -26,7 +26,7 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
+from ...buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 from google.protobuf import wrappers_pb2 as google_dot_protobuf_dot_wrappers__pb2
 
 

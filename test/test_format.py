@@ -20,7 +20,7 @@ from typing import Any
 import celpy
 import pytest
 from celpy import celtypes
-from google.protobuf import text_format
+from google.protobuf import text_format as google_text_format
 
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
@@ -53,7 +53,7 @@ def load_test_data(file_name: str) -> simple_pb2.SimpleTestFile:
     msg = simple_pb2.SimpleTestFile()
     with open(file_name) as file:
         text_data = file.read()
-        text_format.Parse(text_data, msg)
+        google_text_format.Parse(text_data, msg)
     return msg
 
 

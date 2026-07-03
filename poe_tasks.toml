@@ -29,6 +29,7 @@ sequence = [
   "lint",
   "test",
   "test-conformance",
+  "test-conformance-legacy",
 ]
 
 [tasks.diffcheck]
@@ -54,6 +55,7 @@ script = "scripts.generate_protovalidate:main(environ['PROTOVALIDATE_VERSION'])"
 sequence = [
   { script = "poethepoet.scripts:rm('test/gen/tests')" },
   { cmd = "buf generate", cwd = "test" },
+  { cmd = "fix-protobuf-imports test/gen" },
 ]
 
 [tasks.format]
@@ -67,7 +69,10 @@ sequence = [
 
 [tasks.format-protos]
 help = "Apply auto-formatting to protobuf files"
-cmd = "buf format --write"
+sequence = [
+  { cmd = "buf format --write" },
+  { cmd = "buf format --write", cwd = "test" },
+]
 
 [tasks.format-python]
 help = "Apply auto-formatting to Python files"
@@ -91,7 +96,10 @@ sequence = [
 
 [tasks.lint-protos]
 help = "Apply linting to protobuf files"
-cmd = "buf format -d --exit-code"
+sequence = [
+  { cmd = "buf format -d --exit-code" },
+  { cmd = "buf format -d --exit-code", cwd = "test" },
+]
 
 [tasks.lint-python]
 help = "Apply linting to Python files"
@@ -115,7 +123,18 @@ go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@${PROTO
     --strict_message
     --expected_failures=test/conformance/nonconforming.yaml
     --timeout 10s
-    python test/conformance/runner.py
+    python -- -m test.conformance.runner
+"""
+
+[tasks.test-conformance-legacy]
+help = "Run the CEL conformance tests through the legacy google.protobuf message path"
+env = { PROTOVALIDATE_CONFORMANCE_LEGACY = "1" }
+cmd = """
+go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@${PROTOVALIDATE_VERSION}
+    --strict_message
+    --expected_failures=test/conformance/nonconforming.yaml
+    --timeout 10s
+    python -- -m test.conformance.runner
 """
 
 [tasks.test]

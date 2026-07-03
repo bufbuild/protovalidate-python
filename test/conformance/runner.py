@@ -12,99 +12,117 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
-import typing
 
 import celpy
-from google.protobuf import any_pb2, descriptor, descriptor_pool, message_factory
+import protobuf
+from google.protobuf import descriptor_pb2 as google_descriptor_pb2
+from google.protobuf import descriptor_pool as google_descriptor_pool
+from google.protobuf import message as google_message
+from google.protobuf import message_factory as google_message_factory
+from protobuf import Oneof, Registry
+from protobuf import wkt as pb_wkt
 
 import protovalidate
-from buf.validate.conformance.cases import (
-    bool_pb2,  # noqa: F401
-    bytes_pb2,  # noqa: F401
-    enums_pb2,  # noqa: F401
-    filename_with_dash_pb2,  # noqa: F401
-    ignore_empty_proto2_pb2,  # noqa: F401
-    ignore_empty_proto3_pb2,  # noqa: F401
-    ignore_empty_proto_editions_pb2,  # noqa: F401
-    ignore_proto2_pb2,  # noqa: F401
-    ignore_proto3_pb2,  # noqa: F401
-    ignore_proto_editions_pb2,  # noqa: F401
-    kitchen_sink_pb2,  # noqa: F401
-    library_pb2,  # noqa: F401
-    maps_pb2,  # noqa: F401
-    messages_pb2,  # noqa: F401
-    numbers_pb2,  # noqa: F401
-    oneofs_pb2,  # noqa: F401
-    predefined_rules_proto2_pb2,  # noqa: F401
-    predefined_rules_proto3_pb2,  # noqa: F401
-    predefined_rules_proto_editions_pb2,  # noqa: F401
-    repeated_pb2,  # noqa: F401
-    required_field_proto2_pb2,  # noqa: F401
-    required_field_proto3_pb2,  # noqa: F401
-    required_field_proto_editions_pb2,  # noqa: F401
-    strings_pb2,  # noqa: F401
-    wkt_any_pb2,  # noqa: F401
-    wkt_duration_pb2,  # noqa: F401
-    wkt_nested_pb2,  # noqa: F401
-    wkt_timestamp_pb2,  # noqa: F401
-    wkt_wrappers_pb2,  # noqa: F401
+
+from ..gen.buf.validate import validate_pb  # noqa: TID252
+from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
+    TestConformanceRequest,
+    TestConformanceResponse,
+    TestResult,
 )
-from buf.validate.conformance.cases.custom_rules import custom_rules_pb2  # noqa: F401
-from buf.validate.conformance.harness import harness_pb2
+
+# Set to test google.protobuf messages instead of protobuf-py
+_LEGACY = os.environ.get("PROTOVALIDATE_CONFORMANCE_LEGACY") == "1"
 
 
-def run_test_case(tc: typing.Any, result: harness_pb2.TestResult | None = None) -> harness_pb2.TestResult:
-    if result is None:
-        result = harness_pb2.TestResult()
+def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> google_descriptor_pool.DescriptorPool:
+    pool = google_descriptor_pool.DescriptorPool()
+    by_name = {file.name: file for file in fdset.file}
+    added: set[str] = set()
+
+    def add(name: str) -> None:
+        proto = by_name.get(name)
+        if proto is None or name in added:
+            return
+        added.add(name)
+        for dep in proto.dependency:
+            add(dep)
+        pool.Add(google_descriptor_pb2.FileDescriptorProto.FromString(proto.to_binary()))
+
+    for file in fdset.file:
+        add(file.name)
+    return pool
+
+
+def run_test_case(validator: protovalidate.Validator, tc: protobuf.Message | google_message.Message) -> TestResult:
     # Run the validator
     try:
-        violations = protovalidate.collect_violations(tc)
-        for violation in violations:
-            result.validation_error.violations.append(violation.proto)
-        if len(result.validation_error.violations) == 0:
-            result.success = True
+        violations = validator.collect_violations(tc)
+        if len(violations) > 0:
+            # Convert from protovalidate bundled proto to test harness's.
+            pv_violations = protovalidate.Violations(violations=[violation.proto for violation in violations])
+            return TestResult(
+                result=Oneof(
+                    field="validation_error",
+                    value=validate_pb.Violations.from_binary(pv_violations.to_binary()),
+                )
+            )
+        else:
+            return TestResult(result=Oneof(field="success", value=True))
     except celpy.CELEvalError as e:
-        result.runtime_error = str(e)
+        return TestResult(result=Oneof(field="runtime_error", value=str(e)))
     except protovalidate.CompilationError as e:
-        result.compilation_error = str(e)
+        return TestResult(result=Oneof(field="compilation_error", value=str(e)))
     except Exception as e:
-        result.unexpected_error = str(e)
-    return result
+        return TestResult(result=Oneof(field="unexpected_error", value=str(e)))
 
 
 def run_any_test_case(
-    pool: descriptor_pool.DescriptorPool,
-    tc: any_pb2.Any,
-    result: harness_pb2.TestResult | None = None,
-) -> harness_pb2.TestResult:
+    validator: protovalidate.Validator,
+    registry: Registry | google_descriptor_pool.DescriptorPool,
+    tc: pb_wkt.Any,
+) -> TestResult:
     type_name = tc.type_url.split("/")[-1]
-    desc: descriptor.Descriptor = pool.FindMessageTypeByName(type_name)
-    # Create a message from the protobuf descriptor
-    msg = message_factory.GetMessageClass(desc)()
-    tc.Unpack(msg)
-    return run_test_case(msg, result)
+    msg: protobuf.Message | google_message.Message
+    if isinstance(registry, Registry):
+        desc = registry.message(type_name)
+        if desc is None:
+            return TestResult(result=Oneof(field="unexpected_error", value=f"unknown type: {type_name}"))
+        unpacked = tc.unpack(desc)
+        if unpacked is None:
+            return TestResult(result=Oneof(field="unexpected_error", value=f"cannot unpack {tc.type_url}"))
+        msg = unpacked
+    else:
+        try:
+            google_desc = registry.FindMessageTypeByName(type_name)
+        except KeyError:
+            return TestResult(result=Oneof(field="unexpected_error", value=f"unknown type: {type_name}"))
+        msg = google_message_factory.GetMessageClass(google_desc)()
+        msg.ParseFromString(tc.value)
+    return run_test_case(validator, msg)
 
 
 def run_conformance_test(
-    request: harness_pb2.TestConformanceRequest,
-) -> harness_pb2.TestConformanceResponse:
-    pool = descriptor_pool.DescriptorPool()
-    for fd in request.fdset.file:
-        pool.Add(fd)
-    result = harness_pb2.TestConformanceResponse()
+    request: TestConformanceRequest,
+) -> TestConformanceResponse:
+    registry = request.fdset.to_registry()
+    # The registry resolves the conformance suite's custom predefined-rule extensions.
+    validator = protovalidate.Validator(registry=registry)
+    test_registry = registry if not _LEGACY else build_google_pool(request.fdset)
+    response = TestConformanceResponse()
     for name, tc in request.cases.items():
-        run_any_test_case(pool, tc, result.results[name])
-    return result
+        response.results[name] = run_any_test_case(validator, test_registry, tc)
+    return response
 
 
 if __name__ == "__main__":
     # Read a serialized TestConformanceRequest from stdin
-    request = harness_pb2.TestConformanceRequest()
-    request.ParseFromString(sys.stdin.buffer.read())
+    request = TestConformanceRequest.from_binary(sys.stdin.buffer.read())
     # Run the test
     result = run_conformance_test(request)
     # Write a serialized TestConformanceResponse to stdout
-    sys.stdout.buffer.write(result.SerializeToString())
+    sys.stdout.buffer.write(result.to_binary())
     sys.stdout.flush()
     sys.exit(0)

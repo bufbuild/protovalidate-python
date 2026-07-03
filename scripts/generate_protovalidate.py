@@ -30,11 +30,15 @@ def main(version: str) -> None:
             f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate-testing,ref={version}"
         )
 
-    protos_dir = Path(__file__).parent.parent / "packages" / "protovalidate-proto" / "proto"
+    repo = Path(__file__).parent.parent
+
+    protos_dir = repo / "proto"
     shutil.rmtree(protos_dir, ignore_errors=True)
     protos_dir.mkdir(parents=True, exist_ok=True)
-
     subprocess.run(["buf", "export", protovalidate_path, "-o", protos_dir], check=True)  # noqa: S603, S607
-    subprocess.run(["buf", "export", protovalidate_testing_path, "-o", protos_dir], check=True)  # noqa: S603, S607
-    subprocess.run(["buf", "generate"], cwd=protos_dir.parent, check=True)  # noqa: S607
-    (protos_dir.parent / "src" / "buf" / "validate" / "__init__.py").touch()
+    subprocess.run(["buf", "generate"], cwd=repo, check=True)  # noqa: S607
+
+    subprocess.run(  # noqa: S603
+        ["buf", "export", protovalidate_testing_path, "-o", repo / "test" / "proto"],  # noqa: S607
+        check=True,
+    )
