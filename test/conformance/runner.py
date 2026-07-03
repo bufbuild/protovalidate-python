@@ -17,8 +17,10 @@ import sys
 
 import celpy
 import protobuf
-from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
+from google.protobuf import descriptor_pb2 as google_descriptor_pb2
+from google.protobuf import descriptor_pool as google_descriptor_pool
 from google.protobuf import message as google_message
+from google.protobuf import message_factory as google_message_factory
 from protobuf import Oneof, Registry
 from protobuf import wkt as pb_wkt
 
@@ -35,8 +37,8 @@ from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
 _LEGACY = os.environ.get("PROTOVALIDATE_CONFORMANCE_LEGACY") == "1"
 
 
-def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> descriptor_pool.DescriptorPool:
-    pool = descriptor_pool.DescriptorPool()
+def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> google_descriptor_pool.DescriptorPool:
+    pool = google_descriptor_pool.DescriptorPool()
     by_name = {file.name: file for file in fdset.file}
     added: set[str] = set()
 
@@ -47,7 +49,7 @@ def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> descriptor_pool.Descri
         added.add(name)
         for dep in proto.dependency:
             add(dep)
-        pool.Add(descriptor_pb2.FileDescriptorProto.FromString(proto.to_binary()))
+        pool.Add(google_descriptor_pb2.FileDescriptorProto.FromString(proto.to_binary()))
 
     for file in fdset.file:
         add(file.name)
@@ -79,7 +81,7 @@ def run_test_case(validator: protovalidate.Validator, tc: protobuf.Message | goo
 
 def run_any_test_case(
     validator: protovalidate.Validator,
-    registry: Registry | descriptor_pool.DescriptorPool,
+    registry: Registry | google_descriptor_pool.DescriptorPool,
     tc: pb_wkt.Any,
 ) -> TestResult:
     type_name = tc.type_url.split("/")[-1]
@@ -97,7 +99,7 @@ def run_any_test_case(
             google_desc = registry.FindMessageTypeByName(type_name)
         except KeyError:
             return TestResult(result=Oneof(field="unexpected_error", value=f"unknown type: {type_name}"))
-        msg = message_factory.GetMessageClass(google_desc)()
+        msg = google_message_factory.GetMessageClass(google_desc)()
         msg.ParseFromString(tc.value)
     return run_test_case(validator, msg)
 

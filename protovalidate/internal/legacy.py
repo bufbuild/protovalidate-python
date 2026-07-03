@@ -14,7 +14,7 @@
 
 import typing
 
-from google.protobuf import descriptor
+from google.protobuf import descriptor as google_descriptor
 from google.protobuf import message as google_message
 from protobuf import Message
 from protobuf.wkt import FileDescriptorProto, FileDescriptorSet
@@ -24,7 +24,7 @@ class LegacyMessageConverter:
     """Copies google.protobuf messages into protobuf-py dynamic messages."""
 
     def __init__(self) -> None:
-        self._types: dict[descriptor.Descriptor, type[Message]] = {}
+        self._types: dict[google_descriptor.Descriptor, type[Message]] = {}
 
     def normalize(self, msg: Message | google_message.Message) -> Message:
         """Normalize an input Protobuf message to a protobuf.Message.
@@ -35,7 +35,7 @@ class LegacyMessageConverter:
         if isinstance(msg, Message):
             return msg
         # Normalize upb descriptor type
-        desc = typing.cast(descriptor.Descriptor, msg.DESCRIPTOR)
+        desc = typing.cast(google_descriptor.Descriptor, msg.DESCRIPTOR)
         cls = self._types.get(desc)
         if cls is None:
             cls = _message_class(desc)
@@ -43,7 +43,7 @@ class LegacyMessageConverter:
         return cls.from_binary(msg.SerializeToString())
 
 
-def _message_class(desc: descriptor.Descriptor) -> type[Message]:
+def _message_class(desc: google_descriptor.Descriptor) -> type[Message]:
     files: dict[str, FileDescriptorProto] = {}
     _collect_files(desc.file, files)
     registry = FileDescriptorSet(file=list(files.values())).to_registry()
@@ -53,7 +53,7 @@ def _message_class(desc: descriptor.Descriptor) -> type[Message]:
     return result.type
 
 
-def _collect_files(file: descriptor.FileDescriptor, out: dict[str, FileDescriptorProto]) -> None:
+def _collect_files(file: google_descriptor.FileDescriptor, out: dict[str, FileDescriptorProto]) -> None:
     if file.name in out:
         return
     for dep in file.dependencies:
