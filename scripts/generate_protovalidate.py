@@ -17,8 +17,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from test.versions import PROTOVALIDATE_VERSION
 
-def main(version: str) -> None:
+
+def main() -> None:
+    version = PROTOVALIDATE_VERSION
     if re.match(r"^v\d+\.\d+\.\d+(\-.+)?$", version):
         # Version tag, fetch from BSR
         protovalidate_path = f"buf.build/bufbuild/protovalidate:{version}"
