@@ -14,15 +14,11 @@
 
 """The rule engine.
 
-Rules are *discovered* from protobuf-py descriptors: the message structure is
-read off the google mirror (the validated types are registered in google's pool
-by the bridge anyway), but the ``buf.validate`` *options* are read off the
-relocatable protobuf-py stub (``validate_pb``), so nothing needs ``buf.validate``
-in google's global pool for discovery. Rules are *evaluated* by cel-expr-python,
-which only ingests google messages, so the message under validation and the rule
-messages bound as ``rules``/``rule`` are bridged to google (see
-``_bridge.GoogleBridge``). Output ``Violation``\\s are protobuf-py ``validate_pb``
-messages — the public type.
+Rules are *discovered* by walking the google descriptor mirror (the validated
+types the bridge registers in google's pool), while the ``buf.validate``
+*options* that define them are read off the relocatable protobuf-py stub
+(``validate_pb``), so nothing needs ``buf.validate`` in google's global pool for
+discovery.
 """
 
 import dataclasses
@@ -145,9 +141,6 @@ def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> 
 
 def field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
     return _field_value_to_cel(_proto_message_get_field(msg, field), field)
-
-
-# ----- protobuf-py validate_pb path construction (output is always validate_pb) -----
 
 
 def _ftype(google_type: int) -> FieldDescriptorProto.Type:

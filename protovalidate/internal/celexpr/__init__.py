@@ -12,17 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The optional cel-expr-python (cel-cpp) validation engine.
-
-Importing this package requires ``cel_expr_python`` and ``google.protobuf`` to be
-installed; the validator only reaches for it when it imports successfully (see
-``protovalidate.internal.backend``). Everything below the engine boundary speaks
-google.protobuf descriptors and messages — protobuf-py values cross in through
-``GoogleBridge``.
+"""The cel-expr-python (cel-cpp) validation engine.
 """
 
-from protovalidate.internal.celexpr.bridge import GoogleBridge
-from protovalidate.internal.celexpr.extra_func import make_extension
-from protovalidate.internal.celexpr.rules import RuleFactory
+from .bridge import GoogleBridge
+from .extra_func import make_extension
+from .rules import RuleFactory
 
 __all__ = ["GoogleBridge", "RuleFactory", "make_extension"]

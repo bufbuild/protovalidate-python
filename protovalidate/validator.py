@@ -93,11 +93,6 @@ class Validator:
     protobuf-py message of the same type; violation field values then refer
     to that copy.
 
-    CEL is evaluated by the cel-expr-python engine when that optional dependency
-    is installed, and otherwise by the pure-Python celpy engine (see
-    :mod:`protovalidate.internal.backend`). The choice is transparent: both
-    engines produce the same violations.
-
     Each validator instance caches internal state generated from the static
     rules, so reusing the same instance for multiple validations
     significantly improves performance.
@@ -110,8 +105,6 @@ class Validator:
         Parameters:
             registry: An optional Registry used to resolve custom
                 predefined-rule extensions. If omitted, only standard rules are applied.
-                (Only consulted by the celpy engine; the cel-expr engine resolves
-                custom rules through its google descriptor pool.)
         """
         try:
             import google.protobuf.message  # noqa: F401, PLC0415

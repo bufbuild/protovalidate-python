@@ -13,17 +13,6 @@
 # limitations under the License.
 
 """Bridges protobuf-py messages into google.protobuf for cel-expr-python.
-
-protovalidate's public API is protobuf-py, but the CEL engine (cel-expr-python /
-cel-cpp) only ingests google.protobuf messages. This bridge lazily mirrors the
-protobuf-py descriptors it encounters into google's global descriptor pool — the
-same pool cel-expr-python evaluates against — and re-creates message values as
-google dynamic messages by a binary round trip.
-
-Mirroring uses the process-wide default pool (the pool cel-cpp resolves binding
-types against), registering each file once and tolerating files already present.
-The relocatable / no-conflict property protovalidate offers lives at the
-protobuf-py public layer; this google pool is an internal evaluation detail.
 """
 
 from __future__ import annotations
