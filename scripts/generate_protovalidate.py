@@ -21,17 +21,16 @@ from test.versions import PROTOVALIDATE_VERSION
 
 
 def main() -> None:
-    version = PROTOVALIDATE_VERSION
-    if re.match(r"^v\d+\.\d+\.\d+(\-.+)?$", version):
+    if re.match(r"^v\d+\.\d+\.\d+(\-.+)?$", PROTOVALIDATE_VERSION):
         # Version tag, fetch from BSR
-        protovalidate_path = f"buf.build/bufbuild/protovalidate:{version}"
-        protovalidate_testing_path = f"buf.build/bufbuild/protovalidate-testing:{version}"
+        protovalidate_path = f"buf.build/bufbuild/protovalidate:{PROTOVALIDATE_VERSION}"
+        protovalidate_testing_path = f"buf.build/bufbuild/protovalidate-testing:{PROTOVALIDATE_VERSION}"
     else:
         # Not a tag, generally an unreleased commit, fetch directly from git
-        protovalidate_path = f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate,ref={version}"
-        protovalidate_testing_path = (
-            f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate-testing,ref={version}"
+        protovalidate_path = (
+            f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate,ref={PROTOVALIDATE_VERSION}"
         )
+        protovalidate_testing_path = f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate-testing,ref={PROTOVALIDATE_VERSION}"
 
     repo = Path(__file__).parent.parent
 
