@@ -21,9 +21,8 @@ relocatable protobuf-py stub (``validate_pb``), so nothing needs ``buf.validate`
 in google's global pool for discovery. Rules are *evaluated* by cel-expr-python,
 which only ingests google messages, so the message under validation and the rule
 messages bound as ``rules``/``rule`` are bridged to google (see
-``celexpr.bridge.GoogleBridge``). Output ``Violation``\\s are protobuf-py
-``validate_pb`` messages — the public type, shared with the celpy engine via
-``protovalidate.internal._core``.
+``_bridge.GoogleBridge``). Output ``Violation``\\s are protobuf-py ``validate_pb``
+messages — the public type.
 """
 
 import dataclasses

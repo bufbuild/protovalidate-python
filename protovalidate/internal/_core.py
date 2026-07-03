@@ -12,15 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Backend-agnostic rule-engine primitives shared by both CEL backends.
-
-``Violation``, ``RuleContext``, ``CompilationError``, and the ``Rules`` ABC do
-not depend on the CEL implementation (celpy vs cel-expr-python) or the
-descriptor/value model (protobuf-py vs google.protobuf) — they only speak the
-public ``validate_pb`` path types. Both the celpy engine (``rules.py``) and the
-cel-expr-python engine (``celexpr/rules.py``) import them from here so violation
-output and path bookkeeping are identical across backends.
-"""
+"""Backend-agnostic rule-engine primitives shared by both CEL backends."""
 
 import abc
 import typing
@@ -33,12 +25,7 @@ class CompilationError(Exception):
 
 
 class Violation:
-    """A singular rule violation.
-
-    Field and rule paths accumulate as element lists during recursion
-    (messages are immutable and do not auto-vivify), then materialize into a
-    ``validate_pb.Violation`` lazily via :attr:`proto`.
-    """
+    """A singular rule violation."""
 
     field_value: typing.Any
     rule_value: typing.Any
@@ -69,7 +56,6 @@ class Violation:
         self._rule_elements.extend(elements)
 
     def finalize_paths(self) -> None:
-        """Reverses the accumulated leaf-to-root paths into root-to-leaf order."""
         self._field_elements.reverse()
         self._rule_elements.reverse()
 

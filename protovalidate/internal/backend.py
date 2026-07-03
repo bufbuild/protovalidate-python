@@ -22,11 +22,17 @@ this is pure auto-detect. Tests force the fallback by monkeypatching
 ``CEL_EXPR_AVAILABLE`` to ``False`` before constructing a ``Validator``.
 """
 
-import importlib.util
-
-
 def _detect() -> bool:
-    return all(importlib.util.find_spec(name) is not None for name in ("cel_expr_python", "google.protobuf"))
+    # Actually import (rather than importlib.util.find_spec) so an installed but
+    # broken wheel — cel-expr-python ships only native wheels with spotty
+    # coverage, so a failed extension load is a real possibility — falls back to
+    # celpy instead of being reported available and then crashing at use.
+    try:
+        import cel_expr_python  # noqa: F401, PLC0415
+        import google.protobuf.message  # noqa: F401, PLC0415
+    except ImportError:
+        return False
+    return True
 
 
 CEL_EXPR_AVAILABLE: bool = _detect()
