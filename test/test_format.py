@@ -27,9 +27,7 @@ from protovalidate.internal.cel_field_presence import InterpretedRunner
 
 from .gen.cel.expr import eval_pb2
 from .gen.cel.expr.conformance.test import simple_pb2
-
-# Version of the cel-spec that this implementation is conformant with.
-CEL_SPEC_VERSION = "v0.25.1"
+from .versions import CEL_SPEC_VERSION
 
 skipped_tests = [
     # cel-python seems to have a bug with ints and booleans in the same map which evaluate to the same value

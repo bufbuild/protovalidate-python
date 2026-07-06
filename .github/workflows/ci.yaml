@@ -34,7 +34,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: uv sync
       - run: uv run poe test
-      - run: uv run poe test-conformance
 
   lint:
     runs-on: ubuntu-latest

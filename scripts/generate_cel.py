@@ -19,7 +19,7 @@ from urllib.request import urlopen
 
 from fix_protobuf_imports.fix_protobuf_imports import fix_protobuf_imports
 
-from test.test_format import CEL_SPEC_VERSION
+from test.versions import CEL_SPEC_VERSION
 
 test_dir = Path(__file__).parent.parent / "test"
 

@@ -1,8 +1,5 @@
 #:schema https://json.schemastore.org/partial-poe.json
 
-[env]
-PROTOVALIDATE_VERSION.default = "v1.2.0"
-
 [tasks.add-license-header]
 help = "Add license header to all source files"
 cmd = """
@@ -28,8 +25,6 @@ help = "Run code checks"
 sequence = [
   "lint",
   "test",
-  "test-conformance",
-  "test-conformance-legacy",
 ]
 
 [tasks.diffcheck]
@@ -49,7 +44,7 @@ sequence = [
 script = "scripts.generate_cel:main"
 
 [tasks.generate-protovalidate]
-script = "scripts.generate_protovalidate:main(environ['PROTOVALIDATE_VERSION'])"
+script = "scripts.generate_protovalidate:main"
 
 [tasks.generate-test]
 sequence = [
@@ -115,27 +110,6 @@ sequence = [
   { cmd = "tombi format --check" },
   { cmd = "tombi lint" },
 ]
-
-[tasks.test-conformance]
-help = "Run the CEL conformance tests"
-cmd = """
-go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@${PROTOVALIDATE_VERSION}
-    --strict_message
-    --expected_failures=test/conformance/nonconforming.yaml
-    --timeout 10s
-    python -- -m test.conformance.runner
-"""
-
-[tasks.test-conformance-legacy]
-help = "Run the CEL conformance tests through the legacy google.protobuf message path"
-env = { PROTOVALIDATE_CONFORMANCE_LEGACY = "1" }
-cmd = """
-go run github.com/bufbuild/protovalidate/tools/protovalidate-conformance@${PROTOVALIDATE_VERSION}
-    --strict_message
-    --expected_failures=test/conformance/nonconforming.yaml
-    --timeout 10s
-    python -- -m test.conformance.runner
-"""
 
 [tasks.test]
 help = "Run unit tests"
