@@ -41,12 +41,12 @@ dev = [
   "buf-bin==1.71.0",
   "fix-protobuf-imports==0.1.7",
   "google-re2-stubs==0.1.1",
-  "poethepoet==0.46.0",
+  "poethepoet==0.48.0",
   "pytest==9.1.1",
   "pytest-benchmark==5.2.3",
-  "ruff==0.15.18",
-  "tombi==1.1.4",
-  "ty==0.0.51",
+  "ruff==0.15.20",
+  "tombi==1.2.0",
+  "ty==0.0.56",
   "types-protobuf==6.32.1.20260221",
 
   # Unlike most dev dependencies, we don't pin to allow testing old and new versions
