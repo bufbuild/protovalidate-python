@@ -32,7 +32,6 @@ _EXPECTED_FAILURES = {
     "cel-expr": "nonconforming.cel-expr.yaml",
 }
 
-
 def maybe_patch_args_with_debug(args: list[str]) -> list[str]:
     # Do a best effort to invoke the child with debugging.
     # This invokes internal methods from bundles provided by the IDE
