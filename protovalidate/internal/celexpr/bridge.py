@@ -19,7 +19,8 @@ from __future__ import annotations
 
 import typing
 
-from google.protobuf import descriptor_pb2, descriptor_pool, message, message_factory
+from google.protobuf import descriptor_pb2 as google_descriptor_pb2, descriptor_pool as google_descriptor_pool, message as google_message, message_factory as google_message_factory
+from protobuf import DescMessage, DescFile
 
 if typing.TYPE_CHECKING:
     import protobuf
@@ -30,11 +31,11 @@ class GoogleBridge:
     protobuf-py message values to google dynamic messages."""
 
     def __init__(self) -> None:
-        self._pool = descriptor_pool.Default()
+        self._pool: google_descriptor_pool.DescriptorPool = google_descriptor_pool.Default()
         self._mirrored: set[str] = set()
-        self._classes: dict[str, type[message.Message]] = {}
+        self._classes: dict[str, type[google_message.Message]] = {}
 
-    def _mirror_file(self, desc_file: typing.Any) -> None:
+    def _mirror_file(self, desc_file: DescFile) -> None:
         """Registers a protobuf-py DescFile (and its transitive deps) into the
         google pool, dependencies first, skipping files already present."""
         if desc_file.name in self._mirrored:
@@ -45,20 +46,20 @@ class GoogleBridge:
         try:
             self._pool.FindFileByName(desc_file.name)
         except KeyError:
-            proto = descriptor_pb2.FileDescriptorProto.FromString(desc_file.proto.to_binary())
+            proto = google_descriptor_pb2.FileDescriptorProto.FromString(desc_file.proto.to_binary())
             self._pool.Add(proto)
 
-    def google_class(self, desc: typing.Any) -> type[message.Message]:
+    def google_class(self, desc: DescMessage) -> type[google_message.Message]:
         """The google message class mirroring a protobuf-py DescMessage."""
         cls = self._classes.get(desc.type_name)
         if cls is None:
             self._mirror_file(desc.file)
             google_desc = self._pool.FindMessageTypeByName(desc.type_name)
-            cls = message_factory.GetMessageClass(google_desc)
+            cls = google_message_factory.GetMessageClass(google_desc)
             self._classes[desc.type_name] = cls
         return cls
 
-    def to_google(self, msg: protobuf.Message) -> message.Message:
+    def to_google(self, msg: protobuf.Message) -> google_message.Message:
         """Re-creates a protobuf-py message as a google.protobuf message."""
         bridged = self.google_class(type(msg).desc())()
         bridged.ParseFromString(msg.to_binary())

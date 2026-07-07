@@ -17,21 +17,21 @@ from urllib import parse as urlparse
 
 import re2
 from cel_expr_python import cel
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
-from google.protobuf import wrappers_pb2
+from google.protobuf import descriptor as google_descriptor
+from google.protobuf import message as google_message
+from google.protobuf import wrappers_pb2 as google_wrappers_pb2
 
 # protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
-_FieldDescriptorClass = _descriptor.FieldDescriptor
+_FieldDescriptorClass = google_descriptor.FieldDescriptor
 if hasattr(_FieldDescriptorClass, "is_repeated"):
 
-    def _is_repeated(field: _descriptor.FieldDescriptor) -> bool:
+    def _is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
         return field.is_repeated
 
 else:
 
-    def _is_repeated(field: _descriptor.FieldDescriptor) -> bool:
-        return field.label == _descriptor.FieldDescriptor.LABEL_REPEATED
+    def _is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
+        return field.label == google_descriptor.FieldDescriptor.LABEL_REPEATED
 
 
 # See https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
@@ -41,7 +41,7 @@ _email_regex = re2.compile(
 
 
 def cel_get_field(message: object, field_name: object) -> object:
-    if not isinstance(message, _message.Message):
+    if not isinstance(message, google_message.Message):
         msg = "invalid argument, expected message"
         raise ValueError(msg)
     if not isinstance(field_name, str):
@@ -56,10 +56,10 @@ def cel_get_field(message: object, field_name: object) -> object:
         return dict(value)
     if _is_repeated(field):
         return list(value)
-    if field.type == _descriptor.FieldDescriptor.TYPE_BYTES:
+    if field.type == google_descriptor.FieldDescriptor.TYPE_BYTES:
         # Route bytes through BytesValue so the value is owned by the runtime;
         # raw Python bytes returns are corrupted by a runtime conversion bug.
-        return wrappers_pb2.BytesValue(value=value)
+        return google_wrappers_pb2.BytesValue(value=value)
     return value
 
 
