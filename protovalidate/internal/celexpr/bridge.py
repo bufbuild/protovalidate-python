@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Bridges protobuf-py messages into google.protobuf for cel-expr-python.
-"""
+"""Bridges protobuf-py messages into google.protobuf for cel-expr-python."""
 
 from __future__ import annotations
 
 import typing
 
-from google.protobuf import descriptor_pb2 as google_descriptor_pb2, descriptor_pool as google_descriptor_pool, message as google_message, message_factory as google_message_factory
-from protobuf import DescMessage, DescFile
+from google.protobuf import descriptor_pb2 as google_descriptor_pb2
+from google.protobuf import descriptor_pool as google_descriptor_pool
+from google.protobuf import message as google_message
+from google.protobuf import message_factory as google_message_factory
+from protobuf import DescFile, DescMessage
 
 if typing.TYPE_CHECKING:
     import protobuf

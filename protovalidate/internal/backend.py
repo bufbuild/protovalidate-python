@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Which CEL backend is available.
-"""
+"""Which CEL backend is available."""
+
 
 def _detect() -> bool:
     try:

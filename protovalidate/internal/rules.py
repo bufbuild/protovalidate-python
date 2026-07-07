@@ -40,9 +40,6 @@ from protobuf import (
 from protobuf.wkt import Duration, FieldDescriptorProto, Timestamp
 
 from protovalidate._gen.buf.validate import validate_pb
-
-# Backend-agnostic primitives shared with the cel-expr-python engine. Re-exported
-# here so ``protovalidate.internal.rules.Violation`` (etc.) stays importable.
 from protovalidate.internal._core import CompilationError, RuleContext, Rules, Violation
 from protovalidate.internal.cel_field_presence import InterpretedRunner, in_has
 

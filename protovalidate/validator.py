@@ -28,7 +28,7 @@ from protovalidate.internal.legacy import LegacyMessageConverter
 if TYPE_CHECKING:
     from google.protobuf import message as google_message
 
-# Re-exported on this module (protovalidate/__init__.py binds them by name).
+
 __all__ = ["CompilationError", "ValidationError", "Validator", "Violation", "Violations"]
 Violations = validate_pb.Violations
 

@@ -110,8 +110,6 @@ def gen_complex(depth: int) -> BenchComplexSchema:
 
 @pytest.fixture(params=BACKENDS)
 def validator(request: pytest.FixtureRequest) -> protovalidate.Validator:
-    """A Validator per available CEL backend, so `bench-compare` (grouped on
-    _id) lines celpy up against cel-expr-python for each case."""
     return make_validator(request.param)
 
 

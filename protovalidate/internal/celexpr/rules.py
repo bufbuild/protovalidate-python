@@ -12,14 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The rule engine.
-
-Rules are *discovered* by walking the google descriptor mirror (the validated
-types the bridge registers in google's pool), while the ``buf.validate``
-*options* that define them are read off the relocatable protobuf-py stub
-(``validate_pb``), so nothing needs ``buf.validate`` in google's global pool for
-discovery.
-"""
+"""The rule engine."""
 
 import dataclasses
 import datetime
@@ -460,14 +453,6 @@ def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_n
             expected_type_str = _get_type_name(expected)
         msg = f"field {field.name} has type {field_type_str} but expected {expected_type_str}"
         raise CompilationError(msg)
-
-
-def _is_map(field: descriptor.FieldDescriptor):
-    return _is_repeated(field) and field.message_type is not None and field.message_type.GetOptions().map_entry
-
-
-def _is_list(field: descriptor.FieldDescriptor):
-    return _is_repeated(field) and not _is_map(field)
 
 
 class FieldRules(CelRules):

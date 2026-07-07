@@ -37,10 +37,6 @@ from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
 # Set to test google.protobuf messages instead of protobuf-py
 _LEGACY = os.environ.get("PROTOVALIDATE_CONFORMANCE_LEGACY") == "1"
 
-# Pin the CEL backend for this run. A test-harness detail (like _LEGACY), not a
-# public switch: the parent process can't monkeypatch into this subprocess, so
-# it passes the choice by env. "celpy" forces the fallback by clearing the
-# auto-detect flag before any Validator is built; anything else keeps auto.
 if os.environ.get("PROTOVALIDATE_CONFORMANCE_BACKEND") == "celpy":
     backend.CEL_EXPR_AVAILABLE = False
 

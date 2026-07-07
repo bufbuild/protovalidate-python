@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The cel-expr-python (cel-cpp) validation engine.
-"""
+"""The cel-expr-python (cel-cpp) validation engine."""
 
 from .bridge import GoogleBridge
 from .extra_func import make_extension

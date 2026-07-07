@@ -25,12 +25,11 @@ import pytest
 from test.conftest import BACKENDS
 from test.versions import PROTOVALIDATE_VERSION
 
-# Per-backend expected-failure lists: celpy skips nanosecond timestamp/duration
-# cases that cel-expr-python handles correctly.
 _EXPECTED_FAILURES = {
     "celpy": "nonconforming.yaml",
     "cel-expr": "nonconforming.cel-expr.yaml",
 }
+
 
 def maybe_patch_args_with_debug(args: list[str]) -> list[str]:
     # Do a best effort to invoke the child with debugging.
