@@ -23,7 +23,11 @@ from collections.abc import Container
 import protobuf
 from cel_expr_python import cel
 from cel_expr_python.ext import ext_strings
-from google.protobuf import any_pb2, descriptor, descriptor_pool, message, wrappers_pb2
+from google.protobuf import any_pb2 as google_any_pb2
+from google.protobuf import descriptor as google_descriptor
+from google.protobuf import descriptor_pool as google_descriptor_pool
+from google.protobuf import message as google_message
+from google.protobuf import wrappers_pb2 as google_wrappers_pb2
 from protobuf import Oneof
 from protobuf.wkt import FieldDescriptorProto
 
@@ -34,37 +38,37 @@ from protovalidate.internal._core import CompilationError, RuleContext, Rules, V
 from protovalidate.internal.celexpr.bridge import GoogleBridge
 
 # protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
-_FieldDescriptorClass = descriptor.FieldDescriptor
+_FieldDescriptorClass = google_descriptor.FieldDescriptor
 if hasattr(_FieldDescriptorClass, "is_repeated"):
 
-    def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
+    def _is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
         return field.is_repeated
 
 else:
 
-    def _is_repeated(field: descriptor.FieldDescriptor) -> bool:
-        return field.label == descriptor.FieldDescriptor.LABEL_REPEATED
+    def _is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
+        return field.label == google_descriptor.FieldDescriptor.LABEL_REPEATED
 
 
 _FIELD_TYPE_NAMES: dict[int, str] = {
-    descriptor.FieldDescriptor.TYPE_MESSAGE: "message",
-    descriptor.FieldDescriptor.TYPE_GROUP: "group",
-    descriptor.FieldDescriptor.TYPE_ENUM: "enum",
-    descriptor.FieldDescriptor.TYPE_BOOL: "bool",
-    descriptor.FieldDescriptor.TYPE_BYTES: "bytes",
-    descriptor.FieldDescriptor.TYPE_STRING: "string",
-    descriptor.FieldDescriptor.TYPE_FLOAT: "float",
-    descriptor.FieldDescriptor.TYPE_DOUBLE: "double",
-    descriptor.FieldDescriptor.TYPE_INT32: "int32",
-    descriptor.FieldDescriptor.TYPE_INT64: "int64",
-    descriptor.FieldDescriptor.TYPE_SINT32: "sint32",
-    descriptor.FieldDescriptor.TYPE_SINT64: "sint64",
-    descriptor.FieldDescriptor.TYPE_SFIXED32: "sfixed32",
-    descriptor.FieldDescriptor.TYPE_SFIXED64: "sfixed64",
-    descriptor.FieldDescriptor.TYPE_UINT32: "uint32",
-    descriptor.FieldDescriptor.TYPE_UINT64: "uint64",
-    descriptor.FieldDescriptor.TYPE_FIXED32: "fixed32",
-    descriptor.FieldDescriptor.TYPE_FIXED64: "fixed64",
+    google_descriptor.FieldDescriptor.TYPE_MESSAGE: "message",
+    google_descriptor.FieldDescriptor.TYPE_GROUP: "group",
+    google_descriptor.FieldDescriptor.TYPE_ENUM: "enum",
+    google_descriptor.FieldDescriptor.TYPE_BOOL: "bool",
+    google_descriptor.FieldDescriptor.TYPE_BYTES: "bytes",
+    google_descriptor.FieldDescriptor.TYPE_STRING: "string",
+    google_descriptor.FieldDescriptor.TYPE_FLOAT: "float",
+    google_descriptor.FieldDescriptor.TYPE_DOUBLE: "double",
+    google_descriptor.FieldDescriptor.TYPE_INT32: "int32",
+    google_descriptor.FieldDescriptor.TYPE_INT64: "int64",
+    google_descriptor.FieldDescriptor.TYPE_SINT32: "sint32",
+    google_descriptor.FieldDescriptor.TYPE_SINT64: "sint64",
+    google_descriptor.FieldDescriptor.TYPE_SFIXED32: "sfixed32",
+    google_descriptor.FieldDescriptor.TYPE_SFIXED64: "sfixed64",
+    google_descriptor.FieldDescriptor.TYPE_UINT32: "uint32",
+    google_descriptor.FieldDescriptor.TYPE_UINT64: "uint64",
+    google_descriptor.FieldDescriptor.TYPE_FIXED32: "fixed32",
+    google_descriptor.FieldDescriptor.TYPE_FIXED64: "fixed64",
 }
 
 
@@ -72,13 +76,13 @@ def _get_type_name(fd: typing.Any) -> str:
     return _FIELD_TYPE_NAMES.get(fd, "unknown")
 
 
-def _proto_message_has_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+def _proto_message_has_field(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> typing.Any:
     if field.is_extension:
         return msg.HasExtension(field)  # ty: ignore[invalid-argument-type]
     return msg.HasField(field.name)
 
 
-def _proto_message_get_field(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+def _proto_message_get_field(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> typing.Any:
     if field.is_extension:
         return msg.Extensions[field]  # ty: ignore[invalid-argument-type]
     return getattr(msg, field.name)
@@ -86,15 +90,15 @@ def _proto_message_get_field(msg: message.Message, field: descriptor.FieldDescri
 
 _UNSIGNED_FIELD_TYPES = frozenset(
     (
-        descriptor.FieldDescriptor.TYPE_UINT32,
-        descriptor.FieldDescriptor.TYPE_UINT64,
-        descriptor.FieldDescriptor.TYPE_FIXED32,
-        descriptor.FieldDescriptor.TYPE_FIXED64,
+        google_descriptor.FieldDescriptor.TYPE_UINT32,
+        google_descriptor.FieldDescriptor.TYPE_UINT64,
+        google_descriptor.FieldDescriptor.TYPE_FIXED32,
+        google_descriptor.FieldDescriptor.TYPE_FIXED64,
     )
 )
 
 
-def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> typing.Any:
+def _scalar_field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDescriptor) -> typing.Any:
     # The runtime converts Python scalars and messages (including the
     # well-known wrapper, timestamp, and duration types) to CEL values
     # natively, so most values pass through unchanged. The exceptions ride in
@@ -105,18 +109,21 @@ def _scalar_field_value_to_cel(val: typing.Any, field: descriptor.FieldDescripto
     # - Unsigned ints: a Python int always converts to a CEL int; the wrapper
     #   is the only way to produce a CEL uint for uint-typed fields.
     # - Strings containing NUL: the conversion truncates at the first NUL.
-    if field.type == descriptor.FieldDescriptor.TYPE_BYTES:
-        return wrappers_pb2.BytesValue(value=val)
+    if field.type == google_descriptor.FieldDescriptor.TYPE_BYTES:
+        return google_wrappers_pb2.BytesValue(value=val)
     if field.type in _UNSIGNED_FIELD_TYPES:
-        if field.type in (descriptor.FieldDescriptor.TYPE_UINT32, descriptor.FieldDescriptor.TYPE_FIXED32):
-            return wrappers_pb2.UInt32Value(value=val)
-        return wrappers_pb2.UInt64Value(value=val)
-    if field.type == descriptor.FieldDescriptor.TYPE_STRING and "\x00" in val:
-        return wrappers_pb2.StringValue(value=val)
+        if field.type in (
+            google_descriptor.FieldDescriptor.TYPE_UINT32,
+            google_descriptor.FieldDescriptor.TYPE_FIXED32,
+        ):
+            return google_wrappers_pb2.UInt32Value(value=val)
+        return google_wrappers_pb2.UInt64Value(value=val)
+    if field.type == google_descriptor.FieldDescriptor.TYPE_STRING and "\x00" in val:
+        return google_wrappers_pb2.StringValue(value=val)
     return val
 
 
-def _field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> typing.Any:
+def _field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDescriptor) -> typing.Any:
     if _is_repeated(field):
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
             return dict(val)
@@ -124,7 +131,7 @@ def _field_value_to_cel(val: typing.Any, field: descriptor.FieldDescriptor) -> t
     return _scalar_field_value_to_cel(val, field)
 
 
-def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> bool:
+def _is_empty_field(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> bool:
     if field.has_presence:
         return not _proto_message_has_field(msg, field)
     if _is_repeated(field):
@@ -132,7 +139,7 @@ def _is_empty_field(msg: message.Message, field: descriptor.FieldDescriptor) -> 
     return _proto_message_get_field(msg, field) == field.default_value
 
 
-def field_to_cel(msg: message.Message, field: descriptor.FieldDescriptor) -> typing.Any:
+def field_to_cel(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> typing.Any:
     return _field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
@@ -141,7 +148,7 @@ def _ftype(google_type: int) -> FieldDescriptorProto.Type:
     return FieldDescriptorProto.Type(google_type)
 
 
-def _field_to_element(field: descriptor.FieldDescriptor) -> validate_pb.FieldPathElement:
+def _field_to_element(field: google_descriptor.FieldDescriptor) -> validate_pb.FieldPathElement:
     """A FieldPathElement for a (google) field of the message being validated."""
     return validate_pb.FieldPathElement(
         field_number=field.number,
@@ -150,7 +157,7 @@ def _field_to_element(field: descriptor.FieldDescriptor) -> validate_pb.FieldPat
     )
 
 
-def _indexed_field_element(field: descriptor.FieldDescriptor, index: int) -> validate_pb.FieldPathElement:
+def _indexed_field_element(field: google_descriptor.FieldDescriptor, index: int) -> validate_pb.FieldPathElement:
     return validate_pb.FieldPathElement(
         field_number=field.number,
         field_name=field.name if not field.is_extension else f"[{field.full_name}]",
@@ -159,44 +166,44 @@ def _indexed_field_element(field: descriptor.FieldDescriptor, index: int) -> val
     )
 
 
-def _oneof_to_element(oneof: descriptor.OneofDescriptor) -> validate_pb.FieldPathElement:
+def _oneof_to_element(oneof: google_descriptor.OneofDescriptor) -> validate_pb.FieldPathElement:
     return validate_pb.FieldPathElement(field_name=oneof.name)
 
 
 _INT_KEY_TYPES = frozenset(
     (
-        descriptor.FieldDescriptor.TYPE_INT32,
-        descriptor.FieldDescriptor.TYPE_SFIXED32,
-        descriptor.FieldDescriptor.TYPE_INT64,
-        descriptor.FieldDescriptor.TYPE_SFIXED64,
-        descriptor.FieldDescriptor.TYPE_SINT32,
-        descriptor.FieldDescriptor.TYPE_SINT64,
+        google_descriptor.FieldDescriptor.TYPE_INT32,
+        google_descriptor.FieldDescriptor.TYPE_SFIXED32,
+        google_descriptor.FieldDescriptor.TYPE_INT64,
+        google_descriptor.FieldDescriptor.TYPE_SFIXED64,
+        google_descriptor.FieldDescriptor.TYPE_SINT32,
+        google_descriptor.FieldDescriptor.TYPE_SINT64,
     )
 )
 _UINT_KEY_TYPES = frozenset(
     (
-        descriptor.FieldDescriptor.TYPE_UINT32,
-        descriptor.FieldDescriptor.TYPE_FIXED32,
-        descriptor.FieldDescriptor.TYPE_UINT64,
-        descriptor.FieldDescriptor.TYPE_FIXED64,
+        google_descriptor.FieldDescriptor.TYPE_UINT32,
+        google_descriptor.FieldDescriptor.TYPE_FIXED32,
+        google_descriptor.FieldDescriptor.TYPE_UINT64,
+        google_descriptor.FieldDescriptor.TYPE_FIXED64,
     )
 )
 
 
 def _map_key_element(
-    field: descriptor.FieldDescriptor,
+    field: google_descriptor.FieldDescriptor,
     key: typing.Any,
-    key_field: descriptor.FieldDescriptor,
-    value_field: descriptor.FieldDescriptor,
+    key_field: google_descriptor.FieldDescriptor,
+    value_field: google_descriptor.FieldDescriptor,
 ) -> validate_pb.FieldPathElement:
     subscript: Oneof
-    if key_field.type == descriptor.FieldDescriptor.TYPE_BOOL:
+    if key_field.type == google_descriptor.FieldDescriptor.TYPE_BOOL:
         subscript = Oneof(field="bool_key", value=key)
     elif key_field.type in _INT_KEY_TYPES:
         subscript = Oneof(field="int_key", value=key)
     elif key_field.type in _UINT_KEY_TYPES:
         subscript = Oneof(field="uint_key", value=key)
-    elif key_field.type == descriptor.FieldDescriptor.TYPE_STRING:
+    elif key_field.type == google_descriptor.FieldDescriptor.TYPE_STRING:
         subscript = Oneof(field="string_key", value=key)
     else:
         msg = "unexpected map type"
@@ -247,7 +254,7 @@ def _google_predefined_ext() -> typing.Any:
     ``buf.validate`` (and the user's files, which define any custom predefined
     rule extensions) when it bridges rule messages.
     """
-    return descriptor_pool.Default().FindExtensionByName("buf.validate.predefined")
+    return google_descriptor_pool.Default().FindExtensionByName("buf.validate.predefined")
 
 
 def _message_child(pb_field: protobuf.DescField) -> protobuf.DescMessage | None:
@@ -279,10 +286,10 @@ class CelRules(Rules):
     """
 
     _cel: list[CelRunner]
-    _rules: message.Message | None = None
+    _rules: google_message.Message | None = None
     _uses_now: bool = False
 
-    def __init__(self, rules_google: message.Message | None):
+    def __init__(self, rules_google: google_message.Message | None):
         self._cel = []
         self._rules = rules_google
 
@@ -347,7 +354,7 @@ class CelRules(Rules):
         env: cel.Env,
         rules: typing.Any,
         *,
-        rule_field: descriptor.FieldDescriptor | None = None,
+        rule_field: google_descriptor.FieldDescriptor | None = None,
         rule_path: validate_pb.FieldPath | None = None,
     ):
         if isinstance(rules, str):
@@ -378,11 +385,11 @@ class CelRules(Rules):
 class MessageOneofRule(Rules):
     """Validates a single buf.validate.MessageOneofRule given via the message option (buf.validate.message).oneof"""
 
-    def __init__(self, fields: list[descriptor.FieldDescriptor], *, required: bool):
+    def __init__(self, fields: list[google_descriptor.FieldDescriptor], *, required: bool):
         self._fields = fields
         self._required = required
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         num_set_fields = sum(1 for field in self._fields if not _is_empty_field(message, field))
         if num_set_fields > 1:
             ctx.add(
@@ -405,12 +412,12 @@ class MessageRules(CelRules):
 
     _oneofs: list[MessageOneofRule]
 
-    def __init__(self, rules_google: message.Message | None, desc: descriptor.Descriptor):
+    def __init__(self, rules_google: google_message.Message | None, desc: google_descriptor.Descriptor):
         super().__init__(rules_google)
         self._oneofs = []
         self._desc = desc
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         if self._cel:
             self._validate_cel(ctx, this_cel=message)
             if ctx.done:
@@ -439,16 +446,16 @@ class MessageRules(CelRules):
         self._oneofs.append(MessageOneofRule(fields, required=rule.required))
 
 
-def check_field_type(field: descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None):
+def check_field_type(field: google_descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None):
     if field.type != expected and (
-        field.type != descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
+        field.type != google_descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
     ):
         field_type_str = _get_type_name(field.type)
         if expected == 0:
             if wrapper_name is not None:
                 expected_type_str = wrapper_name
             else:
-                expected_type_str = _get_type_name(descriptor.FieldDescriptor.TYPE_MESSAGE)
+                expected_type_str = _get_type_name(google_descriptor.FieldDescriptor.TYPE_MESSAGE)
         else:
             expected_type_str = _get_type_name(expected)
         msg = f"field {field.name} has type {field_type_str} but expected {expected_type_str}"
@@ -469,7 +476,7 @@ class FieldRules(CelRules):
         self,
         env: cel.Env,
         bridge: GoogleBridge,
-        field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
         *,
         for_items: bool = False,
@@ -526,7 +533,7 @@ class FieldRules(CelRules):
                 rule_path=validate_pb.FieldPath(elements=[_indexed_spec_element(cel_field, i)]),
             )
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         if _is_empty_field(message, self._field):
             if self._required:
                 ctx.add(
@@ -582,7 +589,7 @@ class AnyRules(FieldRules):
         self,
         env: cel.Env,
         bridge: GoogleBridge,
-        field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
     ):
         super().__init__(env, bridge, field, field_level)
@@ -590,7 +597,7 @@ class AnyRules(FieldRules):
         self._in = list(any_rules.in_) or []
         self._not_in: Container[str] = list(any_rules.not_in) or []
 
-    def _validate_value(self, ctx: RuleContext, value: any_pb2.Any, *, for_key: bool = False):
+    def _validate_value(self, ctx: RuleContext, value: google_any_pb2.Any, *, for_key: bool = False):
         if len(self._in) > 0 and value.type_url not in self._in:
             ctx.add(
                 Violation(
@@ -629,7 +636,7 @@ class EnumRules(FieldRules):
         self,
         env: cel.Env,
         bridge: GoogleBridge,
-        field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
         *,
         for_items: bool = False,
@@ -639,7 +646,7 @@ class EnumRules(FieldRules):
         if field_level.type.value.defined_only:
             self._defined_only = True
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -669,7 +676,7 @@ class RepeatedRules(FieldRules):
         self,
         env: cel.Env,
         bridge: GoogleBridge,
-        field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
         item_rules: FieldRules | None,
     ):
@@ -677,7 +684,7 @@ class RepeatedRules(FieldRules):
         if item_rules is not None:
             self._item_rules = item_rules
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -716,7 +723,7 @@ class MapRules(FieldRules):
         self,
         env: cel.Env,
         bridge: GoogleBridge,
-        field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
         key_rules: FieldRules | None,
         value_rules: FieldRules | None,
@@ -727,7 +734,7 @@ class MapRules(FieldRules):
         if value_rules is not None:
             self._value_rules = value_rules
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -758,12 +765,12 @@ class OneofRules(Rules):
 
     required = True
 
-    def __init__(self, oneof: descriptor.OneofDescriptor, rules: typing.Any):
+    def __init__(self, oneof: google_descriptor.OneofDescriptor, rules: typing.Any):
         self._oneof = oneof
         if not rules.required:
             self.required = False
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         if not message.WhichOneof(self._oneof.name):
             if self.required:
                 ctx.add(
@@ -786,7 +793,7 @@ class RuleFactory:
         # cel-expr-python evaluates against — and type-checks bindings against —
         # the global pool the bridge populates.
         self._env = cel.NewEnv(
-            descriptor_pool=descriptor_pool.Default(),
+            descriptor_pool=google_descriptor_pool.Default(),
             variables={
                 "this": cel.Type.DYN,
                 "rules": cel.Type.DYN,
@@ -809,7 +816,7 @@ class RuleFactory:
             raise result
         return result
 
-    def _new_message_rule(self, rules: typing.Any, desc: descriptor.Descriptor) -> MessageRules:
+    def _new_message_rule(self, rules: typing.Any, desc: google_descriptor.Descriptor) -> MessageRules:
         result = MessageRules(self._bridge.to_google(rules), desc)
         for oneof in rules.oneof:
             result.add_oneof(oneof)
@@ -821,7 +828,7 @@ class RuleFactory:
 
     def _new_scalar_field_rule(
         self,
-        field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
         *,
         for_items: bool = False,
@@ -843,52 +850,52 @@ class RuleFactory:
             check_field_type(field, 0, "google.protobuf.Timestamp")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "enum":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_ENUM)
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_ENUM)
             return EnumRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "bool":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "bytes":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_BYTES, "google.protobuf.BytesValue")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_BYTES, "google.protobuf.BytesValue")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "fixed32":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED32)
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_FIXED32)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "fixed64":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_FIXED64)
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_FIXED64)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "float":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_FLOAT, "google.protobuf.FloatValue")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_FLOAT, "google.protobuf.FloatValue")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "double":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_DOUBLE, "google.protobuf.DoubleValue")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_DOUBLE, "google.protobuf.DoubleValue")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "int32":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_INT32, "google.protobuf.Int32Value")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_INT32, "google.protobuf.Int32Value")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "int64":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_INT64, "google.protobuf.Int64Value")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_INT64, "google.protobuf.Int64Value")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "sfixed32":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED32)
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_SFIXED32)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "sfixed64":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_SFIXED64)
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_SFIXED64)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "sint32":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT32)
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_SINT32)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "sint64":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_SINT64)
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_SINT64)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "uint32":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_UINT32, "google.protobuf.UInt32Value")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_UINT32, "google.protobuf.UInt32Value")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "uint64":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_UINT64, "google.protobuf.UInt64Value")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_UINT64, "google.protobuf.UInt64Value")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "string":
-            check_field_type(field, descriptor.FieldDescriptor.TYPE_STRING, "google.protobuf.StringValue")
+            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_STRING, "google.protobuf.StringValue")
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "any":
             check_field_type(field, 0, "google.protobuf.Any")
@@ -898,7 +905,7 @@ class RuleFactory:
 
     def _new_field_rule(
         self,
-        field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
         *,
         force_ignore_empty: bool = False,
@@ -924,7 +931,7 @@ class RuleFactory:
         return RepeatedRules(self._env, self._bridge, field, field_level, item_rule)
 
     def _new_rules(self, pb_desc: protobuf.DescMessage) -> list[Rules]:
-        gdesc = typing.cast(descriptor.Descriptor, self._bridge.google_class(pb_desc).DESCRIPTOR)
+        gdesc = typing.cast(google_descriptor.Descriptor, self._bridge.google_class(pb_desc).DESCRIPTOR)
         result: list[Rules] = []
         all_msg_oneof_fields: set[str] = set()
 
@@ -981,12 +988,12 @@ class RuleFactory:
 
 
 class SubMsgRule(Rules):
-    def __init__(self, factory: RuleFactory, field: descriptor.FieldDescriptor, sub_desc: protobuf.DescMessage):
+    def __init__(self, factory: RuleFactory, field: google_descriptor.FieldDescriptor, sub_desc: protobuf.DescMessage):
         self._factory = factory
         self._field = field
         self._sub_desc = sub_desc
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         if not message.HasField(self._field.name):
             return
         rules = self._factory.get(self._sub_desc)
@@ -1005,9 +1012,9 @@ class MapValMsgRule(Rules):
     def __init__(
         self,
         factory: RuleFactory,
-        field: descriptor.FieldDescriptor,
-        key_field: descriptor.FieldDescriptor,
-        value_field: descriptor.FieldDescriptor,
+        field: google_descriptor.FieldDescriptor,
+        key_field: google_descriptor.FieldDescriptor,
+        value_field: google_descriptor.FieldDescriptor,
         sub_desc: protobuf.DescMessage,
     ):
         self._factory = factory
@@ -1016,7 +1023,7 @@ class MapValMsgRule(Rules):
         self._value_field = value_field
         self._sub_desc = sub_desc
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         val = getattr(message, self._field.name)
         if not val:
             return
@@ -1033,12 +1040,12 @@ class MapValMsgRule(Rules):
 
 
 class RepeatedMsgRule(Rules):
-    def __init__(self, factory: RuleFactory, field: descriptor.FieldDescriptor, sub_desc: protobuf.DescMessage):
+    def __init__(self, factory: RuleFactory, field: google_descriptor.FieldDescriptor, sub_desc: protobuf.DescMessage):
         self._factory = factory
         self._field = field
         self._sub_desc = sub_desc
 
-    def validate(self, ctx: RuleContext, message: message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message):
         val = getattr(message, self._field.name)
         if not val:
             return
