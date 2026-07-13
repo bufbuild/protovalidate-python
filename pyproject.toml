@@ -44,9 +44,9 @@ dev = [
   "poethepoet==0.48.0",
   "pytest==9.1.1",
   "pytest-benchmark==5.2.3",
-  "ruff==0.15.20",
+  "ruff==0.15.21",
   "tombi==1.2.0",
-  "ty==0.0.56",
+  "ty==0.0.59",
   "types-protobuf==6.32.1.20260221",
 
   # Unlike most dev dependencies, we don't pin to allow testing old and new versions
