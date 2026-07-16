@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from .....buf.validate.conformance.cases.other_package import embed_pb2 as _embed_pb2
 from .....buf.validate.conformance.cases.yet_another_package import embed2_pb2 as _embed2_pb2
 from .....buf.validate import validate_pb2 as _validate_pb2

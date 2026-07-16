@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from ....cel.expr import checked_pb2 as _checked_pb2
 from google.protobuf import struct_pb2 as _struct_pb2
 from google.protobuf import descriptor_pb2 as _descriptor_pb2

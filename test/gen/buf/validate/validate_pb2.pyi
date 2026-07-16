@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from google.protobuf import descriptor_pb2 as _descriptor_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import field_mask_pb2 as _field_mask_pb2
