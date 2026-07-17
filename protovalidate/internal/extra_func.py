@@ -12,17 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""celpy registration for protovalidate's custom CEL functions.
-
-The pure validators (isIp, isEmail, isHostname, ...) come from the shared
-``protovalidate.internal._funcs`` module. ``_wrap`` adapts them to celpy's
-conventions: it re-wraps their plain-Python return into the celtypes value the
-rule engine pattern-matches on, and translates their ``ValueError`` into
-``celpy.CELEvalError`` so error handling is unchanged. This module keeps the
-functions that are specific to celpy's value model: ``getField`` over a celpy
-``MessageType``, the celtypes ``unique``, ``matches`` (celpy's RE2 override), and
-``format``.
-"""
+"""celpy registration for protovalidate's custom CEL functions."""
 
 import functools
 import typing
