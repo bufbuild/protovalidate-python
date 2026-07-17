@@ -1,17 +1,5 @@
 #:schema https://json.schemastore.org/partial-poe.json
 
-[tasks.add-license-header]
-help = "Add license header to all source files"
-cmd = """
-go run github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@v1.69.0
-    --ignore .github --ignore buf.yaml
-    --ignore buf.gen.yaml
-    --ignore test/conformance/nonconforming.yaml
-    --license-type apache
-    --copyright-holder "Buf Technologies, Inc."
-    --year-range "2023-2026"
-"""
-
 [tasks.bench]
 help = "Run benchmarks"
 cmd = "pytest --benchmark-enable --benchmark-only --benchmark-autosave"
@@ -36,7 +24,7 @@ sequence = [
   "generate-cel",
   "generate-protovalidate",
   "generate-test",
-  "add-license-header",
+  "format-license-header",
   "format-protos",
 ]
 
@@ -59,8 +47,12 @@ sequence = [
   "format-python",
   "format-protos",
   "format-toml",
-  "add-license-header"
+  "format-license-header"
 ]
+
+[tasks.format-license-header]
+help = "Add/update license headers in source files"
+cmd = "license-header"
 
 [tasks.format-protos]
 help = "Apply auto-formatting to protobuf files"
@@ -86,8 +78,13 @@ sequence = [
   "lint-python",
   "lint-protos",
   "lint-toml",
+  "lint-license-header",
   { cmd = "uv lock --check" }
 ]
+
+[tasks.lint-license-header]
+help = "Check license headers in source files"
+cmd = "license-header --check"
 
 [tasks.lint-protos]
 help = "Apply linting to protobuf files"

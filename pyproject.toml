@@ -41,6 +41,7 @@ dev = [
   "buf-bin==1.71.0",
   "fix-protobuf-imports==0.1.7",
   "google-re2-stubs==0.1.1",
+  "license-header==0.0.1",
   "poethepoet==0.48.0",
   "pytest==9.1.1",
   "pytest-benchmark==5.2.3",
@@ -64,6 +65,17 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 raw-options = { fallback_version = "0.0.0" }
+
+## License headers
+[tool.licenseheader]
+copyright-holder = "Buf Technologies, Inc."
+year-range = "2023-2026"
+ignore = [
+  ".github",
+  "buf.yaml",
+  "buf.gen.yaml",
+  "test/conformance/nonconforming.yaml",
+]
 
 [tool.pytest]
 addopts = [
