@@ -49,12 +49,13 @@ dev = [
   "buf-bin==1.71.0",
   "fix-protobuf-imports==0.1.7",
   "google-re2-stubs==0.1.1",
+  "license-header==0.0.1",
   "poethepoet==0.48.0",
   "pytest==9.1.1",
   "pytest-benchmark==5.2.3",
-  "ruff==0.15.20",
+  "ruff==0.15.21",
   "tombi==1.2.0",
-  "ty==0.0.56",
+  "ty==0.0.59",
   "types-protobuf==6.32.1.20260221",
 
   "cel-expr-python>=0.1.3; python_version >= '3.11'",
@@ -71,6 +72,17 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 raw-options = { fallback_version = "0.0.0" }
+
+## License headers
+[tool.licenseheader]
+copyright-holder = "Buf Technologies, Inc."
+year-range = "2023-2026"
+ignore = [
+  ".github",
+  "buf.yaml",
+  "buf.gen.yaml",
+  "test/conformance/nonconforming.yaml",
+]
 
 [tool.pytest]
 addopts = [
