@@ -37,18 +37,7 @@ from protovalidate._gen.buf.validate import validate_pb
 from protovalidate.internal._core import CompilationError, RuleContext, Rules, Violation
 from protovalidate.internal.celexpr.bridge import GoogleBridge
 
-# protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
-_FieldDescriptorClass = google_descriptor.FieldDescriptor
-if hasattr(_FieldDescriptorClass, "is_repeated"):
-
-    def _is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
-        return field.is_repeated
-
-else:
-
-    def _is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
-        return field.label == google_descriptor.FieldDescriptor.LABEL_REPEATED
-
+from ._utils import is_repeated
 
 _FIELD_TYPE_NAMES: dict[int, str] = {
     google_descriptor.FieldDescriptor.TYPE_MESSAGE: "message",
@@ -124,7 +113,7 @@ def _scalar_field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDe
 
 
 def _field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDescriptor) -> typing.Any:
-    if _is_repeated(field):
+    if is_repeated(field):
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
             return dict(val)
         return list(val)
@@ -134,7 +123,7 @@ def _field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDescripto
 def _is_empty_field(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> bool:
     if field.has_presence:
         return not _proto_message_has_field(msg, field)
-    if _is_repeated(field):
+    if is_repeated(field):
         return len(_proto_message_get_field(msg, field)) == 0
     return _proto_message_get_field(msg, field) == field.default_value
 
@@ -910,7 +899,7 @@ class RuleFactory:
         *,
         force_ignore_empty: bool = False,
     ) -> FieldRules:
-        if not _is_repeated(field):
+        if not is_repeated(field):
             return self._new_scalar_field_rule(field, field_level, force_ignore_empty=force_ignore_empty)
         type_case = _which_type(field_level)
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
@@ -980,7 +969,7 @@ class RuleFactory:
                 key_field = gfield.message_type.fields_by_name["key"]
                 value_field = gfield.message_type.fields_by_name["value"]
                 result.append(MapValMsgRule(self, gfield, key_field, value_field, sub_desc))
-            elif _is_repeated(gfield):
+            elif is_repeated(gfield):
                 result.append(RepeatedMsgRule(self, gfield, sub_desc))
             else:
                 result.append(SubMsgRule(self, gfield, sub_desc))
