@@ -23,7 +23,6 @@ from protovalidate._gen.buf.validate import validate_pb
 from protovalidate.internal import backend, extra_func
 from protovalidate.internal import rules as _rules
 from protovalidate.internal._core import CompilationError, RuleContext, Violation
-from protovalidate.internal.legacy import LegacyMessageConverter
 
 if TYPE_CHECKING:
     from google.protobuf import message as google_message
@@ -108,6 +107,8 @@ class Validator:
         """
         try:
             import google.protobuf.message  # noqa: F401, PLC0415
+
+            from protovalidate.internal.legacy import LegacyMessageConverter  # noqa: PLC0415
 
             self._legacy = LegacyMessageConverter()
         except ImportError:
