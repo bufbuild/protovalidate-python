@@ -66,6 +66,8 @@ def test_conformance(*, legacy: bool, cel_backend: str) -> None:
 
     env = os.environ.copy()
     if legacy:
+        pytest.importorskip("google.protobuf", reason="optional dependency not installed")
+
         env["PROTOVALIDATE_CONFORMANCE_LEGACY"] = "1"
     env["PROTOVALIDATE_CONFORMANCE_BACKEND"] = cel_backend
 

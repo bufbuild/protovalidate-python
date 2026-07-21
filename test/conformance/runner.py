@@ -11,16 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
 import os
 import sys
+from typing import TYPE_CHECKING
 
 import celpy
 import protobuf
-from google.protobuf import descriptor_pb2 as google_descriptor_pb2
-from google.protobuf import descriptor_pool as google_descriptor_pool
-from google.protobuf import message as google_message
-from google.protobuf import message_factory as google_message_factory
 from protobuf import Oneof, Registry
 from protobuf import wkt as pb_wkt
 
@@ -34,6 +32,10 @@ from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
     TestResult,
 )
 
+if TYPE_CHECKING:
+    from google.protobuf import descriptor_pool as google_descriptor_pool
+    from google.protobuf import message as google_message
+
 # Set to test google.protobuf messages instead of protobuf-py
 _LEGACY = os.environ.get("PROTOVALIDATE_CONFORMANCE_LEGACY") == "1"
 
@@ -42,6 +44,9 @@ if os.environ.get("PROTOVALIDATE_CONFORMANCE_BACKEND") == "celpy":
 
 
 def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> google_descriptor_pool.DescriptorPool:
+    from google.protobuf import descriptor_pb2 as google_descriptor_pb2  # noqa: PLC0415
+    from google.protobuf import descriptor_pool as google_descriptor_pool  # noqa: PLC0415
+
     pool = google_descriptor_pool.DescriptorPool()
     by_name = {file.name: file for file in fdset.file}
     added: set[str] = set()
@@ -103,6 +108,8 @@ def run_any_test_case(
             return TestResult(result=Oneof(field="unexpected_error", value=f"cannot unpack {tc.type_url}"))
         msg = unpacked
     else:
+        from google.protobuf import message_factory as google_message_factory  # noqa: PLC0415
+
         try:
             google_desc = registry.FindMessageTypeByName(type_name)
         except KeyError:

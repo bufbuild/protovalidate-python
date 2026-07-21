@@ -19,8 +19,9 @@ from protobuf import Oneof
 import protovalidate
 from protovalidate.internal import rules
 
+from ._utils import _compare_violations, check_compilation_errors, check_valid
 from .conftest import backend_validators
-from .gen.tests.example.v1 import validations_pb, validations_pb2
+from .gen.tests.example.v1 import validations_pb
 
 validators: list[protovalidate.Validator] = [
     protovalidate,  # global module singleton
@@ -199,63 +200,6 @@ def test_fail_fast(validator):
     _compare_violations(violations, [expected_violation])
 
 
-@pytest.mark.parametrize("validator", validators)
-def test_legacy_message_valid(validator):
-    """A google.protobuf message validates through the legacy conversion path."""
-    msg = validations_pb2.DoubleFinite()
-    msg.val = 1.0
-
-    check_valid(validator, msg)
-
-
-@pytest.mark.parametrize("validator", validators)
-def test_legacy_message_invalid(validator):
-    msg = validations_pb2.DoubleFinite()
-    msg.val = float("-inf")
-
-    expected_violation = rules.Violation(
-        message="must be finite",
-        rule_id="double.finite",
-        field_value=msg.val,
-        rule_value=True,
-    )
-
-    with pytest.raises(protovalidate.ValidationError) as exc_info:
-        validator.validate(msg)
-    e = exc_info.value
-    assert str(e) == f"invalid {msg.DESCRIPTOR.name}"
-    _compare_violations(e.violations, [expected_violation])  # ty: ignore
-
-    violations = validator.collect_violations(msg)
-    _compare_violations(violations, [expected_violation])
-
-
-@pytest.mark.parametrize("validator", validators)
-def test_legacy_message_map_key(validator):
-    msg = validations_pb2.MapKeys()
-    msg.val[1] = "a"
-
-    expected_violation = rules.Violation(
-        message="must be less than 0",
-        rule_id="sint64.lt",
-        for_key=True,
-        field_value=1,
-        rule_value=0,
-    )
-
-    violations = validator.collect_violations(msg)
-    _compare_violations(violations, [expected_violation])
-
-
-def check_valid(validator: protovalidate.Validator, msg: protobuf.Message):
-    # Test validate
-    validator.validate(msg)
-
-    # Test collect_violations
-    violations = validator.collect_violations(msg)
-    assert len(violations) == 0
-
-
 def check_invalid(validator: protovalidate.Validator, msg: protobuf.Message, expected: list[rules.Violation]):
     # Test validate
     with pytest.raises(protovalidate.ValidationError) as exc_info:
@@ -267,31 +211,3 @@ def check_invalid(validator: protovalidate.Validator, msg: protobuf.Message, exp
     # Test collect_violations
     violations = validator.collect_violations(msg)
     _compare_violations(violations, expected)
-
-
-def check_compilation_errors(validator: protovalidate.Validator, msg: protobuf.Message, expected: str):
-    """A helper function for testing compilation errors when validating.
-
-    The tests are run using validators created via all possible methods and
-    validation is done via a call to `validate` as well as a call to `collect_violations`.
-    """
-    # Test validate
-    with pytest.raises(protovalidate.CompilationError) as vce:
-        validator.validate(msg)
-    assert str(vce.value) == expected
-
-    # Test collect_violations
-    with pytest.raises(protovalidate.CompilationError) as cvce:
-        validator.collect_violations(msg)
-    assert str(cvce.value) == expected
-
-
-def _compare_violations(actual: list[rules.Violation], expected: list[rules.Violation]):
-    """Compares two lists of violations. The violations are expected to be in the expected order also."""
-    assert len(actual) == len(expected)
-    for a, e in zip(actual, expected, strict=True):
-        assert a.proto.message == e.proto.message
-        assert a.proto.rule_id == e.proto.rule_id
-        assert a.proto.for_key == e.proto.for_key
-        assert a.field_value == e.field_value
-        assert a.rule_value == e.rule_value

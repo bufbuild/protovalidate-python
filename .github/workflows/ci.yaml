@@ -35,6 +35,12 @@ jobs:
       - run: uv sync
       - run: uv run poe test
 
+      # Ensure tests pass without optional dependencies. Issues would come from eager imports, so we go ahead
+      # and run the single conformance test only to keep this step lightweight and give high coverage.
+      - run: |
+          uv sync --no-dev
+          uv run --no-dev --group dev-required pytest -k test_conformance
+
   lint:
     runs-on: ubuntu-latest
     steps:

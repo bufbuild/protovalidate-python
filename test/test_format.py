@@ -20,13 +20,14 @@ from typing import Any
 import celpy
 import pytest
 from celpy import celtypes
-from google.protobuf import text_format as google_text_format
+from protobuf import Oneof
+from protobuf.txtpb import message_from_text
 
 from protovalidate.internal import extra_func
 from protovalidate.internal.cel_field_presence import InterpretedRunner
 
-from .gen.cel.expr import eval_pb2
-from .gen.cel.expr.conformance.test import simple_pb2
+from .gen.cel.expr import eval_pb
+from .gen.cel.expr.conformance.test import simple_pb
 from .versions import CEL_SPEC_VERSION
 
 skipped_tests = [
@@ -47,37 +48,35 @@ skipped_error_tests = [
 ]
 
 
-def load_test_data(file_name: str) -> simple_pb2.SimpleTestFile:
-    msg = simple_pb2.SimpleTestFile()
-    with open(file_name) as file:
-        text_data = file.read()
-        google_text_format.Parse(text_data, msg)
-    return msg
+def load_test_data(file_name: Path) -> simple_pb.SimpleTestFile:
+    return message_from_text(simple_pb.SimpleTestFile, file_name.read_text())
 
 
-def build_variables(bindings: MutableMapping[str, eval_pb2.ExprValue]) -> dict[Any, Any]:
+def build_variables(bindings: MutableMapping[str, eval_pb.ExprValue]) -> dict[Any, Any]:
     binder = {}
     for key, value in bindings.items():
-        if value.HasField("value"):
-            val = value.value
-            if val.HasField("string_value"):
-                binder[key] = celtypes.StringType(val.string_value)
+        match value.kind:
+            case Oneof("value", val):
+                match val.kind:
+                    case Oneof("string_value", s):
+                        binder[key] = celtypes.StringType(s)
     return binder
 
 
-def get_expected_result(test: simple_pb2.SimpleTest) -> str | None:
-    if test.HasField("value"):
-        val = test.value
-        if val.HasField("string_value"):
-            return val.string_value
+def get_expected_result(test: simple_pb.SimpleTest) -> str | None:
+    match test.result_matcher:
+        case Oneof("value", val):
+            match val.kind:
+                case Oneof("string_value", s):
+                    return s
     return None
 
 
-def get_eval_error_message(test: simple_pb2.SimpleTest) -> str | None:
-    if test.HasField("eval_error"):
-        err_set = test.eval_error
-        if len(err_set.errors) == 1:
-            return celtypes.StringType(err_set.errors[0].message)
+def get_eval_error_message(test: simple_pb.SimpleTest) -> str | None:
+    match test.result_matcher:
+        case Oneof("eval_error", err_set):
+            if len(err_set.errors) == 1:
+                return celtypes.StringType(err_set.errors[0].message)
     return None
 
 
@@ -92,9 +91,9 @@ sections = cel_test_data.section
 sections.extend(supplemental_test_data.section)
 
 # Find the format tests which test successful formatting
-_format_tests: Iterable[simple_pb2.SimpleTest] = chain.from_iterable(x.test for x in sections if x.name == "format")
+_format_tests: Iterable[simple_pb.SimpleTest] = chain.from_iterable(x.test for x in sections if x.name == "format")
 # Find the format error tests which test errors during formatting
-_format_error_tests: Iterable[simple_pb2.SimpleTest] = chain.from_iterable(
+_format_error_tests: Iterable[simple_pb.SimpleTest] = chain.from_iterable(
     x.test for x in sections if x.name == "format_errors"
 )
 
