@@ -14,6 +14,8 @@
 
 """Backend-agnostic rule-engine primitives shared by both CEL backends."""
 
+from __future__ import annotations
+
 import abc
 import typing
 
@@ -40,11 +42,15 @@ class Violation:
         rule_id: str = "",
         message: str = "",
         for_key: bool = False,
-    ):
+    ) -> None:
         self.field_value = field_value
         self.rule_value = rule_value
-        self._field_elements: list[validate_pb.FieldPathElement] = list(field.elements) if field is not None else []
-        self._rule_elements: list[validate_pb.FieldPathElement] = list(rule.elements) if rule is not None else []
+        self._field_elements: list[validate_pb.FieldPathElement] = (
+            list(field.elements) if field is not None else []
+        )
+        self._rule_elements: list[validate_pb.FieldPathElement] = (
+            list(rule.elements) if rule is not None else []
+        )
         self._rule_id = rule_id
         self._message = message
         self._for_key = for_key
@@ -52,7 +58,9 @@ class Violation:
     def append_field_element(self, element: validate_pb.FieldPathElement) -> None:
         self._field_elements.append(element)
 
-    def extend_rule_elements(self, elements: list[validate_pb.FieldPathElement]) -> None:
+    def extend_rule_elements(
+        self, elements: list[validate_pb.FieldPathElement]
+    ) -> None:
         self._rule_elements.extend(elements)
 
     def finalize_paths(self) -> None:
@@ -78,7 +86,7 @@ class RuleContext:
 
     _violations: list[Violation]
 
-    def __init__(self, *, fail_fast: bool = False):
+    def __init__(self, *, fail_fast: bool = False) -> None:
         self._fail_fast = fail_fast
         self._violations = []
 
@@ -86,17 +94,19 @@ class RuleContext:
     def violations(self) -> list[Violation]:
         return self._violations
 
-    def add(self, violation: Violation):
+    def add(self, violation: Violation) -> None:
         self._violations.append(violation)
 
-    def add_errors(self, other_ctx: "RuleContext"):
+    def add_errors(self, other_ctx: RuleContext) -> None:
         self._violations.extend(other_ctx.violations)
 
-    def add_field_path_element(self, element: validate_pb.FieldPathElement):
+    def add_field_path_element(self, element: validate_pb.FieldPathElement) -> None:
         for violation in self._violations:
             violation.append_field_element(element)
 
-    def add_rule_path_elements(self, elements: list[validate_pb.FieldPathElement]):
+    def add_rule_path_elements(
+        self, elements: list[validate_pb.FieldPathElement]
+    ) -> None:
         for violation in self._violations:
             violation.extend_rule_elements(elements)
 
@@ -107,7 +117,7 @@ class RuleContext:
     def has_errors(self) -> bool:
         return len(self._violations) > 0
 
-    def sub_context(self) -> "RuleContext":
+    def sub_context(self) -> RuleContext:
         return RuleContext(fail_fast=self._fail_fast)
 
 

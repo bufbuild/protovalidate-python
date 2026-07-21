@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Iterable, MutableMapping
+from __future__ import annotations
+
 from itertools import chain
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import celpy
 import pytest
@@ -23,12 +24,17 @@ from celpy import celtypes
 from protobuf import Oneof
 from protobuf.txtpb import message_from_text
 
-from protovalidate.internal import extra_func
-from protovalidate.internal.cel_field_presence import InterpretedRunner
+from protovalidate import _extra_func
+from protovalidate._cel_field_presence import InterpretedRunner
 
-from .gen.cel.expr import eval_pb
 from .gen.cel.expr.conformance.test import simple_pb
 from .versions import CEL_SPEC_VERSION
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, MutableMapping
+
+    from .gen.cel.expr import eval_pb
+
 
 skipped_tests = [
     # cel-python seems to have a bug with ints and booleans in the same map which evaluate to the same value
@@ -37,7 +43,7 @@ skipped_tests = [
     # "no such overload: IntType(0) <class 'celpy.celtypes.IntType'> !=
     #    BoolType(False) <class 'celpy.celtypes.BoolType'>",))
     # TODO: Check if this bug is fixed in newer versions of cel-python.
-    "map support (all key types)",
+    "map support (all key types)"
 ]
 skipped_error_tests = [
     # cel-python does not support Protobuf messages at the moment and these tests use a MessageType
@@ -82,16 +88,22 @@ def get_eval_error_message(test: simple_pb.SimpleTest) -> str | None:
 
 # The test data from the cel-spec conformance tests
 testdata_dir = Path(__file__).parent / "testdata"
-cel_test_data = load_test_data(testdata_dir / f"string_ext_{CEL_SPEC_VERSION}.textproto")
+cel_test_data = load_test_data(
+    testdata_dir / f"string_ext_{CEL_SPEC_VERSION}.textproto"
+)
 # Our supplemental tests of functionality not in the cel conformance file, but defined in the spec.
-supplemental_test_data = load_test_data(testdata_dir / "string_ext_supplemental.textproto")
+supplemental_test_data = load_test_data(
+    testdata_dir / "string_ext_supplemental.textproto"
+)
 
 # Combine the test data from both files into one
 sections = cel_test_data.section
 sections.extend(supplemental_test_data.section)
 
 # Find the format tests which test successful formatting
-_format_tests: Iterable[simple_pb.SimpleTest] = chain.from_iterable(x.test for x in sections if x.name == "format")
+_format_tests: Iterable[simple_pb.SimpleTest] = chain.from_iterable(
+    x.test for x in sections if x.name == "format"
+)
 # Find the format error tests which test errors during formatting
 _format_error_tests: Iterable[simple_pb.SimpleTest] = chain.from_iterable(
     x.test for x in sections if x.name == "format_errors"
@@ -100,36 +112,39 @@ _format_error_tests: Iterable[simple_pb.SimpleTest] = chain.from_iterable(
 env = celpy.Environment(runner_class=InterpretedRunner)
 
 
-def test_format_successes(subtests: pytest.Subtests):
-    """Tests success scenarios for string.format"""
+def test_format_successes(subtests: pytest.Subtests) -> None:
+    """Tests success scenarios for string.format."""
     for format_test in _format_tests:
         with subtests.test(msg=format_test.name):
             if format_test.name in skipped_tests:
                 pytest.skip(f"skipped test: {format_test.name}")
             ast = env.compile(format_test.expr)
-            prog = env.program(ast, functions=extra_func.make_extra_funcs())
+            prog = env.program(ast, functions=_extra_func.make_extra_funcs())
 
             bindings = build_variables(format_test.bindings)
             result = prog.evaluate(bindings)
             expected = get_expected_result(format_test)
-            assert expected is not None, f"[{format_test.name}]: expected a success result to be defined"
+            assert expected is not None, (
+                f"[{format_test.name}]: expected a success result to be defined"
+            )
             assert result == expected
 
 
-def test_format_errors(subtests: pytest.Subtests):
-    """Tests error scenarios for string.format"""
+def test_format_errors(subtests: pytest.Subtests) -> None:
+    """Tests error scenarios for string.format."""
     for format_error_test in _format_error_tests:
         with subtests.test(msg=format_error_test.name):
             if format_error_test.name in skipped_error_tests:
                 pytest.skip(f"skipped test: {format_error_test.name}")
             ast = env.compile(format_error_test.expr)
-            prog = env.program(ast, functions=extra_func.make_extra_funcs())
+            prog = env.program(ast, functions=_extra_func.make_extra_funcs())
 
             bindings = build_variables(format_error_test.bindings)
-            try:
+            with pytest.raises(celpy.CELEvalError) as exc_info:
                 prog.evaluate(bindings)
-                pytest.fail(f"[{format_error_test.name}]: expected an error to be raised during evaluation")
-            except celpy.CELEvalError as e:
-                msg = get_eval_error_message(format_error_test)
-                assert msg is not None, f"[{format_error_test.name}]: expected an eval error to be defined"
-                assert str(e) == msg
+
+            msg = get_eval_error_message(format_error_test)
+            assert msg is not None, (
+                f"[{format_error_test.name}]: expected an eval error to be defined"
+            )
+            assert str(exc_info.value) == msg

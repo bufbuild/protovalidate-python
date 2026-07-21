@@ -12,7 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .validator import CompilationError, ValidationError, Validator, Violation, Violations
+"""The semantic validation library for Protobuf in Python."""
+
+from __future__ import annotations
+
+from protovalidate._validator import (
+    CompilationError,
+    ValidationError,
+    Validator,
+    Violation,
+    Violations,
+)
 
 _default_validator = Validator()
 validate = _default_validator.validate

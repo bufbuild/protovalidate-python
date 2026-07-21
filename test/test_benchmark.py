@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import random
-from collections.abc import Callable, Iterator
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from protobuf import Message, Oneof
@@ -28,9 +30,6 @@ from protobuf.wkt import (
     UInt32Value,
     UInt64Value,
 )
-from pytest_benchmark.fixture import BenchmarkFixture
-
-import protovalidate
 
 from .conftest import BACKENDS, make_validator
 from .gen.bench.v1.bench_pb import (
@@ -43,8 +42,20 @@ from .gen.bench.v1.bench_pb import (
     BenchRepeatedScalarUnique,
     BenchScalar,
 )
-from .gen.bench.v1.native_pb import BenchGT, MultiRule, StringMatching, WrapperTesting
-from .gen.bench.v1.native_pb import TestByteMatching as ByteMatching
+from .gen.bench.v1.native_pb import (
+    BenchGT,
+    MultiRule,
+    StringMatching,
+    TestByteMatching as ByteMatching,
+    WrapperTesting,
+)
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+
+    from pytest_benchmark.fixture import BenchmarkFixture
+
+    import protovalidate
 
 
 def gen_bytes(n: int, salt: int) -> bytes:
@@ -100,8 +111,14 @@ def gen_complex(depth: int) -> BenchComplexSchema:
         map_i32_i64={1: 10, 2: 20, 3: 30},
         map_u64_bool={1: True, 2: False},
         map_str_bytes={"k": gen_bytes(2, 0)},
-        map_str_msg={"a": BenchScalar(x=random.randint(1, 100)), "b": BenchScalar(x=random.randint(1, 100))},
-        map_i64_msg={1: BenchScalar(x=random.randint(1, 100)), 2: BenchScalar(x=random.randint(1, 100))},
+        map_str_msg={
+            "a": BenchScalar(x=random.randint(1, 100)),
+            "b": BenchScalar(x=random.randint(1, 100)),
+        },
+        map_i64_msg={
+            1: BenchScalar(x=random.randint(1, 100)),
+            2: BenchScalar(x=random.randint(1, 100)),
+        },
         enum_field=BenchEnum.ONE,
         choice=Oneof(field="oneof_str", value=random.choice(words)),
         self_ref=gen_complex(depth - 1) if depth > 0 else None,
@@ -113,21 +130,41 @@ def validator(request: pytest.FixtureRequest) -> protovalidate.Validator:
     return make_validator(request.param)
 
 
-def param(*args, id: str) -> pytest.param:  # noqa: A002
-    """Copies pytest id to a fixture parameter since pytest-benchmark doesn't allow
-    grouping on the former."""
+def param(*args: Any, id: str) -> pytest.param:  # noqa: A002
     return pytest.param(id, *args, id=id)
 
 
 # Use lambda factories to allow random seed fixture to apply before computing
 cases = [
     param(lambda: BenchScalar(x=42), id="scalar"),
-    param(lambda: BenchRepeatedScalar(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), id="repeated_scalar"),
-    param(lambda: BenchRepeatedMessage(x=[BenchScalar(x=i + 1) for i in range(10)]), id="repeated_message"),
-    param(lambda: BenchRepeatedScalarUnique(x=[1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8]), id="repeated_unique_scalar"),
-    param(lambda: BenchRepeatedBytesUnique(x=[gen_bytes(4, i + 1) for i in range(8)]), id="repeated_unique_bytes"),
     param(
-        lambda: BenchMap(entries={"k1": "v1", "k2": "v2", "k3": "v3", "k4": "v4", "k5": "v5", "k6": "v6", "k7": "v7"}),
+        lambda: BenchRepeatedScalar(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+        id="repeated_scalar",
+    ),
+    param(
+        lambda: BenchRepeatedMessage(x=[BenchScalar(x=i + 1) for i in range(10)]),
+        id="repeated_message",
+    ),
+    param(
+        lambda: BenchRepeatedScalarUnique(x=[1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8]),
+        id="repeated_unique_scalar",
+    ),
+    param(
+        lambda: BenchRepeatedBytesUnique(x=[gen_bytes(4, i + 1) for i in range(8)]),
+        id="repeated_unique_bytes",
+    ),
+    param(
+        lambda: BenchMap(
+            entries={
+                "k1": "v1",
+                "k2": "v2",
+                "k3": "v3",
+                "k4": "v4",
+                "k5": "v5",
+                "k6": "v6",
+                "k7": "v7",
+            }
+        ),
         id="map",
     ),
     param(lambda: gen_complex(1), id="complex_schema"),
@@ -197,6 +234,6 @@ def test_benchmark(
     message_factory: Callable[[], Message],
     benchmark: BenchmarkFixture,
     validator: protovalidate.Validator,
-):
+) -> None:
     message = message_factory()
     benchmark(validator.collect_violations, message)

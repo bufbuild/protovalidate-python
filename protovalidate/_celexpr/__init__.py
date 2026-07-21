@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from google.protobuf import descriptor as google_descriptor
 
-# protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
-_FieldDescriptorClass = google_descriptor.FieldDescriptor
-if hasattr(_FieldDescriptorClass, "is_repeated"):
+"""The cel-expr-python (cel-cpp) validation engine."""
 
-    def is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
-        return field.is_repeated
+from __future__ import annotations
 
-else:
+from .bridge import GoogleBridge
+from .extra_func import make_extension
+from .rules import RuleFactory
 
-    def is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
-        return field.label == google_descriptor.FieldDescriptor.LABEL_REPEATED
+__all__ = ["GoogleBridge", "RuleFactory", "make_extension"]

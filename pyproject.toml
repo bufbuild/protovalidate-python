@@ -107,52 +107,71 @@ strict = true
 testpaths = ["test"]
 
 [tool.ruff]
-line-length = 120
-exclude = [
-  # Protobuf generated code
-  "test/gen/**",
+target-version = "py310"
+exclude = ["*_pb2.py", "*_pb2.pyi"]
+
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+docstring-code-format = true
+
+[tool.ruff.lint]
+typing-extensions = false
+select = ["ALL"]
+ignore = [
+  # Rules recommended to ignore when using ruff formatting
+  # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+  "W191",
+  "E111",
+  "E114",
+  "E117",
+  "E501",
+  "D206",
+  "D300",
+  "Q",
+  "COM812",
+  "COM819",
+
+  "TRY003",  # Avoid specifying long messages outside the exception class
+  "SLF001",  # Private member accessed
+  "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed
+  "PLR2004",  # Magic value used in comparison - not helpful to name obvious constants
+  # Complexity rules: humans reviewing code can judge whether complexity is justified.
+  "C901",  # McCabe complexity
+  "PLR0911",  # Too many return statements
+  "PLR0912",  # Too many branches
+  "PLR0913",  # Too many arguments in function definition
+  "PLR0914",  # Too many local variables
+  "PLR0915",  # Too many statements
+  "PLR0916",  # Too many boolean expressions
+  "PLR1702",  # Too many nested blocks
+
+  # TODO rules
+  "TD",
+  "FIX002",  # Line contains TODO, consider resolving the issue
 ]
 
-lint.select = [
-  "A",
-  "ARG",
-  "B",
-  "C",
-  "DTZ",
-  "E",
-  "EM",
-  "F",
-  "FBT",
-  "I",
-  "ICN",
-  "N",
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  "Q",
-  "RUF",
-  "S",
-  "T",
-  "TID",
-  "UP",
-  "W",
-  "YTT",
+[tool.ruff.lint.per-file-ignores]
+"**/test/**/*.py" = [
+  # missing docstrings; unnecessary in tests.
+  "D1",
+
+  "INP001",  # File is part of an implicit namespace package
+
+  "FBT001",  # boolean positional args are fine in tests
+  "FBT002",  # boolean default positional args are fine in tests
+  "FBT003",  # boolean positional values are fine in tests
+  "S101",  # assert is expected in tests
 ]
-lint.ignore = [
-  # Ignore complexity
-  "C901",
-  "PLR0911",
-  "PLR0912",
-  "PLR0913",
-  "PLR0915",
-  # Ignore magic values - in this library, most are obvious in context.
-  "PLR2004",
+"**/scripts/*.py" = [
+  # missing docstrings; unnecessary in scripts.
+  "D1",
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["protovalidate", "buf"]
+required-imports = ["from __future__ import annotations"]
+combine-as-imports = true
+known-third-party = []
+split-on-trailing-comma = false
 
-[tool.ruff.lint.per-file-ignores]
-# Tests can use assertions.
-"test/**/*" = ["S101"]
+[tool.ruff.lint.pydocstyle]
+convention = "google"

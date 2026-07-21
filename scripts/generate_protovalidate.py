@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import re
 import shutil
 import subprocess
@@ -21,15 +23,16 @@ from test.versions import PROTOVALIDATE_VERSION
 
 
 def main() -> None:
+    """Generate protovalidate and protovalidate-testing proto stubs."""
     if re.match(r"^v\d+\.\d+\.\d+(\-.+)?$", PROTOVALIDATE_VERSION):
         # Version tag, fetch from BSR
         protovalidate_path = f"buf.build/bufbuild/protovalidate:{PROTOVALIDATE_VERSION}"
-        protovalidate_testing_path = f"buf.build/bufbuild/protovalidate-testing:{PROTOVALIDATE_VERSION}"
+        protovalidate_testing_path = (
+            f"buf.build/bufbuild/protovalidate-testing:{PROTOVALIDATE_VERSION}"
+        )
     else:
         # Not a tag, generally an unreleased commit, fetch directly from git
-        protovalidate_path = (
-            f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate,ref={PROTOVALIDATE_VERSION}"
-        )
+        protovalidate_path = f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate,ref={PROTOVALIDATE_VERSION}"
         protovalidate_testing_path = f"https://github.com/bufbuild/protovalidate.git#subdir=proto/protovalidate-testing,ref={PROTOVALIDATE_VERSION}"
 
     repo = Path(__file__).parent.parent

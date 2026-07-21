@@ -19,11 +19,10 @@ from typing import TYPE_CHECKING
 
 import celpy
 import protobuf
-from protobuf import Oneof, Registry
-from protobuf import wkt as pb_wkt
+from protobuf import Oneof, Registry, wkt as pb_wkt
 
 import protovalidate
-from protovalidate.internal import backend
+from protovalidate import _backend
 
 from ..gen.buf.validate import validate_pb  # noqa: TID252
 from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
@@ -33,19 +32,25 @@ from ..gen.buf.validate.conformance.harness.harness_pb import (  # noqa: TID252
 )
 
 if TYPE_CHECKING:
-    from google.protobuf import descriptor_pool as google_descriptor_pool
-    from google.protobuf import message as google_message
+    from google.protobuf import (
+        descriptor_pool as google_descriptor_pool,
+        message as google_message,
+    )
 
 # Set to test google.protobuf messages instead of protobuf-py
 _LEGACY = os.environ.get("PROTOVALIDATE_CONFORMANCE_LEGACY") == "1"
 
 if os.environ.get("PROTOVALIDATE_CONFORMANCE_BACKEND") == "celpy":
-    backend.CEL_EXPR_AVAILABLE = False
+    _backend.CEL_EXPR_AVAILABLE = False
 
 
-def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> google_descriptor_pool.DescriptorPool:
-    from google.protobuf import descriptor_pb2 as google_descriptor_pb2  # noqa: PLC0415
-    from google.protobuf import descriptor_pool as google_descriptor_pool  # noqa: PLC0415
+def build_google_pool(
+    fdset: pb_wkt.FileDescriptorSet,
+) -> google_descriptor_pool.DescriptorPool:
+    from google.protobuf import (  # noqa: PLC0415
+        descriptor_pb2 as google_descriptor_pb2,
+        descriptor_pool as google_descriptor_pool,
+    )
 
     pool = google_descriptor_pool.DescriptorPool()
     by_name = {file.name: file for file in fdset.file}
@@ -58,28 +63,33 @@ def build_google_pool(fdset: pb_wkt.FileDescriptorSet) -> google_descriptor_pool
         added.add(name)
         for dep in proto.dependency:
             add(dep)
-        pool.Add(google_descriptor_pb2.FileDescriptorProto.FromString(proto.to_binary()))
+        pool.Add(
+            google_descriptor_pb2.FileDescriptorProto.FromString(proto.to_binary())
+        )
 
     for file in fdset.file:
         add(file.name)
     return pool
 
 
-def run_test_case(validator: protovalidate.Validator, tc: protobuf.Message | google_message.Message) -> TestResult:
+def run_test_case(
+    validator: protovalidate.Validator, tc: protobuf.Message | google_message.Message
+) -> TestResult:
     # Run the validator
     try:
         violations = validator.collect_violations(tc)
         if len(violations) > 0:
             # Convert from protovalidate bundled proto to test harness's.
-            pv_violations = protovalidate.Violations(violations=[violation.proto for violation in violations])
+            pv_violations = protovalidate.Violations(
+                violations=[violation.proto for violation in violations]
+            )
             return TestResult(
                 result=Oneof(
                     field="validation_error",
                     value=validate_pb.Violations.from_binary(pv_violations.to_binary()),
                 )
             )
-        else:
-            return TestResult(result=Oneof(field="success", value=True))
+        return TestResult(result=Oneof(field="success", value=True))
     except protovalidate.CompilationError as e:
         return TestResult(result=Oneof(field="compilation_error", value=str(e)))
     except celpy.CELEvalError as e:
@@ -88,7 +98,7 @@ def run_test_case(validator: protovalidate.Validator, tc: protobuf.Message | goo
         return TestResult(result=Oneof(field="runtime_error", value=str(e)))
     except RuntimeError as e:
         return TestResult(result=Oneof(field="runtime_error", value=str(e)))
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         return TestResult(result=Oneof(field="unexpected_error", value=str(e)))
 
 
@@ -102,26 +112,36 @@ def run_any_test_case(
     if isinstance(registry, Registry):
         desc = registry.message(type_name)
         if desc is None:
-            return TestResult(result=Oneof(field="unexpected_error", value=f"unknown type: {type_name}"))
+            return TestResult(
+                result=Oneof(
+                    field="unexpected_error", value=f"unknown type: {type_name}"
+                )
+            )
         unpacked = tc.unpack(desc)
         if unpacked is None:
-            return TestResult(result=Oneof(field="unexpected_error", value=f"cannot unpack {tc.type_url}"))
+            return TestResult(
+                result=Oneof(
+                    field="unexpected_error", value=f"cannot unpack {tc.type_url}"
+                )
+            )
         msg = unpacked
     else:
-        from google.protobuf import message_factory as google_message_factory  # noqa: PLC0415
+        from google.protobuf import message_factory as google_message_factory  # noqa: PLC0415, I001
 
         try:
             google_desc = registry.FindMessageTypeByName(type_name)
         except KeyError:
-            return TestResult(result=Oneof(field="unexpected_error", value=f"unknown type: {type_name}"))
+            return TestResult(
+                result=Oneof(
+                    field="unexpected_error", value=f"unknown type: {type_name}"
+                )
+            )
         msg = google_message_factory.GetMessageClass(google_desc)()
         msg.ParseFromString(tc.value)
     return run_test_case(validator, msg)
 
 
-def run_conformance_test(
-    request: TestConformanceRequest,
-) -> TestConformanceResponse:
+def run_conformance_test(request: TestConformanceRequest) -> TestConformanceResponse:
     registry = request.fdset.to_registry()
     # The registry resolves the conformance suite's custom predefined-rule extensions.
     validator = protovalidate.Validator(registry=registry)

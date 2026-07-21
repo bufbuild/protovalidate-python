@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import typing
 
-from google.protobuf import descriptor as google_descriptor
-from google.protobuf import message as google_message
 from protobuf import Message
 from protobuf.wkt import FileDescriptorProto, FileDescriptorSet
+
+if typing.TYPE_CHECKING:
+    from google.protobuf import (
+        descriptor as google_descriptor,
+        message as google_message,
+    )
 
 
 class LegacyMessageConverter:
@@ -35,7 +41,7 @@ class LegacyMessageConverter:
         if isinstance(msg, Message):
             return msg
         # Normalize upb descriptor type
-        desc = typing.cast(google_descriptor.Descriptor, msg.DESCRIPTOR)
+        desc = typing.cast("google_descriptor.Descriptor", msg.DESCRIPTOR)
         cls = self._types.get(desc)
         if cls is None:
             cls = _message_class(desc)
@@ -53,7 +59,9 @@ def _message_class(desc: google_descriptor.Descriptor) -> type[Message]:
     return result.type
 
 
-def _collect_files(file: google_descriptor.FileDescriptor, out: dict[str, FileDescriptorProto]) -> None:
+def _collect_files(
+    file: google_descriptor.FileDescriptor, out: dict[str, FileDescriptorProto]
+) -> None:
     if file.name in out:
         return
     for dep in file.dependencies:

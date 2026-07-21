@@ -14,30 +14,36 @@
 
 """The rule engine."""
 
+from __future__ import annotations
+
 import dataclasses
 import datetime
 import functools
 import typing
-from collections.abc import Container
 
 import protobuf
 from cel_expr_python import cel
 from cel_expr_python.ext import ext_strings
-from google.protobuf import any_pb2 as google_any_pb2
-from google.protobuf import descriptor as google_descriptor
-from google.protobuf import descriptor_pool as google_descriptor_pool
-from google.protobuf import message as google_message
-from google.protobuf import wrappers_pb2 as google_wrappers_pb2
+from google.protobuf import (
+    any_pb2 as google_any_pb2,
+    descriptor as google_descriptor,
+    descriptor_pool as google_descriptor_pool,
+    message as google_message,
+    wrappers_pb2 as google_wrappers_pb2,
+)
 from protobuf import Oneof
 from protobuf.wkt import FieldDescriptorProto
 
+# Backend-agnostic primitives shared with the celpy engine (protovalidate.internal.rules).
+from protovalidate._core import CompilationError, RuleContext, Rules, Violation
 from protovalidate._gen.buf.validate import validate_pb
 
-# Backend-agnostic primitives shared with the celpy engine (protovalidate.internal.rules).
-from protovalidate.internal._core import CompilationError, RuleContext, Rules, Violation
-from protovalidate.internal.celexpr.bridge import GoogleBridge
-
 from ._utils import is_repeated
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Container
+
+    from protovalidate._celexpr.bridge import GoogleBridge
 
 _FIELD_TYPE_NAMES: dict[int, str] = {
     google_descriptor.FieldDescriptor.TYPE_MESSAGE: "message",
@@ -65,13 +71,17 @@ def _get_type_name(fd: typing.Any) -> str:
     return _FIELD_TYPE_NAMES.get(fd, "unknown")
 
 
-def _proto_message_has_field(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> typing.Any:
+def _proto_message_has_field(
+    msg: google_message.Message, field: google_descriptor.FieldDescriptor
+) -> typing.Any:
     if field.is_extension:
         return msg.HasExtension(field)  # ty: ignore[invalid-argument-type]
     return msg.HasField(field.name)
 
 
-def _proto_message_get_field(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> typing.Any:
+def _proto_message_get_field(
+    msg: google_message.Message, field: google_descriptor.FieldDescriptor
+) -> typing.Any:
     if field.is_extension:
         return msg.Extensions[field]  # ty: ignore[invalid-argument-type]
     return getattr(msg, field.name)
@@ -87,7 +97,9 @@ _UNSIGNED_FIELD_TYPES = frozenset(
 )
 
 
-def _scalar_field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDescriptor) -> typing.Any:
+def _scalar_field_value_to_cel(
+    val: typing.Any, field: google_descriptor.FieldDescriptor
+) -> typing.Any:
     # The runtime converts Python scalars and messages (including the
     # well-known wrapper, timestamp, and duration types) to CEL values
     # natively, so most values pass through unchanged. The exceptions ride in
@@ -112,7 +124,9 @@ def _scalar_field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDe
     return val
 
 
-def _field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDescriptor) -> typing.Any:
+def _field_value_to_cel(
+    val: typing.Any, field: google_descriptor.FieldDescriptor
+) -> typing.Any:
     if is_repeated(field):
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
             return dict(val)
@@ -120,7 +134,9 @@ def _field_value_to_cel(val: typing.Any, field: google_descriptor.FieldDescripto
     return _scalar_field_value_to_cel(val, field)
 
 
-def _is_empty_field(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> bool:
+def _is_empty_field(
+    msg: google_message.Message, field: google_descriptor.FieldDescriptor
+) -> bool:
     if field.has_presence:
         return not _proto_message_has_field(msg, field)
     if is_repeated(field):
@@ -128,7 +144,9 @@ def _is_empty_field(msg: google_message.Message, field: google_descriptor.FieldD
     return _proto_message_get_field(msg, field) == field.default_value
 
 
-def field_to_cel(msg: google_message.Message, field: google_descriptor.FieldDescriptor) -> typing.Any:
+def field_to_cel(
+    msg: google_message.Message, field: google_descriptor.FieldDescriptor
+) -> typing.Any:
     return _field_value_to_cel(_proto_message_get_field(msg, field), field)
 
 
@@ -137,7 +155,9 @@ def _ftype(google_type: int) -> FieldDescriptorProto.Type:
     return FieldDescriptorProto.Type(google_type)
 
 
-def _field_to_element(field: google_descriptor.FieldDescriptor) -> validate_pb.FieldPathElement:
+def _field_to_element(
+    field: google_descriptor.FieldDescriptor,
+) -> validate_pb.FieldPathElement:
     """A FieldPathElement for a (google) field of the message being validated."""
     return validate_pb.FieldPathElement(
         field_number=field.number,
@@ -146,7 +166,9 @@ def _field_to_element(field: google_descriptor.FieldDescriptor) -> validate_pb.F
     )
 
 
-def _indexed_field_element(field: google_descriptor.FieldDescriptor, index: int) -> validate_pb.FieldPathElement:
+def _indexed_field_element(
+    field: google_descriptor.FieldDescriptor, index: int
+) -> validate_pb.FieldPathElement:
     return validate_pb.FieldPathElement(
         field_number=field.number,
         field_name=field.name if not field.is_extension else f"[{field.full_name}]",
@@ -155,7 +177,9 @@ def _indexed_field_element(field: google_descriptor.FieldDescriptor, index: int)
     )
 
 
-def _oneof_to_element(oneof: google_descriptor.OneofDescriptor) -> validate_pb.FieldPathElement:
+def _oneof_to_element(
+    oneof: google_descriptor.OneofDescriptor,
+) -> validate_pb.FieldPathElement:
     return validate_pb.FieldPathElement(field_name=oneof.name)
 
 
@@ -217,7 +241,9 @@ def _spec_element(pb_field: protobuf.DescField) -> validate_pb.FieldPathElement:
     )
 
 
-def _indexed_spec_element(pb_field: protobuf.DescField, index: int) -> validate_pb.FieldPathElement:
+def _indexed_spec_element(
+    pb_field: protobuf.DescField, index: int
+) -> validate_pb.FieldPathElement:
     return validate_pb.FieldPathElement(
         field_number=pb_field.number,
         field_name=pb_field.name,
@@ -243,7 +269,9 @@ def _google_predefined_ext() -> typing.Any:
     ``buf.validate`` (and the user's files, which define any custom predefined
     rule extensions) when it bridges rule messages.
     """
-    return google_descriptor_pool.Default().FindExtensionByName("buf.validate.predefined")
+    return google_descriptor_pool.Default().FindExtensionByName(
+        "buf.validate.predefined"
+    )
 
 
 def _message_child(pb_field: protobuf.DescField) -> protobuf.DescMessage | None:
@@ -251,9 +279,13 @@ def _message_child(pb_field: protobuf.DescField) -> protobuf.DescMessage | None:
     value = pb_field.value
     if isinstance(value, protobuf.DescFieldValueMessage):
         return value.message
-    if isinstance(value, protobuf.DescFieldValueList) and isinstance(value.element, protobuf.DescMessage):
+    if isinstance(value, protobuf.DescFieldValueList) and isinstance(
+        value.element, protobuf.DescMessage
+    ):
         return value.element
-    if isinstance(value, protobuf.DescFieldValueMap) and isinstance(value.value, protobuf.DescMessage):
+    if isinstance(value, protobuf.DescFieldValueMap) and isinstance(
+        value.value, protobuf.DescMessage
+    ):
         return value.value
     return None
 
@@ -278,7 +310,7 @@ class CelRules(Rules):
     _rules: google_message.Message | None = None
     _uses_now: bool = False
 
-    def __init__(self, rules_google: google_message.Message | None):
+    def __init__(self, rules_google: google_message.Message | None) -> None:
         self._cel = []
         self._rules = rules_google
 
@@ -289,7 +321,7 @@ class CelRules(Rules):
         this_value: typing.Any | None = None,
         this_cel: typing.Any | None = None,
         for_key: bool = False,
-    ):
+    ) -> None:
         if not self._cel:
             return
         activation: dict[str, typing.Any] = {}
@@ -315,7 +347,7 @@ class CelRules(Rules):
                             rule_id=runner.rule.id,
                             message=msg,
                             for_key=for_key,
-                        ),
+                        )
                     )
             elif result_type == cel.Type.STRING:
                 # Formatting bytes with %s can yield a CEL string that is not
@@ -333,7 +365,7 @@ class CelRules(Rules):
                             rule_id=runner.rule.id,
                             message=result_message,  # ty: ignore[invalid-argument-type]
                             for_key=for_key,
-                        ),
+                        )
                     )
             elif result_type == cel.Type.ERROR:
                 raise RuntimeError(str(result.plain_value()))
@@ -345,7 +377,7 @@ class CelRules(Rules):
         *,
         rule_field: google_descriptor.FieldDescriptor | None = None,
         rule_path: validate_pb.FieldPath | None = None,
-    ):
+    ) -> None:
         if isinstance(rules, str):
             expression = rules
             rules = validate_pb.Rule(id=expression, expression=expression)
@@ -372,14 +404,18 @@ class CelRules(Rules):
 
 
 class MessageOneofRule(Rules):
-    """Validates a single buf.validate.MessageOneofRule given via the message option (buf.validate.message).oneof"""
+    """Validates a single buf.validate.MessageOneofRule given via the message option (buf.validate.message).oneof."""
 
-    def __init__(self, fields: list[google_descriptor.FieldDescriptor], *, required: bool):
+    def __init__(
+        self, fields: list[google_descriptor.FieldDescriptor], *, required: bool
+    ) -> None:
         self._fields = fields
         self._required = required
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
-        num_set_fields = sum(1 for field in self._fields if not _is_empty_field(message, field))
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
+        num_set_fields = sum(
+            1 for field in self._fields if not _is_empty_field(message, field)
+        )
         if num_set_fields > 1:
             ctx.add(
                 Violation(
@@ -401,12 +437,16 @@ class MessageRules(CelRules):
 
     _oneofs: list[MessageOneofRule]
 
-    def __init__(self, rules_google: google_message.Message | None, desc: google_descriptor.Descriptor):
+    def __init__(
+        self,
+        rules_google: google_message.Message | None,
+        desc: google_descriptor.Descriptor,
+    ) -> None:
         super().__init__(rules_google)
         self._oneofs = []
         self._desc = desc
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         if self._cel:
             self._validate_cel(ctx, this_cel=message)
             if ctx.done:
@@ -416,7 +456,7 @@ class MessageRules(CelRules):
             if ctx.done:
                 return
 
-    def add_oneof(self, rule: typing.Any):
+    def add_oneof(self, rule: typing.Any) -> None:
         fields = []
         seen = set()
         if len(rule.fields) == 0:
@@ -435,16 +475,23 @@ class MessageRules(CelRules):
         self._oneofs.append(MessageOneofRule(fields, required=rule.required))
 
 
-def check_field_type(field: google_descriptor.FieldDescriptor, expected: int, wrapper_name: str | None = None):
+def check_field_type(
+    field: google_descriptor.FieldDescriptor,
+    expected: int,
+    wrapper_name: str | None = None,
+) -> None:
     if field.type != expected and (
-        field.type != google_descriptor.FieldDescriptor.TYPE_MESSAGE or field.message_type.full_name != wrapper_name
+        field.type != google_descriptor.FieldDescriptor.TYPE_MESSAGE
+        or field.message_type.full_name != wrapper_name
     ):
         field_type_str = _get_type_name(field.type)
         if expected == 0:
             if wrapper_name is not None:
                 expected_type_str = wrapper_name
             else:
-                expected_type_str = _get_type_name(google_descriptor.FieldDescriptor.TYPE_MESSAGE)
+                expected_type_str = _get_type_name(
+                    google_descriptor.FieldDescriptor.TYPE_MESSAGE
+                )
         else:
             expected_type_str = _get_type_name(expected)
         msg = f"field {field.name} has type {field_type_str} but expected {expected_type_str}"
@@ -470,7 +517,7 @@ class FieldRules(CelRules):
         *,
         for_items: bool = False,
         force_ignore_empty: bool = False,
-    ):
+    ) -> None:
         type_case = _which_type(field_level)
         rules_pb = field_level.type.value if type_case is not None else None
         super().__init__(bridge.to_google(rules_pb) if rules_pb is not None else None)
@@ -490,8 +537,12 @@ class FieldRules(CelRules):
             # files, so custom extension rules decode (they would otherwise
             # remain undecoded on the relocatable protobuf-py stub).
             g_rules = self._rules
-            assert g_rules is not None  # rules_pb set implies the bridged rules # noqa: S101
-            assert type_case is not None  # rules_pb set implies a type oneof # noqa: S101
+            assert (  # noqa: S101
+                g_rules is not None
+            )  # rules_pb set implies the bridged rules
+            assert (  # noqa: S101
+                type_case is not None
+            )  # rules_pb set implies a type oneof
             type_field = _spec_field(validate_pb.FieldRules, type_case)
             predefined_ext = _google_predefined_ext()
             for rule_field, _value in g_rules.ListFields():
@@ -504,7 +555,10 @@ class FieldRules(CelRules):
                         cel_rule,
                         rule_field=rule_field,
                         rule_path=validate_pb.FieldPath(
-                            elements=[_field_to_element(rule_field), _spec_element(type_field)]
+                            elements=[
+                                _field_to_element(rule_field),
+                                _spec_element(type_field),
+                            ]
                         ),
                     )
         cel_expression_field = _spec_field(validate_pb.FieldRules, "cel_expression")
@@ -512,27 +566,33 @@ class FieldRules(CelRules):
             self.add_rule(
                 env,
                 cel_rule,
-                rule_path=validate_pb.FieldPath(elements=[_indexed_spec_element(cel_expression_field, i)]),
+                rule_path=validate_pb.FieldPath(
+                    elements=[_indexed_spec_element(cel_expression_field, i)]
+                ),
             )
         cel_field = _spec_field(validate_pb.FieldRules, "cel")
         for i, cel_rule in enumerate(field_level.cel):
             self.add_rule(
                 env,
                 cel_rule,
-                rule_path=validate_pb.FieldPath(elements=[_indexed_spec_element(cel_field, i)]),
+                rule_path=validate_pb.FieldPath(
+                    elements=[_indexed_spec_element(cel_field, i)]
+                ),
             )
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         if _is_empty_field(message, self._field):
             if self._required:
                 ctx.add(
                     Violation(
-                        field=validate_pb.FieldPath(elements=[_field_to_element(self._field)]),
+                        field=validate_pb.FieldPath(
+                            elements=[_field_to_element(self._field)]
+                        ),
                         rule=FieldRules._required_rule_path,
                         rule_value=self._required,
                         rule_id="required",
                         message="value is required",
-                    ),
+                    )
                 )
                 return
             if self._ignore_empty:
@@ -547,13 +607,20 @@ class FieldRules(CelRules):
             sub_ctx.add_field_path_element(element)
             ctx.add_errors(sub_ctx)
 
-    def validate_item(self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False):
+    def validate_item(
+        self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False
+    ) -> None:
         self._validate_value(ctx, value, for_key=for_key)
         self._validate_cel(
-            ctx, this_value=value, this_cel=_scalar_field_value_to_cel(value, self._field), for_key=for_key
+            ctx,
+            this_value=value,
+            this_cel=_scalar_field_value_to_cel(value, self._field),
+            for_key=for_key,
         )
 
-    def _validate_value(self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False):
+    def _validate_value(
+        self, ctx: RuleContext, value: typing.Any, *, for_key: bool = False
+    ) -> None:
         pass
 
 
@@ -564,14 +631,14 @@ class AnyRules(FieldRules):
         elements=[
             _spec_element(_spec_field(validate_pb.AnyRules, "in")),
             _spec_element(_spec_field(validate_pb.FieldRules, "any")),
-        ],
+        ]
     )
 
     _not_in_rule_path: typing.ClassVar[validate_pb.FieldPath] = validate_pb.FieldPath(
         elements=[
             _spec_element(_spec_field(validate_pb.AnyRules, "not_in")),
             _spec_element(_spec_field(validate_pb.FieldRules, "any")),
-        ],
+        ]
     )
 
     def __init__(
@@ -580,13 +647,15 @@ class AnyRules(FieldRules):
         bridge: GoogleBridge,
         field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
-    ):
+    ) -> None:
         super().__init__(env, bridge, field, field_level)
         any_rules = field_level.type.value
         self._in = list(any_rules.in_) or []
         self._not_in: Container[str] = list(any_rules.not_in) or []
 
-    def _validate_value(self, ctx: RuleContext, value: google_any_pb2.Any, *, for_key: bool = False):
+    def _validate_value(
+        self, ctx: RuleContext, value: google_any_pb2.Any, *, for_key: bool = False
+    ) -> None:
         if len(self._in) > 0 and value.type_url not in self._in:
             ctx.add(
                 Violation(
@@ -614,11 +683,13 @@ class EnumRules(FieldRules):
 
     _defined_only = False
 
-    _defined_only_rule_path: typing.ClassVar[validate_pb.FieldPath] = validate_pb.FieldPath(
-        elements=[
-            _spec_element(_spec_field(validate_pb.EnumRules, "defined_only")),
-            _spec_element(_spec_field(validate_pb.FieldRules, "enum")),
-        ],
+    _defined_only_rule_path: typing.ClassVar[validate_pb.FieldPath] = (
+        validate_pb.FieldPath(
+            elements=[
+                _spec_element(_spec_field(validate_pb.EnumRules, "defined_only")),
+                _spec_element(_spec_field(validate_pb.FieldRules, "enum")),
+            ]
+        )
     )
 
     def __init__(
@@ -630,24 +701,37 @@ class EnumRules(FieldRules):
         *,
         for_items: bool = False,
         force_ignore_empty: bool = False,
-    ):
-        super().__init__(env, bridge, field, field_level, for_items=for_items, force_ignore_empty=force_ignore_empty)
+    ) -> None:
+        super().__init__(
+            env,
+            bridge,
+            field,
+            field_level,
+            for_items=for_items,
+            force_ignore_empty=force_ignore_empty,
+        )
         if field_level.type.value.defined_only:
             self._defined_only = True
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         super().validate(ctx, message)
         if ctx.done:
             return
-        if self._defined_only and getattr(message, self._field.name) not in self._field.enum_type.values_by_number:
+        if (
+            self._defined_only
+            and getattr(message, self._field.name)
+            not in self._field.enum_type.values_by_number
+        ):
             ctx.add(
                 Violation(
-                    field=validate_pb.FieldPath(elements=[_field_to_element(self._field)]),
+                    field=validate_pb.FieldPath(
+                        elements=[_field_to_element(self._field)]
+                    ),
                     rule=EnumRules._defined_only_rule_path,
                     rule_value=self._defined_only,
                     rule_id="enum.defined_only",
                     message="value must be one of the defined enum values",
-                ),
+                )
             )
 
 
@@ -668,12 +752,12 @@ class RepeatedRules(FieldRules):
         field: google_descriptor.FieldDescriptor,
         field_level: typing.Any,
         item_rules: FieldRules | None,
-    ):
+    ) -> None:
         super().__init__(env, bridge, field, field_level)
         if item_rules is not None:
             self._item_rules = item_rules
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -685,7 +769,9 @@ class RepeatedRules(FieldRules):
                 sub_ctx = ctx.sub_context()
                 self._item_rules.validate_item(sub_ctx, item)
                 if sub_ctx.has_errors():
-                    sub_ctx.add_field_path_element(_indexed_field_element(self._field, i))
+                    sub_ctx.add_field_path_element(
+                        _indexed_field_element(self._field, i)
+                    )
                     sub_ctx.add_rule_path_elements(RepeatedRules._items_rules_suffix)
                     ctx.add_errors(sub_ctx)
                 if ctx.done:
@@ -716,14 +802,14 @@ class MapRules(FieldRules):
         field_level: typing.Any,
         key_rules: FieldRules | None,
         value_rules: FieldRules | None,
-    ):
+    ) -> None:
         super().__init__(env, bridge, field, field_level)
         if key_rules is not None:
             self._key_rules = key_rules
         if value_rules is not None:
             self._value_rules = value_rules
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         super().validate(ctx, message)
         if ctx.done:
             return
@@ -732,20 +818,22 @@ class MapRules(FieldRules):
         value_field = self._field.message_type.fields_by_name["value"]
         for k, v in value.items():
             key_ctx = ctx.sub_context()
-            if self._key_rules is not None:
-                if not self._key_rules._ignore_empty or k:
-                    self._key_rules.validate_item(key_ctx, k, for_key=True)
-                    if key_ctx.has_errors():
-                        key_ctx.add_rule_path_elements(MapRules._key_rules_suffix)
+            if self._key_rules is not None and (not self._key_rules._ignore_empty or k):
+                self._key_rules.validate_item(key_ctx, k, for_key=True)
+                if key_ctx.has_errors():
+                    key_ctx.add_rule_path_elements(MapRules._key_rules_suffix)
             map_ctx = ctx.sub_context()
-            if self._value_rules is not None:
-                if not self._value_rules._ignore_empty or v:
-                    self._value_rules.validate_item(map_ctx, v)
-                    if map_ctx.has_errors():
-                        map_ctx.add_rule_path_elements(MapRules._value_rules_suffix)
+            if self._value_rules is not None and (
+                not self._value_rules._ignore_empty or v
+            ):
+                self._value_rules.validate_item(map_ctx, v)
+                if map_ctx.has_errors():
+                    map_ctx.add_rule_path_elements(MapRules._value_rules_suffix)
             map_ctx.add_errors(key_ctx)
             if map_ctx.has_errors():
-                map_ctx.add_field_path_element(_map_key_element(self._field, k, key_field, value_field))
+                map_ctx.add_field_path_element(
+                    _map_key_element(self._field, k, key_field, value_field)
+                )
                 ctx.add_errors(map_ctx)
 
 
@@ -754,17 +842,21 @@ class OneofRules(Rules):
 
     required = True
 
-    def __init__(self, oneof: google_descriptor.OneofDescriptor, rules: typing.Any):
+    def __init__(
+        self, oneof: google_descriptor.OneofDescriptor, rules: typing.Any
+    ) -> None:
         self._oneof = oneof
         if not rules.required:
             self.required = False
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         if not message.WhichOneof(self._oneof.name):
             if self.required:
                 ctx.add(
                     Violation(
-                        field=validate_pb.FieldPath(elements=[_oneof_to_element(self._oneof)]),
+                        field=validate_pb.FieldPath(
+                            elements=[_oneof_to_element(self._oneof)]
+                        ),
                         rule_id="required",
                         message="exactly one field is required in oneof",
                     )
@@ -777,7 +869,7 @@ class RuleFactory:
 
     _env: cel.Env
 
-    def __init__(self, extension: cel.CelExtensionBase, bridge: GoogleBridge):
+    def __init__(self, extension: cel.CelExtensionBase, bridge: GoogleBridge) -> None:
         self._bridge = bridge
         # cel-expr-python evaluates against — and type-checks bindings against —
         # the global pool the bridge populates.
@@ -798,14 +890,16 @@ class RuleFactory:
         if key not in self._cache:
             try:
                 self._cache[key] = self._new_rules(desc)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 self._cache[key] = e
         result = self._cache[key]
         if isinstance(result, Exception):
             raise result
         return result
 
-    def _new_message_rule(self, rules: typing.Any, desc: google_descriptor.Descriptor) -> MessageRules:
+    def _new_message_rule(
+        self, rules: typing.Any, desc: google_descriptor.Descriptor
+    ) -> MessageRules:
         result = MessageRules(self._bridge.to_google(rules), desc)
         for oneof in rules.oneof:
             result.add_oneof(oneof)
@@ -822,7 +916,7 @@ class RuleFactory:
         *,
         for_items: bool = False,
         force_ignore_empty: bool = False,
-    ):
+    ) -> FieldRules | None:
         if field_level.ignore == validate_pb.Ignore.ALWAYS:
             return None
         type_case = _which_type(field_level)
@@ -842,10 +936,18 @@ class RuleFactory:
             check_field_type(field, google_descriptor.FieldDescriptor.TYPE_ENUM)
             return EnumRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "bool":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_BOOL, "google.protobuf.BoolValue")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_BOOL,
+                "google.protobuf.BoolValue",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "bytes":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_BYTES, "google.protobuf.BytesValue")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_BYTES,
+                "google.protobuf.BytesValue",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "fixed32":
             check_field_type(field, google_descriptor.FieldDescriptor.TYPE_FIXED32)
@@ -854,16 +956,32 @@ class RuleFactory:
             check_field_type(field, google_descriptor.FieldDescriptor.TYPE_FIXED64)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "float":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_FLOAT, "google.protobuf.FloatValue")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_FLOAT,
+                "google.protobuf.FloatValue",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "double":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_DOUBLE, "google.protobuf.DoubleValue")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_DOUBLE,
+                "google.protobuf.DoubleValue",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "int32":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_INT32, "google.protobuf.Int32Value")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_INT32,
+                "google.protobuf.Int32Value",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "int64":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_INT64, "google.protobuf.Int64Value")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_INT64,
+                "google.protobuf.Int64Value",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "sfixed32":
             check_field_type(field, google_descriptor.FieldDescriptor.TYPE_SFIXED32)
@@ -878,13 +996,25 @@ class RuleFactory:
             check_field_type(field, google_descriptor.FieldDescriptor.TYPE_SINT64)
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "uint32":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_UINT32, "google.protobuf.UInt32Value")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_UINT32,
+                "google.protobuf.UInt32Value",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "uint64":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_UINT64, "google.protobuf.UInt64Value")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_UINT64,
+                "google.protobuf.UInt64Value",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "string":
-            check_field_type(field, google_descriptor.FieldDescriptor.TYPE_STRING, "google.protobuf.StringValue")
+            check_field_type(
+                field,
+                google_descriptor.FieldDescriptor.TYPE_STRING,
+                "google.protobuf.StringValue",
+            )
             return FieldRules(self._env, self._bridge, field, field_level, **kw)
         if type_case == "any":
             check_field_type(field, 0, "google.protobuf.Any")
@@ -898,9 +1028,11 @@ class RuleFactory:
         field_level: typing.Any,
         *,
         force_ignore_empty: bool = False,
-    ) -> FieldRules:
+    ) -> FieldRules | None:
         if not is_repeated(field):
-            return self._new_scalar_field_rule(field, field_level, force_ignore_empty=force_ignore_empty)
+            return self._new_scalar_field_rule(
+                field, field_level, force_ignore_empty=force_ignore_empty
+            )
         type_case = _which_type(field_level)
         if field.message_type is not None and field.message_type.GetOptions().map_entry:
             map_rules = field_level.type.value if type_case == "map" else None
@@ -908,11 +1040,17 @@ class RuleFactory:
             value_rules = None
             if map_rules is not None and map_rules.keys is not None:
                 key_field = field.message_type.fields_by_name["key"]
-                key_rules = self._new_scalar_field_rule(key_field, map_rules.keys, for_items=True)
+                key_rules = self._new_scalar_field_rule(
+                    key_field, map_rules.keys, for_items=True
+                )
             if map_rules is not None and map_rules.values is not None:
                 value_field = field.message_type.fields_by_name["value"]
-                value_rules = self._new_scalar_field_rule(value_field, map_rules.values, for_items=True)
-            return MapRules(self._env, self._bridge, field, field_level, key_rules, value_rules)
+                value_rules = self._new_scalar_field_rule(
+                    value_field, map_rules.values, for_items=True
+                )
+            return MapRules(
+                self._env, self._bridge, field, field_level, key_rules, value_rules
+            )
         item_rule = None
         rep_rules = field_level.type.value if type_case == "repeated" else None
         if rep_rules is not None and rep_rules.items is not None:
@@ -920,7 +1058,10 @@ class RuleFactory:
         return RepeatedRules(self._env, self._bridge, field, field_level, item_rule)
 
     def _new_rules(self, pb_desc: protobuf.DescMessage) -> list[Rules]:
-        gdesc = typing.cast(google_descriptor.Descriptor, self._bridge.google_class(pb_desc).DESCRIPTOR)
+        gdesc = typing.cast(
+            "google_descriptor.Descriptor",
+            self._bridge.google_class(pb_desc).DESCRIPTOR,
+        )
         result: list[Rules] = []
         all_msg_oneof_fields: set[str] = set()
 
@@ -952,13 +1093,22 @@ class RuleFactory:
             if field_level is not None:
                 # A field in a message-level oneof rule that does not set its own
                 # ignore behaviour is treated as ignore-if-zero-value.
-                force_ignore_empty = ignore_field not in field_level and gfield.name in all_msg_oneof_fields
+                force_ignore_empty = (
+                    ignore_field not in field_level
+                    and gfield.name in all_msg_oneof_fields
+                )
                 if field_level.ignore == validate_pb.Ignore.ALWAYS:
                     continue
-                result.append(self._new_field_rule(gfield, field_level, force_ignore_empty=force_ignore_empty))
+                if r := self._new_field_rule(
+                    gfield, field_level, force_ignore_empty=force_ignore_empty
+                ):
+                    result.append(r)
                 if _which_type(field_level) == "repeated":
                     rep: typing.Any = field_level.type.value  # ty: ignore[unresolved-attribute]
-                    if rep.items is not None and rep.items.ignore == validate_pb.Ignore.ALWAYS:
+                    if (
+                        rep.items is not None
+                        and rep.items.ignore == validate_pb.Ignore.ALWAYS
+                    ):
                         continue
             if gfield.message_type is None or pb_field is None:
                 continue
@@ -968,7 +1118,9 @@ class RuleFactory:
             if gfield.message_type.GetOptions().map_entry:
                 key_field = gfield.message_type.fields_by_name["key"]
                 value_field = gfield.message_type.fields_by_name["value"]
-                result.append(MapValMsgRule(self, gfield, key_field, value_field, sub_desc))
+                result.append(
+                    MapValMsgRule(self, gfield, key_field, value_field, sub_desc)
+                )
             elif is_repeated(gfield):
                 result.append(RepeatedMsgRule(self, gfield, sub_desc))
             else:
@@ -977,12 +1129,17 @@ class RuleFactory:
 
 
 class SubMsgRule(Rules):
-    def __init__(self, factory: RuleFactory, field: google_descriptor.FieldDescriptor, sub_desc: protobuf.DescMessage):
+    def __init__(
+        self,
+        factory: RuleFactory,
+        field: google_descriptor.FieldDescriptor,
+        sub_desc: protobuf.DescMessage,
+    ) -> None:
         self._factory = factory
         self._field = field
         self._sub_desc = sub_desc
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         if not message.HasField(self._field.name):
             return
         rules = self._factory.get(self._sub_desc)
@@ -1005,14 +1162,14 @@ class MapValMsgRule(Rules):
         key_field: google_descriptor.FieldDescriptor,
         value_field: google_descriptor.FieldDescriptor,
         sub_desc: protobuf.DescMessage,
-    ):
+    ) -> None:
         self._factory = factory
         self._field = field
         self._key_field = key_field
         self._value_field = value_field
         self._sub_desc = sub_desc
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         val = getattr(message, self._field.name)
         if not val:
             return
@@ -1024,17 +1181,24 @@ class MapValMsgRule(Rules):
             for rule in rules:
                 rule.validate(sub_ctx, v)
             if sub_ctx.has_errors():
-                sub_ctx.add_field_path_element(_map_key_element(self._field, k, self._key_field, self._value_field))
+                sub_ctx.add_field_path_element(
+                    _map_key_element(self._field, k, self._key_field, self._value_field)
+                )
                 ctx.add_errors(sub_ctx)
 
 
 class RepeatedMsgRule(Rules):
-    def __init__(self, factory: RuleFactory, field: google_descriptor.FieldDescriptor, sub_desc: protobuf.DescMessage):
+    def __init__(
+        self,
+        factory: RuleFactory,
+        field: google_descriptor.FieldDescriptor,
+        sub_desc: protobuf.DescMessage,
+    ) -> None:
         self._factory = factory
         self._field = field
         self._sub_desc = sub_desc
 
-    def validate(self, ctx: RuleContext, message: google_message.Message):
+    def validate(self, ctx: RuleContext, message: google_message.Message) -> None:
         val = getattr(message, self._field.name)
         if not val:
             return

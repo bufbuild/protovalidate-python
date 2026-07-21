@@ -13,18 +13,30 @@
 # limitations under the License.
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 import pytest
 
-from protovalidate import CompilationError, Validator, Violation
+from protovalidate import CompilationError, Violation
 
 if TYPE_CHECKING:
     from google.protobuf import message as google_message
     from protobuf import Message
 
 
-def check_valid(validator: Validator, msg: Message | google_message.Message):
+class ValidatorProtocol(Protocol):
+    def validate(
+        self, message: Message | google_message.Message, *, fail_fast: bool = False
+    ) -> None: ...
+
+    def collect_violations(
+        self, message: Message | google_message.Message, *, fail_fast: bool = False
+    ) -> list[Violation]: ...
+
+
+def check_valid(
+    validator: ValidatorProtocol, msg: Message | google_message.Message
+) -> None:
     # Test validate
     validator.validate(msg)
 
@@ -33,7 +45,9 @@ def check_valid(validator: Validator, msg: Message | google_message.Message):
     assert len(violations) == 0
 
 
-def check_compilation_errors(validator: Validator, msg: Message | google_message.Message, expected: str):
+def check_compilation_errors(
+    validator: ValidatorProtocol, msg: Message | google_message.Message, expected: str
+) -> None:
     """A helper function for testing compilation errors when validating.
 
     The tests are run using validators created via all possible methods and
@@ -50,7 +64,7 @@ def check_compilation_errors(validator: Validator, msg: Message | google_message
     assert str(cvce.value) == expected
 
 
-def _compare_violations(actual: list[Violation], expected: list[Violation]):
+def compare_violations(actual: list[Violation], expected: list[Violation]) -> None:
     """Compares two lists of violations. The violations are expected to be in the expected order also."""
     assert len(actual) == len(expected)
     for a, e in zip(actual, expected, strict=True):

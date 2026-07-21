@@ -14,12 +14,16 @@
 
 """cel-expr-python registration for protovalidate's custom CEL functions."""
 
-from cel_expr_python import cel
-from google.protobuf import descriptor as google_descriptor
-from google.protobuf import message as google_message
-from google.protobuf import wrappers_pb2 as google_wrappers_pb2
+from __future__ import annotations
 
-from protovalidate.internal import _funcs
+from cel_expr_python import cel
+from google.protobuf import (
+    descriptor as google_descriptor,
+    message as google_message,
+    wrappers_pb2 as google_wrappers_pb2,
+)
+
+from protovalidate import _funcs
 
 from ._utils import is_repeated
 
@@ -27,10 +31,10 @@ from ._utils import is_repeated
 def cel_get_field(message: object, field_name: object) -> object:
     if not isinstance(message, google_message.Message):
         msg = "invalid argument, expected message"
-        raise ValueError(msg)
+        raise TypeError(msg)
     if not isinstance(field_name, str):
         msg = "invalid argument, expected string"
-        raise ValueError(msg)
+        raise TypeError(msg)
     if field_name not in message.DESCRIPTOR.fields_by_name:
         msg = f"no such field: {field_name}"
         raise ValueError(msg)
@@ -50,7 +54,7 @@ def cel_get_field(message: object, field_name: object) -> object:
 def cel_unique(val: object) -> bool:
     if not isinstance(val, list):
         msg = "invalid argument, expected list"
-        raise ValueError(msg)
+        raise TypeError(msg)
     # Track seen values keyed by (type, value) so that distinct CEL types that
     # are equal in Python (notably bool vs int: ``True == 1``) are not treated
     # as duplicates, and so that bytes are never confused with strings.
@@ -97,59 +101,157 @@ def make_extension() -> cel.CelExtension:
     return cel.CelExtension(
         "protovalidate",
         [
-            cel.FunctionDecl("getField", [cel.Overload("get_field", _dyn, [_dyn, _s], impl=cel_get_field)]),
             cel.FunctionDecl(
-                "isNan", [cel.Overload("double_is_nan", _b, [_d], is_member=True, impl=_funcs.cel_is_nan)]
+                "getField",
+                [cel.Overload("get_field", _dyn, [_dyn, _s], impl=cel_get_field)],
+            ),
+            cel.FunctionDecl(
+                "isNan",
+                [
+                    cel.Overload(
+                        "double_is_nan",
+                        _b,
+                        [_d],
+                        is_member=True,
+                        impl=_funcs.cel_is_nan,
+                    )
+                ],
             ),
             cel.FunctionDecl(
                 "isInf",
                 [
-                    cel.Overload("double_is_inf", _b, [_d], is_member=True, impl=_funcs.cel_is_inf),
-                    cel.Overload("double_int_is_inf", _b, [_d, _i], is_member=True, impl=_funcs.cel_is_inf),
+                    cel.Overload(
+                        "double_is_inf",
+                        _b,
+                        [_d],
+                        is_member=True,
+                        impl=_funcs.cel_is_inf,
+                    ),
+                    cel.Overload(
+                        "double_int_is_inf",
+                        _b,
+                        [_d, _i],
+                        is_member=True,
+                        impl=_funcs.cel_is_inf,
+                    ),
                 ],
             ),
             cel.FunctionDecl(
                 "isIp",
                 [
-                    cel.Overload("string_is_ip", _b, [_s], is_member=True, impl=_funcs.cel_is_ip),
-                    cel.Overload("string_int_is_ip", _b, [_s, _i], is_member=True, impl=_funcs.cel_is_ip),
+                    cel.Overload(
+                        "string_is_ip", _b, [_s], is_member=True, impl=_funcs.cel_is_ip
+                    ),
+                    cel.Overload(
+                        "string_int_is_ip",
+                        _b,
+                        [_s, _i],
+                        is_member=True,
+                        impl=_funcs.cel_is_ip,
+                    ),
                 ],
             ),
             cel.FunctionDecl(
                 "isIpPrefix",
                 [
-                    cel.Overload("string_is_ip_prefix", _b, [_s], is_member=True, impl=_funcs.cel_is_ip_prefix),
-                    cel.Overload("string_int_is_ip_prefix", _b, [_s, _i], is_member=True, impl=_funcs.cel_is_ip_prefix),
                     cel.Overload(
-                        "string_bool_is_ip_prefix", _b, [_s, _b], is_member=True, impl=_funcs.cel_is_ip_prefix
+                        "string_is_ip_prefix",
+                        _b,
+                        [_s],
+                        is_member=True,
+                        impl=_funcs.cel_is_ip_prefix,
                     ),
                     cel.Overload(
-                        "string_int_bool_is_ip_prefix", _b, [_s, _i, _b], is_member=True, impl=_funcs.cel_is_ip_prefix
+                        "string_int_is_ip_prefix",
+                        _b,
+                        [_s, _i],
+                        is_member=True,
+                        impl=_funcs.cel_is_ip_prefix,
+                    ),
+                    cel.Overload(
+                        "string_bool_is_ip_prefix",
+                        _b,
+                        [_s, _b],
+                        is_member=True,
+                        impl=_funcs.cel_is_ip_prefix,
+                    ),
+                    cel.Overload(
+                        "string_int_bool_is_ip_prefix",
+                        _b,
+                        [_s, _i, _b],
+                        is_member=True,
+                        impl=_funcs.cel_is_ip_prefix,
                     ),
                 ],
             ),
             cel.FunctionDecl(
-                "isEmail", [cel.Overload("string_is_email", _b, [_s], is_member=True, impl=_funcs.cel_is_email)]
+                "isEmail",
+                [
+                    cel.Overload(
+                        "string_is_email",
+                        _b,
+                        [_s],
+                        is_member=True,
+                        impl=_funcs.cel_is_email,
+                    )
+                ],
             ),
             cel.FunctionDecl(
-                "isUri", [cel.Overload("string_is_uri", _b, [_s], is_member=True, impl=_funcs.cel_is_uri)]
+                "isUri",
+                [
+                    cel.Overload(
+                        "string_is_uri",
+                        _b,
+                        [_s],
+                        is_member=True,
+                        impl=_funcs.cel_is_uri,
+                    )
+                ],
             ),
             cel.FunctionDecl(
-                "isUriRef", [cel.Overload("string_is_uri_ref", _b, [_s], is_member=True, impl=_funcs.cel_is_uri_ref)]
+                "isUriRef",
+                [
+                    cel.Overload(
+                        "string_is_uri_ref",
+                        _b,
+                        [_s],
+                        is_member=True,
+                        impl=_funcs.cel_is_uri_ref,
+                    )
+                ],
             ),
             cel.FunctionDecl(
                 "isHostname",
-                [cel.Overload("string_is_hostname", _b, [_s], is_member=True, impl=_funcs.cel_is_hostname)],
+                [
+                    cel.Overload(
+                        "string_is_hostname",
+                        _b,
+                        [_s],
+                        is_member=True,
+                        impl=_funcs.cel_is_hostname,
+                    )
+                ],
             ),
             cel.FunctionDecl(
                 "isHostAndPort",
                 [
                     cel.Overload(
-                        "string_bool_is_host_and_port", _b, [_s, _b], is_member=True, impl=_funcs.cel_is_host_and_port
+                        "string_bool_is_host_and_port",
+                        _b,
+                        [_s, _b],
+                        is_member=True,
+                        impl=_funcs.cel_is_host_and_port,
                     )
                 ],
             ),
-            cel.FunctionDecl("unique", [cel.Overload("list_unique", _b, [_l], is_member=True, impl=cel_unique)]),
+            cel.FunctionDecl(
+                "unique",
+                [
+                    cel.Overload(
+                        "list_unique", _b, [_l], is_member=True, impl=cel_unique
+                    )
+                ],
+            ),
             cel.FunctionDecl(
                 "startsWith",
                 [
@@ -166,7 +268,11 @@ def make_extension() -> cel.CelExtension:
                 "endsWith",
                 [
                     cel.Overload(
-                        "bytes_ends_with", _b, [cel.Type.BYTES, cel.Type.BYTES], is_member=True, impl=_bytes_ends_with
+                        "bytes_ends_with",
+                        _b,
+                        [cel.Type.BYTES, cel.Type.BYTES],
+                        is_member=True,
+                        impl=_bytes_ends_with,
                     )
                 ],
             ),
@@ -174,7 +280,11 @@ def make_extension() -> cel.CelExtension:
                 "contains",
                 [
                     cel.Overload(
-                        "bytes_contains", _b, [cel.Type.BYTES, cel.Type.BYTES], is_member=True, impl=_bytes_contains
+                        "bytes_contains",
+                        _b,
+                        [cel.Type.BYTES, cel.Type.BYTES],
+                        is_member=True,
+                        impl=_bytes_contains,
                     )
                 ],
             ),

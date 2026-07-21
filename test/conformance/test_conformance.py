@@ -41,7 +41,7 @@ def maybe_patch_args_with_debug(args: list[str]) -> list[str]:
         )
 
         return _pydev_bundle.pydev_monkey.patch_args(args)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return args
 
 
@@ -66,7 +66,9 @@ def test_conformance(*, legacy: bool, cel_backend: str) -> None:
 
     env = os.environ.copy()
     if legacy:
-        pytest.importorskip("google.protobuf", reason="optional dependency not installed")
+        pytest.importorskip(
+            "google.protobuf", reason="optional dependency not installed"
+        )
 
         env["PROTOVALIDATE_CONFORMANCE_LEGACY"] = "1"
     env["PROTOVALIDATE_CONFORMANCE_BACKEND"] = cel_backend

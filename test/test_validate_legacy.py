@@ -12,27 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import pytest
 
 pytest.importorskip("google.protobuf", reason="optional dependency not installed")
 
-from google.protobuf import message as google_message
+
+from typing import TYPE_CHECKING
 
 import protovalidate
-from protovalidate.internal import rules
+from protovalidate import Violation
 
-from ._utils import _compare_violations, check_valid
+from ._utils import ValidatorProtocol, check_valid, compare_violations
 from .conftest import backend_validators
 from .gen.tests.example.v1 import validations_pb2
 
-validators: list[protovalidate.Validator] = [
+if TYPE_CHECKING:
+    from google.protobuf import message as google_message
+
+validators: list[ValidatorProtocol] = [
     protovalidate,  # global module singleton
     *backend_validators(),
 ]
 
 
 @pytest.mark.parametrize("validator", validators)
-def test_legacy_message_valid(validator):
+def test_legacy_message_valid(validator: ValidatorProtocol) -> None:
     """A google.protobuf message validates through the legacy conversion path."""
     msg = validations_pb2.DoubleFinite()
     msg.val = 1.0
@@ -41,11 +47,11 @@ def test_legacy_message_valid(validator):
 
 
 @pytest.mark.parametrize("validator", validators)
-def test_legacy_message_invalid(validator):
+def test_legacy_message_invalid(validator: ValidatorProtocol) -> None:
     msg = validations_pb2.DoubleFinite()
     msg.val = float("-inf")
 
-    expected_violation = rules.Violation(
+    expected_violation = Violation(
         message="must be finite",
         rule_id="double.finite",
         field_value=msg.val,
@@ -56,18 +62,18 @@ def test_legacy_message_invalid(validator):
         validator.validate(msg)
     e = exc_info.value
     assert str(e) == f"invalid {msg.DESCRIPTOR.name}"
-    _compare_violations(e.violations, [expected_violation])  # ty: ignore
+    compare_violations(e.violations, [expected_violation])  # ty: ignore
 
     violations = validator.collect_violations(msg)
-    _compare_violations(violations, [expected_violation])
+    compare_violations(violations, [expected_violation])
 
 
 @pytest.mark.parametrize("validator", validators)
-def test_legacy_message_map_key(validator):
+def test_legacy_message_map_key(validator: ValidatorProtocol) -> None:
     msg = validations_pb2.MapKeys()
     msg.val[1] = "a"
 
-    expected_violation = rules.Violation(
+    expected_violation = Violation(
         message="must be less than 0",
         rule_id="sint64.lt",
         for_key=True,
@@ -76,17 +82,19 @@ def test_legacy_message_map_key(validator):
     )
 
     violations = validator.collect_violations(msg)
-    _compare_violations(violations, [expected_violation])
+    compare_violations(violations, [expected_violation])
 
 
-def check_invalid(validator: protovalidate.Validator, msg: google_message.Message, expected: list[rules.Violation]):
+def check_invalid(
+    validator: ValidatorProtocol, msg: google_message.Message, expected: list[Violation]
+) -> None:
     # Test validate
     with pytest.raises(protovalidate.ValidationError) as exc_info:
         validator.validate(msg)
     e = exc_info.value
     assert str(e) == f"invalid {msg.DESCRIPTOR.name}"
-    _compare_violations(e.violations, expected)  # ty: ignore
+    compare_violations(e.violations, expected)  # ty: ignore
 
     # Test collect_violations
     violations = validator.collect_violations(msg)
-    _compare_violations(violations, expected)
+    compare_violations(violations, expected)
