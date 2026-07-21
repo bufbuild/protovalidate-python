@@ -14,7 +14,10 @@
 
 """Pure-Python implementations of protovalidate's custom CEL functions."""
 
+from __future__ import annotations
+
 import math
+from typing import overload
 from urllib import parse as urlparse
 
 import re2
@@ -39,21 +42,18 @@ def cel_is_ip(val: object, ver: object | None = None) -> bool:
     """
     if not isinstance(val, str):
         msg = "invalid argument, expected string"
-        raise ValueError(msg)
+        raise TypeError(msg)
     if ver is not None and (not isinstance(ver, int) or isinstance(ver, bool)):
         msg = "invalid argument, expected int"
-        raise ValueError(msg)
+        raise TypeError(msg)
 
-    if ver is None:
-        version = 0
-    else:
-        version = ver
+    version = 0 if ver is None else ver
 
     return _is_ip(val, version)
 
 
 def _is_ip(string: str, version: int) -> bool:
-    """Internal implementation"""
+    """Internal implementation."""
     valid = False
     if version == 6:
         valid = Ipv6(string).address()
@@ -65,10 +65,26 @@ def _is_ip(string: str, version: int) -> bool:
     return valid
 
 
-def cel_is_ip_prefix(val: object, *args) -> bool:
-    """Return True if the string is a valid IP with prefix length, optionally
-     limited to a specific version (v4 or v6), and optionally requiring the host
-     portion to be all zeros.
+@overload
+def cel_is_ip_prefix(val: str, /) -> bool: ...
+@overload
+def cel_is_ip_prefix(val: str, strict: bool, /) -> bool: ...  # noqa: FBT001
+@overload
+def cel_is_ip_prefix(val: str, version: int, /) -> bool: ...
+@overload
+def cel_is_ip_prefix(val: str, version: int, strict: bool, /) -> bool: ...  # noqa: FBT001
+
+
+def cel_is_ip_prefix(
+    val: str,
+    strict_or_version: bool | int | None = None,  # noqa: FBT001
+    strict_param: bool | None = None,  # noqa: FBT001
+    /,
+) -> bool:
+    """Checks if the string is a valid IP with prefix length.
+
+    The check may be optionally limited to a specific version (v4 or v6), and
+    optionally requiring the host portion to be all zeros.
 
     An address prefix divides an IP address into a network portion, and a host portion.
     The prefix length specifies how many bits the network portion has.
@@ -84,31 +100,37 @@ def cel_is_ip_prefix(val: object, *args) -> bool:
     the first 24 bits of the 32-bit IPv4 as the network prefix.
 
     """
-
     if not isinstance(val, str):
-        msg = "invalid argument, expected string or bytes"
-        raise ValueError(msg)
+        msg = "invalid argument, expected string"
+        raise TypeError(msg)
     version = 0
     strict = False
-    if len(args) == 1 and isinstance(args[0], bool):
-        strict = bool(args[0])
-    elif len(args) == 1 and isinstance(args[0], int):
-        version = args[0]
-    elif len(args) == 1:
-        msg = "invalid argument, expected bool or int"
-        raise ValueError(msg)
-    elif len(args) == 2 and isinstance(args[0], int) and not isinstance(args[0], bool) and isinstance(args[1], bool):
-        version = args[0]
-        strict = bool(args[1])
-    elif len(args) == 2:
-        msg = "invalid argument, expected int and bool"
-        raise ValueError(msg)
+    if strict_param is not None:
+        if not isinstance(strict_param, bool):
+            msg = "invalid argument, expected bool"
+            raise TypeError(msg)
+        if not isinstance(strict_or_version, int) or isinstance(
+            strict_or_version, bool
+        ):
+            msg = "invalid argument, expected int"
+            raise TypeError(msg)
+        strict = strict_param
+        version = strict_or_version
+    elif strict_or_version is not None:
+        match strict_or_version:
+            case bool():
+                strict = strict_or_version
+            case int():
+                version = strict_or_version
+            case _:
+                msg = "invalid argument, expected bool or int"
+                raise TypeError(msg)
 
     return _is_ip_prefix(val, version, strict=strict)
 
 
-def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
-    """Internal implementation"""
+def _is_ip_prefix(string: str, version: int, *, strict: bool = False) -> bool:
+    """Internal implementation."""
     valid = False
     if version == 6:
         v6 = Ipv6(string)
@@ -117,7 +139,9 @@ def _is_ip_prefix(string: str, version: int, *, strict=False) -> bool:
         v4 = Ipv4(string)
         valid = v4.address_prefix() and (not strict or v4.is_prefix_only())
     elif version == 0:
-        valid = _is_ip_prefix(string, 6, strict=strict) or _is_ip_prefix(string, 4, strict=strict)
+        valid = _is_ip_prefix(string, 6, strict=strict) or _is_ip_prefix(
+            string, 4, strict=strict
+        )
 
     return valid
 
@@ -133,7 +157,7 @@ def cel_is_email(string: object) -> bool:
     """
     if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise ValueError(msg)
+        raise TypeError(msg)
     return _email_regex.fullmatch(string) is not None
 
 
@@ -146,12 +170,14 @@ def cel_is_uri(string: object) -> bool:
     """
     if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise ValueError(msg)
+        raise TypeError(msg)
     return Uri(str(string)).uri()
 
 
 def cel_is_uri_ref(string: object) -> bool:
-    """Return True if the string is a URI Reference - a URI such as "https://example.com/foo/bar?baz=quux#frag" or
+    """Checks if the string is a URI Reference.
+
+    A URI reference is a URI such as "https://example.com/foo/bar?baz=quux#frag" or
     a Relative Reference such as "./foo/bar?query".
 
     URI, URI Reference, and Relative Reference are defined in the internet standard RFC 3986.
@@ -160,12 +186,12 @@ def cel_is_uri_ref(string: object) -> bool:
     """
     if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise ValueError(msg)
+        raise TypeError(msg)
     return Uri(str(string)).uri_reference()
 
 
 def cel_is_hostname(val: object) -> bool:
-    """Returns True if the string is a valid hostname, for example "foo.example.com".
+    """Checks if the string is a valid hostname, for example "foo.example.com".
 
     A valid hostname follows the rules below:
     - The name consists of one or more labels, separated by a dot (".").
@@ -178,19 +204,16 @@ def cel_is_hostname(val: object) -> bool:
     """
     if not isinstance(val, str):
         msg = "invalid argument, expected string"
-        raise ValueError(msg)
+        raise TypeError(msg)
     return _is_hostname(val)
 
 
 def _is_hostname(val: str) -> bool:
-    """Internal implementation"""
+    """Internal implementation."""
     if len(val) > 253:
         return False
 
-    if val.endswith("."):
-        string = val[0 : len(val) - 1].lower()
-    else:
-        string = val.lower()
+    string = val[0 : len(val) - 1].lower() if val.endswith(".") else val.lower()
 
     all_digits = False
     parts = string.lower().split(sep=".")
@@ -246,14 +269,14 @@ def cel_is_host_and_port(string: object, port_required: object) -> bool:
     """
     if not isinstance(string, str):
         msg = "invalid argument, expected string"
-        raise ValueError(msg)
+        raise TypeError(msg)
     if not isinstance(port_required, bool):
         msg = "invalid argument, expected bool"
-        raise ValueError(msg)
+        raise TypeError(msg)
     return _is_host_and_port(string, port_required=bool(port_required))
 
 
-def _is_host_and_port(val: str, *, port_required=False) -> bool:
+def _is_host_and_port(val: str, *, port_required: bool = False) -> bool:
     if len(val) == 0:
         return False
 
@@ -265,11 +288,10 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
 
         if end_plus == len(val):
             return not port_required and _is_ip(val[1:end], 6)
-        elif end_plus == split_idx:
+        if end_plus == split_idx:
             return _is_ip(val[1:end], 6) and _is_port(val[split_idx + 1 :])
-        else:
-            # malformed
-            return False
+        # malformed
+        return False
 
     if split_idx < 0:
         return not port_required and (_is_hostname(val) or _is_ip(val, 4))
@@ -283,26 +305,25 @@ def _is_host_and_port(val: str, *, port_required=False) -> bool:
 def cel_is_nan(val: object) -> bool:
     if not isinstance(val, float):
         msg = "invalid argument, expected double"
-        raise ValueError(msg)
+        raise TypeError(msg)
     return math.isnan(val)
 
 
 def cel_is_inf(val: object, sign: object | None = None) -> bool:
     if not isinstance(val, float):
         msg = "invalid argument, expected double"
-        raise ValueError(msg)
+        raise TypeError(msg)
     if sign is None:
         return math.isinf(val)
 
     if not isinstance(sign, int) or isinstance(sign, bool):
         msg = "invalid argument, expected int"
-        raise ValueError(msg)
+        raise TypeError(msg)
     if sign > 0:
         return math.isinf(val) and val > 0
-    elif sign < 0:
+    if sign < 0:
         return math.isinf(val) and val < 0
-    else:
-        return math.isinf(val)
+    return math.isinf(val)
 
 
 class Ipv4:
@@ -313,9 +334,8 @@ class Ipv4:
     _octets: bytearray
     _prefix_len: int
 
-    def __init__(self, string: str):
+    def __init__(self, string: str) -> None:
         """Initialize an Ipv4 validation class with a given string."""
-
         super().__init__()
         self._string = string
         self._index = 0
@@ -329,7 +349,10 @@ class Ipv4:
     def address_prefix(self) -> bool:
         """Parses an IPv4 Address prefix."""
         return (
-            self.__address_part() and self.__take("/") and self.__prefix_length() and self._index == len(self._string)
+            self.__address_part()
+            and self.__take("/")
+            and self.__prefix_length()
+            and self._index == len(self._string)
         )
 
     def get_bits(self) -> int:
@@ -341,7 +364,12 @@ class Ipv4:
         if len(self._octets) != 4:
             return -1
 
-        return (self._octets[0] << 24) | (self._octets[1] << 16) | (self._octets[2] << 8) | self._octets[3]
+        return (
+            (self._octets[0] << 24)
+            | (self._octets[1] << 16)
+            | (self._octets[2] << 8)
+            | self._octets[3]
+        )
 
     def is_prefix_only(self) -> bool:
         """Return True if all bits to the right of the prefix-length are all zeros.
@@ -362,8 +390,7 @@ class Ipv4:
         return bits == masked
 
     def __prefix_length(self) -> bool:
-        """Store value in prefix_len"""
-
+        """Store value in prefix_len."""
         start = self._index
 
         while self.__digit():
@@ -388,12 +415,11 @@ class Ipv4:
                 return False
 
             self._prefix_len = value
-
-            return True
-
         except ValueError:
             # Error converting to number
             return False
+        else:
+            return True
 
     def __address_part(self) -> bool:
         start = self._index
@@ -437,12 +463,11 @@ class Ipv4:
                 return False
 
             self._octets.append(value)
-
-            return True
-
         except ValueError:
             # Error converting to number
             return False
+        else:
+            return True
 
     def __digit(self) -> bool:
         """Report whether the current position is a digit.
@@ -452,7 +477,6 @@ class Ipv4:
             DIGIT = %x30-39  ; 0-9
 
         """
-
         if self._index >= len(self._string):
             return False
 
@@ -465,7 +489,6 @@ class Ipv4:
 
     def __take(self, char: str) -> bool:
         """Take the given char at the current position, incrementing the index if necessary."""
-
         if self._index >= len(self._string):
             return False
 
@@ -489,9 +512,8 @@ class Ipv6:
     _zone_id_found: bool
     _prefix_len: int  # 0 -128
 
-    def __init__(self, string: str):
+    def __init__(self, string: str) -> None:
         """Initialize a URI validation class with a given string."""
-
         super().__init__()
         self._string = string
         self._index = 0
@@ -555,19 +577,14 @@ class Ipv6:
             mask = ~(0xFFFFFFFF_FFFFFFFF_FFFFFFFF_FFFFFFFF >> self._prefix_len)
 
         masked = bits & mask
-        if bits != masked:
-            return False
-
-        return True
+        return bits == masked
 
     def address(self) -> bool:
         """Parse an IPv6 Address following RFC 4291, with optional zone id following RFC 4007."""
-
         return self.__address_part() and self._index == len(self._string)
 
     def address_prefix(self) -> bool:
         """Parse an IPv6 Address Prefix following RFC 4291. Zone id is not permitted."""
-
         return (
             self.__address_part()
             and not self._zone_id_found
@@ -602,16 +619,14 @@ class Ipv6:
                 return False
 
             self._prefix_len = value
-
-            return True
-
         except ValueError:
             # Error converting to number
             return False
+        else:
+            return True
 
     def __address_part(self) -> bool:
         """Store dotted notation for right-most 32 bits in dotted_raw / dotted_addr if found."""
-
         while self._index < len(self._string):
             # dotted notation for right-most 32 bits, e.g. 0:0:0:0:0:ffff:192.1.56.10
             if (self._double_colon_seen or len(self._pieces) == 6) and self.__dotted():
@@ -665,13 +680,12 @@ class Ipv6:
         """
         start = self._index
 
-        if self.__take("%"):
-            if len(self._string) - self._index > 0:
-                # permit any non-null string
-                self._index = len(self._string)
-                self._zone_id_found = True
+        if self.__take("%") and len(self._string) - self._index > 0:
+            # permit any non-null string
+            self._index = len(self._string)
+            self._zone_id_found = True
 
-                return True
+            return True
 
         self._index = start
         self._zone_id_found = False
@@ -686,7 +700,6 @@ class Ipv6:
 
         Stores match in _dotted_raw.
         """
-
         start = self._index
         self._dotted_raw = ""
 
@@ -713,7 +726,6 @@ class Ipv6:
         If more than 4 hex digits are found or the found hex digits cannot be
         converted to an int, a ValueError is raised.
         """
-
         start = self._index
 
         while self.__hex_dig():
@@ -802,7 +814,7 @@ class Uri:
     _index: int
     _pct_encoded_found: bool
 
-    def __init__(self, string: str):
+    def __init__(self, string: str) -> None:
         """Initialize a URI validation class with a given string."""
         super().__init__()
         self._string = string
@@ -855,7 +867,12 @@ class Uri:
 
         """
         start = self._index
-        if self.__take("/") and self.__take("/") and self.__authority() and self.__path_abempty():
+        if (
+            self.__take("/")
+            and self.__take("/")
+            and self.__authority()
+            and self.__path_abempty()
+        ):
             return True
 
         self._index = start
@@ -899,7 +916,12 @@ class Uri:
 
         """
         start = self._index
-        if self.__take("/") and self.__take("/") and self.__authority() and self.__path_abempty():
+        if (
+            self.__take("/")
+            and self.__take("/")
+            and self.__authority()
+            and self.__path_abempty()
+        ):
             return True
 
         self._index = start
@@ -917,7 +939,13 @@ class Uri:
         """
         start = self._index
         if self.__alpha():
-            while self.__alpha() or self.__digit() or self.__take("+") or self.__take("-") or self.__take("."):
+            while (
+                self.__alpha()
+                or self.__digit()
+                or self.__take("+")
+                or self.__take("-")
+                or self.__take(".")
+            ):
                 pass
 
             if self.__peek(":"):
@@ -937,19 +965,17 @@ class Uri:
 
         """
         start = self._index
-        if self.__userinfo():
-            if not self.__take("@"):
-                self._index = start
-                return False
+        if self.__userinfo() and not self.__take("@"):
+            self._index = start
+            return False
 
         if not self.__host():
             self._index = start
             return False
 
-        if self.__take(":"):
-            if not self.__port():
-                self._index = start
-                return False
+        if self.__take(":") and not self.__port():
+            self._index = start
+            return False
 
         if not self.__is_authority_end():
             self._index = start
@@ -983,7 +1009,12 @@ class Uri:
 
         """
         start = self._index
-        while self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":"):
+        while (
+            self.__unreserved()
+            or self.__pct_encoded()
+            or self.__sub_delims()
+            or self.__take(":")
+        ):
             pass
 
         if self.__peek("@"):
@@ -1103,7 +1134,13 @@ class Uri:
 
         """
         start = self._index
-        if self.__ipv6_address() and self.__take("%") and self.__take("2") and self.__take("5") and self.__zone_id():
+        if (
+            self.__ipv6_address()
+            and self.__take("%")
+            and self.__take("2")
+            and self.__take("5")
+            and self.__zone_id()
+        ):
             return True
 
         self._index = start
@@ -1186,7 +1223,11 @@ class Uri:
         > number sign ("#") character, or by the end of the URI.
 
         """
-        return self._index >= len(self._string) or self._string[self._index] == "?" or self._string[self._index] == "#"
+        return (
+            self._index >= len(self._string)
+            or self._string[self._index] == "?"
+            or self._string[self._index] == "#"
+        )
 
     def __path_abempty(self) -> bool:
         """Determine whether the current position is a path-abempty.
@@ -1329,7 +1370,12 @@ class Uri:
         """
         start = self._index
 
-        while self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take("@"):
+        while (
+            self.__unreserved()
+            or self.__pct_encoded()
+            or self.__sub_delims()
+            or self.__take("@")
+        ):
             pass
 
         if self._index - start > 0:
@@ -1347,7 +1393,11 @@ class Uri:
 
         """
         return (
-            self.__unreserved() or self.__pct_encoded() or self.__sub_delims() or self.__take(":") or self.__take("@")
+            self.__unreserved()
+            or self.__pct_encoded()
+            or self.__sub_delims()
+            or self.__take(":")
+            or self.__take("@")
         )
 
     def __query(self) -> bool:

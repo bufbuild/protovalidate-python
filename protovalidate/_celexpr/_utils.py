@@ -11,17 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
-"""Which CEL backend is available."""
+from google.protobuf import descriptor as google_descriptor
 
+# protobuf 7+ removed FieldDescriptor.label / LABEL_REPEATED in favour of is_repeated.
+_FieldDescriptorClass = google_descriptor.FieldDescriptor
+if hasattr(_FieldDescriptorClass, "is_repeated"):
 
-def _detect() -> bool:
-    try:
-        import cel_expr_python  # noqa: F401, PLC0415
-        import google.protobuf.message  # noqa: F401, PLC0415
-    except ImportError:
-        return False
-    return True
+    def is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
+        return field.is_repeated
 
+else:
 
-CEL_EXPR_AVAILABLE = _detect()
+    def is_repeated(field: google_descriptor.FieldDescriptor) -> bool:
+        return field.label == google_descriptor.FieldDescriptor.LABEL_REPEATED

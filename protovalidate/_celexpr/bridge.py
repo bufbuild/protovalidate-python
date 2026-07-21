@@ -16,30 +16,32 @@
 
 from __future__ import annotations
 
-import typing
+from typing import TYPE_CHECKING
 
-from google.protobuf import descriptor_pb2 as google_descriptor_pb2
-from google.protobuf import descriptor_pool as google_descriptor_pool
-from google.protobuf import message as google_message
-from google.protobuf import message_factory as google_message_factory
-from protobuf import DescFile, DescMessage
+from google.protobuf import (
+    descriptor_pb2 as google_descriptor_pb2,
+    descriptor_pool as google_descriptor_pool,
+    message as google_message,
+    message_factory as google_message_factory,
+)
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     import protobuf
+    from protobuf import DescFile, DescMessage
 
 
 class GoogleBridge:
-    """Lazily mirrors protobuf-py descriptors into google's pool and bridges
-    protobuf-py message values to google dynamic messages."""
+    """Bridges from protobuf-py messages to google.protobuf for use with cel-expr-python."""
 
     def __init__(self) -> None:
-        self._pool: google_descriptor_pool.DescriptorPool = google_descriptor_pool.Default()
+        self._pool: google_descriptor_pool.DescriptorPool = (
+            google_descriptor_pool.Default()
+        )
         self._mirrored: set[str] = set()
         self._classes: dict[str, type[google_message.Message]] = {}
 
     def _mirror_file(self, desc_file: DescFile) -> None:
-        """Registers a protobuf-py DescFile (and its transitive deps) into the
-        google pool, dependencies first, skipping files already present."""
+        """Registers a protobuf-py DescFile and deps into the google pool."""
         if desc_file.name in self._mirrored:
             return
         self._mirrored.add(desc_file.name)
@@ -48,7 +50,9 @@ class GoogleBridge:
         try:
             self._pool.FindFileByName(desc_file.name)
         except KeyError:
-            proto = google_descriptor_pb2.FileDescriptorProto.FromString(desc_file.proto.to_binary())
+            proto = google_descriptor_pb2.FileDescriptorProto.FromString(
+                desc_file.proto.to_binary()
+            )
             self._pool.Add(proto)
 
     def google_class(self, desc: DescMessage) -> type[google_message.Message]:

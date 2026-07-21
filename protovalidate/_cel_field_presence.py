@@ -12,17 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import threading
+from typing import TYPE_CHECKING
 
 import celpy
 import celpy.celtypes
+
+if TYPE_CHECKING:
+    from lark import Tree
 
 _has_state = threading.local()
 
 
 def in_has() -> bool:
-    """
-    Returns true if inside of CEL interpreter `has` macro.
+    """Returns true if inside of CEL interpreter `has` macro.
 
     This enables working around an issue in cel-python where it is not possible
     to implement protobuf semantics around the `has` macro.
@@ -35,12 +40,11 @@ def in_has() -> bool:
 class InterpretedRunner(celpy.InterpretedRunner):
     def evaluate(self, context: celpy.Context) -> celpy.celtypes.Value:
         class Evaluator(celpy.Evaluator):
-            def macro_has_eval(self, exprlist) -> celpy.celtypes.BoolType:
+            def macro_has_eval(self, exprlist: Tree) -> celpy.celtypes.BoolType:
                 _has_state.in_has = True
                 result = super().macro_has_eval(exprlist)
                 _has_state.in_has = False
                 return result
 
         e = Evaluator(ast=self.ast, activation=self.new_activation())
-        value = e.evaluate(context)
-        return value
+        return e.evaluate(context)

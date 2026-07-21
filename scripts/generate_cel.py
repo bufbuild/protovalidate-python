@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import shutil
 import subprocess
 from pathlib import Path
@@ -25,8 +27,7 @@ test_dir = Path(__file__).parent.parent / "test"
 
 
 def main() -> None:
-    """Generates CEL conformance protos and fetches CEL testdata"""
-
+    """Generates CEL conformance protos and fetches CEL testdata."""
     shutil.rmtree(test_dir / "gen" / "cel", ignore_errors=True)
 
     subprocess.run(  # noqa: S603
@@ -48,7 +49,6 @@ def main() -> None:
     ) as res:
         out_path = test_dir / "testdata" / f"string_ext_{CEL_SPEC_VERSION}.textproto"
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(out_path, "wb") as f:
-            f.write(res.read())
+        out_path.write_bytes(res.read())
 
     fix_protobuf_imports.callback(test_dir / "gen", dry=False)

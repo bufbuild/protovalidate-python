@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import math
 import re
 from decimal import Decimal
@@ -23,12 +25,14 @@ from celpy import celtypes
 class StringFormat:
     """An implementation of string.format() in CEL."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.fmt = None
 
     def format(self, fmt: celtypes.Value, args: celtypes.Value) -> celpy.Result:
         if not isinstance(fmt, celtypes.StringType):
-            return celpy.CELEvalError("format() requires a string as the first argument")
+            return celpy.CELEvalError(
+                "format() requires a string as the first argument"
+            )
         if not isinstance(args, celtypes.ListType):
             return celpy.CELEvalError("format() requires a list as the second argument")
         # printf style formatting
@@ -87,7 +91,9 @@ class StringFormat:
 
         return celtypes.StringType(result)
 
-    def __validate_number(self, arg: celtypes.DoubleType | celtypes.IntType | celtypes.UintType) -> str | None:
+    def __validate_number(
+        self, arg: celtypes.DoubleType | celtypes.IntType | celtypes.UintType
+    ) -> str | None:
         if math.isnan(arg):
             return "NaN"
         if math.isinf(arg):
@@ -183,7 +189,7 @@ class StringFormat:
             return f"{arg:g}"
         if isinstance(arg, celtypes.DurationType):
             return self.__format_duration(arg)
-        if isinstance(arg, celtypes.IntType) or isinstance(arg, celtypes.UintType):
+        if isinstance(arg, (celtypes.IntType, celtypes.UintType)):
             result = self.__validate_number(arg)
             if result is not None:
                 return result
@@ -205,7 +211,10 @@ class StringFormat:
         return "[" + ", ".join(self.__format_string(val) for val in arg) + "]"
 
     def __format_map(self, arg: celtypes.MapType) -> str:
-        m = {self.__format_string(cel_key): self.__format_string(cel_val) for cel_key, cel_val in arg.items()}
+        m = {
+            self.__format_string(cel_key): self.__format_string(cel_val)
+            for cel_key, cel_val in arg.items()
+        }
         return "{" + ", ".join(key + ": " + val for key, val in sorted(m.items())) + "}"
 
     def __format_duration(self, arg: celtypes.DurationType) -> str:

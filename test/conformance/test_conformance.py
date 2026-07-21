@@ -41,7 +41,7 @@ def maybe_patch_args_with_debug(args: list[str]) -> list[str]:
         )
 
         return _pydev_bundle.pydev_monkey.patch_args(args)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return args
 
 
