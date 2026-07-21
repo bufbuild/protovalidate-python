@@ -12,10 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""The cel-expr-python (cel-cpp) validation engine."""
+"""Which CEL backend is available."""
 
-from .bridge import GoogleBridge
-from .extra_func import make_extension
-from .rules import RuleFactory
+from __future__ import annotations
 
-__all__ = ["GoogleBridge", "RuleFactory", "make_extension"]
+
+def _detect() -> bool:
+    try:
+        import cel_expr_python  # noqa: F401, PLC0415
+        import google.protobuf.message  # noqa: F401, PLC0415
+    except ImportError:
+        return False
+    return True
+
+
+CEL_EXPR_AVAILABLE = _detect()

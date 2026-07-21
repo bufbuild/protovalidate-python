@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import celpy
 from celpy import celtypes
 
-from protovalidate.internal.extra_func import cel_matches
+from protovalidate._extra_func import cel_matches
 
 
-def test_function_matches_re2():
+def test_function_matches_re2() -> None:
     empty_string = celtypes.StringType("")
     # \z is valid re2 syntax for end of text
     assert cel_matches(empty_string, "^\\z")
