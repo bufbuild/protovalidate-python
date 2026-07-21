@@ -19,6 +19,14 @@ sequence = [
 help = "Check for uncommitted or untracked files (guards against codegen regressions)"
 shell = "test -z \"$(git status --porcelain | tee /dev/stderr)\""
 
+[tasks.docs-build]
+help = "Build documentation"
+cmd = "uv run --group docs zensical build"
+
+[tasks.docs-serve]
+help = "Start documentation local server"
+cmd = "uv run --group docs zensical serve"
+
 [tasks.generate]
 sequence = [
   "generate-cel",

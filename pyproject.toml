@@ -64,6 +64,7 @@ dev = [
   # versions. Floored at 6.31.0 required by the cel-expr-python backend.
   "protobuf>=6.31.0",
 ]
+docs = ["mkdocstrings-python==2.0.5", "zensical==0.0.50"]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
