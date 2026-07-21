@@ -32,6 +32,7 @@ from pytest_benchmark.fixture import BenchmarkFixture
 
 import protovalidate
 
+from .conftest import BACKENDS, make_validator
 from .gen.bench.v1.bench_pb import (
     BenchComplexSchema,
     BenchEnum,
@@ -107,7 +108,9 @@ def gen_complex(depth: int) -> BenchComplexSchema:
     )
 
 
-validator = protovalidate.Validator()
+@pytest.fixture(params=BACKENDS)
+def validator(request: pytest.FixtureRequest) -> protovalidate.Validator:
+    return make_validator(request.param)
 
 
 def param(*args, id: str) -> pytest.param:  # noqa: A002
@@ -189,6 +192,11 @@ cases = [
 
 
 @pytest.mark.parametrize(("_id", "message_factory"), cases)
-def test_benchmark(_id: str, message_factory: Callable[[], Message], benchmark: BenchmarkFixture):
+def test_benchmark(
+    _id: str,
+    message_factory: Callable[[], Message],
+    benchmark: BenchmarkFixture,
+    validator: protovalidate.Validator,
+):
     message = message_factory()
     benchmark(validator.collect_violations, message)

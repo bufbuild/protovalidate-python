@@ -36,6 +36,14 @@ Homepage = "https://github.com/bufbuild/protovalidate-python"
 Issues = "https://github.com/bufbuild/protovalidate-python/issues"
 Source = "https://github.com/bufbuild/protovalidate-python"
 
+# cel-expr has limited wheel support and no sdist for on-the-fly installation, so
+# we can't add it as a primary dependency. Users can opt-in if their platform supports it.
+[project.optional-dependencies]
+cel-expr = [
+  "cel-expr-python>=0.1.3; python_version >= '3.11'",
+  "protobuf>=6.31.0; python_version >= '3.11'",
+]
+
 [dependency-groups]
 dev = [
   "buf-bin==1.71.0",
@@ -50,12 +58,11 @@ dev = [
   "ty==0.0.59",
   "types-protobuf==6.32.1.20260221",
 
-  # Unlike most dev dependencies, we don't pin to allow testing old and new versions
-  "protobuf>=5",
-  # We need at least this version, which fixed Python 3.14 compatibility (tp_new metaclass issue).
-  # The fix was never backported to the 5.x series.
-  # Ref: https://github.com/protocolbuffers/protobuf/pull/20594
-  "protobuf>=6.31.0; python_version >= '3.14'",
+  "cel-expr-python>=0.1.3; python_version >= '3.11'",
+
+  # Unlike most dev dependencies, we don't pin to allow testing old and new
+  # versions. Floored at 6.31.0 required by the cel-expr-python backend.
+  "protobuf>=6.31.0",
 ]
 
 [build-system]

@@ -14,21 +14,73 @@
 
 from __future__ import annotations
 
+import typing
 from typing import TYPE_CHECKING
 
 from protobuf import Message, Registry
 
 from protovalidate._gen.buf.validate import validate_pb
-from protovalidate.internal import extra_func
+from protovalidate.internal import backend, extra_func
 from protovalidate.internal import rules as _rules
-from protovalidate.internal.legacy import LegacyMessageConverter
+from protovalidate.internal._core import CompilationError, RuleContext, Violation
 
 if TYPE_CHECKING:
     from google.protobuf import message as google_message
 
-CompilationError = _rules.CompilationError
+
+__all__ = ["CompilationError", "ValidationError", "Validator", "Violation", "Violations"]
 Violations = validate_pb.Violations
-Violation = _rules.Violation
+
+
+class _Engine(typing.Protocol):
+    """A CEL backend: turns a protobuf-py message into a list of violations."""
+
+    def collect_violations(self, message: Message, *, fail_fast: bool) -> list[Violation]: ...
+
+
+class _CelpyEngine:
+    """The pure-Python celpy engine, evaluating directly over protobuf-py."""
+
+    def __init__(self, registry: Registry | None):
+        self._factory = _rules.RuleFactory(extra_func.make_extra_funcs(), registry)
+
+    def collect_violations(self, message: Message, *, fail_fast: bool) -> list[Violation]:
+        ctx = RuleContext(fail_fast=fail_fast)
+        for rule in self._factory.get(type(message).desc()):
+            rule.validate(ctx, message)
+            if ctx.done:
+                break
+        for violation in ctx.violations:
+            violation.finalize_paths()
+        return ctx.violations
+
+
+class _CelExprEngine:
+    """The cel-expr-python (cel-cpp) engine.
+
+    Rules are discovered from protobuf-py descriptors, but the CEL runtime only
+    ingests google.protobuf, so every validated message is bridged to a google
+    dynamic message (a serialize/parse round trip) before evaluation. The user's
+    ``registry`` is not needed: custom predefined-rule extensions resolve off the
+    global google pool the bridge mirrors into.
+    """
+
+    def __init__(self, registry: Registry | None):  # noqa: ARG002 - accepted for API symmetry
+        from protovalidate.internal import celexpr  # noqa: PLC0415 - optional dependency
+
+        self._bridge = celexpr.GoogleBridge()
+        self._factory = celexpr.RuleFactory(celexpr.make_extension(), self._bridge)
+
+    def collect_violations(self, message: Message, *, fail_fast: bool) -> list[Violation]:
+        bridged = self._bridge.to_google(message)
+        ctx = RuleContext(fail_fast=fail_fast)
+        for rule in self._factory.get(type(message).desc()):
+            rule.validate(ctx, bridged)
+            if ctx.done:
+                break
+        for violation in ctx.violations:
+            violation.finalize_paths()
+        return ctx.violations
 
 
 class Validator:
@@ -45,7 +97,7 @@ class Validator:
     significantly improves performance.
     """
 
-    _factory: _rules.RuleFactory
+    _engine: _Engine
 
     def __init__(self, registry: Registry | None = None):
         """
@@ -53,14 +105,18 @@ class Validator:
             registry: An optional Registry used to resolve custom
                 predefined-rule extensions. If omitted, only standard rules are applied.
         """
-        funcs = extra_func.make_extra_funcs()
         try:
             import google.protobuf.message  # noqa: F401, PLC0415
+
+            from protovalidate.internal.legacy import LegacyMessageConverter  # noqa: PLC0415
 
             self._legacy = LegacyMessageConverter()
         except ImportError:
             self._legacy = None
-        self._factory = _rules.RuleFactory(funcs, registry)
+        if backend.CEL_EXPR_AVAILABLE:
+            self._engine = _CelExprEngine(registry)
+        else:
+            self._engine = _CelpyEngine(registry)
 
     def validate(self, message: Message | google_message.Message, *, fail_fast: bool = False):
         """
@@ -75,10 +131,10 @@ class Validator:
             ValidationError: If the message is invalid. The violations raised as part of this error should
             always be equal to the list of violations returned by `collect_violations`.
         """
-        message = self._coerce(message)
-        violations = self.collect_violations(message, fail_fast=fail_fast)
+        coerced = self._coerce(message)
+        violations = self.collect_violations(coerced, fail_fast=fail_fast)
         if len(violations) > 0:
-            msg = f"invalid {type(message).desc().name}"
+            msg = f"invalid {type(coerced).desc().name}"
             raise ValidationError(msg, violations)
 
     def collect_violations(
@@ -102,15 +158,8 @@ class Validator:
         Raises:
             CompilationError: If the static rules could not be compiled.
         """
-        message = self._coerce(message)
-        ctx = _rules.RuleContext(fail_fast=fail_fast)
-        for rule in self._factory.get(type(message).desc()):
-            rule.validate(ctx, message)
-            if ctx.done:
-                break
-        for violation in ctx.violations:
-            violation._finalize_paths()
-        return ctx.violations
+        coerced = self._coerce(message)
+        return self._engine.collect_violations(coerced, fail_fast=fail_fast)
 
     def _coerce(self, message: Message | google_message.Message) -> Message:
         if self._legacy:
@@ -124,9 +173,9 @@ class ValidationError(ValueError):
     An error raised when a message fails to validate.
     """
 
-    _violations: list[_rules.Violation]
+    _violations: list[Violation]
 
-    def __init__(self, msg: str, violations: list[_rules.Violation]):
+    def __init__(self, msg: str, violations: list[Violation]):
         super().__init__(msg)
         self._violations = violations
 

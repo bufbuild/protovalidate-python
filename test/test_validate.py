@@ -19,11 +19,12 @@ from protobuf import Oneof
 import protovalidate
 from protovalidate.internal import rules
 
+from .conftest import backend_validators
 from .gen.tests.example.v1 import validations_pb, validations_pb2
 
 validators: list[protovalidate.Validator] = [
     protovalidate,  # global module singleton
-    protovalidate.Validator(),  # via constructor
+    *backend_validators(),
 ]
 
 
