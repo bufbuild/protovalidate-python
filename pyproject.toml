@@ -32,9 +32,9 @@ dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://protovalidate.com"
-Homepage = "https://github.com/bufbuild/protovalidate-python"
-Issues = "https://github.com/bufbuild/protovalidate-python/issues"
-Source = "https://github.com/bufbuild/protovalidate-python"
+Homepage = "https://github.com/bufbuild/protovalidate-py"
+Issues = "https://github.com/bufbuild/protovalidate-py/issues"
+Source = "https://github.com/bufbuild/protovalidate-py"
 
 # cel-expr has limited wheel support and no sdist for on-the-fly installation, so
 # we can't add it as a primary dependency. Users can opt-in if their platform supports it.
