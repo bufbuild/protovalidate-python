@@ -1,5 +1,6 @@
 [project]
 name = "protovalidate"
+version = "2.0.0"
 description = "Protocol Buffer Validation for Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -28,7 +29,6 @@ dependencies = [
   "google-re2>=1.1; python_version == '3.12'",
   "protobuf-py>=0.1.1",
 ]
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://protovalidate.com"
@@ -66,12 +66,8 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatch-vcs", "hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.version]
-source = "vcs"
-raw-options = { fallback_version = "0.0.0" }
+requires = ["uv_build>=0.11.2,<0.12"]
+build-backend = "uv_build"
 
 ## License headers
 [tool.licenseheader]
@@ -165,3 +161,7 @@ split-on-trailing-comma = false
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.uv.build-backend]
+module-name = "protovalidate"
+module-root = ""
