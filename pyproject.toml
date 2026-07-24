@@ -27,7 +27,7 @@ dependencies = [
   "google-re2>=1.1.20251105; python_version == '3.14'",
   # 1.1 started supporting 3.12.
   "google-re2>=1.1; python_version == '3.12'",
-  "protobuf-py>=0.1.1",
+  "protobuf-py>=0.2.0",
 ]
 
 [project.urls]
@@ -45,7 +45,14 @@ cel-expr = [
 ]
 
 [dependency-groups]
+# We ensure all dependencies are installed by default so IDE works properly for development.
 dev = [
+  { include-group = "dev-optional" },
+  { include-group = "dev-required" },
+]
+
+# All dependencies required for CI and development, including running baseline tests.
+dev-required = [
   "buf-bin==1.71.0",
   "fix-protobuf-imports==0.1.7",
   "google-re2-stubs==0.1.1",
@@ -57,11 +64,14 @@ dev = [
   "tombi==1.2.0",
   "ty==0.0.59",
   "types-protobuf==6.32.1.20260221",
+]
 
+# Optional dependencies, used for development of optional features. We run tests without
+# these installed to ensure missing optional dependencies does not introduce breakage.
+# Unlike most dev dependencies, we don't pin to allow testing old and new
+# versions. Floored at 6.31.0 required by the cel-expr-python backend.
+dev-optional = [
   "cel-expr-python>=0.1.3; python_version >= '3.11'",
-
-  # Unlike most dev dependencies, we don't pin to allow testing old and new
-  # versions. Floored at 6.31.0 required by the cel-expr-python backend.
   "protobuf>=6.31.0",
 ]
 
