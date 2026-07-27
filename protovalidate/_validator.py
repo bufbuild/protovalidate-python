@@ -141,7 +141,7 @@ class Validator:
         Raises:
             CompilationError: If the static rules could not be compiled.
             ValidationError: If the message is invalid. The violations raised as part of this error should
-            always be equal to the list of violations returned by `collect_violations`.
+                always be equal to the list of violations returned by `collect_violations`.
         """
         coerced = self._coerce(message)
         violations = self.collect_violations(coerced, fail_fast=fail_fast)

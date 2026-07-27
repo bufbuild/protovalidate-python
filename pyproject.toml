@@ -74,6 +74,7 @@ dev-optional = [
   "cel-expr-python>=0.1.3; python_version >= '3.11'",
   "protobuf>=6.31.0",
 ]
+docs = ["mkdocstrings-python==2.0.5", "zensical==0.0.50"]
 
 [build-system]
 requires = ["uv_build>=0.11.2,<0.12"]
