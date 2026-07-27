@@ -80,7 +80,7 @@ def run_test_case(
         violations = validator.collect_violations(tc)
         if len(violations) > 0:
             # Convert from protovalidate bundled proto to test harness's.
-            pv_violations = protovalidate.Violations(
+            pv_violations = protovalidate.ViolationsPb(
                 violations=[violation.proto for violation in violations]
             )
             return TestResult(
