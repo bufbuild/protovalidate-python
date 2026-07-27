@@ -23,7 +23,7 @@ from protovalidate._gen.buf.validate import validate_pb
 
 
 class CompilationError(Exception):
-    pass
+    """An error raised when a rule fails to compile."""
 
 
 class Violation:

@@ -16,24 +16,69 @@
 
 from __future__ import annotations
 
-from protovalidate._validator import (
-    CompilationError,
-    ValidationError,
-    Validator,
-    Violation,
-    Violations,
+from typing import TYPE_CHECKING
+
+from protobuf import Message
+
+from protovalidate._core import Violation
+from protovalidate._gen.buf.validate.validate_pb import (
+    FieldPath as FieldPathPb,
+    FieldPathElement as FieldPathElementPb,
+    Violation as ViolationPb,
+    Violations as ViolationsPb,
 )
+from protovalidate._validator import CompilationError, ValidationError, Validator
+
+if TYPE_CHECKING:
+    from google.protobuf import message as google_message
 
 _default_validator = Validator()
-validate = _default_validator.validate
-collect_violations = _default_validator.collect_violations
+
+
+def validate(
+    message: Message | google_message.Message, *, fail_fast: bool = False
+) -> None:
+    """Validates the given message against the static rules defined in the message's descriptor using a shared validator.
+
+    Parameters:
+        message: The message to validate.
+        fail_fast: If true, validation will stop after the first iteration.
+
+    Raises:
+        CompilationError: If the static rules could not be compiled.
+        ValidationError: If the message is invalid. The violations raised as part of this error should
+            always be equal to the list of violations returned by `collect_violations`.
+    """
+    return _default_validator.validate(message, fail_fast=fail_fast)
+
+
+def collect_violations(
+    message: Message | google_message.Message, *, fail_fast: bool = False
+) -> list[Violation]:
+    """Collects the violations for the given message against the static rules defined in the message's descriptor using a shared validator.
+
+    Parameters:
+        message: The message to validate.
+        fail_fast: If true, validation will stop after the first iteration.
+
+    Returns:
+        A list of Violation objects that describe the validation errors.
+
+    Raises:
+        CompilationError: If the static rules could not be compiled.
+    """
+    return _default_validator.collect_violations(message, fail_fast=fail_fast)
+
 
 __all__ = [
     "CompilationError",
+    "FieldPathElementPb",
+    "FieldPathPb",
     "ValidationError",
     "Validator",
     "Violation",
-    "Violations",
+    "ViolationPb",
+    "ViolationsPb",
     "collect_violations",
     "validate",
 ]
