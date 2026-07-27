@@ -18,8 +18,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from protobuf import Message
-
 from protovalidate._core import Violation
 from protovalidate._gen.buf.validate.validate_pb import (
     FieldPath as FieldPathPb,
@@ -31,6 +29,7 @@ from protovalidate._validator import CompilationError, ValidationError, Validato
 
 if TYPE_CHECKING:
     from google.protobuf import message as google_message
+    from protobuf import Message
 
 _default_validator = Validator()
 
