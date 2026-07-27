@@ -53,16 +53,16 @@ dev = [
 
 # All dependencies required for CI and development, including running baseline tests.
 dev-required = [
-  "buf-bin==1.71.0",
+  "buf-bin==1.72.0",
   "fix-protobuf-imports==0.1.7",
   "google-re2-stubs==0.1.1",
   "license-header==0.0.1",
   "poethepoet==0.48.0",
   "pytest==9.1.1",
   "pytest-benchmark==5.2.3",
-  "ruff==0.15.21",
-  "tombi==1.2.0",
-  "ty==0.0.59",
+  "ruff==0.16.0",
+  "tombi==1.2.4",
+  "ty==0.0.63",
   "types-protobuf==6.32.1.20260221",
 ]
 
