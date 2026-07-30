@@ -210,9 +210,10 @@ def cel_is_hostname(val: object) -> bool:
 
 def _is_hostname(val: str) -> bool:
     """Internal implementation."""
-    string = val[0 : len(val) - 1].lower() if val.endswith(".") else val.lower()
+    string = val.removesuffix(".").lower()
 
-    # The 253-character limit excludes the optional trailing dot (RFC 3339).
+    # The 253-character limit excludes the optional trailing dot (RFC 3339) which
+    # we just stripped.
     if len(string) > 253:
         return False
 
