@@ -141,7 +141,7 @@ class Validator:
         Raises:
             CompilationError: If the static rules could not be compiled.
             ValidationError: If the message is invalid. The violations raised as part of this error should
-            always be equal to the list of violations returned by `collect_violations`.
+                always be equal to the list of violations returned by `collect_violations`.
         """
         coerced = self._coerce(message)
         violations = self.collect_violations(coerced, fail_fast=fail_fast)
@@ -164,6 +164,9 @@ class Validator:
             message: The message to validate.
             fail_fast: If true, validation will stop after the first iteration.
 
+        Returns:
+            A list of Violation objects that describe the validation errors.
+
         Raises:
             CompilationError: If the static rules could not be compiled.
         """
@@ -178,7 +181,11 @@ class Validator:
 
 
 class ValidationError(ValueError):
-    """An error raised when a message fails to validate."""
+    """An error raised when a message fails to validate.
+
+    Attributes:
+        violations: A list of Violation objects that describe the validation errors.
+    """
 
     _violations: list[Violation]
 
@@ -187,12 +194,15 @@ class ValidationError(ValueError):
         self._violations = violations
 
     def to_proto(self) -> validate_pb.Violations:
-        """Provides the Protobuf form of the validation errors."""
+        """Provides the Protobuf form of the validation errors.
+
+        Returns:
+            The validation errors as a `validate_pb.Violations` Protobuf message.
+        """
         return validate_pb.Violations(
             violations=[violation.proto for violation in self._violations]
         )
 
     @property
     def violations(self) -> list[Violation]:
-        """Returns the violation errors."""
         return self._violations
