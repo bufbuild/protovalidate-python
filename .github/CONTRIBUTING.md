@@ -1,7 +1,7 @@
 # Contributing Guidelines
 
 Firstly, we want to say thank you for considering contributing
-to `protovalidate-python`. We genuinely appreciate your help. This document aims to
+to `protovalidate-py`. We genuinely appreciate your help. This document aims to
 provide some guidelines to make your contribution process straightforward and
 meaningful.
 
@@ -15,8 +15,8 @@ our [Code of Conduct][code-of-conduct] before participating.
 First, clone the repository:
 
 ```
-git clone git@github.com:bufbuild/protovalidate-python.git
-cd protovalidate-python
+git clone git@github.com:bufbuild/protovalidate-py.git
+cd protovalidate-py
 ```
 
 Next, install dependencies. You will need:
@@ -35,7 +35,7 @@ lint checks by running `uv run poe check`. For a list of other useful commands, 
 ### Reporting Bugs
 
 Bugs are tracked as GitHub issues. If you discover a problem
-with `protovalidate-python`, we want to hear about it. Here's how you can report a bug:
+with `protovalidate-py`, we want to hear about it. Here's how you can report a bug:
 
 1. __Ensure the bug was not already reported__: Before creating a new issue,
    please do a search
@@ -54,12 +54,12 @@ Remember to detail the steps to reproduce the issue. This information is
 invaluable in helping us fix the issue.
 
 Once you've filled in the template, hit "Submit new issue", and we will take
-care of the rest. We appreciate your contribution to making `protovalidate-python`
+care of the rest. We appreciate your contribution to making `protovalidate-py`
 better!
 
 ### Suggesting Enhancements
 
-We welcome ideas for enhancements and new features to improve `protovalidate-python`.
+We welcome ideas for enhancements and new features to improve `protovalidate-py`.
 If you have an idea you'd like to share, if you want to expand language
 support,
 please read [the section below](#language-support-requirements) first.
@@ -78,7 +78,7 @@ please read [the section below](#language-support-requirements) first.
    community members might jump in to discuss the enhancement. Be prepared to
    provide more context or insights about your suggestion.
 
-Remember, the goal of suggesting an enhancement is to improve `protovalidate-python`
+Remember, the goal of suggesting an enhancement is to improve `protovalidate-py`
 for everyone. Every suggestion is valued, and we thank you in advance for your
 contribution.
 
@@ -91,7 +91,7 @@ commit messages to help us understand and review your PR.
 ### Minimizing Performance Regression
 
 Performance and efficient resource management are critical aspects
-of `protovalidate-python`. CEL, being non-Turing complete, provides production safety
+of `protovalidate-py`. CEL, being non-Turing complete, provides production safety
 controls to limit execution time, helping to prevent excessive resource
 consumption during evaluation. Here are some guidelines for effectively managing
 resource constraints and minimizing performance regressions:
@@ -126,7 +126,7 @@ resource constraints and minimizing performance regressions:
    constraint might be acceptable.
 
 By keeping performance and resource management in mind throughout the
-development process, we can ensure `protovalidate-python` remains efficient and
+development process, we can ensure `protovalidate-py` remains efficient and
 responsive, even as we add new features and fix bugs.
 
 ## Questions?
@@ -141,10 +141,10 @@ Again, we appreciate your help and time, and we are excited to see your
 contributions!
 
 Remember, you can reach out to us at any time, and we're looking forward to
-working together to make `protovalidate-python` the best it can be.
+working together to make `protovalidate-py` the best it can be.
 
 [code-of-conduct]: https://github.com/bufbuild/protovalidate/tree/main/.github/CODE_OF_CONDUCT.md
-[issues]: https://github.com/bufbuild/protovalidate-python/issues
-[file-bug]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Bug&template=bug_report.md&title=%5BBUG%5D
-[file-feature-request]: https://github.com/bufbuild/protovalidate-python/issues/new?assignees=&labels=Feature&template=feature_request.md&title=%5BFeature+Request%5D
+[issues]: https://github.com/bufbuild/protovalidate-py/issues
+[file-bug]: https://github.com/bufbuild/protovalidate-py/issues/new?assignees=&labels=Bug&template=bug_report.md&title=%5BBUG%5D
+[file-feature-request]: https://github.com/bufbuild/protovalidate-py/issues/new?assignees=&labels=Feature&template=feature_request.md&title=%5BFeature+Request%5D
 [cel-spec]: https://github.com/google/cel-spec
