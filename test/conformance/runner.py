@@ -120,7 +120,7 @@ def run_any_test_case(
             )
         msg = unpacked
     else:
-        from google.protobuf import message_factory as google_message_factory  # noqa: PLC0415, I001
+        from google.protobuf import message_factory as google_message_factory  # noqa: PLC0415
 
         try:
             google_desc = registry.FindMessageTypeByName(type_name)
