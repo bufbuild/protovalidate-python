@@ -134,7 +134,7 @@ fn reroute_msvc_through_wrapper() {
     let Some(tool) = cc::windows_registry::find_tool(&target, "cl.exe") else {
         return;
     };
-    for (key, value) in tool.env() {
+    for (key, value) in tool.get_envs() {
         // SAFETY: build scripts are single-threaded when this runs, before any
         // cc::Build is constructed.
         unsafe { env::set_var(key, value) };
