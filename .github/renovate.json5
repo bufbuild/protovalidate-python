@@ -1,58 +1,44 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "helpers:pinGitHubActionDigests",
-    "schedule:earlyMondays"
-  ],
-  "prHourlyLimit": 0,
-  "lockFileMaintenance": {
-    "enabled": true
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["helpers:pinGitHubActionDigests", "schedule:earlyMondays"],
+  prHourlyLimit: 0,
+  lockFileMaintenance: {
+    enabled: true,
   },
-  "packageRules": [
+  packageRules: [
     {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "groupName": "GitHub Actions"
+      matchManagers: ["github-actions"],
+      groupName: "GitHub Actions",
     },
     {
-      "matchManagers": [
-        "git-submodules"
-      ],
+      matchManagers: ["git-submodules"],
       // third_party/ is checked out by `poe generate-vendored` at the pinned
       // cel-cpp and the versions bazel resolves for it. Moving a submodule on
       // its own would desync it from the filelists and gen/.
-      "enabled": false
+      enabled: false,
     },
     {
-      "matchManagers": [
-        "pep621"
-      ],
-      "matchDepTypes": [
-        "project.dependencies",
-        "project.optional-dependencies"
-      ],
-      "matchFileNames": [
-        "pyproject.toml"
-      ],
+      matchManagers: ["pep621"],
+      matchDepTypes: ["project.dependencies", "project.optional-dependencies"],
+      matchFileNames: ["pyproject.toml"],
       // We manage production dependencies ourselves, only bumping
       // when necessary.
-      "enabled": false
+      enabled: false,
     },
     {
-      "matchCategories": ["python"],
-      "matchPackageNames": [
-        "protobuf",
-        "types-protobuf"
-      ],
+      matchCategories: ["python"],
+      matchPackageNames: ["protobuf", "types-protobuf"],
       // We manage these dependencies ourselves.
-      "enabled": false
+      enabled: false,
     },
     {
-      "matchCategories": [
-        "python"
-      ],
-      "groupName": "Python dependencies"
-    }
-  ]
+      matchCategories: ["python"],
+      groupName: "Python dependencies",
+    },
+    {
+      matchCategories: ["rust"],
+      groupName: "Rust dependencies",
+      rangeStrategy: "bump",
+    },
+  ],
 }
