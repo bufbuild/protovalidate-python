@@ -24,9 +24,9 @@ pub(crate) struct Types {
     pub(crate) violations: Py<PyType>,
     /// The class `protovalidate._gen.buf.validate.validate_pb.Violation`.
     pub(crate) violation: Py<PyType>,
-    /// The class `protobuf.wkt.FieldOptions`.
+    /// The class `protobuf.wkt.google.protobuf.descriptor_pb.FieldOptions`.
     pub(crate) field_options: Py<PyType>,
-    /// The class `protobuf.wkt.MessageOptions`.
+    /// The class `protobuf.wkt.google.protobuf.descriptor_pb.MessageOptions`.
     pub(crate) message_options: Py<PyType>,
     /// The class `protobuf.Registry`.
     pub(crate) registry: Py<PyType>,
@@ -182,7 +182,7 @@ impl Imports {
     pub(crate) fn resolve(py: Python<'_>) -> PyResult<Self> {
         let validate = py.import("protovalidate._gen.buf.validate.validate_pb")?;
         let protobuf = py.import("protobuf")?;
-        let wkt = py.import("protobuf.wkt")?;
+        let descriptor = py.import("protobuf.wkt.google.protobuf.descriptor_pb")?;
         Ok(Self {
             types: Types {
                 violations: validate
@@ -193,8 +193,11 @@ impl Imports {
                     .getattr("Violation")?
                     .cast_into::<PyType>()?
                     .unbind(),
-                field_options: wkt.getattr("FieldOptions")?.cast_into::<PyType>()?.unbind(),
-                message_options: wkt
+                field_options: descriptor
+                    .getattr("FieldOptions")?
+                    .cast_into::<PyType>()?
+                    .unbind(),
+                message_options: descriptor
                     .getattr("MessageOptions")?
                     .cast_into::<PyType>()?
                     .unbind(),

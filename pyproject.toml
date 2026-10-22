@@ -17,7 +17,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "protobuf-py>=0.2.0",
+  "protobuf-py>=0.6.0",
 ]
 
 [project.urls]

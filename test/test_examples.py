@@ -26,7 +26,9 @@ from typing import Any as AnyType
 import protobuf
 import pytest
 from protobuf import Oneof
-from protobuf.wkt import Any, Api, FieldMask, SourceContext, Timestamp
+from protobuf.wkt import Any, FieldMask, Timestamp
+from protobuf.wkt.google.protobuf.api_pb import Api
+from protobuf.wkt.google.protobuf.source_context_pb import SourceContext
 
 import protovalidate
 from protovalidate import Violation
