@@ -2,7 +2,7 @@ version: v2
 managed:
   enabled: true
 plugins:
-    - remote: buf.build/bufbuild/py:v0.1.1
+    - remote: buf.build/bufbuild/py:v0.6.0
       out: protovalidate/_gen
     - remote: buf.build/anthropics/buffa:v0.9.2
       out: crates/protovalidate/src/gen
